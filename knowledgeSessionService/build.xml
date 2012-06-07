@@ -1,0 +1,47 @@
+<project name="knowledgeSessionService" default="knowledgeSessionService" basedir="./knowledgeSessionService">
+
+
+
+    <!-- builds KnowledgeSession Service as a service MBean and deploys to JBoss -->
+    <target name="knowledgeSessionService" depends="knowledgeSessionServiceClean,setClasspath" >
+        <echo message="subproject.name = ${subproject.name}" />
+        <mkdir dir="${subproject.build}" />
+        <javac debug="true" srcdir="${subproject.name}/src/main/java" destdir="${subproject.build}" >
+            <classpath refid="classpath" />
+        </javac>
+
+        <copy toDir="${subproject.build}/META-INF/" overwrite="true" verbose="true" >
+            <fileset dir="${subproject.name}/src/main/resources/META-INF" />
+            <filterset>
+                <filter token="hibernate.hbm2ddl.auto" value="${hibernate.hbm2ddl.auto}"/>
+            </filterset>
+        </copy>
+        <jar jarfile="${temp.services.dir}/processFlow-${subproject.name}.jar" basedir="${subproject.build}" >
+             <manifest>
+                <attribute name="Built-By" value="${ENV.USERNAME}"/>
+                <attribute name="Implementation-Vendor" value="Hewlett Packard, Inc."/>
+                <attribute name="Implementation-Title" value="Red Hat JBPM 5 KnowledgeSessionService"/>
+                <attribute name="Implementation-Version" value="1.0.0beta2"/>
+            </manifest>
+        </jar>
+        <javadoc classpathref="classpath" sourcepath="${subproject.name}/src/main/java" destdir="${subproject.build}" />
+        <jar jarfile="${subproject.build}/processFlow-${subproject.name}-javadoc.jar" basedir="${subproject.build}" includes="**/*.html, **/*.css, **/*.gif" />
+    </target>
+
+    <target name="knowledgeSessionServiceTest" depends="knowledgeSessionServiceClean,setClasspath" >
+        <mkdir dir="${subproject.build}" />
+        <javac debug="true" srcdir="${subproject.name}/src/test/java" destdir="${subproject.build}" optimize="${javac.optimize}" >
+            <classpath refid="classpath" />
+        </javac>
+        <jar jarfile="${jboss.server.deploy.dir}/${organization.name}/${subproject.name}-test.jar" basedir="${subproject.build}" />
+    </target>
+
+    <target name="knowledgeSessionServiceClean" depends="knowledgeSessionServiceInit" >
+        <delete dir="${subproject.build}" />
+    </target>
+
+    <target name="knowledgeSessionServiceInit" >
+        <var name="subproject.name" value="knowledgeSessionService" />
+        <var name="subproject.build" value="${subproject.name}/${build.dir}" />
+    </target>
+</project>

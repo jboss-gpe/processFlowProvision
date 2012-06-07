@@ -1,0 +1,162 @@
+<project name="processFlowProvision" default="all" >
+
+    <import file="config-build.xml" />
+    <import file="classpath-build.xml" />
+    <import file="interfaces/build.xml"/>
+    <import file="common/build.xml"/>
+    <import file="taskService/build.xml"/>
+    <import file="eventService/build.xml"/>
+    <import file="knowledgeSessionService/build.xml"/>
+    <import file="adminConsole/build.xml"/>
+    <import file="bam/build.xml"/>
+    <import file="privateServiceTaskRepo/build.xml"/>
+    
+    <target name="clean" description="" >
+        <delete dir="${runtime.lib.dir}" />
+        <delete dir="${jboss.server.deploy.dir}/${organization.name}" />
+        <delete dir="${guvnor_repo_location}" />
+        <delete dir="interfaces/${build.dir}" />
+        <delete dir="common/${build.dir}" />
+        <delete dir="taskService/${build.dir}" />
+        <delete dir="eventService/${build.dir}" />
+        <delete dir="knowledgeSessionService/${build.dir}" />
+        <delete dir="adminConsole/${build.dir}" />
+        <delete dir="bam/${build.dir}" />
+        <delete dir="privateServiceTaskRepo/${build.dir}" />
+        <delete dir="${install.home}/tmp" />
+        <delete dir="${temp.client.dir}" />
+        <delete dir="${temp.distro.dir}" />
+        <delete dir="${temp.services.dir}" />
+    </target>
+
+    <target name="distro" depends="all" description="distro" >
+
+        <property name="distro.name" value="processFlow-bin-${brms.major.version}-${brms.minor.version}" />
+
+        <copy file="config-build.xml" tofile="${temp.distro.dir}/build.xml" />
+        <copy file="conf/pfp/build.properties" todir="${temp.distro.dir}" />
+        <copy file="LICENSE.txt" todir="${temp.distro.dir}" />
+
+        <zip destfile="${install.home}/${distro.name}.zip">
+            <zipfileset dir="${temp.distro.dir}" prefix="${distro.name}" />
+            <zipfileset dir="bin" prefix="${distro.name}/bin" />
+            <zipfileset dir="${runtime.lib.dir}" prefix="${distro.name}/lib" >
+                <include name="processFlow*.jar" />
+            </zipfileset>
+            <zipfileset dir="${temp.services.dir}" prefix="${distro.name}/services" >
+                <include name="processFlow*.jar" />
+            </zipfileset>
+            <zipfileset dir="privateServiceTaskRepo" prefix="${distro.name}/privateServiceTaskRepo" />
+            <zipfileset dir="${temp.client.dir}" prefix="${distro.name}/clientLibs" />
+            <zipfileset dir="conf" prefix="${distro.name}/conf"/>
+            <zipfileset dir="lib" prefix="${distro.name}/lib"/>
+            <zipfileset dir="doc" prefix="${distro.name}/doc">
+                <include name="ADMIN_GUIDE.txt" />
+                <include name="release_notes.txt" />
+            </zipfileset>
+        </zip>
+    </target>
+
+    <target name="download.drools.guvnor">
+        <echo message="Getting Drools Guvnor ..." />
+        <mkdir dir="${install.home}/lib"/>
+        <get src="${drools.guvnor.url}" dest="${install.home}/lib/guvnor-distribution-wars-${drools.guvnor.version}-jboss-as-5.1.war"  skipexisting="true" />
+    </target>
+    <target name="download.designer" >
+        <mkdir dir="${install.home}/lib"/>
+        <get src="${designer.url}/designer-${designer.version}.war" dest="${install.home}/lib/designer-${designer.version}.war"  skipexisting="true" />
+    </target>
+    <target name="download.jBPM.gwt-console">
+        <property name="jBPM.url" value="file://${jbpm.source.dir}/jbpm-distribution/target" />
+        <mkdir dir="${install.home}/lib" />
+        <get src="${jBPM.url}/jbpm-${jBPM.version}-gwt-console.zip" dest="${install.home}/lib/jbpm-${jBPM.version}-gwt-console.zip"  />
+    </target>
+
+    <target name="useCompiledJBPMLibs" depends="" if="useCompiledJBPMLibs">
+        <echo message="inside useCompiledJBPMLibs" />
+        <antcall target="download.drools.guvnor" />
+        <antcall target="download.designer" />
+        <antcall target="download.jBPM.gwt-console" />
+
+        <copy toDir="${runtime.lib.dir}" overwrite="true" >
+            <fileset dir="${jbpm.source.dir}/jbpm-distribution/target/jbpm-${jBPM.version}-pre-bin/lib" >
+                <include name="antlr*3.3.jar" />
+                <include name="drools-*.jar" />
+                <include name="ecj-*.jar" />
+                <include name="knowledge-api-*.jar" />
+                <include name="mvel2-2*.jar" />
+                <include name="stringtemplate*.jar" />
+                <exclude name="*test*.jar" />
+            </fileset>
+            <fileset dir="${jbpm.source.dir}/jbpm-flow/target/" >
+                <include name="jbpm-flow-${jBPM.version}.jar" />
+            </fileset>
+            <fileset dir="${jbpm.source.dir}/jbpm-flow-builder/target/" >
+                <include name="jbpm-flow-builder-${jBPM.version}.jar" />
+            </fileset>
+            <fileset dir="${jbpm.source.dir}/jbpm-workitems/target/" >
+                <include name="jbpm-workitems-${jBPM.version}.jar" />
+            </fileset>
+            <fileset dir="${jbpm.source.dir}/jbpm-bam/target/" >
+                <include name="jbpm-bam-${jBPM.version}.jar" />
+            </fileset>
+            <fileset dir="${jbpm.source.dir}/jbpm-bpmn2/target/" >
+                <include name="jbpm-bpmn2-${jBPM.version}.jar" />
+            </fileset>
+            <fileset dir="${jbpm.source.dir}/jbpm-bpmn2-emfextmodel/target/" >
+                <include name="jbpm-bpmn2-emfextmodel-${jBPM.version}.jar" />
+            </fileset>
+            <fileset dir="${jbpm.source.dir}/jbpm-human-task/target/" >
+                <include name="jbpm-human-task-${jBPM.version}.jar" />
+            </fileset>
+            <fileset dir="${jbpm.source.dir}/jbpm-persistence-jpa/target/" >
+                <include name="jbpm-persistence-jpa-${jBPM.version}.jar" />
+            </fileset>
+            <fileset dir="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-form/target/" >
+                <include name="jbpm-gwt-form-${jBPM.version}.jar" />
+            </fileset>
+            <fileset dir="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-graph/target/" >
+                <include name="jbpm-gwt-graph-${jBPM.version}.jar" />
+            </fileset>
+            <fileset dir="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-shared/target/" >
+                <include name="jbpm-gwt-shared-${jBPM.version}.jar" />
+            </fileset>
+            <!-- NOTE:  not using jbpm-gwt-core -->
+            <fileset dir="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-console-server/target/jbpm-gwt-console-server-${jBPM.version}/WEB-INF/lib" >
+                <include name="gwt-console*.jar" />
+                <include name="freemarker*.jar" />
+                <include name="commons-io-1.4.jar" />
+            </fileset>
+        </copy>
+    </target>
+
+
+
+
+    <target name="all" depends="clean,
+                                 clone.jboss,
+                                 determine.upstream.jbpm5.drools.libs.type,
+                                 checkESB,
+                                 eap-config,
+                                 esb-config,
+                                 jbpm-lib-post, 
+                                 explode.jBPM-gwt-console.into.jboss,
+                                 explode.guvnor.and.designer.into.jbpm.server,
+                                 hornetq-config,
+                                 qpid_prep,
+                                 setClasspath,
+                                 interfaces,
+                                 common,
+                                 taskService,
+                                 bam,
+                                 eventService,
+                                 knowledgeSessionService,
+                                 adminConsole,
+                                 refreshGuvnor,
+                                 explode.pfp.services,
+                                 privateServiceTaskRepoDeploy,
+                                 temp.client.dir,
+                                 clean.jbpm.install"
+        description="" 
+    />
+</project>

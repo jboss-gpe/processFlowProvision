@@ -1,0 +1,148 @@
+er6
+    - migration steps to er6 from er4-final
+      shell environment variables
+        1)  review processFlowProvision/conf/shell/bashrc
+            - notice introduction of two new shell environment variables :
+                1)  JBOSS_PROJECTS
+                2)  PFP_HOME
+
+        2)  modify existing ~/.bashrc to include the above new environment variables
+
+        3)  source ~/.bashrc
+     
+ 
+      acquire brms-p-5.3.0.BRMS-ER6-deployable.zip
+        - ER6 is not available through the Red Hat Partner site
+        - subsequently, contact jbride@redhat.com for details as to how to acquire brms-p-5.3.0.BRMS-ER6-deployable.zip
+        - once brms-p-5.3.0.BRMS-ER6-deployable.zip has been downloaded, place in $PFP_HOME/target/lib
+        - from $PFP_HOME, execute:  ant  (with now parameters) as usual to build process flow provision using BRMS-ER6 as usual
+
+
+
+er4-final (30 April 2012)
+  ksessionid management
+    -- implementation will re-cycle unused ksessionIds even after re-boot
+
+  skipTaskByWorkItemId
+    -- ITaskService.stipTaskByWorkItemId(...) is now implemented
+    -- is used when a signal is received by the process instance engine to skip a task
+
+  audit trail supports supports sub-processes
+    -- see processFlowProvision/doc/audit_trail_sub_processes.png
+
+  ksessionId management
+    -- several of the methods in the IKnowledgeSessionService API include a 'ksessionId' parameter   
+    -- this 'ksessionId' should correspond to the ksessionid of the 'processInstanceId' parameter
+    -- the 'ksessionId' is now returned to the client in the knowledgeSessionService.startProcessAndReturnId(...)  operation
+    -- also, in those processes that include a human task, the ksessionId is optional
+    
+  processFlow distribution
+    -- build process includes a 'distro' target that creates a binary release of processFlowProvision
+
+juarez_workshop_7_Feb 
+  5.3.0.BRMS-ER3 libraries
+    -- integration with most 5.3.0.BRMS-ER3 libraries via the 'upstream.jbpm5.drools.libs.type' property in build.properties
+    -- the following libraries have been temporarily substituted with modified versions originiting from 5.2.x-gbd branch of jbpm5 in github :
+    1)  jbpm-human-task-5.2.1-SNAPSHOT.jar
+
+    -- subsequently, if configurd to use BRMS, then the BRMS libraries will be pulled from the official Red Hat partner site
+    -- no longer need to compile jbpm5/drools from source or even pull from the 'jbpm-drools-libs' project
+
+  configurable TaskServiceSession
+    -- configurable use of either jta or non-jta enabled jbpm5 TaskServiceSession via 'org.jboss.processFlow.task.transactionType' property in build.properties
+    -- currently, the recommended value for this property is 'default' (which sets TaskServiceSession to non-jta)
+
+  new guvnor and console web contexts :
+    -- with use of BRMS, both the jbpm-console and guvnor web contexts have changed
+    -- url of jbpm-console is now :  http://<serverIP>:8080/jbpm-console/
+    -- url of guvnor is now :  http://<serverIP>:8080/jboss-brms/org.drools.guvnor.Guvnor/Guvnor.jsp
+        -- don't forget to change the Guvnor repository configurations in your eclipse to point to this new URL
+
+  synchroneous Task invocations
+    -- previously, processFlowProvision made use of a jbpm5 TaskServer.  
+    -- Task clients would communicate with the jbpm5 TaskServer via either Hornetq or MRG-M
+    -- with this release, all task related invocations are synchroneous by leveraging the jbpm5 TaskServiceSession directly
+    -- elimination of the TaskServer simplifies the architecture and should improve performance and concurrency
+
+  deprecated TaskCompletedHandler
+    -- all functionality involved in completing a task and invoking the workItemManager to continue process instance execution is now contained in HumanTaskService.completeTask()
+    -- moving the functionality that was in the TaskCompletedHandler provides the following benifits :
+        1)  simplifies the architecture as there is no longer a need to register this TaskCompletedHandler handler
+        2)  reduces queries to database to retrieve task related data
+
+  BAMService
+    -- previously, several BAM audit-log related operations where implemented in the knowledgeSessionService
+    -- those operations have been merged with the functionality previously found in AsyncBAMConsumer and renamed :   BAMService
+
+  processFlowProvision/interfaces directory
+    -- the interfaces for the knowledgeSessionService, TaskService and BAMService are all now found in processFlowProvision/interfaces
+    -- build process now packages and deploys the following library :  ${runtime.lib.dir}/processFlow-interfaces.jar
+    -- remote clients to these services now only need this interface library 
+    -- implementations of these services stay only on the server and are not distributed to clients
+
+  use of EJB interfaces only
+    -- previously, remote clients of knowledgeSessionService, TaskService and BAMService invoked those services via MBean interfaces
+    -- now, so long as processFlow-interfaces.jar library is on classpath, all clients can invoke those services via their EJB interfaces
+    -- this will greatly facilitate future migration to JBoss AS7/EAP 6
+
+  getUnclaimedTasksAssignedAsPotentialOwner
+    -- implemented taskService.getUnclaimedTasksAssignedAsPotentialOwner()
+    -- this operation queries jbpm5 task table for tasks whose status is either 'Created', 'Ready', 'Suspended'
+    -- with taskService.getTasksAssignedAsPotentialOwner() operation (which is still accessible), jbpm5 returns tasks whose status may be :
+        'Created', 'Ready', 'Reserved', 'InProgress', 'Suspended'
+
+  resolution to memory leak in knowledgeSessionService
+    -- includes Nick's patch to properly dispose of used StatefulKnowledgeSessions
+    -- with this patch, now seeing dramatic performance improvement and stability
+
+  KnowledgeRuntimeLogger
+    -- enabled KnowledgeRuntimeLogger as per section 4.1.3 of jbpm5 user manual
+    -- enabled via 'org.jboss.processFlow.statefulKnowledge.enableKnowledgeRuntimeLogger' property of build.properties
+    -- if enabled, then for each knowledgesession, the following XML will be written to disk :
+        ${jboss.home}/server/${jboss.server.configuration}/log/knowledgeRuntimeLogger-<ksessionId>.log
+
+  processFlowProvision/target/clientLibs
+    -- new directory that is populated during the build process with all libraries that a client of processFlowProvision services would need
+
+  disposal of knowledgeSessions
+    -- due to fix to JBRULES-1880, knowledgeSessions need to be disposed outside of a transaction
+    -- knowledgeSessionService implementation has been modified to such that bean-managed transactions are now used to 
+        manually control the scope of trnxs and ensure disposal of knowledgeSession occurs outside of trnx
+
+
+
+
+5.2.0-FINAL (22 November 2011)
+
+
+
+    
+5.2.0 (13 August 2011)
+    -- created new fork of jbpm project in github at:   https://jbride@github.com/jbride/jbpm.git
+    -- in new github fork, created new branch called 'gbd'
+    -- created new branch in processFlowProvison project called '5.2.0-SNAPSHOT'
+        -- corresponds to 5.2.0-SNAPSHOT of jbpm5
+    -- eliminated need for 'processFlowProvision' build project to superimpose modifications directly to jbpm source
+        -- instead, any modifications to jbpm5 code or configs will occur in 'gbd' branch in github
+        -- allows us to share our modifications with the greater jbpm5 upstream community 
+    -- created new subproject : processFlowProvision/adminConsole
+        -- contains implementations of bpm-console integration interfaces
+        -- in general, these new bpm-console integration implementations proxy requests to knowledgeSession and task services
+    -- consolidated JPA entity manager factories to the following :
+        * java:/knowledgeSessionEMF
+        * java:/jbpmTaskEMF
+        * java:/eventEMF
+        * java:/taskEMF
+    -- hibernate.hbm2ddl.auto setting for all JPA entity manager factories is now controlled at runtime by a single corresponding system property
+    -- hibernate.show.sql setting for all JPA entity manager factories is now controlled at runtime by a single corresponding system property
+    -- created processFlowProvision/doc/release_notes.txt
+    -- created 'common's subproject
+    -- modified 'HumanTaskService' subproject so that it leverages classes from 'common'subproject
+    -- simplified knowledgeSessionService by pulling process definitions ONLY from Guvnor (instead of additionally checking the filesystem )
+    -- fixed bug with HornetQTaskClientConnector where received messages were not previously being acked and its session commited
+    -- jboss-server-config now ${organization.name}
+
+
+5.1.0.M1
+    -- 5 August 2011
+    -- snapshot of 'processFlowProvision' project as of August demo to business executives

@@ -1,0 +1,619 @@
+<project name="processFlowProvision-distro" default="deploy.distro" >
+
+    <property environment="ENV"/>
+    <property file="build.properties" />
+
+    <!--- NOTE:  found in ant-contrib project
+        - now using for the use of 'var' tasks in subprojects where MUTABLE properties would be nice
+    -->
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
+
+    <!-- make this optional for those environments not using qpid -->
+    <import file="${jboss.qpid.source.dir}/build.xml" optional="true" />
+
+    <!-- even though this is in build.xml ... need it here as well for distro -->
+    <import file="privateServiceTaskRepo/build.xml"/>
+
+    <target name="determine.upstream.jbpm5.drools.libs.type" >
+        <condition property="useCompiledJBPMLibs">
+            <equals arg1="${upstream.jbpm5.drools.libs.type}" arg2="COMMUNITY_SOURCE" />
+        </condition>
+        <condition property="useBRMS">
+            <equals arg1="${upstream.jbpm5.drools.libs.type}" arg2="BRMS" />
+        </condition>
+        <condition property="useBRMS">
+            <not>
+                <isset property="upstream.jbpm5.drools.libs.type" />
+            </not>
+        </condition>
+        <echo message="1) ${useCompiledJBPMLibs}   3) ${useBRMS} "  />
+    </target>
+
+
+    <!-- create a clone of the JBoss EAP 'default' config and name it the value of ${jboss.server.configuration} -->
+    <target name="clone.jboss" >
+        <delete dir="${jboss.home}/server/${jboss.server.configuration}" />
+        <copy overwrite="true" todir="${jboss.home}/server/${jboss.server.configuration}">
+            <fileset dir="${jboss.home}/server/default" />
+        </copy>
+    </target>
+
+    <target name="checkESB">
+        <available file="${jboss.server.deploy.dir}/jbossesb.sar/META-INF/jboss-service.xml" property="isESB" />
+    </target>
+
+    <!--
+        pass following parameters to this target :
+        1) source.dir
+        2) file.name (optional)
+        3) dest.dir
+    -->
+    <target name="filter">
+        <fail unless="source.dir" message="filter:  need to pass 'source.dir' property" />
+        <fail unless="dest.dir" message="filter:  need to pass 'dest.dir' property" />
+        <if>
+            <isset property="file.name"/>
+            <then>
+                <copy file="${source.dir}/${file.name}" toDir="${dest.dir}" overwrite="true">
+                    <filterchain>
+                        <expandproperties/>
+                    </filterchain>
+                </copy>
+            </then>
+            <else>
+                <copy toDir="${dest.dir}" overwrite="true">
+                    <fileset dir="${source.dir}" />
+                    <filterchain>
+                        <expandproperties/>
+                    </filterchain>
+                </copy>
+            </else>
+        </if>
+    </target>
+
+
+    <condition property="useHornetQ" >
+        <equals arg1="${org.jboss.processFlow.messagingProvider}" arg2="HORNETQ" />
+    </condition>
+    <target name="hornetq-config" depends="" description="" if="useHornetQ" >
+        <!--        ********************            modify various HornetQ provider configs         ************            -->
+        <antcall target="filter">
+            <param name="source.dir" value="conf/hornetq"/>
+            <param name="file.name" value="run.sh"/>
+            <param name="dest.dir" value="${HORNETQ_HOME}/bin"/>
+        </antcall>
+        <antcall target="filter">
+            <param name="source.dir" value="conf/hornetq"/>
+            <param name="file.name" value="hornetq-configuration.xml"/>
+            <param name="dest.dir" value="${HORNETQ_HOME}/config/stand-alone/clustered"/>
+        </antcall>
+        <antcall target="filter">
+            <param name="source.dir" value="conf/hornetq"/>
+            <param name="file.name" value="hornetq-jms.xml"/>
+            <param name="dest.dir" value="${HORNETQ_HOME}/config/stand-alone/clustered"/>
+        </antcall>
+        <copy file="conf/hornetq/hornetq-users.xml" toDir="${HORNETQ_HOME}/config/stand-alone/clustered" overwrite="true" verbose="true" />
+
+        <!--    ****************            remove embedded JBoss Messaging                 ***************              -->
+        <delete file="${jboss.home}/server/${jboss.server.configuration}/conf/props/messaging-roles.properties" />
+        <delete file="${jboss.home}/server/${jboss.server.configuration}/conf/props/messaging-users.properties" />
+        <delete dir="${jboss.home}/server/${jboss.server.configuration}/deploy/messaging/" />
+        <delete dir="${jboss.home}/server/${jboss.server.configuration}/deploy/jms-ra.rar" />
+        <delete file="${jboss.home}/server/${jboss.server.configuration}/deploy/quartz-ra.rar" />
+        <delete file="${jboss.home}/server/${jboss.server.configuration}/deployers/messaging-definitions-jboss-beans.xml" />
+        <copy file="conf/jbossEAP/conf/jbossts-properties.xml" overwrite="true" todir="${jboss.home}/server/${jboss.server.configuration}/conf" />
+
+        <copy toDir="${runtime.lib.dir}" overwrite="true" verbose="true" >
+            <fileset dir="${HORNETQ_HOME}/lib" >
+                <include name="hornetq-core-client.jar" />
+                <include name="netty.jar" />
+                <include name="hornetq-jms-client.jar" />
+                <include name="hornetq-core.jar" />
+            </fileset>
+        </copy>
+
+        <!--        ******************          add hornetq JCA resource adapater configs       *************           -->
+        <unjar src="${HORNETQ_HOME}/lib/hornetq-ra.rar" dest="${jboss.home}/server/${jboss.server.configuration}/deploy/hornetq-ra.rar" />
+        <antcall target="filter">
+            <param name="source.dir" value="conf/hornetq"/>
+            <param name="file.name" value="ra.xml"/>
+            <param name="dest.dir" value="${jboss.home}/server/${jboss.server.configuration}/deploy/hornetq-ra.rar/META-INF"/>
+        </antcall>
+        <antcall target="filter">
+            <param name="source.dir" value="conf/jbossEAP/deploy"/>
+            <param name="file.name" value="hornetq-jms-ds.xml"/>
+            <param name="dest.dir" value="${jboss.home}/server/${jboss.server.configuration}/deploy/"/>
+        </antcall>
+    </target>
+
+    <condition property="useMRG" >
+        <equals arg1="${org.jboss.processFlow.messagingProvider}" arg2="MRG" />
+    </condition>
+    <target name="qpid_prep" if="useMRG" >
+        <antcall target="jboss.qpid.deploy" />
+        <antcall target="filter">
+            <param name="source.dir" value="conf/jbossEAP/deploy"/>
+            <param name="file.name" value="qpid-connection-factory-service.xml"/>
+            <param name="dest.dir" value="${jboss.server.deploy.dir}/${organization.name}"/>
+        </antcall>
+        <antcall target="filter">
+            <param name="source.dir" value="conf/jbossEAP/deploy"/>
+            <param name="file.name" value="qpid-destinations-service.xml"/>
+            <param name="dest.dir" value="${jboss.server.deploy.dir}/${organization.name}"/>
+        </antcall>
+    </target>
+
+    <target name="eap-config" depends="" description="">
+        <!-- jboss EAP prep -->
+        <mkdir dir="${runtime.lib.dir}" />
+        <mkdir dir="${jboss.server.deploy.dir}/${organization.name}" />
+        <copy file="conf/jbossEAP/conf/login-config.xml" overwrite="true" todir="${jboss.home}/server/${jboss.server.configuration}/conf"/>
+        <copy file="conf/jbossEAP/conf/props/jmx-console-users.properties" overwrite="true" todir="${jboss.home}/server/${jboss.server.configuration}/conf/props"/>
+        <copy file="conf/jbossEAP/conf/props/jmx-console-roles.properties" overwrite="true" todir="${jboss.home}/server/${jboss.server.configuration}/conf/props"/>
+        <antcall target="filter">
+            <param name="source.dir" value="conf/jbossEAP/conf"/>
+            <param name="file.name" value="jboss-log4j.xml"/>
+            <param name="dest.dir" value="${jboss.server.conf.dir}"/>
+        </antcall>
+        <antcall target="filter">
+            <param name="source.dir" value="conf/jbossEAP/conf"/>
+            <param name="file.name" value="jboss-service.xml"/>
+            <param name="dest.dir" value="${jboss.server.conf.dir}"/>
+        </antcall>
+        <copy toDir="${jboss.server.conf.dir}" overwrite="true" verbose="true" file="conf/jbossEAP/conf/ChangeSet.st" />
+        <antcall target="filter">
+            <param name="source.dir" value="conf/jbossEAP/conf"/>
+            <param name="file.name" value="drools.session.conf"/>
+            <param name="dest.dir" value="${jboss.server.conf.dir}/META-INF"/>
+        </antcall>
+        <copy file="conf/jbossEAP/conf/pfp-handlers.conf" overwrite="true" todir="${jboss.server.conf.dir}/META-INF"/>
+
+        <antcall target="filter">
+            <param name="source.dir" value="conf/jbossEAP/deploy"/>
+            <param name="file.name" value="properties-service.xml"/>
+            <param name="dest.dir" value="${jboss.server.deploy.dir}"/>
+        </antcall>
+
+        <copy file="conf/jbossEAP/deployers/ejb-deployer-jboss-beans.xml" overwrite="true" todir="${jboss.home}/server/${jboss.server.configuration}/deployers/"/>
+        <copy file="conf/jbossEAP/deployers/metadata-deployer-jboss-beans.xml" overwrite="true" todir="${jboss.home}/server/${jboss.server.configuration}/deployers/"/>
+
+        <!--    *************           configure JDBC connection pools       ***************     -->
+        <if>
+            <not>
+                <equals arg1="${hibernate.dialect}" arg2="org.hibernate.dialect.HSQLDialect" />
+            </not>
+            <then>
+                <copy toDir="${runtime.lib.dir}" overwrite="true" verbose="true" file="${jdbc.lib.path}" />
+            </then>
+        </if>
+
+        <copy file="conf/jbossEAP/deploy/jbpm5-core-ds.xml" overwrite="true" todir="${jboss.server.deploy.dir}/${organization.name}" />
+        <copy file="conf/jbossEAP/deploy/jbpm5-bam-ds.xml" toDir="${jboss.server.deploy.dir}/${organization.name}" />
+
+        <copy file="conf/jbossEAP/run.conf" overwrite="true" todir="${jboss.home}/server/${jboss.server.configuration}/"/>
+
+        <!-- for low memory environments ... remove the following -->
+        <delete dir="${jboss.home}/server/${jboss.server.configuration}/deploy/admin-console.war/" />
+        <delete dir="${jboss.home}/server/${jboss.server.configuration}/deploy/mail-ra-rar/" />
+        <delete file="${jboss.home}/server/${jboss.server.configuration}/deploy/mail-service.xml" />
+        <delete file="${jboss.home}/server/${jboss.server.configuration}/deploy/management" />
+        <delete dir="${jboss.home}/server/${jboss.server.configuration}/deploy/uuid-key-generator.sar" />
+    </target>
+
+    <target name="esb-config" depends="" if="isESB" >
+        <antcall target="deleteJBM_ESB_Queues" />
+        <copy file="conf/soa-p/deploy/jbossesb.esb/META-INF/deployment.xml" overwrite="true" todir="${jboss.server.deploy.dir}/jbossesb.esb/META-INF" />
+
+        <!-- *************      remove ESB message / audit store *************************  -->
+        <delete file="${jboss.server.deploy.dir}/jbossesb.esb/message-store-ds.xml" />
+        <delete file="${jboss.server.deploy.dir}/jbossesb.esb/jbossesb-service.xml" />
+        <copy file="conf/soa-p/deploy/jbossesb.esb/META-INF/jboss-esb.xml" overwrite="true" todir="${jboss.server.deploy.dir}/jbossesb.esb/META-INF"/>
+
+         <!-- **************     create new PostgrSQL datastore for ESB and juddi    *********************    -->
+        <copy file="conf/soa-p/deploy/esb-ds.xml" overwrite="true" todir="${jboss.server.deploy.dir}" />
+
+        <!-- ***************        juddi registry now to use PostgreSQL rather than Hypersonic  ******************         -->
+        <copy file="conf/soa-p/deploy/jbossesb-registry.sar/juddi-ds.xml" overwrite="true" todir="${jboss.server.deploy.dir}/jbossesb-registry.sar" />
+        <copy file="conf/soa-p/deploy/jbossesb-registry.sar/juddi_config/META-INF/persistence.xml" overwrite="true" todir="${jboss.server.deploy.dir}/jbossesb-registry.sar/juddi_config/META-INF" />
+
+        <!--    ****************        turn off juddi cache expirary          ************************            -->
+        <copy file="conf/soa-p/deployers/esb.deployer/jbossesb-properties.xml" overwrite="true" todir="${jboss.home}/server/${jboss.server.configuration}/deployers/esb.deployer" />
+
+        <!-- for low memory environments ... remove the following -->
+        <delete dir="${jboss.server.deploy.dir}/bpel-console/" />
+        <delete dir="${jboss.server.deploy.dir}/jbpm.esb/" />
+        <delete dir="${jboss.server.deploy.dir}/riftsaw.esb/" />
+        <delete dir="${jboss.server.deploy.dir}/riftsaw.sar/" />
+        <delete dir="${jboss.server.deploy.dir}/slsb.esb" />
+        <delete dir="${jboss.server.deploy.dir}/smooks.esb" />
+        <delete dir="${jboss.server.deploy.dir}/soap.esb" />
+        <delete dir="${jboss.server.deploy.dir}/soapui-client.sar" />
+        <delete dir="${jboss.server.deploy.dir}/spring.esb" />
+
+        <!-- over-write jboss-log4j.xml with a copy that specifies the LogSystemEventListener provided in ESB -->
+        <antcall target="filter">
+            <param name="source.dir" value="conf/jbossEAP/conf"/>
+            <param name="file.name" value="jboss-log4j.xml"/>
+            <param name="dest.dir" value="${jboss.server.conf.dir}"/>
+        </antcall>
+    </target>
+    <target name="deleteJBM_ESB_Queues" if="useHornetQ" >
+        <delete file="${jboss.home}/server/${jboss.server.configuration}/deploy/jbossesb.esb/jbm-queue-service.xml" />
+    </target>
+
+    <target name="temp.client.dir" >
+        <copy toDir="${temp.client.dir}" overwrite="true" >
+            <fileset dir="${runtime.lib.dir}" >
+                <include name="jbpm-human-task-*.jar" />
+                <include name="knowledge-api-*.jar" />
+                <include name="processFlow-interfaces*.jar" />
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="explode.pfp.services" description="">
+        <unjar src="${temp.services.dir}/processFlow-bamService.jar" dest="${jboss.server.deploy.dir}/${organization.name}/processFlow-bamService.jar" />
+        <unjar src="${temp.services.dir}/processFlow-knowledgeSessionService.jar" dest="${jboss.server.deploy.dir}/${organization.name}/processFlow-knowledgeSessionService.jar" />
+        <unjar src="${temp.services.dir}/processFlow-taskService.jar" dest="${jboss.server.deploy.dir}/${organization.name}/processFlow-taskService.jar" />
+    </target>
+
+    <target name="jbpm-lib-post" depends="" description="copies jbpm5 and drools libraries to appropriate runtime locations" >
+        <if>
+            <isset property="useCompiledJBPMLibs"/>
+            <then>
+                <antcall target="useCompiledJBPMLibs" />
+            </then>
+            <else>
+                <antcall target="useBRMSLibs" />
+            </else>
+        </if>
+        <copy toDir="${runtime.lib.dir}" overwrite="true" >
+            <fileset dir="lib" >
+                <include name="*.jar" />
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="useBRMSLibs" depends="" if="useBRMS">
+        <echo message="inside useBRMSLibs" />
+        <antcall target="download.brms.deployable" />
+        <unzip src="${install.home}/lib/${brms.deployable.suffix}" dest="${install.home}/tmp" />
+        <delete file="${install.home}/tmp/modeshape.zip" />
+        <unzip src="${install.home}/tmp/jboss-brms-engine.zip" dest="${install.home}/tmp" />
+        <delete file="${install.home}/tmp/jboss-brms-engine.zip" />
+        <unzip src="${install.home}/tmp/jboss-brms-manager.zip" dest="${install.home}/tmp" />
+        <delete file="${install.home}/tmp/jboss-brms-manager.zip" />
+
+        <!-- contains: "business-central.war",  "designer.war", "gwt-console-server.war" &  "jbpm-human-task.war" -->
+        <unzip src="${install.home}/tmp/jboss-jbpm-console.zip" dest="${install.home}/tmp" />
+        <delete file="${install.home}/tmp/jboss-jbpm-console.zip" />
+
+        <copy toDir="${runtime.lib.dir}" overwrite="true" >
+            <fileset dir="${install.home}/tmp/designer.war/WEB-INF/lib" >
+                <include name="jackson*.jar" />
+            </fileset>
+            <fileset dir="${install.home}/tmp/binaries" >
+                <include name="antlr-3.3.jar" />
+                <include name="antlr-runtime-3.3.jar" />
+                <include name="commons-io*.jar" />
+                <include name="drools-*.jar" />
+                <include name="freemarker*.jar" />
+                <include name="jbpm-*.jar" />
+                <include name="knowledge-*.jar" />
+                <include name="mvel*.jar" />
+                <include name="protobuf-*.jar" />
+                <include name="stringtemplate*.jar" />
+                <include name="trove*.jar" />
+                <exclude name="*test*.jar" />
+            </fileset>
+            <fileset dir="${install.home}/tmp/${console.server.name}.war/WEB-INF/lib" >
+                <include name="apache-mime4j-*.jar" />
+                <include name="gwt-console-*.jar" />
+                <include name="jaxrs-api-*.jar" />
+                <include name="jbpm-gwt-shared-*.jar" />
+                <include name="jbpm-bpmn2-emfextmodel*.jar" />
+                <include name="jbpm-gwt-*.jar" />
+                <include name="jcip-annotations-*.jar" />
+                <include name="jsr250-*.jar" />
+                <include name="mina-*.jar" />
+                <include name="resteasy-*.jar" />
+                <include name="scannotation-*.jar" />
+
+                <!-- cant use because of services/properties in these libraries that over-ride our processFlowProvision extensions -->
+                <exclude name="jbpm-gwt-core-*.jar" />
+            </fileset>
+        </copy>
+    </target>
+
+    <!-- re-create guvnor filesystem and copy over repository.xml -->
+    <target name="refreshGuvnor" description="" >
+        <delete dir="${guvnor_repo_location}" />
+        <mkdir dir="${guvnor_repo_location}" />
+        <if>
+            <not>
+                <equals arg1="${hibernate.dialect}" arg2="org.hibernate.dialect.HSQLDialect" />
+            </not>
+            <then>
+                <copy file="conf/drools-guvnor/repository.xml" toDir="${guvnor_repo_location}" />
+            </then>
+        </if>
+
+    </target>
+
+    <condition property="guvnorServerIsSameAsJBPM" >
+        <equals arg1="${guvnor.server.configuration}" arg2="${jboss.server.configuration}" />
+    </condition>
+
+    <target name="explode.guvnor.and.designer.into.jbpm.server" depends="determine.upstream.jbpm5.drools.libs.type" description="" if="guvnorServerIsSameAsJBPM" >
+        <antcall target="explode.guvnor.and.designer" />
+
+        <!-- designer assumes guvnor is bound to localhost .... change this to reflect bind address of jboss server that guvnor is deployed on -->
+        <antcall target="filter">
+            <param name="source.dir" value="conf/designer/profiles"/>
+            <param name="file.name" value="jbpm.xml"/>
+            <param name="dest.dir" value="${designer.target}/profiles"/>
+        </antcall>
+        <copy toDir="${runtime.lib.dir}" overwrite="true" >
+            <fileset dir="${guvnor.target}/WEB-INF/lib" >
+                <include name="xstream-*.jar" />
+                <include name="xpp3*.jar" />
+                <include name="xmlpull*.jar" />
+            </fileset>
+        </copy>
+
+        <!-- **************** purge drools-guvnor of libraries that conflict with those libraries already in ${runtime.lib.dir}  -->
+        <delete>
+            <fileset dir="${guvnor.target}/WEB-INF/lib/" includes="drools-compiler-*.jar"/>
+            <fileset dir="${guvnor.target}/WEB-INF/lib/" includes="drools-core-*.jar"/>
+            <fileset dir="${guvnor.target}/WEB-INF/lib/" includes="knowledge-api-*.jar"/>
+            <fileset dir="${guvnor.target}/WEB-INF/lib/" includes="commons-pool-*.jar"/>
+            <fileset dir="${guvnor.target}/WEB-INF/lib/" includes="commons-codec-*.jar"/>
+            <fileset dir="${guvnor.target}/WEB-INF/lib/" includes="jaxb*.jar" />
+            <fileset dir="${guvnor.target}/WEB-INF/lib/" includes="jbpm*.jar" />
+            <fileset dir="${guvnor.target}/WEB-INF/lib/" includes="protobuf*.jar" />
+            <fileset dir="${guvnor.target}/WEB-INF/lib/" includes="slf4j*.jar" />
+            <fileset dir="${guvnor.target}/WEB-INF/lib/" includes="stringtemplate*.jar" />
+            <fileset dir="${guvnor.target}/WEB-INF/lib/" includes="xstream*.jar" />
+            <fileset dir="${guvnor.target}/WEB-INF/lib/" includes="xpp3*.jar" />
+            <fileset dir="${guvnor.target}/WEB-INF/lib/" includes="xmlpull*.jar" />
+        </delete>
+    </target>
+
+  <target name="download.brms.deployable">
+    <echo message="Getting BRMS ..." />
+    <mkdir dir="${install.home}/lib"/>
+    <get src="${brms.download.url}" dest="${install.home}/lib/${brms.deployable.suffix}"  skipexisting="true" />
+  </target>
+
+     <!-- this is common guvnor functionality whether guvnor is co-located with jbpm5 or is used in a different JBoss runtime -->
+    <target name="explode.guvnor.and.designer" >
+        <copy file="conf/jbossEAP/deploy/guvnor-ds.xml" overwrite="true" todir="${guvnor.server.deploy.dir}/${organization.name}" />
+
+        <if>
+            <isset property="useBRMS"/>
+            <then>
+                <copy todir="${console.target}" >
+                    <fileset dir="${install.home}/tmp/${console.name}.war" />
+                </copy>
+                <copy todir="${guvnor.target}" >
+                    <fileset dir="${install.home}/tmp/jboss-brms.war" />
+                </copy>
+                <copy todir="${designer.target}" >
+                    <fileset dir="${install.home}/tmp/designer.war" />
+                </copy>
+            </then>
+            <else>
+                <unzip src="${install.home}/lib/guvnor-distribution-wars-${drools.guvnor.version}-jboss-as-5.1.war" dest="${guvnor.target}" />
+                <unzip src="${install.home}/lib/designer-${designer.version}.war" dest="${designer.target}" />
+            </else>
+        </if>
+        <antcall target="filter">
+            <param name="source.dir" value="conf/drools-guvnor/WEB-INF"/>
+            <param name="file.name" value="components.xml"/>
+            <param name="dest.dir" value="${guvnor.target}/WEB-INF"/>
+        </antcall>
+        <antcall target="filter">
+            <param name="source.dir" value="conf/drools-guvnor/WEB-INF/classes"/>
+            <param name="file.name" value="preferences.properties"/>
+            <param name="dest.dir" value="${guvnor.target}/WEB-INF/classes"/>
+        </antcall>
+        <antcall target="filter">
+            <param name="source.dir" value="conf/drools-guvnor/WEB-INF"/>
+            <param name="file.name" value="jboss-web.xml"/>
+            <param name="dest.dir" value="${guvnor.target}/WEB-INF"/>
+        </antcall>
+
+        <antcall target="filter">
+            <param name="source.dir" value="conf/jbossEAP/deploy"/>
+            <param name="file.name" value="guvnor-properties-service.xml"/>
+            <param name="dest.dir" value="${guvnor.server.deploy.dir}"/>
+        </antcall>
+
+        <antcall target="refreshGuvnor" />
+
+        <delete >
+            <fileset dir="${designer.target}/WEB-INF/lib/" includes="drools*.jar"/>
+            <fileset dir="${designer.target}/WEB-INF/lib/" includes="knowledge-api*.jar"/>
+            <fileset dir="${designer.target}/WEB-INF/lib/" includes="jbpm-flow*.jar"/>
+            <fileset dir="${designer.target}/WEB-INF/lib/" includes="jbpm-human*.jar"/>
+            <fileset dir="${designer.target}/WEB-INF/lib/" includes="jbpm-workitems*.jar"/>
+            <fileset dir="${designer.target}/WEB-INF/lib/" includes="slf4j*.jar"/>
+            <fileset dir="${designer.target}/WEB-INF/lib/" includes="protobuf*.jar"/>
+            <fileset dir="${designer.target}/WEB-INF/lib/" includes="xalan*.jar"/>
+            <fileset dir="${designer.target}/WEB-INF/lib/" includes="xerces*.jar"/>
+            <fileset dir="${designer.target}/WEB-INF/lib/" includes="xml-apis*.jar"/>
+            <fileset dir="${designer.target}/WEB-INF/lib/" includes="xmlParserAPIs*.jar"/>
+        </delete>
+    </target>
+
+    <target name="configureDifferentGuvnorServer" description="" >
+        <!-- clone 'default' server configuration for guvnor runtime  -->
+        <delete dir="${jboss.home}/server/${guvnor.server.configuration}" />
+        <copy overwrite="true" todir="${jboss.home}/server/${guvnor.server.configuration}">
+            <fileset dir="${jboss.home}/server/default" />
+        </copy>
+
+        <mkdir dir="${guvnor.runtime.lib.dir}" />
+        <mkdir dir="${guvnor.server.deploy.dir}/${organization.name}" />
+
+        <copy file="conf/jbossEAP/conf/props/jmx-console-users.properties" overwrite="true" todir="${jboss.home}/server/${guvnor.server.configuration}/conf/props"/>
+        <copy file="conf/jbossEAP/conf/jboss-log4j.xml" overwrite="true" todir="${jboss.home}/server/${guvnor.server.configuration}/conf" />
+        <antcall target="filter">
+            <param name="source.dir" value="conf/jbossEAP/conf"/>
+            <param name="file.name" value="jboss-service.xml"/>
+            <param name="dest.dir" value="${jboss.server.conf.dir}"/>
+        </antcall>
+
+        <!-- configure standalone guvnor runtime with a binding configuration that does not conflict with jbpm5 runtime -->
+        <copy file="conf/jbossEAP/guvnor-run.conf" overwrite="true" tofile="${jboss.home}/server/${guvnor.server.configuration}/run.conf" />
+
+         <!-- add database library   -->
+        <copy toDir="${guvnor.runtime.lib.dir}" overwrite="true" verbose="true" file="${jdbc.lib.path}" />
+
+        <!-- for low memory environments ... remove the following -->
+        <delete dir="${guvnor.server.deploy.dir}/admin-console.war/" />
+        <delete dir="${guvnor.server.deploy.dir}/mail-ra-rar/" />
+        <delete file="${guvnor.server.deploy.dir}/mail-service.xml" />
+        <delete file="${guvnor.server.deploy.dir}/management" />
+        <delete dir="${guvnor.server.deploy.dir}/uuid-key-generator.sar" />
+
+        <!-- invoke common guvnor configurations -->
+        <antcall target="explode.guvnor.and.designer" />
+    </target>
+
+    <target name="explode.jBPM-gwt-console.into.jboss" >
+        <if>
+            <isset property="useCompiledJBPMLibs"/>
+            <then>
+                <unzip src="${install.home}/lib/jbpm-${jBPM.version}-gwt-console.zip" dest="${install.home}/tmp" />
+                <unzip src="${install.home}/tmp/jbpm-gwt-console-${jBPM.version}.war" 
+                    dest="${console.target}"/>
+                <unzip src="${install.home}/tmp/${console.server.name}-${jBPM.version}.war" dest="${console.server.target}"/>
+            </then>
+        </if>
+        <if>
+            <isset property="useBRMS"/>
+            <then>
+                <copy todir="${console.target}" >
+                    <fileset dir="${install.home}/tmp/${console.name}.war" />
+                </copy>
+                <copy todir="${console.server.target}">
+                    <fileset dir="${install.home}/tmp/${console.server.name}.war" />
+                </copy>
+            </then>
+        </if>
+
+        <move todir="${runtime.lib.dir}" >
+            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="commons-codec-*.jar" />
+        </move>
+        <delete file="${console.server.target}/WEB-INF/classes/ChangeSet.xml" />
+        <delete>
+            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="activation*.jar"/>
+            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="antlr*.jar"/>
+            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="apache-mime4j*.jar"/>
+            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="commons-io-*.jar" />
+            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="drools-*.jar"/>
+            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="freemarker*.jar"/>
+            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="gwt-console*.jar"/>
+            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="hornetq*.jar"/>
+            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="javassist*.jar"/>
+            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="jaxrs*.jar"/>
+            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="jbpm*.jar"/>
+            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="jcip-annotations*.jar"/>
+            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="jsr250-api*.jar"/>
+            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="knowledge-*.jar"/>
+            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="log4j*.jar"/>
+            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="mina*.jar"/>
+            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="protobuf*.jar"/>
+            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="resteasy*.jar"/>
+            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="scannotation*.jar"/>
+            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="slf4j*.jar"/>
+            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="mvel*.jar"/>
+            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="stringtemplate*.jar" />
+            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="sjsxp-*.jar" />
+            <fileset dir="${console.server.target}/WEB-INF/classes/META-INF" includes="persistence.xml" />
+        </delete>
+        <delete>
+            <fileset dir="${console.target}/WEB-INF/lib/" includes="slf4j*.jar" />
+        </delete>
+
+        <!-- authentication configuration -->
+        <copy file="conf/bpm-console-server/WEB-INF/web.xml" toDir="${console.server.target}/WEB-INF" overwrite="true" />
+        <delete file="${console.server.target}/WEB-INF/classes/jbpm.console.properties" />
+        <antcall target="filter">
+            <param name="source.dir" value="conf/bpm-console-server/WEB-INF/classes"/>
+            <param name="file.name" value="jbpm.console.properties" />
+            <param name="dest.dir" value="${jboss.server.conf.dir}"/>
+        </antcall>
+        <copy toDir="${console.server.target}/WEB-INF/classes/META-INF/services"  overwrite="true" verbose="true" >
+            <fileset dir="conf/bpm-console-server/WEB-INF/classes/META-INF/services/"  />
+        </copy>
+        <copy file="conf/jbossEAP/conf/users.properties" toDir="${jboss.server.conf.dir}" overwrite="true" />
+        <copy file="conf/jbossEAP/conf/roles.properties" toDir="${jboss.server.conf.dir}" overwrite="true" />
+    </target>
+
+    <target name="clean.jbpm.install" depends="">
+        <!-- JA Bride :  now deleting anything that is not previously downloaded -->
+        <delete >
+            <fileset dir="${install.home}/lib" >
+                <include name="jbpm*.*" />
+                <exclude name="jbpm*.zip" />
+            </fileset>
+        </delete>
+    </target>
+
+      <!-- Download jBPM & Drools Eclipse plugins -->
+  <target name="download.drools.eclipse.check">
+    <echo message="Checking Drools Eclipse download ..." />
+    <condition property="drools.eclipse.not.available">
+      <not>
+        <available file="${install.home}/lib/org.drools.updatesite-${drools.eclipse.version}-assembly.zip" />
+      </not>
+    </condition>
+  </target>
+  <target name="download.drools.eclipse" depends="download.drools.eclipse.check" if="drools.eclipse.not.available">
+    <echo message="Getting Drools Eclipse ..." />
+    <mkdir dir="${install.home}/lib"/>
+    <get src="${drools.eclipse.url}" dest="${install.home}/lib/org.drools.updatesite-${drools.eclipse.version}-assembly.zip"  />
+  </target>
+
+      <!-- Install Eclipse plugins -->
+  <target name="install.drools-eclipse.into.eclipse" description="install.drools-eclipse.into.eclipse" depends="download.drools.eclipse">
+    <!-- install plugins -->
+        <mkdir dir="${eclipse.home}/drools-update-site"/>
+    <unzip src="${install.home}/lib/org.drools.updatesite-${drools.eclipse.version}-assembly.zip" dest="${eclipse.home}/drools-update-site" />
+    <copy todir="${eclipse.home}/features" overwrite="true">
+      <fileset dir="${eclipse.home}/drools-update-site/features"/>
+    </copy>
+    <copy todir="${eclipse.home}/plugins" overwrite="true">
+      <fileset dir="${eclipse.home}/drools-update-site/plugins"/>
+    </copy>
+    <delete dir="${eclipse.home}/drools-update-site"/>
+  </target>
+
+    <target name="distro.clean" >
+        <delete dir="${install.home}/tmp" />
+    </target>
+
+    <target name="deploy.distro" description="" >
+
+        <property name="useBRMS" value="true" />
+
+        <antcall target="distro.clean" />
+        <antcall target="clone.jboss" />
+        <antcall target="checkESB" />
+        <antcall target="eap-config" />
+        <antcall target="esb-config" />
+        <antcall target="jbpm-lib-post" />
+        <antcall target="explode.jBPM-gwt-console.into.jboss" />
+        <antcall target="explode.guvnor.and.designer.into.jbpm.server" />
+        <antcall target="hornetq-config" />
+        <antcall target="qpid_prep" />
+        <antcall target="temp.client.dir" />
+        <antcall target="explode.pfp.services" />
+        <antcall target="refreshGuvnor" />
+        <antcall target="privateServiceTaskRepoDeploy" />
+
+    </target>
+
+</project>

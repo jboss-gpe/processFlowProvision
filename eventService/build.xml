@@ -1,0 +1,102 @@
+<project name="eventService" default="eventService" basedir="./eventService">
+
+    <property name="org.jboss.processFlow.clientCount" value="1" />
+    <property name="org.jboss.processFlow.messagesPerClient" value="1" />
+    <property name="org.jboss.processFlow.isPersistent" value="true" />
+    <property name="org.jboss.processFlow.hornetq.connectionFactoryName" value="/ConnectionFactory" />
+    <property name="org.jboss.processFlow.eventing.destinationName" value="queue/processFlow.eventQueue" />
+    <property name="org.jboss.processFlow.sleepTimeMillis" value="0" />
+    <property name="org.jboss.processFlow.logTrnxResult" value="true" />
+
+    <!-- NOTE:  can not use with Qpid due to this being a MDB (and the subsequent need for a Qpid JCA resource adapater ) -->
+    <target name="eventService" depends="eventServiceClean,setClasspath" if="useHornetQTaskServer" >
+        <echo message="subproject.name = ${subproject.name}" />
+        <mkdir dir="${subproject.build}" />
+        <javac debug="true" srcdir="${subproject.name}/src/main/java" destdir="${subproject.build}" >
+            <classpath refid="event.classpath" />
+        </javac>
+        <copy toDir="${subproject.build}/META-INF/" overwrite="true" verbose="true" >
+            <fileset dir="${subproject.name}/src/main/resources/META-INF" />
+        </copy>
+
+        <antcall target="configureForHornetq" />
+        <antcall target="configureForJMS" />
+
+        <jar jarfile="${jboss.server.deploy.dir}/${organization.name}/${subproject.name}.jar" basedir="${subproject.build}" />
+    </target>
+
+    <target name="startProcessLoadTest" depends="eventServiceInit" >
+        <javac debug="true" srcdir="${subproject.name}/src/test/java" destdir="${subproject.build}" optimize="${javac.optimize}" >
+            <classpath refid="event.classpath" />
+        </javac>
+        <copy file="${subproject.name}/src/test/resources/jndi.properties" toDir="${subproject.build}" overwrite="true" verbose="true" >
+            <filterset>
+               <filter token="java.naming.provider.url" value="jnp://${hornetq_ip}:1599"/>
+           </filterset>
+        </copy>
+        <java fork="yes" classname="org.jboss.processFlow.processFlow.eventing.StartProcessLoadTest" failonerror="true">
+            <jvmarg value="-Xms16m" />
+            <jvmarg value="-Xmx64m" />
+            <jvmarg value="-Xss128k" />
+            <jvmarg value="-Dorg.jboss.processFlow.clientCount=${org.jboss.processFlow.clientCount}"/>
+            <jvmarg value="-Dorg.jboss.processFlow.messagesPerClient=${org.jboss.processFlow.messagesPerClient}"/>
+            <jvmarg value="-Dorg.jboss.processFlow.isPersistent=${org.jboss.processFlow.isPersistent}"/>
+            <jvmarg value="-Dorg.jboss.processFlow.hornetq.connectionFactoryName=${org.jboss.processFlow.hornetq.connectionFactoryName}"/>
+            <jvmarg value="-Dorg.jboss.processFlow.hornetq.eventing.destinationName=${org.jboss.processFlow.hornetq.eventing.destinationName}"/>
+            <jvmarg value="-Dorg.jboss.processFlow.sleepTimeMillis=${org.jboss.processFlow.sleepTimeMillis}" />
+            <jvmarg value="-Dorg.jboss.processFlow.logTrnxResult=${org.jboss.processFlow.logTrnxResult}" />
+            <sysproperty key="log4j.configuration" value="file:conf/test/log4j.xml" />
+            <classpath refid="event.classpath"/>
+        </java>
+    </target>
+
+    <target name="withdrawLoadTest" depends="eventServiceInit" description="">
+        <javac debug="true" srcdir="${subproject.name}/src/test/java" destdir="${subproject.build}" optimize="${javac.optimize}" >
+            <classpath refid="event.classpath" />
+        </javac>
+        <copy file="${subproject.name}/src/test/resources/jndi.properties" toDir="${subproject.build}" overwrite="true" verbose="true" >
+            <filterset>
+               <filter token="java.naming.provider.url" value="${hornetq_ip}"/>
+           </filterset>
+        </copy>
+        <java fork="yes" classname="org.jboss.processFlow.processFlow.eventing.WithdrawLoadTest" failonerror="true">
+            <jvmarg value="-Xms16m" />
+            <jvmarg value="-Xmx64m" />
+            <jvmarg value="-Xss128k" />
+            <jvmarg value="-Dorg.jboss.processFlow.clientCount=${org.jboss.processFlow.clientCount}"/>
+            <jvmarg value="-Dorg.jboss.processFlow.messagesPerClient=${org.jboss.processFlow.messagesPerClient}"/>
+            <jvmarg value="-Dorg.jboss.processFlow.isPersistent=${org.jboss.processFlow.isPersistent}"/>
+            <jvmarg value="-Dorg.jboss.processFlow.hornetq.connectionFactoryName=${org.jboss.processFlow.hornetq.connectionFactoryName}"/>
+            <jvmarg value="-Dorg.jboss.processFlow.hornetq.eventing.destinationName=${org.jboss.processFlow.hornetq.eventing.destinationName}"/>
+            <jvmarg value="-Dorg.jboss.processFlow.sleepTimeMillis=${org.jboss.processFlow.sleepTimeMillis}" />
+            <jvmarg value="-Dorg.jboss.processFlow.logTrnxResult=${org.jboss.processFlow.logTrnxResult}" />
+            <sysproperty key="log4j.configuration" value="file:conf/test/log4j.xml" />
+            <classpath refid="event.classpath"/>
+        </java>
+    </target>
+
+    <target name="eventServiceClean" depends="eventServiceInit" >
+        <delete dir="${subproject.build}" />
+    </target>
+
+    <target name="eventServiceInit" >
+        <var name="subproject.name" value="eventService" />
+        <var name="subproject.build" value="${subproject.name}/${build.dir}" />
+        <path id="event.classpath" >
+            <path refid="classpath" />
+            <pathelement location="${subproject.build}"/>
+        </path>
+
+    </target>
+
+    <target name="configureForHornetq" if="useHornetQTaskServer" >
+        <antcall target="filter_file">
+            <param name="file.name" value="${subproject.name}/src/main/resources/META-INF/jboss.xml"/>
+            <param name="to.dir.name" value="${subproject.build}/META-INF/"/>
+        </antcall>
+    </target>
+
+    <target name="configureForJMS" if="useJMSTaskServer" >
+    </target>
+
+</project>

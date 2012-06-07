@@ -1,0 +1,91 @@
+<project name="setClasspath" >
+
+    <path id="base.classpath" >
+        <fileset dir="${ENV.PFP_HOME}/lib" />
+        <fileset dir="${jboss.home}/client" >
+            <include name="*.jar" />
+            <exclude name="hornetq*.jar" />
+        </fileset>
+        <fileset dir="${runtime.lib.dir}" >
+            <include name="*.jar" />
+        </fileset>
+        <fileset dir="${temp.services.dir}" >
+            <include name="processFlow*.jar" />
+        </fileset>
+        <fileset dir="${jboss.server.deploy.dir}/${organization.name}" >
+            <include name="*.jar" />
+        </fileset>
+    </path>
+
+    <target name="determine.upstream.jbpm5.drools.libs.type" >
+        <condition property="useCompiledJBPMLibs">
+            <equals arg1="${upstream.jbpm5.drools.libs.type}" arg2="COMMUNITY_SOURCE" />
+        </condition>
+        <condition property="useBRMS">
+            <equals arg1="${upstream.jbpm5.drools.libs.type}" arg2="BRMS" />
+        </condition>
+        <echo message="1) ${useCompiledJBPMLibs}    2) ${useBRMS} "  />
+    </target>
+
+    <target name="setClasspath" depends="determine.upstream.jbpm5.drools.libs.type">
+        <if>
+            <isset property="useHornetQTaskServer"/>
+                <then>
+                    <path id="jms.classpath">
+                        <path refid="base.classpath" />
+                        <fileset dir="${HORNETQ_HOME}/lib" >  
+                            <include name="*.jar" />
+                        </fileset>
+                    </path>
+                </then>
+                <else>
+                    <path id="jms.classpath">
+                        <path refid="base.classpath" />
+                    </path>
+                </else>
+        </if>
+            
+        <if>
+            <isset property="useCompiledJBPMLibs"/>
+                <then>
+                    <path id="classpath">
+                    <path refid="jms.classpath" />
+                        <fileset dir="${jbpm.source.dir}/jbpm-bam/target" ><include name="*.jar" /></fileset>
+                        <fileset dir="${jbpm.source.dir}/jbpm-human-task/target" ><include name="*.jar" /></fileset>
+                        <fileset dir="${jbpm.source.dir}/jbpm-flow/target" ><include name="*.jar" /></fileset>
+                        <fileset dir="${jbpm.source.dir}/jbpm-flow-builder/target" ><include name="*.jar" /></fileset>
+                        <fileset dir="${jbpm.source.dir}/jbpm-bpmn2/target" ><include name="*.jar" /></fileset>
+                        <fileset dir="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-graph/target" ><include name="*.jar" /></fileset>
+                        <fileset dir="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-form/target" ><include name="*.jar" /></fileset>
+                        <fileset dir="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-shared/target" ><include name="*.jar" /></fileset>
+                        <fileset dir="${jbpm.source.dir}/jbpm-workitems/target" ><include name="*.jar" /></fileset>
+                        <fileset dir="${jbpm.source.dir}/jbpm-distribution/target/jbpm-${jBPM.version}-pre-bin/lib" ><include name="*.jar" /></fileset>
+                        <fileset dir="${jbpm.source.dir}/jbpm-gwt/${console.server.name}/target/${console.server.name}-${jBPM.version}/WEB-INF/lib" >
+                            <include name="gwt-console*.jar" />
+                        </fileset>
+                    </path>
+                </then>
+        </if>
+        <if>
+            <isset property="useBRMS"/>
+                <then>
+                    <path id="classpath">
+                        <path refid="jms.classpath" />
+                        <fileset dir="${ENV.PFP_HOME}/target/tmp/binaries" />
+                        <fileset dir="${ENV.PFP_HOME}/target/tmp/${console.server.name}.war/WEB-INF/lib/" >
+                            <include name="jbpm-gwt-*.jar" />
+                            <include name="gwt-console-*.jar" />
+                        </fileset>
+                    </path>
+                </then>
+        </if>
+    </target>
+
+    <target name="printClasspath" description="printClasspath" depends="setClasspath" >
+        <pathconvert pathsep="${line.separator}|   |-- "
+             property="echo.classpath"
+             refid="classpath">
+        </pathconvert>
+        <echo message="classpath = ${echo.classpath}" />
+    </target>
+</project>

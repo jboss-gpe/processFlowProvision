@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE server>
+<!-- $Id: properties-service.xml 16662 2003-08-27 04:38:22Z patriot1burke $ -->
+
+<server>
+
+  <!-- ==================================================================== -->
+  <!-- PropertyEditorManager Service                                        -->
+  <!-- ==================================================================== -->
+
+  <!--
+     | Allows access to the PropertyEditorManager, which is used when setting
+     | MBean attribute values from configuration.
+   -->
+
+  <mbean code="org.jboss.varia.property.PropertyEditorManagerService" 
+	 name="jboss:type=Service,name=PropertyEditorManager">
+
+    <!-- 
+       | Register and editor for each of the type_name=editor_type_name listed
+       | in properties file style convetion.
+
+    <attribute name="Editors">
+      java.net.URL=my.project.editors.URLPropertyEditor
+    </attribute>
+
+    -->
+
+  </mbean>
+
+
+  <!-- ==================================================================== -->
+  <!-- System Properties Service                                            -->
+  <!-- ==================================================================== -->
+
+  <!--
+     | Allows rich access to system properties.
+   -->
+
+  <mbean code="org.jboss.varia.property.SystemPropertiesService" 
+	 name="jboss:type=Service,name=SystemProperties">
+
+    <!-- 
+       | Load properties from each of the given comma seperated URLs
+
+    <attribute name="URLList">
+      http://somehost/some-location.properties,
+      ./conf/somelocal.properties
+    </attribute>
+
+    -->
+
+    <!-- 
+       | Set raw properties file style properties.
+    -->
+    <attribute name="Properties">
+        organization.name=${organization.name}
+        org.jboss.enableLog=${org.jboss.enableLog}
+        org.jboss.processFlow.task.enableIntelligentMapping=${org.jboss.processFlow.task.enableIntelligentMapping}
+
+        org.jboss.processFlow.messagingProvider=${org.jboss.processFlow.messagingProvider}
+        org.jboss.processFlow.KnowledgeSessionPool=${org.jboss.processFlow.KnowledgeSessionPool}
+
+        org.jboss.processFlow.task.transactionType=${org.jboss.processFlow.task.transactionType}
+
+        jbpm_connection_url=${jbpm_connection_url}
+        jbpm_driver_class=${jbpm_driver_class}
+        jbpm_db_user=${jbpm_db_user}
+        jbpm_db_password=${jbpm_db_password}
+        guvnor_connection_url=${guvnor_connection_url}
+        guvnor_driver_class=${guvnor_driver_class}
+        guvnor_db_user=${guvnor_db_user}
+        guvnor_db_password=${guvnor_db_password}
+        bam_connection_url=${bam_connection_url}
+        bam_driver_class=${bam_driver_class}
+        bam_db_user=${bam_db_user}
+        bam_db_password=${bam_db_password}
+        esb_connection_url=${esb_connection_url}
+        esb_driver_class=${esb_driver_class}
+        esb_db_user=${esb_db_user}
+        esb_db_password=${esb_db_password}
+
+        hibernate.hbm2ddl.auto=${hibernate.hbm2ddl.auto}
+        hibernate.jdbc.batch_size=${hibernate.jdbc.batch_size}
+        hibernate.cache.use_second_level_cache=${hibernate.cache.use_second_level_cache}
+        hibernate.dialect=${hibernate.dialect}
+        hibernate.show_sql=${hibernate.show_sql}
+
+        org.jboss.processFlow.eventing.destinationName=${org.jboss.processFlow.eventing.destinationName}
+
+        org.jboss.processFlow.statefulKnowledge.enableKnowledgeRuntimeLogger=${org.jboss.processFlow.statefulKnowledge.enableKnowledgeRuntimeLogger}
+        org.jboss.processFlow.drools.resource.scanner.interval=${org.jboss.processFlow.drools.resource.scanner.interval}
+
+        org.jboss.processFlow.messaging.connectionFactory=${org.jboss.processFlow.messaging.connectionFactory}
+        hornetq_ip=${hornetq_ip}
+
+        org.jbpm.workItemHandler.mail.address=${org.jbpm.workItemHandler.mail.address}
+        org.jbpm.workItemHandler.mail.port=${org.jbpm.workItemHandler.mail.port}
+        org.jbpm.workItemHandler.mail.userId=${org.jbpm.workItemHandler.mail.userId}
+        org.jbpm.workItemHandler.mail.password=${org.jbpm.workItemHandler.mail.password}
+
+        space.delimited.process.event.listeners=${space.delimited.process.event.listeners}
+
+        guvnor.host=${guvnor.host}
+        guvnor.usr=${guvnor.usr}
+        guvnor.pwd=${guvnor.pwd}
+        guvnor.protocol=${guvnor.protocol}
+        guvnor.packages=${guvnor.packages}
+        guvnor.subdomain=${guvnor.subdomain}
+        guvnor.connect.timeout=${guvnor.connect.timeout}
+        guvnor.read.timeout=${guvnor.read.timeout}
+        guvnor.snapshot.name=${guvnor.snapshot.name}
+
+        org.jboss.processFlow.bam.BAM_SERVICE_PROVIDER_URL=${org.jboss.processFlow.bam.BAM_SERVICE_PROVIDER_URL}
+        org.jboss.processFlow.knowledgeService.KNOWLEDGE_SERVICE_PROVIDER_URL=${org.jboss.processFlow.knowledgeService.KNOWLEDGE_SERVICE_PROVIDER_URL}
+        org.jboss.processFlow.tasks.TASK_SERVICE_PROVIDER_URL=${org.jboss.processFlow.tasks.TASK_SERVICE_PROVIDER_URL}
+        org.jboss.processFlow.tasks.DeadlineHandler=${org.jboss.processFlow.tasks.DeadlineHandler}
+        org.jboss.processFlow.tasks.TaskEventListeners=${org.jboss.processFlow.tasks.TaskEventListeners}
+
+    </attribute>
+  </mbean>
+
+</server>

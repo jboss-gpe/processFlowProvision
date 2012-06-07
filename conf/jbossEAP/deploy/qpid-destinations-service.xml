@@ -1,0 +1,14 @@
+<server>
+     <mbean code="org.jboss.qpid.destination.queue.QPIDQueueService" name="jboss.qpid:service=QPIDQueueService,name=processFlow.eventQueue">
+              <attribute name="JndiPrefix">/</attribute>
+              <attribute name="JndiName">/queue/processFlow.eventQueue</attribute>
+              <attribute name="BindingUrl">direct://${QPID_EXCHANGE_NAME}/processFlow.eventQueue?routingkey='processFlow.eventQueue'</attribute>
+     </mbean>
+     <mbean code="org.jboss.qpid.destination.queue.QPIDQueueService" name="jboss.qpid:service=QPIDQueueService,name=processFlow.asyncWorkingMemoryLogger">
+              <attribute name="JndiPrefix">/</attribute>
+              <attribute name="JndiName">/queue/processFlow.asyncWorkingMemoryLogger</attribute>
+              <attribute name="BindingUrl">direct://${QPID_EXCHANGE_NAME}/processFlow.asyncWorkingMemoryLogger?routingkey='processFlow.asyncWorkingMemoryLogger'</attribute>
+     </mbean>
+
+</server>
+

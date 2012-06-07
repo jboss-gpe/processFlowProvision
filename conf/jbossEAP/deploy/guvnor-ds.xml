@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<datasources>
+    <local-tx-datasource>
+        <jndi-name>guvnor-cp</jndi-name>
+        <connection-url>${guvnor_connection_url}</connection-url>
+        <driver-class>${guvnor_driver_class}</driver-class>
+        <user-name>${guvnor_db_user}</user-name>
+        <password>${guvnor_db_password}</password>
+        
+        <prepared-statement-cache-size>10</prepared-statement-cache-size>
+
+        <!-- in case using hypersonic, add this dependency ... if not using hypersonic, won't hurt anything -->
+        <depends>jboss:service=Hypersonic,database=localDB</depends>
+    </local-tx-datasource>
+    <!-- sql to call when connection is created.  Can be anything, select 1 is valid for PostgreSQL -->
+    <new-connection-sql>select 1</new-connection-sql>
+    <!-- sql to call on an existing pooled connection when it is obtained from pool.  Can be anything, select 1 is valid for PostgreSQL-->
+    <check-valid-connection-sql>select 1</check-valid-connection-sql>
+</datasources>

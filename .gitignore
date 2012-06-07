@@ -1,0 +1,8 @@
+build/
+dist/
+target/
+.classpath
+.project
+.settings
+knowledgeSessionService/src/main/resources/META-INF/drools.session.conf
+

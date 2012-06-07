@@ -1,0 +1,22 @@
+<project name="common" default="common" basedir="./common">
+
+    <target name="common" depends="setClasspath,common-util" />
+
+    <target name="common-util" depends="commonClean" >
+        <mkdir dir="${subproject.build}" />
+        <javac debug="true" srcdir="${subproject.name}/src/main/java" destdir="${subproject.build}" >
+            <classpath refid="classpath" />
+        </javac>
+        <jar jarfile="${runtime.lib.dir}/processFlow-util.jar" basedir="${subproject.build}" />
+    </target>
+
+    <target name="commonClean" depends="commonInit" >
+        <delete dir="${subproject.build}" />
+    </target>
+
+    <target name="commonInit" >
+        <var name="subproject.name" value="common" />
+        <var name="subproject.build" value="${subproject.name}/${build.dir}" />
+    </target>
+
+</project>

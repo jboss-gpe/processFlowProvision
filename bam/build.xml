@@ -1,0 +1,32 @@
+<project name="bam" default="bam" basedir="./bam">
+
+    <target name="bam" depends="bamClean,setClasspath" >
+        <echo message="subproject.name = ${subproject.name}" />
+        <mkdir dir="${subproject.build}" />
+
+        <javac debug="true" srcdir="${subproject.name}/src/main/java" destdir="${subproject.build}" >
+            <classpath refid="classpath" />
+        </javac>
+        <copy toDir="${subproject.build}/META-INF/" overwrite="true" verbose="true" >
+            <fileset dir="${subproject.name}/src/main/resources/META-INF" />
+        </copy>
+        <jar jarfile="${temp.services.dir}/processFlow-${subproject.name}Service.jar" 
+            basedir="${subproject.build}" 
+            includes="**/*BAMService*.class,META-INF/*"
+        />
+        <jar jarfile="${runtime.lib.dir}/processFlow-${subproject.name}-libs.jar" 
+            basedir="${subproject.build}" 
+            excludes="**/*BAMService*.class,META-INF/*"
+        />
+    </target>
+
+    <target name="bamClean" depends="bamInit" >
+        <delete dir="${subproject.build}" />
+    </target>
+
+    <target name="bamInit" >
+        <var name="subproject.name" value="bam" />
+        <var name="subproject.build" value="${subproject.name}/${build.dir}" />
+    </target>
+
+</project>

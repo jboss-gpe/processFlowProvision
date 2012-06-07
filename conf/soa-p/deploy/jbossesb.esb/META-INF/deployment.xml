@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?><jbossesb-deployment>
+  <depends>jboss.jca:service=DataSourceBinding,name=JBossESBDS</depends>
+
+<!-- JA Bride   : 24 Jan 2011
+  <depends>jboss.esb:service=MessageStoreDatabaseInitializer</depends>
+  <depends>jboss.esb.destination:service=Queue,name=DeadMessageQueue</depends>
+  <depends>jboss.esb.destination:service=Queue,name=DataCollectorQueue</depends>
+  <depends>jboss.esb.destination:service=Queue,name=OperationsCollectorQueue</depends>
+  <depends>jboss.esb.destination:service=Queue,name=OperationsResultCollectorQueue</depends> 
+-->
+
+  <depends>jboss.esb:service=ESBRegistry</depends>
+  <depends>jboss.esb:service=InVM</depends>
+  <depends>jboss.esb:service=JuddiClient</depends>
+  <depends>jboss:service=TransactionManager</depends>
+</jbossesb-deployment>

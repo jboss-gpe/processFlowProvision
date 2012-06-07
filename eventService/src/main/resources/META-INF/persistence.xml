@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- example of reference to a cfg.xml file -->
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
+             version="1.0">
+
+    <persistence-unit name="processFlow-eventingEMF" transaction-type="JTA">
+        <jta-data-source>java:/jbpm-core-cp</jta-data-source>
+        <properties>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect" />
+            <property name="show_sql" value="${hibernate.show_sql}" />
+            <property name="hibernate.format_sql" value="true"/>
+            <property name="hibernate.archive.autodetection" value="class"/>
+            <property name="hibernate.connection.isolation" value="2"/> <!-- READ_COMMITTED -->
+            <property name="jboss.entity.manager.factory.jndi.name" value="java:/eventingEMF"/>
+
+            <!-- For details concerning the options, see the following :    http://www.jroller.com/eyallupu/entry/hibernate_s_hbm2ddl_tool -->
+            <property name="hibernate.hbm2ddl.auto" value="${hibernate.hbm2ddl.auto}"/>
+
+            <!-- EJB3 JPA beans are not exposed via JMX ... however a corresponding Hibernate statistics service is ... so will enable this -->
+            <property name="hibernate.generate_statistics" value="false"/>
+            <property name="hibernate.session_factory_name" value="processFlow-eventingSessionFactory"/>
+        </properties>
+    </persistence-unit>
+</persistence>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<datasources>
+  <local-tx-datasource>
+    <jndi-name>JBossESBDS</jndi-name>
+    <connection-url>${esb_connection_url}</connection-url>
+    <driver-class>org.postgresql.Driver</driver-class>
+    <user-name>${esb_db_user}</user-name>
+    <password>${esb_db_password}</password>
+
+    <!-- sql to call when connection is created.  Can be anything, select 1 is valid for PostgreSQL  -->
+    <new-connection-sql>select 1</new-connection-sql>
+
+    <metadata>
+	<type-mapping>PostgreSQL 8.0</type-mapping>
+    </metadata>
+  </local-tx-datasource>
+</datasources>

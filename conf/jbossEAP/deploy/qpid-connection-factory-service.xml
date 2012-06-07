@@ -1,0 +1,7 @@
+<server>
+    <mbean code="org.jboss.qpid.connectionfactory.QPIDConnectionFactory" name="jboss.qpid:name=QPIDConnectionFactory">
+        <attribute name="ConnectionUrl">amqp://guest:guest@clientId/virtualHost?brokerlist='${AMQP_BROKER_1}?ssl='${QPID_SSL_ENABLED}''</attribute>
+        <attribute name="JndiName">${org.jboss.processFlow.messaging.connectionFactory}</attribute>
+    </mbean>
+</server>
+

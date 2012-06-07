@@ -1,0 +1,148 @@
+<configuration xmlns="urn:hornetq"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="urn:hornetq /schema/hornetq-configuration.xsd">
+
+   <!-- JA Bride    :   see chapter 16.4 of HornetQ User Manual for configuration of client-side connectors and sever-side acceptors    -->
+   <failover-on-shutdown>true</failover-on-shutdown>
+   <message-counter-enabled>true</message-counter-enabled>
+   <message-counter-max-day-history>1</message-counter-max-day-history>
+   <message-counter-sample-period>10000</message-counter-sample-period>
+
+
+   <clustered>true</clustered>
+   
+   <paging-directory>${data.dir:../data}/paging</paging-directory>
+   
+   <bindings-directory>${data.dir:../data}/bindings</bindings-directory>
+   
+   <journal-directory>${data.dir:../data}/journal</journal-directory>
+   
+   <journal-min-files>10</journal-min-files>
+   
+   <large-messages-directory>${data.dir:../data}/large-messages</large-messages-directory>
+
+   <connectors>      
+      <connector name="netty">
+         <factory-class>org.hornetq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+         <param key="host"  value="${hornetq.remoting.netty.host:localhost}"/>
+         <param key="port"  value="${hornetq.remoting.netty.port:5445}"/>
+         <param key="use-nio"  value="true"/>
+      </connector>
+      
+      <connector name="netty-throughput">
+         <factory-class>org.hornetq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+         <param key="host"  value="${hornetq.remoting.netty.host:localhost}"/>
+         <param key="port"  value="${hornetq.remoting.netty.batch.port:5455}"/>
+         <param key="batch-delay" value="50"/>
+      </connector>
+   </connectors>
+
+   <acceptors>
+      <acceptor name="netty">
+         <factory-class>org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+         <param key="host"  value="${hornetq.remoting.netty.host:localhost}"/>
+         <param key="port"  value="${hornetq.remoting.netty.port:5445}"/>
+         <param key="use-nio"  value="true"/>
+      </acceptor>
+      
+      <acceptor name="netty-throughput">
+         <factory-class>org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+         <param key="host"  value="${hornetq.remoting.netty.host:localhost}"/>
+         <param key="port"  value="${hornetq.remoting.netty.batch.port:5455}"/>
+         <param key="batch-delay" value="50"/>
+         <param key="direct-deliver" value="false"/>
+      </acceptor>
+   </acceptors>
+
+   <broadcast-groups>
+      <broadcast-group name="bg-org-jboss-processFlow">
+         <group-address>${org.jboss.processFlow.messaging.hornetQAddress}</group-address>
+         <group-port>${org.jboss.processFlow.messaging.hornetQPort}</group-port>
+         <broadcast-period>5000</broadcast-period>
+         <connector-ref>netty</connector-ref>
+      </broadcast-group>
+   </broadcast-groups>
+
+   <discovery-groups>
+      <discovery-group name="dg-org-jboss-processFlow">
+         <group-address>${org.jboss.processFlow.messaging.hornetQAddress}</group-address>
+         <group-port>${org.jboss.processFlow.messaging.hornetQPort}</group-port>
+         <refresh-timeout>10000</refresh-timeout>
+      </discovery-group>
+   </discovery-groups>
+   
+   <cluster-connections>
+      <cluster-connection name="org-jboss-processFlow-cluster">
+         <address>#</address>	 
+         <connector-ref>netty</connector-ref>
+
+         <!--
+            JA Bride
+            - max hops defines how messages are redistributed, default = 1 meaning only distribute to directly connected nodes
+            - 0 = disable
+         -->
+         <max-hops>1</max-hops>
+         <discovery-group-ref discovery-group-name="dg-org-jboss-processFlow"/>
+      </cluster-connection>
+   </cluster-connections>
+   
+   <security-settings>
+      <security-setting match="#">
+
+        <!-- JA Bride : added 'createDurableQueue' / 'deleteDurableQueue' and modified role permissions -->
+         <permission type="createNonDurableQueue" roles="admin,guest"/>
+         <permission type="deleteNonDurableQueue" roles="admin,guest"/>
+         <permission type="createDurableQueue" roles="admin,guest"/>
+         <permission type="deleteDurableQueue" roles="admin,guest"/>
+
+         <permission type="consume" roles="guest"/>
+         <permission type="send" roles="guest"/>
+      </security-setting>
+   </security-settings>
+
+   <address-settings>
+      <!--default for catch all-->
+      <address-setting match="#">
+         <dead-letter-address>jms.queue.DLQ</dead-letter-address>
+         <expiry-address>jms.queue.ExpiryQueue</expiry-address>
+         <redelivery-delay>0</redelivery-delay>
+         <redistribution-delay>0</redistribution-delay>
+
+         <!-- JA Bride :  changed to 5Mb because using small messages and subsequently shouldn't need as much heap -->
+         <max-size-bytes>5242880</max-size-bytes>
+         <address-full-policy>BLOCK</address-full-policy>
+      </address-setting>
+
+      <address-setting match="jms.queue.processFlow.asyncWorkingMemoryLogger">
+         <dead-letter-address>jms.queue.DLQ</dead-letter-address>
+         <expiry-address>jms.queue.ExpiryQueue</expiry-address>
+         <redelivery-delay>0</redelivery-delay>
+         <redistribution-delay>0</redistribution-delay>
+
+         <!-- why does it appear that paging is kicking in prior to reaching max-size-bytes ??
+            sending 3500 messages of size 1024 = 3584000
+            two page files of :  1047509 & 670596
+         -->
+         <max-size-bytes>10485760</max-size-bytes>
+         <page-size-bytes>1048576</page-size-bytes>
+         <address-full-policy>PAGE</address-full-policy>
+      </address-setting>
+
+      <address-setting match="jms.queue.processFlow.workflowEventQueue">
+         <dead-letter-address>jms.queue.DLQ</dead-letter-address>
+         <expiry-address>jms.queue.ExpiryQueue</expiry-address>
+         <redelivery-delay>0</redelivery-delay>
+         <redistribution-delay>0</redistribution-delay>
+
+         <!-- why does it appear that paging is kicking in prior to reaching max-size-bytes ??
+            sending 3500 messages of size 1024 = 3584000
+            two page files of :  1047509 & 670596
+         -->
+         <max-size-bytes>10485760</max-size-bytes>
+         <page-size-bytes>1048576</page-size-bytes>
+         <address-full-policy>PAGE</address-full-policy>
+      </address-setting>
+
+   </address-settings>
+
+</configuration>

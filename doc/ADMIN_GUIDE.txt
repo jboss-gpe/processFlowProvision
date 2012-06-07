@@ -1,0 +1,580 @@
+processFlowProvision (aka:  PFP)
+
+JA Bride
+
+
+ASSUMPTIONS
+    - you are a RHCE (or equivalent in a Unix environment)
+    - you are installing on Fedora 14,16 or Red Hat Enterprise Linux (RHEL) 6.*
+
+
+OVERVIEW
+    - PFP offers BRMS administrators & developers the following :
+      1)  this document which outlines the entire provisioning process of one example of a production BRMS deployable environment
+        - NOTE:  the tasks outlined in this document are written in sequential order
+        - subsequently, it's best to start at the beginning of this document and progress in the order this doc is written
+        - this document includes the following chapters:
+            1)  ASSUMPTIONS
+            2)  OVERVIEW
+            3)  INSTALL
+            4)  POST INSTALL ADMINISTRATION
+
+      2)  an ant script which is executed as part of this BRMS deployable provisioning
+        - what does the ant script do ?
+            - once Apache Ant 1.8.3 has been installed (as outlined below in this document), 
+              you'll be able to view a description of the various ant targets by executing from the root of this project:   ant -p
+        - how is the ant script executed ?
+            - there is a section towards the latter part of this document entitled:  "deploy BRMS runtime artifacts to JBoss EAP"
+            - if provisioning a new BRMS environment, then this section explains the how to execute the ant script to do that
+            - please ensure all of the previous steps outlined in this document have been completed prior to executing the ant script
+
+
+
+INSTALL   :
+    -- NOTE:  almost all of the following tasks can (and should probably be) automated via a kickstart provisioning script
+
+    -- networking
+        -- HOSTNAME
+            -- ensure that target OS has a hostname (preferrably with relevance to this jbpm5 project) that is not 'localhost' or 'localhost.localdomain'
+            -- a permanent change to the hostname of the operating system can be conducted as follows :
+                    (as root) :  modify value of 'HOSTNAME' in :   vi /etc/sysconfig/network
+                             init 6 (bounce the operating system)
+        -- mapping in /etc/hosts
+                -- ensure that the OS hostname is correctly mapped to the ethernet interface 
+                    (as root) :  modify /etc/hosts such that it has entries similar to the following (example assumes 'fedora14-jbpm5' is OS hostname):
+
+                        192.168.122.10  fedora14-jbpm5
+
+        NOTE:  often times, the OS hostname will already be mapped to the localhost interface.  
+            It is important to remove that mapping and ensure that only the mapping between the OS hostname and the ethernet NIC exists
+
+
+
+    -- Red Hat Network (RHN)
+        NOTE:  this section is only applicable if environment to be built is either on Red Hat Enterprise Linux (RHEL) 5.* or 6.*
+
+        -- RHN registration
+                -- set web proxy for rhn_register
+                    -- (as root)    vi /etc/sysconfig/rhn/up2date
+                                        enableProxy=1
+                                        httpProxy=http://<my.proxy.url>:8080
+                -- (as root) :     rhn_register
+
+        --  RHN channel modifications
+                -- after system registration is complete, open any browser (from any computer) and log into http://rhn.redhat.com
+                -- select your system and then click 'Alter Channel Subscriptions".  Select the following channels and click 'change subscriptions'
+                    Base Channel
+                        * Red Hat Enterprise Linux (v. 5 for 64-bit x86_64)
+                    Release Channels for RHEL 5 for x86_64
+                        * RHEL Supplementary (v5 for x86_64)
+                    Additional Service Channels for RHEL 5 for x86_64
+                        * JBoss Application Platform (v 5.x) for x86_64
+                -- logout of Red Hat Network
+                -- NOTE:  this can be done programmatically.  Example as follows :
+                     yum install rhn-setup.noarch"  # to install rhn-channel
+                     rhn-channel -u SteveMarney -p <my passwd> -a jb-ewp-5-x86_64-server-5-rpm 
+                     rhn-channel -u SteveMarney -p <my passwd> -a rhel-x86_64-server-supplementary-5
+
+        -- enable RHN Plugin
+                -- it is possible that the access to the RHN repository is disabled.
+                -- a disbled RHN repository becomes evident when executing 'yum update' and only the 'security' plugin appears enabled
+                -- enable the RHN plugin in the following file :
+                    /etc/yum/pluginconf.d/rhnplugin.conf
+
+
+
+    -- Java Development Kit
+            -- ensure that either OpenJDK or Sun JDK 1.6 is installed
+                (as root) :     yum install java-1.6.0-openjdk
+                                yum install java-1.6.0-openjdk-devel
+                        or
+                                yum install java-1.6.0-sun
+                                yum install java-1.6.0-sun-devel
+
+
+
+    -- 'jboss' operating system user
+            - there are some processFlowProvision steps that require root privledges.
+            - the majority of steps should NOT be executed as root.
+            - instead, processFlowProvision assumes an operating system user called 'jboss' that has non-root privledges
+            (as root) : useradd -u 600 -g 100 -d /home/jboss -m -s /bin/bash jboss
+            (as root) : passwd jboss
+
+
+
+
+    --  $JBOSS_PROJECTS directory
+            -- make a 'jbossProjects' directory and have it owned by jboss:jboss
+                (as root) :     mkdir -p /opt/jbossProjects/jboss
+                                mkdir /opt/jbossProjects/downloads
+                                chown -R jboss:100 /opt/jbossProjects
+
+    --  git and wget
+        (as root)   :   yum install git wget
+
+
+    --  required PFP shell environment variables
+      - processFlowProvision is reliant on the following shell environment variables :
+          JBOSS_HOME        :   location of JBoss EAP
+          PFP_HOME          :   location of process flow provision project
+          JBOSS_PROJECTS    :   default location of PFP service task repository and guvnor filesystem
+          HORNETQ_HOME      :   location of hornetq distribution
+      - these environment variables are set via the standard ~/.bashrc
+      - processFlowProvision maintains a template bashrc
+      - execute the following to copy the template bashrc to the 'jboss' users home directory :
+            (as jboss):     cd /opt/jbossProjects/processFlowProvision
+                            cp ~/.bashrc ~/.bashrc.bak
+                            cp conf/shell/bashrc ~/.bashrc
+                            cp conf/git/git_completion ~/.git_completion
+                            ( review the newly copied ~/.bashrc and modify where appropriate )
+                            source ~/.bashrc
+
+                                
+      --  firewall configuration
+            -- this processFlowProvision project currently disables the  operating system firewall.  Please do so as follows :
+                (as root) :     chkconfig --level 2345 iptables off
+                                service iptables stop
+            -- if the decision is ever made to enable the operating system firewall, this project does include a sample modified iptables config file
+            -- this sample iptables includes modifications to allow for Tomcat, HornetQ, PostgreSQL and JNP traffic
+                (as root) :     cp /etc/sysconfig/iptables /etc/sysconfig/iptables.bak 
+                                cp /opt/jbossProjects/processFlowProvision/conf/iptables/iptables /etc/sysconfig
+                                chkconfig --level 2345 iptables on
+                                service iptables restart
+
+
+                                
+     -- Apache Ant
+        -- this project requires Apache Ant v. 1.8.3 along with the ant-contrib library
+
+        -- if Ant v. 1.8.3 is not already installed, download from the following : http://ant.apache.org/bindownload.cgi
+
+        -- upon completion of download, unzip apache-ant-1.8.3-bin.zip  to the '$JBOSS_PROJECTS/' directory
+            (as jboss):
+                unzip $JBOSS_PROJECTS/downloads/apache-ant-1.8.3-bin.zip -d $JBOSS_PROJECTS/
+
+        -- copy ant-contrib*.jar to $ANT_HOME/lib
+            - ant-contrib is already provided in this PFP download.  You'll just need to copy it over to $ANT_HOME/lib as follows:
+            (as jboss):
+                cp $JBOSS_PROJECTS/processFlowProvision/lib/ant/ant-contrib-1.0b3.jar $JBOSS_PROJECTS/apache-ant-1.8.3/lib
+
+        -- network considerations for Apache Ant (optional if behind corporate firewall)
+            -- the processFlowProvision build attempts to download via the internet several components to include guvnor, 'designer' and the bpm gwt console
+            -- subsequently, Ant will need to be configured to route internet requests through a web proxy if build environment is behind a corporate firewall
+            -- the 'ANT_OPTS' environment variable, such as the following, is used to configuring networking for Ant :
+                ANT_OPTS="-Dhttps.proxyHost=<my.proxy.host> -Dhttps.proxyPort=8080 -Dhttp.proxyHost=<my.proxy.host> -Dhttp.proxyPort=8080"
+
+
+
+    --  postgresql RDBMS
+            -- if using RHEL 5.5
+                (as root) :     yum install postgresql84\*
+                                yum install postgresql-jdbc
+            -- if using Fedora 14/15/16 or RHEL 6
+                (as root) :     yum install postgresql
+                                yum install postgresql-server
+                                yum install postgresql-jdbc
+
+            --  ensure that postgresql 'service' is on at runlevels 3,4 & 5 (RHEL 5.*, Fedora 14)
+                (as root) :     chkconfig --level 345 postgresql on
+            --  ensure that postgresql 'service' is automatically started at boot (Fedora 16)
+                (as root) :     systemctl enable postgresql.service
+
+            --  change password of 'postgres' operating system user to 'postgres'
+                (as root) :      passwd postgres
+          
+            --  start the postgresql service (RHEL 5 / Fedora 14)
+                (as root) :     service postgresql initdb
+                                service postgresql start
+
+            --  start the postgresql service (RHEL 6 / Fedora 16)
+                (as postgres)   :   initdb -D /var/lib/pgsql/data
+                (as root)       :   systemctl start postgresql.service
+
+            --  switch user to 'postgres' and create necessary databases
+                su - postgres
+                createdb jbpm
+                createdb jbpm_bam
+                createdb guvnor
+                createdb esb    (optional :  create the 'esb' database if your target runtime is an ESB)
+            -- as 'postgres' user, modify socket that postgresql will listen on
+                -- modify the following configuration file  :   /var/lib/pgsql/data/postgresql.conf 
+                -- at the following property :                  listen_addresses = '*'
+                -- example is provided in :                     conf/postgresql/postgresql.conf
+            -- as 'postgres' user, modify network permissions for remote connections to postgresql
+                -- modify the following configuration file  :   /var/lib/pgsql/data/pg_hba.conf
+                -- at the following property :                  host    all     all     <network address>/16  md5
+                -- example is provided in :                     conf/postgresql/pg_hba.conf
+            -- as 'postgres' user, create users and passwords in postgresql RDBMS
+                psql -d postgres -f /opt/jbossProjects/processFlowProvision/conf/postgresql/processFlowProvision.sql
+
+            -- bounce postgresql server process
+                -- (as root) service postgresql restart
+
+            -- enable DRL logging in Postgresql (OPTIONAL)
+                -- (as postgres) vi /var/lib/pgsql/data/postgresql.conf
+                    -- uncomment 'log_statement' and modify its value to 'all'.  An example as follows :
+                        log_statement = 'all'
+                -- (as root)    service postgresql reload
+
+
+
+ 
+    -- JBoss Enterprise App Platform (JBoss EAP)
+            -- processFlowProvision is deployed in a JBoss EAP container.
+            -- the latest binary distro of JBoss EAP will need to be manually downloaded and installed on each target machine
+            -- download the jboss-eap-5.1.0.zip to $JBOSS_PROJECTS/downloads
+
+                -- aquire directly from Red Hat Support Portal :
+                    https://access.redhat.com/jbossnetwork/restricted/listSoftware.html?downloadType=distributions&product=appplatform&version=5.1.2
+
+                -- otherwise, if your organization has standardized on a particular EAP 5.* and that EAP download is available on a corporate server,
+                    then feel free to use that
+
+            -- upon completion of download, unzip JBoss EAP to the '$JBOSS_PROJECTS/jboss' directory
+              (as jboss)
+                    unzip $JBOSS_PROJECTS/downloads/jboss-eap-5.1.0.zip -d $JBOSS_PROJECTS/jboss
+
+
+    -- messaging
+            - processFlowProvision makes use of a JMS messaging provider for several use cases to include transport of BRMS BAM events
+            - two JMS providers are supported :   Hornetq 2.2.14   or MRG-M (0.10 or greater)
+            - selection of the messaging provider is via the following property in processFlowProvision/build.properties :      org.jboss.processFlow.messagingProvider
+
+            --  HornetQ 
+                -- this build procedure assumes a stand-alone clustered HornetQ installed on a partition called '$JBOSS_PROJECTS'
+                -- in eLabs, '$JBOSS_PROJECTS' is mounted on a SAN for High Availability / fail-over support
+                -- if provisioning this environment outside of eLabs, then '$JBOSS_PROJECTS' can simply be a physical partition on a local disk
+
+                -- (as root) mkdir -p $JBOSS_PROJECTS/jboss     
+                -- (as root) chown -R jboss:users $JBOSS_PROJECTS
+                -- (as jboss)  cd $JBOSS_PROJECTS/downloads
+                -- (as jboss)  wget http://downloads.jboss.org/hornetq/hornetq-2.2.14.Final.tar.gz
+                -- (as jboss)  tar -zxvf $JBOSS_PROJECTS/downloads/hornetq-2.2.14.Final.tar.gz -C $JBOSS_PROJECTS/jboss
+
+                -- route HornetQ broadcast traffic to a specific network interface card (if Hornetq is bound to a NIC that is not the default for the OS)
+                    -- (as root) : route add -net 231.0.0.0 netmask 255.0.0.0 eth0
+
+
+                                or
+
+
+            -- Qpid/Red Hat Messaging
+                -- (as root) :  yum install qpid-cpp-client qpid-cpp-server qpid-cpp-server-store qpid-tools
+                -- (as root) :  qpid-config -a $HOSTNAME:5672 add exchange direct org.jboss.direct
+
+
+    -- BRMS 5.3 Early Adapter libraries
+        -- processFlowProvision is an extension of Red Hat BRMS
+        -- subsequently, processFlowProvision is reliant on BRMS libraries and runtime artifacts
+        -- these BRMS libraries and runtime artifacts can be aquired via the Red Hat Partner site (applicable until June 2012 while BRMS Early Adapter program is on going)
+
+        (as jboss)  cd $JBOSS_PROJECTS/processFlowProvision
+                    vi processFlowProvision/build.properties     
+                        ensure that:  upstream.jbpm5.drools.libs.type=BRMS 
+
+
+
+
+deploy BRMS runtime artifacts to JBoss EAP
+  (as jboss)
+      cd $JBOSS_PROJECTS/processFlowProvision
+      vi build.properties    (please review/modify properties as appropriate as explained in this configuration file)
+      execute:   ant
+
+
+    start HornetQ
+        -- NOTE :  the following assumes $JBOSS_PROJECTS/processFlowProvision/bin is in the 'jboss' user's path
+                    see previous instructions for enabling a working 'bashrc'
+        (as jboss)   :  start_hornetq.sh
+
+    verify HornetQ TCP socket listeners
+        (as jboss)  :   netstat -ntlp | grep java
+
+        the following are results from the above netstat query (NOTE:  this results may differ depending on ports specified in build.properties) :
+           tcp        0      0 :::1597                     :::*                        LISTEN      4153/java            (com.sun.management.jmxremote.port for remote debugging)
+           tcp        0      0 ::ffff:192.168.122.1:1598   :::*                        LISTEN      4153/java            (jnp.rmiPort for the hornetq jndi provider)
+           tcp        0      0 ::ffff:192.168.122.1:1599   :::*                        LISTEN      4153/java            (jnp.port for the hornetq jndi provider)
+           tcp        0      0 ::ffff:192.168.122.1:5545   :::*                        LISTEN      4153/java            (hornetq.remoting.netty.port )
+           tcp        0      0 :::33421                    :::*                        LISTEN      4153/java            ( ???? )
+
+    verify Horneq UDP socket listeners
+        (as jboss)  :   netstat -nulp | grep java
+
+        the following are results from the above netstat query (NOTE:  this results may differ depending on ports specified in build.properties) :
+          udp        0      0 :::37313                    :::*                                    4153/java             ( ???? )
+          udp        0      0 :::9876                     :::*                                    4153/java             (this is the :  broadcast port )
+    
+                   
+
+    start JBoss EAP
+        -- NOTE :  the following assumes $JBOSS_PROJECTS/processFlowProvision/bin is in the 'jboss' user's path
+                    see previous instructions for enabling a working 'bashrc'
+        (as jboss)   :   start_jboss.sh
+
+
+
+
+POST INSTALL ADMINISTRATION
+
+
+    jboss-brms
+        -- point browser to the following URL   :  http://<$HOSTNAME>:8080/jboss-brms
+            - userId / password = admin/admin
+            
+            -- building "defaultPackage"
+                - it's been observed that defaultPackage needs to be built in Guvnor even if that package will not being used
+                - if this is a fresh Guvnor install, then navigate Guvnor as follows :
+                    Knowledge Bases --> Packages --> defaultPackage --> Edit --> "Build package"
+
+        -- BPMN2 designer
+            -- embedded as part of Drools is an actively developed BPMN2 designer using HTML 5 technologies
+            -- this BPMN2 web designer is a collaborative effort between Red Hat and Intalio
+            -- the codename for the project is called 'wapama' and is a successor to the now deprecated 'oryx' project
+            -- project home page can be found here :
+                -- http://www.wapama.net/team.html
+            -- video tutorials on designer are made available at vimeo by the user : tsurdilo
+            -- a nice tutorial on custom 'Service Tasks' in designer can be found here :  http://vimeo.com/26126678
+            -- example bpmn2 diagrams developed by designer can be found in the jbpm5 source code :  $JBOSS_PROJECTS/jboss/jbpm/jbpm-examples/src/main/resources
+        -- guvnor REST API :
+            http://<hostName>:8080/jboss-brms/rest/packages        :   list contents of each package
+
+
+    HornetQ queues
+        -- upon start-up of JBossEAP, several queues will be created in the local HornetQ messaging provider
+        -- newly created HornetQ objects can be inspected on a running HornetQ environment via the jdk 'jconsole' utility
+        -- (as jboss)    :   jconsole --> New Connection dialogue box should appear --> 'org.hornetq.integration.bootstrap.HornetQBootstrap' process --> connect
+                             MBeans --> org.hornetq --> Queue --> Core
+
+           the following queues should be avaliable :
+            -  jms.queue.DLQ                                    :   not currently used
+            -  jms.queue.ExpiryQueue                            :   not currently used
+            -  jms.queue.processFlow.eventQueue                 :   queue that eventService listens on
+            -  jms.queue.processFlow.asyncWorkingMemoryLogger   :   used for transport of BAM events
+
+
+    service tasks repository
+        - this project contains a demo of how to create an internal service task repository
+        - please reference privateServiceTaskRepo/README.txt for more details
+
+
+    jbpm-console
+        -- point browser to the following URL   :  http://<$HOSTNAME>:8080/jbpm-console
+        -- login as:  admin / admin
+
+
+    REST interfaces
+        -- this jbpm5 provisioning process includes the installation of a runtime component called the : 'gwt-console-server' (different than the jbpm-console)
+        -- point browser to the following URL   :  http://<$HOSTNAME>:8080/gwt-console-server/rs/server/resources
+        -- Of possible interest is that the above URL is the root path to a variety of jbpm5 RESTful resources
+        -- The jbpm5 process management resources exposed via this API are predominantly exposed as application/JSON representations
+        -- this REST API can be invoked via the command line.  Example as follows :
+            curl -u admin:admin $HOSTNAME:8080/gwt-console-server/rs/process/definitions
+
+                
+    Eclipse Tooling                
+        -- NOTES:  
+            -- Eclipse does not need to be co-located in the same virtual machine as the jbpm5 runtime 
+            -- also, probably best to use a fresh install of eclipse-java-helios that does not have any other JBoss related components such as JBoss Tools
+
+        -- BPMN2 Modeler Project
+            -- http://eclipse.org/projects/project.php?id=soa.bpmn2-modeler
+            -- CodeHoop was contracted by Red Hat to create an initial version of this editor
+            -- We (Red Hat) then further extended this codebase and moved it to eclipse.org
+            -- So the codebase referred to here:  https://github.com/imeikas/BPMN2-Editor-for-Eclipse/wiki ..... is an early version of this extended version
+            -- So this extended version is the same editor as referred to here:
+                -- http://kverlaen.blogspot.com/2011/02/new-bpmn-20-eclipse-editor.html
+   
+        -- legacy Drools-Flow Eclipse plugin
+            -- This legacy Drools-Flow eclipse plugin is a combination of two plugins, located at:
+                -- http://anonsvn.jboss.org/repos/jbosstools/trunk/bpmn/plugins/org.jboss.tools.jbpm/
+                -- https://github.com/droolsjbpm/droolsjbpm-tools/tree/master/drools-eclipse
+            -- if interested in using the legacy Drools Flow plugin for eclipse (rather than the new BPMN2 editor from codehoop) , execute the following : 
+                -- ensure that the 'eclipse.home' property is set correctly in $JBOSS_PROJECTS/processFlowProvision/build.properties
+                -- (as jboss) cd $JBOSS_PROJECTS/processFlowProvision
+                -- ant install.drools-eclipse.into.eclipse  (note:  this will install both jbpm5 and guvnor plugins into eclipse)
+
+        -- Eclipse Guvnor Tools (EGT)
+            -- the Eclipse Guvnor Tools can be used with either the BPMN2 Visual Editor or the legacy Drools-Flow Eclipse plugin
+            -- user documentation on Eclipse Guvnor Tools can be found here :
+                -- http://docs.jboss.org/drools/release/5.2.0.CR1/drools-guvnor-docs/html_single/index.html#d0e1173
+            -- if installing the Eclipse Guvnor Tools, execute the following :
+                --  (as jboss) cd $JBOSS_PROJECTS/processFlowProvision
+                -- ensure that the 'eclipse.home' property is set correctly in $JBOSS_PROJECTS/processFlowProvision/build.properties
+                -- ant install.drools-eclipse.into.eclipse  (note:  this will install both jbpm5 and guvnor plugins into eclipse)
+                
+        -- To install Drools-Flow and Guvnor plugins manually on a Windows Eclipse client
+            -- Download the following to a temporary directory :
+                https://repository.jboss.org/nexus/content/repositories/snapshots/org/drools/org.drools.updatesite/5.4.0-SNAPSHOT/org.drools.updatesite-5.4.0-20111010.153938-36-assembly.zip
+            -- Unzip the contents of the zip file into the temporary directory (which creates both a plugins and a features subdirectory in addition to a number of files in the root of the temp directory).
+            -- Copy the contents of the 'plugins' and 'features' subdirectories to the equivalent subdirectories under the <eclipse home> directory.
+
+            -- start eclipse ....should be able to navigate to the following :
+                Window --> Show View --> other --> Guvnor --> Guvnor Repositories
+
+
+
+
+modifications to runtime directory structure
+  - $JBOSS_HOME/server/default-${organization.name}             
+        - PFP enabled JBoss runtime
+        - created with execution of 'ant' from $JBOSS_PROJECTS/processFlowProvision
+        - new directory is cloned from $JBOSS_HOME/server/default and then modified with BRMS and PFP enhancements
+
+
+  - $JBOSS_HOME/server/default-${organization.name}/deploy/${organization.name}
+        - hot deployable runtime directory with most BRMS and PFP artifacts
+
+  
+  - $JBOSS_HOME/server/default-${organization.name}/deploy/properties-service.xml
+        - MBean that registers various BRMS and PFP system properties
+
+
+  - $JBOSS_HOME/server/default-${organization.name}/lib/${organization.name}
+        - location of all BRMS and PFP static libraries
+        - JBoss adds these static libraries to its unifiedclassloader where these classes are accessible by all runtime artifacts
+
+
+
+
+
+Guvnor Configurations
+    1) background :
+        - Guvnor 'packages' are created in Guvnor as per: http://docs.jboss.org/drools/release/5.4.0.CR1/drools-guvnor-docs/html_single/index.html#d0e361
+        - in PFP, the KnowledgeSessionService is a client to Drools Guvnor
+        - a single instance of a Drools KnowledgeBase is managed by the PFP KnowledgeSessionService
+        - other components in PFP, such as the gwt-console-server, use the knowledgeSessionService as a proxy to Guvnor
+        - the knowledgeSessionService needs to be explicity configured to query for your specific packages in Guvnor
+        - for example, if you've created (or intend to create) a Guvnor package called:  org.my.package
+          then, the the knowledgeSessionService needs to be configured to query guvnor using the package name as a key:  org.my.package
+        - configuring the knowledgeSessionService is done via the guvnor.packages property as described below
+
+    2) guvnor.packages property
+        - please pay particular attention to the following property in $PFP_HOME/build.properties:  guvnor.packages   
+        - this is a comma seperated list of guvnor packages that the PFP KnowledgeSessionService will use to query Guvnor to build the Drools knowledgeBase
+        - please configure this property with a list of one or more of your Guvnor packages
+        - once a change to this property is made, please execute the following :
+            1)  ensure the JBoss EAP on that machine is shutdown
+            2)  from the root of PFP, execute :   ant
+            3)  restart JBoss EAP specifying the default-${organizational.name} configuration
+        - these instructions super-cede similar instructions provided in Chapter 16 of the jbpm5 User Guide:  Process Repository
+
+    3)  printKnowledgeBaseContent() helper function
+        - the PFP IKnowledgeSessionService interface exposes a function called:  printKnowledgeBaseContent()
+        - the purpose of this function is to view which packages (and the process definitions of each package) that the 
+          knowledgeSessionService's knowledgeBase is aware of
+        - this function can be invoked remotely by an EJB client or via the JBoss EAP jmx-console 
+
+
+
+Guvnor automation
+    -   guvnor-webapp-core/src/test/java/org/drools/guvnor/server/jaxrs/BasicPackageResourceTest.java
+    - curl -u admin:admin -HAccept:application/xml http://ratwaterIBM:8080/jboss-brms/rest/packages       > allPackages.xml
+    - curl -u admin:admin $HOSTNAME:8080/jboss-brms/rest/packages/org.jboss.processFlow/binary   > org.jboss.processFlow_LATEST.pkg
+    - curl -u admin:admin $HOSTNMAME:8080/jboss-brms/rest/packages/test-pfp-snapshot/binary   > org.jboss.processFlow_test-pfp-snapshot.pkg 
+
+    - Publish Drools artifacts from a production environment
+        - https://community.jboss.org/wiki/PublishDroolsartifactsfromaproductionenvironment
+    - Guvnor REST API
+        - http://docs.jboss.org/drools/release/5.3.0.Beta1/drools-guvnor-docs/html/ch09.html#d0e1695
+
+
+
+Work Item Handlers in ProcessFlowProvision
+    in jbpm5, there are both bpmn2 editor and runtime considerations when working with work item handlers
+    bpmn2 editor considerations as follows :
+        1)  the procedure for defining Service Tasks is the same whether using the jbpm5 web "Designer" or legacy Eclipse Drools-Flow Plugin
+        2)  defining Service Tasks
+            -- please see the following section of the jbpm5 User Guide:  6.5.2 Service Task
+        3)  private Service Task Repositories
+            - please see :   processFlowProvision/privateServiceTaskRepo/README.txt
+
+
+    runtime considerations as follows :
+        -- Creating & configuring custom work item handlers in processFlowProvision is almost identical to creating custom work item handlers in stock BRMS
+        -- Background Documentation :       12.1.3  Registering your own service handlers
+        -- The following are a few processFlowProvision additions :
+
+        1)  programmatically registered work item handlers
+          -- every StatefulKnowledgeSession managed by the processFlowProvision knowledgeSessionService is automatically registered with
+           the following workItemHandlers :
+            1)  "Human Task"    :   org.jboss.processFlow.tasks.WSHumanTaskHandler
+            2)  "Skip Task"     :   org.jboss.processFlow.tasks.PFPSkipTaskHandler
+            3)  "Fail Task"     :   org.jboss.processFlow.tasks.PFPFailTaskHandler
+            4)  "Email"         :   org.jboss.processFlow.tasks.PFPEmailWorkItemHandler
+
+
+        2)  defining configurable work item handlers
+          -- jbpm5 allows for more than one META-INF/drools.session.conf in the runtime classpath 
+            -- subsequently, there is the potential for mulitple locations that define custom work item handlers
+          -- the abiity to have multiple META-INF/drools.session.conf files on the runtime classpath most likely will lead to 
+                 increased difficulty isolating problems encountered with defining and registering custom work item handlers
+          -- processFlowProvision/build.properties includes the following property:  space.delimited.workItemHandler.configs
+          -- rather than allowing for multiple locations to define custom work item handlers, 
+                use of the 'space.delimited.workItemHandler.configs' property centralalizes where to define additional custom workItemHandlers 
+          -- please see documentation provided for that property in the build.properties
+
+
+        3)  org.jboss.processFlow.knowledgeService.IKnowledgeSessionService.printWorkItemHandlers()
+          -- helper function to troubleshoot runtime configuration and classpath issues regarding custom work item handlers
+          -- please see the javadocs for the 'printWorkItemHandlers' function for IKnowledgeSessionService
+
+
+
+deploy-time customizations to PFP EJB services
+  - all PFP services are deployed in the JBOSS deploy directory as exploded jars
+  - this allows for easy accessibility to the EJB (and JBoss extension) descriptor files at deploy time 
+
+
+Task Validation in PFP
+    - jbpm5 allows for use of a org.jbpm.task.service.UserGroupCallback implementation to determine :
+        - boolean existsUser(String userId);
+        - boolean existsGroup(String groupId);
+        - List<String> getGroupsForUser(String userId, List<String> groupIds, List<String> allExistingGroupIds)
+    - when enabled, this UserGroupCallback functionality will automatically load non-existent users and groups into the OrganizationEntity table
+    - doing so avoids the need for loading of legacy LoadUsers.mvel and LoadGroups.mvel while at the same time ensuring referential integrity
+        of the task database is maintained
+    - in PFP, we do enable the UserGroupCallback functionality of jbpm5 and implement a simplistic:  org.jboss.processFlow.tasks.PFPUserGroupCallback
+    - the purpose of enabling the UserGroupCallback functionality in PFP is simply to avoid having to pre-load Users and Groups into the OrganizationEntity table
+    - log statement when org.jbpm.task.identity.UserGroupCallbackManager detects jbpm.usergroup.callback properties file on classpath will be :
+        UserGroupCallback registered from properties file: org.jboss.processFlow.tasks.PFPUserGroupCallback
+
+    - in PFP, actual task validation can occur (where/when needed on a customer basis) in the EJB3 tier
+    - delegating security to the EJB3 tier provides PFP with the following :
+        1)  a standards based security implementation across all PFP functionality :  knowledgeSessionService, taskService and bamService
+
+
+asynch messaging in PFP
+    - there is lots of confusion as to where and why PFP leverages asynch messaging 
+    - the $PFP_HOME/README.txt briefly discusses where messaging is used ... but hopefully this paragraph clarifies further
+    - where messaging is NOT used in PFP :
+        - jbpm5 includes various "transport" implementations for human task lifecycle management
+        - possible "transport" implementations include Mina, Hornetq Core, JMS and "Local"
+        - PFP does not use any of the above "transport" implementations for human task lifecycle management
+        - instead, PFP exposes a Human Task API based on EJB3
+        - the implementation of this PFP Human Task API leverages the jbpm5 TaskServiceSession directly and in that sense is very similar
+            to the new "Local" implementation provided by jbpm5
+        - PFP currently does not leverage the "Local" implementation only because our implementation pre-dates the newer "Local" implementation
+        - on our TO-DO list, is to still expose the same EJB3 based Human Task API but leverage the jbpm5 "Local" implementation internally
+        - but back to why PFP does NOT use a messaging provider as the transport for Human Task lifecycle management ....
+            1)  single-threaded
+                - both the jbpm5 Hornetq Core and JMS Task Server implementations are single-threaded
+                - neither is implemented as an MDB and there is no thread management in either of these Task Servers that would allow for concurrency
+                - so our performance tests have highlighted that both of these Task Server implementations quickly becomes a performance bottleneck
+            2)  complex
+                - the jbpm5 Hornetq Core and JMS Task implementations are too complex for our needs
+                - sometimes complexity is needed, but in this case the added de-bugging/administraton of these implementations has been too costly
+
+    - where messaging IS used in PFP :
+        - as per the jbpm5 ProcessEventListener interface, the jbpm5 process engine can fire events at various stages in the lifecycle of a process instance
+        - one ProcessEventListener implementation that can be registered with the jbpm5 process engine is PFP's:  org.jboss.processFlow.bam.AsyncBAMProducer
+        - as the name implies, this ProcessEventListener implementation fires events with process instance data that will subsequently be used to populate
+            a BAM database
+        - the jbpm5 base product has a similar ProcessEventListener implementation that also populates a BAM database with process instance data
+        - the difference between the two implementations, however, is that the org.jboss.processFlow.bam.AsyncBAMProducer sends these BAM events to 
+            an asynch messaging provider (either Hornetq or RH-M) rather than inserting BAM events immediately into a RDBMS
+        - the reason for this async BAM approach is performance
+            - with BAM reporting turned off, the core jbpm5 process engine is lightning fast and stable
+            - PFP attempts to limit performance degradation of the jbpm5 process engine while still supporting BAM reporting
+            - the journalling file system of either Hornetq or RH-M can be significantly faster than a RDBMS ... subsequently PFP sends its 
+                BAM events to a messaging broker
+            - PFP implements a BAMService MDB that ultimately consumes BAM events and inserts into a different BAM data wharehouse in batch

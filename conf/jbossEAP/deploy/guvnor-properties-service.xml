@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE server>
+<!-- $Id: properties-service.xml 16662 2003-08-27 04:38:22Z patriot1burke $ -->
+
+<server>
+
+  <mbean code="org.jboss.varia.property.SystemPropertiesService" 
+	 name="guvnor:type=Service,name=SystemProperties">
+
+    <attribute name="Properties">
+        guvnor_connection_url=${guvnor_connection_url}
+        guvnor_driver_class=${guvnor_driver_class}
+    </attribute>
+
+  </mbean>
+
+</server>

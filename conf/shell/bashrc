@@ -1,0 +1,39 @@
+# .bashrc
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+	. /etc/bashrc
+fi
+
+JAVA_HOME=/usr/lib/jvm/java-1.6.0
+JBOSS_PROJECTS=/opt/jbossProjects
+HORNETQ_HOME=${JBOSS_PROJECTS}/jboss/hornetq-2.2.2.Final
+PFP_HOME=$JBOSS_PROJECTS/processFlowProvision
+ANT_HOME=$JBOSS_PROJECTS/apache-ant-1.8.2
+JBOSS_HOME=$JBOSS_PROJECTS/jboss/jboss-eap-5.1/jboss-as
+
+#ANT_OPTS="-Dhttps.proxyHost=<my.proxy.url> -Dhttps.proxyPort=8080 -Dhttp.proxyHost=<my.proxy.url> -Dhttp.proxyPort=8080"
+
+PATH=$PATH:/sbin
+PATH=$PATH:/usr/sbin
+PATH=$PATH:$JAVA_HOME/bin
+PATH=$PATH:$JBOSS_HOME/bin
+PATH=$PATH:$ANT_HOME/bin
+PATH=$PATH:$PFP_HOME/processFlowProvision/bin
+
+GIT_COMPLETION_PATH="/home/jboss/.git_completion"
+if [ -f "$GIT_COMPLETION_PATH" ]; then
+   GIT_PS1_SHOWDIRTYSTATE=true
+   . "$GIT_COMPLETION_PATH"
+   ADD_PS1='$(__git_ps1)'
+fi
+
+if [[ ${EUID} == 0 ]] ; then
+      PS1="\[\033[01;31m\]\h\[\033[01;34m\] \w\[\033[33m\]$ADD_PS1\[\033[34m\] \$\[\033[00m\] "
+else
+      PS1="\[\033[01;32m\]\u@\h\[\033[01;34m\] \w\[\033[33m\]$ADD_PS1\[\033[34m\] \$\[\033[00m\] "
+fi
+
+export JAVA_HOME JBOSS_HOME ANT_HOME HORNETQ_HOME JBOSS_PROJECTS PFP_HOME ANT_OPTS
+
+# User specific aliases and functions

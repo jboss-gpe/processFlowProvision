@@ -1,0 +1,19 @@
+<project name="adminConsole" default="adminConsole" basedir="./adminConsole">
+
+    <target name="adminConsole" depends="adminConsoleClean,setClasspath" >
+        <mkdir dir="${subproject.build}" />
+        <javac debug="true" srcdir="${subproject.name}/src/main/java" destdir="${subproject.build}" >
+            <classpath refid="classpath" />
+        </javac>
+        <jar jarfile="${runtime.lib.dir}/processFlow-${subproject.name}.jar" basedir="${subproject.build}" />
+    </target>
+
+    <target name="adminConsoleClean" depends="adminConsoleInit" >
+        <delete dir="${subproject.build}" />
+    </target>
+
+    <target name="adminConsoleInit" >
+        <var name="subproject.name" value="adminConsole" />
+        <var name="subproject.build" value="${subproject.name}/${build.dir}" />
+    </target>
+</project>

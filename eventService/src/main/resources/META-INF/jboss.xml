@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE jboss PUBLIC "-//JBoss//DTD JBOSS 4.0//EN" "http://www.jboss.org/j2ee/dtd/jboss_4_0.dtd">
+
+<jboss>
+   <enterprise-beans>
+      <message-driven>
+         <ejb-name>HandleEventsMDB</ejb-name>
+         <resource-adapter-name>${jms_resource_adapter_name}</resource-adapter-name>
+         <depends>${jms_resource_adapter_objectName}</depends>
+         <depends>org.jboss.processFlow.eventService:application=eventingEMF,type=statistics</depends>
+      </message-driven>
+   </enterprise-beans>
+</jboss>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tasks>
+    <task name="DataBindingTask">
+        <entry key="USERACTION"/>
+        <entry key="ATTACHMENTS" value-type="list&lt;org.jboss.processFlow.console.task.AttachmentInfo&gt;"/>
+        <entry key="FIELDVALUES" value-type="map"/>
+    </task>
+
+    <task name="UA0001">
+        <entry key="MAINCASEID" value-type="long"/>
+        <entry key="BUSINESSPROCID" value-type="integer"/>
+        <entry key="ACCOUNTNUM"/>
+        <entry key="BRANDID"/>
+        <entry key="DIARYEXPIRYDATE"/>
+        <entry key="DIARYEXPIRYTIME"/>
+        <entry key="DIARTDATETIME"/>
+        <entry key="DIARYREASON"/>
+        <entry key="DIARYTYPE"/>
+        <entry key="DIARYUSERID"/>
+        <entry key="DIARYUSERTEAM"/>
+        <entry key="KEEPDATE"/>
+        <entry key="KEEPREASON"/>
+        <entry key="KEEPUSERID"/>
+        <entry key="KEEPUSERTEAM"/>
+        <entry key="REFERDATE"/>
+        <entry key="REFERRSN"/>
+        <entry key="REFERUSERID"/>
+        <entry key="REFERTEAM"/>
+        <entry key="RELEASEDATE"/>
+        <entry key="RELEASEUSERID"/>
+        <entry key="RELEASEUSERTEAM"/>
+        <entry key="SERVICELINECODE"/>
+        <entry key="USERACTION"/>
+        <entry key="ATTACHMENTS" value-type="list&lt;org.jboss.processFlow.console.task.AttachmentInfo&gt;"/>
+    </task>
+    <task name="ERR001">
+        <entry key="fieldValues" value-type="map"/>
+        <entry key="fieldTypes" value-type="map"/>
+    </task>
+
+</tasks>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<datasources>
+    <local-tx-datasource>
+        <jndi-name>jbpm_bam</jndi-name>
+        <connection-url>${bam_connection_url}</connection-url>
+        <driver-class>${bam_driver_class}</driver-class>
+        <user-name>${bam_db_user}</user-name>
+        <password>${bam_db_password}</password>
+        
+        <prepared-statement-cache-size>10</prepared-statement-cache-size>
+        <min-pool-size>10</min-pool-size>
+        <max-pool-size>50</max-pool-size>
+        <blocking-timeout-millis>5000</blocking-timeout-millis>
+        <idle-timeout-minutes>15</idle-timeout-minutes>
+
+        <!-- in case using hypersonic, add this dependency ... if not using hypersonic, won't hurt anything -->
+        <depends>jboss:service=Hypersonic,database=localDB</depends>
+    </local-tx-datasource>
+    <!-- sql to call when connection is created.  Can be anything, select 1 is valid for PostgreSQL -->
+    <new-connection-sql>select 1</new-connection-sql>
+    <!-- sql to call on an existing pooled connection when it is obtained from pool.  Can be anything, select 1 is valid for PostgreSQL-->
+    <check-valid-connection-sql>select 1</check-valid-connection-sql>
+</datasources>

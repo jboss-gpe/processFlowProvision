@@ -1,0 +1,23 @@
+import org.drools.process.core.datatype.impl.type.IntegerDataType;
+import org.drools.process.core.datatype.impl.type.StringDataType;
+import org.jboss.processFlow.tasks.ITaskService;
+
+[
+
+  [
+    "name" : ITaskService.SKIP_TASK,
+    "description" : "allows for skipping of a task and continuing to next node of process instance",
+    "version" : "1.0",
+    "parameters" : [
+        ITaskService.TASK_ID : new IntegerDataType(),
+        ITaskService.TASK_STATUS : new StringDataType()
+    ],
+    "displayName" : ITaskService.SKIP_TASK,
+    "icon" : "pfpSkipTask.png",
+    "category" : "Communication",
+    "eclipse:customEditor" : "org.drools.eclipse.flow.common.editor.editpart.work.SampleCustomEditor",
+    "defaultHandler" : "org.jboss.processFlow.PFPSkipTaskHandler",
+    "dependencies" : [ ],
+    "documentation" : "index.html"
+  ]
+]

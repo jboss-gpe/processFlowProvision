@@ -1,0 +1,32 @@
+<project name="interfaces" default="interfaces" basedir="./interfaces">
+
+    <target name="interfaces" depends="interfacesClean,setClasspath" >
+        <echo message="subproject.name = ${subproject.name}" />
+        <mkdir dir="${subproject.build}" />
+        <mkdir dir="${temp.services.dir}" />
+
+        <copy file="conf/jbossEAP/deploy/jbpm5-bam-ds.xml" toDir="${jboss.server.deploy.dir}/${organization.name}" />
+
+        <javac debug="true" srcdir="${subproject.name}/src/main/java" destdir="${subproject.build}" >
+            <classpath refid="classpath" />
+        </javac>
+        <jar jarfile="${subproject.build}/processFlow-${subproject.name}.jar" 
+            basedir="${subproject.build}" 
+        />
+        <copy file="${subproject.build}/processFlow-${subproject.name}.jar" toDir="${runtime.lib.dir}" />
+
+        <javadoc sourcepath="${subproject.name}/src/main/java" destdir="${subproject.build}" />
+        <jar jarfile="${subproject.build}/processFlow-${subproject.name}-javadoc.jar" basedir="${subproject.build}" includes="**/*.html, **/*.css, **/*.gif" />
+        <copy file="${subproject.build}/processFlow-${subproject.name}-javadoc.jar" toDir="${runtime.lib.dir}" />
+    </target>
+
+    <target name="interfacesClean" depends="interfacesInit" >
+        <delete dir="${subproject.build}" />
+    </target>
+
+    <target name="interfacesInit" >
+        <var name="subproject.name" value="interfaces" />
+        <var name="subproject.build" value="${subproject.name}/${build.dir}" />
+    </target>
+
+</project>
