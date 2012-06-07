@@ -1,0 +1,65 @@
+<project name="setClasspath" >
+
+    <path id="base.classpath" >
+        <fileset dir="${jboss.home}/modules" >
+            <include name="**/*.jar" />
+        </fileset>
+        <fileset dir="${ENV.PFP_HOME}/lib" />
+        <fileset dir="${temp.ear.lib.dir}" />
+        <fileset dir="${temp.services.dir}" >
+            <include name="processFlow*.jar" />
+        </fileset>
+    </path>
+
+    <condition property="useCompiledJBPMLibs">
+        <equals arg1="${upstream.jbpm5.drools.libs.type}" arg2="COMMUNITY_SOURCE" />
+    </condition>
+    <condition property="useBRMS">
+        <equals arg1="${upstream.jbpm5.drools.libs.type}" arg2="BRMS" />
+    </condition>
+
+    <target name="setClasspath">
+        <if>
+            <isset property="useCompiledJBPMLibs"/>
+                <then>
+                    <path id="classpath">
+                    <path refid="base.classpath" />
+                        <fileset dir="${jbpm.source.dir}/jbpm-bam/target" ><include name="*.jar" /></fileset>
+                        <fileset dir="${jbpm.source.dir}/jbpm-human-task/jbpm-human-task-core/target" ><include name="*.jar" /></fileset>
+                        <fileset dir="${jbpm.source.dir}/jbpm-flow/target" ><include name="*.jar" /></fileset>
+                        <fileset dir="${jbpm.source.dir}/jbpm-flow-builder/target" ><include name="*.jar" /></fileset>
+                        <fileset dir="${jbpm.source.dir}/jbpm-bpmn2/target" ><include name="*.jar" /></fileset>
+                        <fileset dir="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-graph/target" ><include name="*.jar" /></fileset>
+                        <fileset dir="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-form/target" ><include name="*.jar" /></fileset>
+                        <fileset dir="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-shared/target" ><include name="*.jar" /></fileset>
+                        <fileset dir="${jbpm.source.dir}/jbpm-workitems/target" ><include name="*.jar" /></fileset>
+                        <fileset dir="${jbpm.source.dir}/jbpm-distribution/target/jbpm-${jBPM.version}-pre-bin/lib" ><include name="*.jar" /></fileset>
+                        <fileset dir="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-console-server/target/jbpm-gwt-console-server-${console.server.version}/WEB-INF/lib" >
+                            <include name="gwt-console*.jar" />
+                        </fileset>
+                    </path>
+                </then>
+        </if>
+        <if>
+            <isset property="useBRMS"/>
+                <then>
+                    <path id="classpath">
+                        <path refid="base.classpath" />
+                        <fileset dir="${ENV.PFP_HOME}/target/tmp/binaries" />
+                        <fileset dir="${ENV.PFP_HOME}/target/tmp/gwt-console-server.war/WEB-INF/lib/" >
+                            <include name="jbpm-gwt-*.jar" />
+                            <include name="gwt-console-*.jar" />
+                        </fileset>
+                    </path>
+                </then>
+        </if>
+    </target>
+
+    <target name="printClasspath" description="" depends="setClasspath" >
+        <pathconvert pathsep="${line.separator}|   |-- "
+             property="echo.classpath"
+             refid="classpath">
+        </pathconvert>
+        <echo message="classpath = ${echo.classpath}" />
+    </target>
+</project>

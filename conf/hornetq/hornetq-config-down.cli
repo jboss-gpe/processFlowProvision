@@ -1,0 +1,4 @@
+batch
+/profile=full-ha/subsystem=messaging/hornetq-server=default/address-setting=jms.queue.processFlow.asyncWorkingMemoryLogger/:remove
+/profile=full-ha/subsystem=messaging/hornetq-server=default/jms-queue=processFlow.asyncWorkingMemoryLogger/:remove
+run-batch

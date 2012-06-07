@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings xmlns="http://java.sun.com/xml/ns/persistence/orm"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm orm_1_0.xsd"
+               version="1.0">
+  <named-query name="TaskByTaskId">
+    <query>
+select
+     new org.jbpm.task.query.TaskSummary(
+     t.id,
+     t.taskData.processInstanceId,
+     name.text,
+     subject.text,
+     description.text,
+     t.taskData.status,
+     t.priority,
+     t.taskData.skipable,
+     t.taskData.actualOwner,
+     t.taskData.createdBy,
+     t.taskData.createdOn,
+     t.taskData.activationTime,
+     t.taskData.expirationTime,
+     t.taskData.processId,
+     t.taskData.processSessionId)
+from
+    Task t
+    left join t.taskData.createdBy
+    left join t.taskData.actualOwner
+    left join t.names as name
+    left join t.subjects as subject
+    left join t.descriptions as description
+where
+     t.id = :taskId
+    </query>
+  </named-query>
+</entity-mappings>

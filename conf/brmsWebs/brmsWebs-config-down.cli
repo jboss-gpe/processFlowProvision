@@ -1,0 +1,11 @@
+batch
+/server-group=brms-webs-group/:stop-servers
+run-batch
+batch
+/host=master/server-config=brms-webs/:remove
+run-batch
+batch
+/server-group=brms-webs-group/:remove
+
+/deployment=postgresql-jdbc-brms-webs/:remove
+run-batch

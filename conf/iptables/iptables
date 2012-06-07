@@ -1,0 +1,31 @@
+# Firewall configuration written by system-config-firewall
+# Manual customization of this file is not recommended.
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+-A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+-A INPUT -p icmp -j ACCEPT
+-A INPUT -i lo -j ACCEPT
+
+# JA Bride  :   settings for HornetQ
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 1597 -j ACCEPT
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 1598 -j ACCEPT
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 1599 -j ACCEPT
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 5545 -j ACCEPT
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 5555 -j ACCEPT
+-A INPUT -m state --state NEW -m udp -p udp --dport 9876 -j ACCEPT
+
+#JA Bride   :   settings for Tomcat
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 8080 -j ACCEPT
+
+#JA Bride   :   allow for remote debugging of JBoss
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 8787 -j ACCEPT
+
+#Martin Swales  :   allow for remote postgresql administration
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 5432 -j ACCEPT
+
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
+-A INPUT -j REJECT --reject-with icmp-host-prohibited
+-A FORWARD -j REJECT --reject-with icmp-host-prohibited
+COMMIT

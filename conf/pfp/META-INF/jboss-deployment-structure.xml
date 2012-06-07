@@ -1,0 +1,12 @@
+<jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.0">
+    <deployment>
+        <dependencies>
+            <module name="org.dom4j" />
+            <module name="org.apache.commons.collections" />
+            <module name="org.apache.commons.pool" />
+            <module name="org.jboss.marshalling" export="true" />
+            <module name="org.jboss.marshalling.river" export="true" />
+        </dependencies>
+    </deployment>
+
+</jboss-deployment-structure>

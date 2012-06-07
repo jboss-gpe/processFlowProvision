@@ -1,0 +1,143 @@
+processFlowProvision (aka:  PFP)
+
+JA Bride
+
+
+ASSUMPTIONS
+    - you are a Java developer
+    - you have attented Red Hat's "Business Logic Developer Workshop" or have an equivalent expertise in topics covered in that course
+    - following the "INSTALL" section of the PFP "ADMIN_GUIDE.txt", you have been able to install the PFP "distribution"
+
+
+OVERVIEW
+    - in addition to what PFP offers BRMS administrators, PFP also offers BRMS developers the following :
+      1)  this document which builds upon the ADMIN_GUIDE.txt to build and deploy the various PFP runtime artifacts from source
+        - NOTE:  similar to the PFP ADMIN_GUIDE.txt, the tasks outlined in this document are written in sequential order
+        - subsequently, it's best to start at the beginning of this document and progress in the order this doc is written
+        - this document includes the following chapters:
+            1)  ASSUMPTIONS
+            2)  OVERVIEW
+            3)  INSTALL
+            4)  DEVELOPER NOTES
+
+
+INSTALL   :
+
+    --  processFlowProvision project
+        - since you are reading this documentation, the assumption is that you've already cloned this project from github
+        - the following are branches that you may be interested in :
+            1)  master      :   PFP that leverages community drools/jbpm5 and executes in a 'domain managed' JBoss EAP 6 
+            2)  er6-eap5    :   PFP that leverages BRMS ER6 and executes in "default" server configuration of JBoss EAP 5
+                  (as jboss) :  cd $PFP_HOME
+                                git checkout er6-eap5
+        
+
+    -- maven (optional)
+            -- NOTE:  maven is only used to build upstream jbpm5 community source code
+            -- this section can be skipped if processFlowProvision is to use supported BRMS libraries
+            -- maven is not included in the Red Hat Network for RHEL 5.5 
+            -- the version of maven in Fedora14 is too old to properly build the jbpm5 sources
+            -- subsequently, this project has standardized on maven-3.0.3
+            -- maven-3.0.3-bin.tar.gz can be aquired and unpackaged as follows :
+            
+            (as jbossadm)   cd $JBOSS_PROJECTS/downloads
+                            wget http://www.apache.org/dyn/closer.cgi/maven/binaries/apache-maven-3.0.4-bin.tar.gz 
+                            tar -zxvf apache-maven-3.0.3-bin.tar.gz -C $JBOSS_PROJECTS
+
+            -- maven needs access to the internet to build projects such as jbpm5
+            -- subsequently, if working in an environment where internet access is via a web proxy, then configure maven to utilize that web proxy:
+                            mvn -version
+                            cp $JBOSS_PROJECTS/processFlowProvision/conf/maven/settings.xml ~/.m2/
+
+
+
+    PFP using community drools/jbpm5 (optional)
+        - useful if interested in building PFP using the latest drools and jbpm5 libraries available from github
+        - clone jbpm5 source code repository
+          - if behind a corporate firewall with an HTTP proxy:  git config --global http.proxy $HTTP_PROXY
+          - cd $JBOSS_PROJECTS/jboss
+          - follow the procedure for building communit drools and jbpm5 as described here:
+                https://github.com/droolsjbpm/droolsjbpm-build-bootstrap/blob/master/README.md
+
+                convenience scripts:
+                    droolsjbpm-build-bootstrap/script/git-clone-others.sh
+                    droolsjbpm-build-bootstrap/script/mvn-all.sh clean install -DskipTests -Dgwt.compiler.skip=true
+
+        - compile jbpm5 source and create corresponding jbpm5 libraries and runtime artifacts
+            - in processFlowProvision/build.properties, set :   upstream.jbpm5.drools.libs.type=COMMUNITY_SOURCE
+            - from $PFP_HOME, execute:   ant
+
+
+
+
+
+DEVELOPER NOTES:
+
+jbpm5 gwt-console-server
+    -- this is the source code to the upstream, community, *generic*, bpm-console :   https://github.com/bpmc/bpm-console
+    -- this upstream, community, *generic*, bpm-console is shared across various "orchestration & choregraphy" solutions that JBoss is involved in:
+        jbpm4, jbpm5, riftsaw
+    -- this generic bpm-console project offers a thin integration layer
+    -- each project that leverages the bpm-console implements this thin integration layer so that the bpm-console can interact with that project
+    -- so, jbpm5 implements a thin integration layer for the bpm-console
+    -- in processFlowProvision, will still use the same bpm-console
+        but we have extended the jbpm5 integration layer for the bpm-console that that all calls from the console are re-directed to one of our three EJB3 services
+        - these extensions of the jbpm5 integration layer of the bpm-console can be found in $PFP_HOME/adminConsole
+
+
+
+TaskChangeDetails
+    - PFP standardizes on use of:  org.jboss.processFlow.tasks.TaskChangeDetails
+    - it's recommended that all process definitions that make use of a human task define a process instance variable called:  TASK_CHANGE_DETAILS
+    - the value of this variable will be an instance of TaskChangeDetails
+    - the TaskChangeDetails instance can be used by downstream nodes to understand reasons for completion of a task and then branch accordingly
+
+    TaskChangeDetails.NORMAL_COMPLETION_REASON
+        - if a task completes normally, then a TaskChangeDetails instance with reason set to:  TaskChangeDetails.NORMAL_COMPLETION_REASON
+          will be included as part of the process instance variables
+        - nodes that are downstream of the human task have the option to inspect this TaskChangeDetails instance and branch accordingly
+
+    PFPFailTaskHandler and PFPSkipTaskHandler
+        - these two custom work item handlers are specifically designed to be used to signal a task (embedded in a subprocess instance)
+        - both expect a process instance variable of TASK_CHANGE_DETAILS
+        - the TaskChangeDetails.reason object variable can be set by the client invoking the signal
+        - the TaskChangeDetails instance used to signal will be added to the process instance variables
+        - nodes that are downstream of the human task have the option to inspect this TaskChangeDetails instance and branch accordingly
+
+
+deploy-time customizations to PFP EJB services
+  - all PFP services are deployed in the JBOSS deploy directory as exploded jars
+  - this allows for easy accessibility to the EJB (and JBoss extension) descriptor files at deploy time 
+
+
+FTL databinding
+  - Background
+    Today, to handle the human task in jbpm-console, we need author the ftl file for the task, so that jbpm-console will render it to a html page.
+    Generally we add a form to hold all the request which will be post to gwt-console-server. In typical, we only need put some “text” input/field in the form:
+        <input type="text" name="USERACTION"/>
+    The jbpm-console will post a map to the admin-console, the key in the map is the name of the <input> tag, and the value in the map is what the end-user input (in string type). That means it just send plain key/value pairs to the back-end.
+
+  - Problem
+    While the features above can fit most of our cases, except that there is a human task that is required to return a list to the process instance, for example, a list of AttachmentInfo (the business object).
+    The key problem is that the list is dynamic, the end-user can input any number of elements into the AttachmentInfo list.
+
+  - Solution
+    Actually it’s a quite typical scenario in web application development with popular web framework, like Spring MVC, Apache Struts.
+    The web framework is responsible for convert/databinding the servlet request (key/values pairs internally as well) to business objects. So we can borrow the idea to solve our problem.
+    
+  - Usage
+    1) author your databinding definition file named as ${TaskName}_binding.xml, put it on the root of classpath 
+        here is the sample configuration:
+        <tasks>
+            <task name="TaskName">
+                <entry key="StrVar"/>
+                <entry key="LongVar" value-type="long"/>
+                <entry key="IntVar" value-type="integer"/>
+                <entry key="ListVar" value-type="list<fullQualifiedClassName>"/>
+                <entry key="MapVar" value-type="map"/>
+            </task>
+        </tasks>
+    2) or, you can put all the databinding definitions in central_binding.xml
+
+  - Known Limitation
+    1) it's impossible to convert a timestamp string (e.g. dd/MM/yyyy) to java.util.Date object with the default MvelDataBinder

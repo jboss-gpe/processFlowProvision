@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<definitions id="Definition"
+             targetNamespace="http://www.jboss.org/drools"
+             typeLanguage="http://www.java.com/javaTypes"
+             expressionLanguage="http://www.mvel.org/2.0"
+             xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd"
+             xmlns:g="http://www.jboss.org/drools/flow/gpd"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             xmlns:tns="http://www.jboss.org/drools">
+
+  <itemDefinition id="_ATTACHMENTSItem" structureRef="java.util.List" />
+  <itemDefinition id="_FIELDVALUESItem" structureRef="java.util.Map" />
+  <itemDefinition id="_USERACTIONItem" structureRef="String" />
+
+  <process processType="Private" isExecutable="true" id="DataBinding" name="DataBindingTest" tns:packageName="defaultPackage" >
+
+    <!-- process variables -->
+    <property id="ATTACHMENTS" itemSubjectRef="_ATTACHMENTSItem"/>
+    <property id="FIELDVALUES" itemSubjectRef="_FIELDVALUESItem"/>
+    <property id="USERACTION" itemSubjectRef="_USERACTIONItem"/>
+
+    <!-- nodes -->
+    <startEvent id="_1" name="Start" />
+    <endEvent id="_4" name="End" >
+        <terminateEventDefinition/>
+    </endEvent>
+    <userTask id="_6" name="HumanTask" >
+      <extensionElements>
+        <tns:onEntry-script>
+          <script>kcontext.setVariable("USERACTION", "ACTION");</script>
+        </tns:onEntry-script>
+        <tns:onExit-script>
+          <script>System.out.println("ATTACHMENTS: [" + ATTACHMENTS + "]");
+System.out.println("FIELDVALUES: [" + FIELDVALUES + "]");</script>
+        </tns:onExit-script>
+      </extensionElements>
+      <ioSpecification>
+        <dataInput id="_6_USERACTIONInput" name="USERACTION" />
+        <dataInput id="_6_TaskNameInput" name="TaskName" />
+        <dataOutput id="_6_ATTACHMENTSOutput" name="ATTACHMENTS" />
+        <dataOutput id="_6_FIELDVALUESOutput" name="FIELDVALUES" />
+        <dataOutput id="_6_USERACTIONOutput" name="USERACTION" />
+        <inputSet>
+          <dataInputRefs>_6_USERACTIONInput</dataInputRefs>
+          <dataInputRefs>_6_TaskNameInput</dataInputRefs>
+        </inputSet>
+        <outputSet>
+          <dataOutputRefs>_6_ATTACHMENTSOutput</dataOutputRefs>
+          <dataOutputRefs>_6_FIELDVALUESOutput</dataOutputRefs>
+          <dataOutputRefs>_6_USERACTIONOutput</dataOutputRefs>
+        </outputSet>
+      </ioSpecification>
+      <dataInputAssociation>
+        <sourceRef>USERACTION</sourceRef>
+        <targetRef>_6_USERACTIONInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <targetRef>_6_TaskNameInput</targetRef>
+        <assignment>
+          <from xsi:type="tFormalExpression">DataBindingTask</from>
+          <to xsi:type="tFormalExpression">_6_TaskNameInput</to>
+        </assignment>
+      </dataInputAssociation>
+      <dataOutputAssociation>
+        <sourceRef>_6_ATTACHMENTSOutput</sourceRef>
+        <targetRef>ATTACHMENTS</targetRef>
+      </dataOutputAssociation>
+      <dataOutputAssociation>
+        <sourceRef>_6_FIELDVALUESOutput</sourceRef>
+        <targetRef>FIELDVALUES</targetRef>
+      </dataOutputAssociation>
+      <dataOutputAssociation>
+        <sourceRef>_6_USERACTIONOutput</sourceRef>
+        <targetRef>USERACTION</targetRef>
+      </dataOutputAssociation>
+      <potentialOwner>
+        <resourceAssignmentExpression>
+          <formalExpression>krisv</formalExpression>
+        </resourceAssignmentExpression>
+      </potentialOwner>
+    </userTask>
+
+    <!-- connections -->
+    <sequenceFlow id="_1-_6" sourceRef="_1" targetRef="_6" />
+    <sequenceFlow id="_6-_4" sourceRef="_6" targetRef="_4" />
+
+  </process>
+
+  <bpmndi:BPMNDiagram>
+    <bpmndi:BPMNPlane bpmnElement="DataBinding" >
+      <bpmndi:BPMNShape bpmnElement="_1" >
+        <dc:Bounds x="48" y="108" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_4" >
+        <dc:Bounds x="324" y="108" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_6" >
+        <dc:Bounds x="156" y="108" width="100" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="_1-_6" >
+        <di:waypoint x="72" y="132" />
+        <di:waypoint x="206" y="132" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_6-_4" >
+        <di:waypoint x="206" y="132" />
+        <di:waypoint x="348" y="132" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+</definitions>

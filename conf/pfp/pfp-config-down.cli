@@ -1,0 +1,9 @@
+batch
+/host=master/server-config=pfp-core/:stop(server=pfp-core,blocking=true)
+/host=master/server-config=pfp-core/:remove
+/server-group=pfp-core-group/:remove
+/deployment=pfp.ear/:remove
+/profile=full-ha/subsystem=datasources/data-source=jbpm-core-cp/:remove
+/profile=full-ha/subsystem=datasources/data-source=jbpm-bam-cp/:remove
+/deployment=postgresql-jdbc.jar/:remove
+run-batch

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<persistence
+    version="1.0"
+    xsi:schemaLocation=
+        "http://java.sun.com/xml/ns/persistence
+         http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd
+         http://java.sun.com/xml/ns/persistence/orm 
+         http://java.sun.com/xml/ns/persistence/orm_1_0.xsd"
+    xmlns:orm="http://java.sun.com/xml/ns/persistence/orm"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://java.sun.com/xml/ns/persistence">
+
+    <persistence-unit name="org.jbpm.persistence.jpa" transaction-type="JTA">
+        <jta-data-source>java:/global/jbpm-core-cp</jta-data-source>
+        <mapping-file>META-INF/JBPMorm-JPA2.xml</mapping-file> <!-- found in jbpm-persistence-jpa-*.jar -->
+
+        <class>org.jbpm.persistence.processinstance.ProcessInstanceInfo</class>
+        <class>org.drools.persistence.info.SessionInfo</class>
+        <class>org.drools.persistence.info.WorkItemInfo</class>
+
+        <class>org.jboss.processFlow.SessionProcessXref</class>
+
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
+        <!-- Note :  this EntityManagerFactory also manager the following tables
+            - EventTypes
+            - hibernate_sequence
+        -->
+
+        <properties>
+            <property name="hibernate.dialect" value="${hibernate.dialect}"/>            
+            <property name="hibernate.max_fetch_depth" value="3"/>
+            <property name="hibernate.hbm2ddl.auto" value="${hibernate.hbm2ddl.auto}" />
+            <property name="hibernate.show_sql" value="${hibernate.show.sql}" />
+            <property name="hibernate.format_sql" value="true"/>
+            <property name="hibernate.transaction.manager_lookup_class" value="org.hibernate.transaction.JBossTransactionManagerLookup" />
+            <property name="jboss.entity.manager.factory.jndi.name" value="java:/app/knowledgeSessionEMF"/>
+        </properties>        
+    </persistence-unit>
+    
+</persistence>

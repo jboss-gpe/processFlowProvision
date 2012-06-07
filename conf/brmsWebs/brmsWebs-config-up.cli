@@ -1,0 +1,26 @@
+batch
+/server-group=brms-webs-group/:add(profile=default,socket-binding-group=standard-sockets,socket-binding-port-offset=${brms.webs.port.offset},management-subsystem-endpoint=true)
+run-batch
+
+
+batch
+/server-group=brms-webs-group/jvm=brms-webs/:add(max-heap-size=1536m,env-classpath-ignored=false,permgen-size=256m,max-permgen-size=512m,heap-size=512m)
+/server-group=brms-webs-group/jvm=brms-webs/:write-attribute(name=jvm-options,value=["-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n"])
+/host=master/server-config=brms-webs:add(auto-start=false,group=brms-webs-group)
+run-batch
+
+batch
+/host=master/server-config=brms-webs/:start(server=brms-webs,blocking=true)
+deploy ${jdbc.lib.path} --server-groups=brms-webs-group --name=postgresql-jdbc-brms-webs  --runtime-name=postgresql-jdbc-brms-webs
+run-batch
+
+
+#batch
+/profile=default/subsystem=datasources/data-source=guvnor-cp:add(jndi-name=java:/global/guvnor-cp,connection-url=${guvnor_connection_url},driver-class=${guvnor_driver_class},driver-name=postgresql-jdbc-brms-webs,user-name=${guvnor_db_user},password=${guvnor_db_password},max-pool-size=50,min-pool-size=10)
+/profile=default/subsystem=datasources/data-source=guvnor-cp:enable()
+#run-batch
+
+#batch
+deploy ${temp.dir}/${guvnor.name} --name=jboss-brms.war  --server-groups=brms-webs-group
+deploy ${temp.dir}/${designer.name} --name=designer.war --server-groups=brms-webs-group
+#run-batch
