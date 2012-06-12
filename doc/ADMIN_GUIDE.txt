@@ -460,6 +460,7 @@ Work Item Handlers in ProcessFlowProvision
           -- helper function to troubleshoot runtime configuration and classpath issues regarding custom work item handlers
           -- please see the javadocs for the 'printWorkItemHandlers' function for IKnowledgeSessionService
 
+
 Task Validation in PFP
     - jbpm5 allows for use of a org.jbpm.task.service.UserGroupCallback implementation to determine :
         - boolean existsUser(String userId);

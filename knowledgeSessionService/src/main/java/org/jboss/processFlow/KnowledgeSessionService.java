@@ -114,6 +114,7 @@ import org.jboss.processFlow.knowledgeService.KnowledgeSessionServiceMXBean;
 import org.jboss.processFlow.tasks.ITaskService;
 import org.jboss.processFlow.tasks.WorkItemHandlerLifecycle;
 import org.jboss.processFlow.util.LogSystemEventListener;
+import org.jboss.processFlow.PFPBaseService;
 
 /**
  *<pre>
@@ -220,7 +221,7 @@ import org.jboss.processFlow.util.LogSystemEventListener;
 @Startup
 @LocalBean
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
-public class KnowledgeSessionService implements IKnowledgeSessionService, KnowledgeSessionServiceMXBean {
+public class KnowledgeSessionService extends PFPBaseService implements IKnowledgeSessionService, KnowledgeSessionServiceMXBean {
 
     private static final String EMF_NAME = "org.jbpm.persistence.jpa";
     public static final String DROOLS_SESSION_CONF_PATH="/META-INF/drools.session.conf";
@@ -869,11 +870,9 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
 
         // 4) register TaskCleanUpProcessEventListener
         //   NOTE:  need to ensure that task audit data has been pushed to BAM prior to this taskCleanUpProcessEventListener firing
-        /* will not work until TasksAdmin implements java.io.Serializable
-        TasksAdmin adminObj = taskProxy.createTasksAdmin();
+        TasksAdmin adminObj = taskService.createTaskAdmin();
         TaskCleanUpProcessEventListener taskCleanUpListener = new TaskCleanUpProcessEventListener(adminObj);
         ksession.addEventListener(taskCleanUpListener);
-        */
 
        
         // 4)  register any other process event listeners specified via configuration

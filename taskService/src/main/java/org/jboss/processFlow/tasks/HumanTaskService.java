@@ -70,6 +70,7 @@ import org.jbpm.task.service.TaskServiceSession;
 
 import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
 import org.jboss.processFlow.tasks.event.PfpTaskEventSupport;
+import org.jboss.processFlow.PFPBaseService;
 
 /**  
  *  JA Bride
@@ -108,7 +109,7 @@ import org.jboss.processFlow.tasks.event.PfpTaskEventSupport;
 @Singleton
 @Startup
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
-public class HumanTaskService implements ITaskService {
+public class HumanTaskService extends PFPBaseService implements ITaskService {
 
     public static final String JBPM_TASK_EMF_RESOURCE_LOCAL = "org.jbpm.task.resourceLocal";
     public static final String JBPM_TASK_EMF = "java:jbpmTaskEMF";
@@ -117,7 +118,6 @@ public class HumanTaskService implements ITaskService {
     public static final String TASK_BY_TASK_ID = "TaskByTaskId";
 
     private static final Logger log = Logger.getLogger("HumanTaskService");
-    private static TaskService taskService;
 
     private String transactionType = RESOURCE_LOCAL; // valid values :  RESOURCE_LOCAL or local-JTA
     private boolean enableIntelligentMapping = false;
@@ -583,6 +583,7 @@ public class HumanTaskService implements ITaskService {
         }
     }
 
+    //  should consider using taskServiceSession.setOutput(final long taskId, final String userId, final ContentData outputContentData) directly
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public void setTaskContent(Task taskObj, Boolean inbound, Map<String, Object> taskContent) {
         EntityManager eManager = null;
@@ -786,18 +787,6 @@ public class HumanTaskService implements ITaskService {
         }
     }
 
-    public TasksAdmin createTasksAdmin() {
-        if (taskService == null)
-            throw new RuntimeException("createTaskAdmin() need to initialize this EJB Singleton prior to invoking this call");
-        return taskService.createTaskAdmin();
-    }
-
-    /**
-     *  NOTES:
-     *    1)  since TaskService is using a RESOURCE-LOCAL EMF (for performance reasons), jbpm assumes it can define its own trnx boundaries
-     *    2)  in particular, jbpm human task impl defines its own trnx boundaries when this function creates a jbpm TaskService
-     *    3)  not sure how to disable a JTA trnx in this @PostConstruct function other than to suspend the trnx using the TransactionManager 
-     */
     @PostConstruct
     public void start() throws Exception {
     	// 1)  instantiate a deadline handler 
@@ -826,21 +815,21 @@ public class HumanTaskService implements ITaskService {
     		}
     	}
     	
+        /**   1)  since TaskService is using a RESOURCE-LOCAL EMF (for performance reasons), jbpm assumes it can define its own trnx boundaries
+         *    2)  in particular, jbpm human task impl defines its own trnx boundaries when this function creates a jbpm TaskService
+         *    3)  not sure how to disable a JTA trnx in this @PostConstruct function other than to suspend the trnx using the TransactionManager 
+         */
         try {
             Transaction suspendedTrnx = tMgr.suspend(); 
              
             log.info("start() trnx status = "+uTrnx.getStatus()+" :  humanTaskEMF = "+humanTaskEMF);
     
-
-            // 2)  instantiate a TaskService singleton using EMF and deadlinehandler
-            //     NOTE:  this is a thread same object that, via TaskSessionFactoryImpl, now automatically detects use of either RESORCE_LOCAL or JTA enabled EMF
-            //     NOTE:  this object can also create a non-thread-safe TaskAdmin object for archiving and removal of persisted task data
+            //     NOTE:  this is a thread safe object that, via TaskSessionFactoryImpl, now automatically detects use of either RESORCE_LOCAL or JTA enabled EMF
             taskService = new TaskService(humanTaskEMF, sEventListener, deadlineHandler);
 
             tMgr.resume(suspendedTrnx);
         } catch(Exception x) {
-            log.error("HumanTaskService.start(): " + x.getMessage(), x);
-        } finally {
+            throw new RuntimeException(x);
         }
     }
 

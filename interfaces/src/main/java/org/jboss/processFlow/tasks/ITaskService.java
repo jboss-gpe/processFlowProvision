@@ -252,8 +252,6 @@ public interface ITaskService {
      */
     public String printTaskContent(Long taskId, Boolean inbound);
 
-    public TasksAdmin createTasksAdmin();
-    
     public String getTaskName(Long taskId, String language);
     public List<TaskSummary> getTasksOwned(final String userId, final String language);
     public List<TaskSummary> getAssignedTasks(String userId, String language);
