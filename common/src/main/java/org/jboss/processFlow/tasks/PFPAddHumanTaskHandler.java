@@ -153,8 +153,9 @@ public class PFPAddHumanTaskHandler extends BasePFPTaskHandler implements WorkIt
         businessAdministrators.add(adminUser);
         assignments.setBusinessAdministrators(businessAdministrators);
         task.setPeopleAssignments(assignments);
-        
-        task.setDeadlines(HumanTaskHandlerHelper.setDeadlines(workItem, businessAdministrators));
+       
+        // not specifying Environment property :  "jbpm.business.calendar" 
+        task.setDeadlines(HumanTaskHandlerHelper.setDeadlines(workItem, businessAdministrators, null));
         
         task.setTaskData(taskData);
 
@@ -212,17 +213,16 @@ public class PFPAddHumanTaskHandler extends BasePFPTaskHandler implements WorkIt
             }
         }
 
-        task.setDeadlines(HumanTaskHandlerHelper.setDeadlines(workItem, businessAdministrators));
         try {
-            // 5)  synch call to task server to add newly created task
-        	long taskId = taskProxy.addTask(task, content);	
+            // 5)  synch call to task proxy to add newly created task
+            long taskId = taskProxy.addTask(task, content);    
         } catch(Exception x) {
             throw new RuntimeException(x);
         }
     }
 
     public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
-    	log.error("abortWorkItem() workItemId = "+workItem.getId() +" :  workItemName = "+workItem.getName());
-    	taskProxy.skipTaskByWorkItemId(workItem.getId());
+        log.error("abortWorkItem() workItemId = "+workItem.getId() +" :  workItemName = "+workItem.getName());
+        taskProxy.skipTaskByWorkItemId(workItem.getId());
     }
 }

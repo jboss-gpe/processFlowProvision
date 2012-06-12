@@ -144,10 +144,10 @@
         <antcall target="adminConsole" />
         <antcall target="useCompiledJBPMLibs" />
         <antcall target="provision.brms.webs">
-            <param name="refresh.jboss" value="true"/>
+            <param name="refresh.master.jboss" value="true"/>
         </antcall>
         <antcall target="provision.pfp.core">
-            <param name="refresh.jboss" value="false"/>
+            <param name="refresh.master.jboss" value="false"/>
         </antcall>
         <antcall target="temp.client.dir" />
         <antcall target="clean.jbpm.install" />

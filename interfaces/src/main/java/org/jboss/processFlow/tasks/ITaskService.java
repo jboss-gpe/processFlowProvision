@@ -29,6 +29,7 @@ import org.jbpm.task.OrganizationalEntity;
 import org.jbpm.task.Task;
 import org.jbpm.task.Status;
 import org.jbpm.task.Content;
+import org.jbpm.task.admin.TasksAdmin;
 import org.jbpm.task.query.TaskSummary;
 import org.jbpm.task.service.ContentData;
 import org.jbpm.task.service.TaskException;
@@ -250,6 +251,8 @@ public interface ITaskService {
      * @return
      */
     public String printTaskContent(Long taskId, Boolean inbound);
+
+    public TasksAdmin createTasksAdmin();
     
     public String getTaskName(Long taskId, String language);
     public List<TaskSummary> getTasksOwned(final String userId, final String language);

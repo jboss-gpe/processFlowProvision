@@ -103,6 +103,8 @@ import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.jbpm.workflow.instance.node.SubProcessNodeInstance;
 import org.jbpm.compiler.ProcessBuilderImpl;
 import org.jbpm.integration.console.shared.GuvnorConnectionUtils;
+import org.jbpm.task.admin.TaskCleanUpProcessEventListener;
+import org.jbpm.task.admin.TasksAdmin;
 
 import org.jboss.processFlow.bam.IBAMService;
 import org.jboss.processFlow.bam.AsyncBAMProducerPool;
@@ -246,6 +248,7 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
 
     private @PersistenceUnit(unitName=EMF_NAME)  EntityManagerFactory jbpmCoreEMF;
     private @javax.annotation.Resource UserTransaction uTrnx;
+    private @EJB ITaskService taskProxy;
 
 /******************************************************************************
  **************        Singleton Lifecycle Management                     *********/
@@ -866,8 +869,8 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
 
         // 4) register TaskCleanUpProcessEventListener
         //   NOTE:  need to ensure that task audit data has been pushed to BAM prior to this taskCleanUpProcessEventListener firing
-        /*
-        TaskAdmin adminObj = HumanTaskService.createTaskAdmin();
+        /* will not work until TasksAdmin implements java.io.Serializable
+        TasksAdmin adminObj = taskProxy.createTasksAdmin();
         TaskCleanUpProcessEventListener taskCleanUpListener = new TaskCleanUpProcessEventListener(adminObj);
         ksession.addEventListener(taskCleanUpListener);
         */

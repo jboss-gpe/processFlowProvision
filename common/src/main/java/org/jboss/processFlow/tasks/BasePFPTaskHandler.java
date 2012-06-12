@@ -20,30 +20,30 @@ public class BasePFPTaskHandler {
     public void init(StatefulKnowledgeSession sessionObj) {
         ksessionId = sessionObj.getId();
         if(taskProxy == null){
-        	synchronized(lockObj){
-        		if(taskProxy != null)
-        			return;
-        		
-        		Context jndiContext = null;
-        		try {
-        			String logString = System.getProperty("org.jboss.enableLog");
-        			if(logString != null)
-        				enableLog = Boolean.parseBoolean(logString);
+            synchronized(lockObj){
+                if(taskProxy != null)
+                    return;
                 
-        			jndiContext = new InitialContext();
-        			taskProxy = (ITaskService)jndiContext.lookup(ITaskService.TASK_SERVICE_JNDI);
-        			kSessionProxy = (IKnowledgeSessionService)jndiContext.lookup((IKnowledgeSessionService.KNOWLEDGE_SESSION_SERVICE_JNDI));
-        		} catch(Exception x) {
-        				throw new RuntimeException("static()", x);
-        		}finally {
-        			try {
-        				if(jndiContext != null)
-        					jndiContext.close();
-        			}catch(Exception x){
-        				x.printStackTrace();
-        			}
-        		}
-        	}
+                Context jndiContext = null;
+                try {
+                    String logString = System.getProperty("org.jboss.enableLog");
+                    if(logString != null)
+                        enableLog = Boolean.parseBoolean(logString);
+                
+                    jndiContext = new InitialContext();
+                    taskProxy = (ITaskService)jndiContext.lookup(ITaskService.TASK_SERVICE_JNDI);
+                    kSessionProxy = (IKnowledgeSessionService)jndiContext.lookup((IKnowledgeSessionService.KNOWLEDGE_SESSION_SERVICE_JNDI));
+                } catch(Exception x) {
+                        throw new RuntimeException("static()", x);
+                }finally {
+                    try {
+                        if(jndiContext != null)
+                            jndiContext.close();
+                    }catch(Exception x){
+                        x.printStackTrace();
+                    }
+                }
+            }
         }
     }
     

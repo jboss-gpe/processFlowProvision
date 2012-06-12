@@ -55,6 +55,7 @@ import org.apache.log4j.Logger;
 import org.drools.SystemEventListener;
 import org.drools.SystemEventListenerFactory;
 import org.jbpm.task.*;
+import org.jbpm.task.admin.TasksAdmin;
 import org.jbpm.task.event.TaskEventListener;
 import org.jbpm.task.query.TaskSummary;
 import org.jbpm.task.service.CannotAddTaskException;
@@ -127,13 +128,7 @@ public class HumanTaskService implements ITaskService {
     private @Resource(name="java:/TransactionManager") TransactionManager tMgr;
 
     private PfpTaskEventSupport eventSupport;
-/*
-    public static TasksAdmin createTaskAdmin() {
-        if (taskService == null)
-            throw new RuntimeException("createTaskAdmin() need to initialize this EJB Singleton prior to invoking this call");
-        return taskService.createTaskAdmin();
-    }
-*/
+
 
     /**
         - creates task with status of Ready
@@ -789,6 +784,12 @@ public class HumanTaskService implements ITaskService {
             if(taskSession != null)
                 taskSession.dispose();
         }
+    }
+
+    public TasksAdmin createTasksAdmin() {
+        if (taskService == null)
+            throw new RuntimeException("createTaskAdmin() need to initialize this EJB Singleton prior to invoking this call");
+        return taskService.createTaskAdmin();
     }
 
     /**

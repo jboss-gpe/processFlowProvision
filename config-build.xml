@@ -42,11 +42,11 @@
             <param name="server.config.file.with.no.suffix" value="${domain.config.file.with.no.suffix}"/>
         </antcall>
     </target>
-    <target name="refresh.jboss" >
-        <fail unless="node.to.stop" message="refresh.jboss:  need to pass 'node.to.stop' property" />
-        <fail unless="jboss.domain.base.dir" message="refresh.jboss:  need to pass 'jboss.domain.base.dir' property" />
-        <fail unless="domain.config.file" message="refresh.jboss:  need to pass 'domain.config.file' property" />
-        <echo message="***** refresh.jboss :  will now call the following target :  stop.jboss, clone.jboss, and start.jboss" />
+    <target name="refresh.master.jboss" >
+        <fail unless="node.to.stop" message="refresh.master.jboss:  need to pass 'node.to.stop' property" />
+        <fail unless="jboss.domain.base.dir" message="refresh.master.jboss:  need to pass 'jboss.domain.base.dir' property" />
+        <fail unless="domain.config.file" message="refresh.master.jboss:  need to pass 'domain.config.file' property" />
+        <echo message="***** refresh.master.jboss :  will now call the following target :  stop.jboss, clone.jboss, and start.jboss" />
         <antcall target="stop.jboss" >
             <param name="${node.to.stop}" value="${node.to.stop}"/>
         </antcall>
@@ -483,15 +483,15 @@
     </target>
 
     <target name="provision.pfp.core" description="">
-        <fail unless="refresh.jboss" message="provision.pfp.core:  need to pass 'refresh.jboss' property" />
+        <fail unless="refresh.master.jboss" message="provision.pfp.core:  need to pass 'refresh.master.jboss' property" />
         <condition property="useBRMS">
             <not><isset property="upstream.jbpm5.drools.libs.type" /></not>
         </condition>
         <antcall target="distro.clean" />
         <if>
-            <equals arg1="${refresh.jboss}" arg2="true" />
+            <equals arg1="${refresh.master.jboss}" arg2="true" />
             <then>
-                <antcall target="refresh.jboss" >
+                <antcall target="refresh.master.jboss" >
                     <param name="node.to.stop" value="master"/>
                     <param name="jboss.domain.base.dir" value="${jboss.domain.base.dir}"/>
                     <param name="domain.config.file" value="${domain.config.file}"/>
@@ -507,11 +507,11 @@
         <antcall target="refreshGuvnor" />
     </target>
     <target name="provision.brms.webs" description="" >
-        <fail unless="refresh.jboss" message="different.brms.webs:  need to pass 'refresh.jboss' property" />
+        <fail unless="refresh.master.jboss" message="different.brms.webs:  need to pass 'refresh.master.jboss' property" />
         <if>
-            <equals arg1="${refresh.jboss}" arg2="true" />
+            <equals arg1="${refresh.master.jboss}" arg2="true" />
             <then>
-                <antcall target="refresh.jboss" >
+                <antcall target="refresh.master.jboss" >
                     <param name="node.to.stop" value="master"/>
                     <param name="jboss.domain.base.dir" value="${jboss.domain.base.dir}"/>
                     <param name="domain.config.file" value="${domain.config.file}"/>
