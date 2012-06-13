@@ -4,6 +4,8 @@ run-batch
 
 
 batch
+/server-group=${pfp.core.group}/jvm=pfp-core/:add(max-heap-size=512m,env-classpath-ignored=false,permgen-size=128m,max-permgen-size=512m,heap-size=256m)
+/server-group=${pfp.core.group}/jvm=pfp-core/:write-attribute(name=jvm-options,value=["-Xrunjdwp:transport=dt_socket,address=${pfp.core.group.debugger.port},server=y,suspend=n"])
 /host=master/server-config=${pfp.core.server}:add(auto-start=true,group=${pfp.core.group})
 run-batch
 

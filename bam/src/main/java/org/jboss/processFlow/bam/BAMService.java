@@ -41,6 +41,8 @@ import javax.persistence.Query;
 import javax.transaction.UserTransaction;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.transaction.TransactionManager;
+import javax.transaction.Transaction;
 
 import org.apache.log4j.Logger;
 
@@ -85,6 +87,7 @@ public class BAMService implements IBAMService, MessageListener {
 
     private @PersistenceUnit(unitName="org.jbpm.bam.jpa") EntityManagerFactory jbpmBamEFactory;
     private @Resource UserTransaction uTrnx;
+    private @Resource(name="java:/TransactionManager") TransactionManager tMgr;
 
     // currently using InVM ConnectionFactory
     // need to test performance & roll-back implications using "java:/JmsXA"
@@ -121,7 +124,17 @@ public class BAMService implements IBAMService, MessageListener {
     	bamEnv = EnvironmentFactory.newEnvironment();
     	bamEnv.set(EnvironmentName.ENTITY_MANAGER_FACTORY, jbpmBamEFactory);
 
-    	JPAProcessInstanceDbLog.setEnvironment(bamEnv);
+        /**
+         *  similar to HumanTaskService, need to suspend JTA trnx 
+         *  using a RESOURCE_LOCAL EntityManagerFactory and subsequently ... org.jbpm.process.audit.JPAProcessInstanceDbLog will want to set it's own trnx boundaries
+         */
+        try {
+            Transaction suspendedTrnx = tMgr.suspend();
+    	    JPAProcessInstanceDbLog.setEnvironment(bamEnv);
+            tMgr.resume(suspendedTrnx);
+        } catch(Exception x) {
+            throw new RuntimeException(x);
+        }
     }
 
     public ProcessInstanceLog getProcessInstanceLog(Long processInstanceId) {

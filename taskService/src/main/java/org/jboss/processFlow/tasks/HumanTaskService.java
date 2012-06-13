@@ -199,7 +199,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
     
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public void completeTask(Long taskId, Map<String, Object> outboundTaskVars, String userId) {
-    	this.completeTask(taskId, outboundTaskVars, userId, true);
+        this.completeTask(taskId, outboundTaskVars, userId, true);
     }
 
     /**
@@ -261,7 +261,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
             kSessionProxy.completeWorkItem(taskObj.getTaskData().getProcessSessionId(), taskObj.getTaskData().getWorkItemId(), newOutboundTaskVarMap);
     
             if(disposeKsession)
-            	kSessionProxy.disposeStatefulKnowledgeSessionAndExtras(taskObj.getTaskData().getProcessSessionId());
+                kSessionProxy.disposeStatefulKnowledgeSessionAndExtras(taskObj.getTaskData().getProcessSessionId());
         }catch(org.jbpm.task.service.PermissionDeniedException x) {
             rollbackTrnx();
             throw x;
@@ -319,7 +319,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
                 throw new PermissionDeniedException("failTask() will not attempt operation due to incorrect existing status of : "+taskObj.getTaskData().getStatus());
             }
             if(userId == null){
-            	userId = taskObj.getTaskData().getActualOwner().getId();
+                userId = taskObj.getTaskData().getActualOwner().getId();
             }
             FaultData contentData = (FaultData)this.convertTaskVarsToContentData(outboundTaskVars, faultName);
             taskSession.taskOperation(Operation.Fail, taskId, userId, null, contentData, null);
@@ -331,7 +331,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
             kSessionProxy.completeWorkItem(taskObj.getTaskData().getProcessSessionId(), taskObj.getTaskData().getWorkItemId(), outboundTaskVars);
             
             if(disposeKsession)
-            	kSessionProxy.disposeStatefulKnowledgeSessionAndExtras(taskObj.getTaskData().getProcessSessionId());
+                kSessionProxy.disposeStatefulKnowledgeSessionAndExtras(taskObj.getTaskData().getProcessSessionId());
         }catch(PermissionDeniedException x) {
             rollbackTrnx();
             throw x;
@@ -357,23 +357,23 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
     }
 
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-	public void releaseTask(Long taskId, String userId){
-	    TaskServiceSession taskSession = null;
-	    try {
-	        taskSession = taskService.createSession();
-	        taskSession.taskOperation(Operation.Release, taskId, userId, null, null, null);
-	        eventSupport.fireTaskReleased(taskId, userId);
-	    } catch(Exception x) {
-	        throw new RuntimeException(x);
-	    } finally {
-	        if (taskSession != null)
-	            taskSession.dispose();
-	    }
-	}
+    public void releaseTask(Long taskId, String userId){
+        TaskServiceSession taskSession = null;
+        try {
+            taskSession = taskService.createSession();
+            taskSession.taskOperation(Operation.Release, taskId, userId, null, null, null);
+            eventSupport.fireTaskReleased(taskId, userId);
+        } catch(Exception x) {
+            throw new RuntimeException(x);
+        } finally {
+            if (taskSession != null)
+                taskSession.dispose();
+        }
+    }
 
-	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public void skipTask(Long taskId, String userId, Map<String, Object> outboundTaskVars) {
-    	this.skipTask(taskId, userId, outboundTaskVars, true);
+        this.skipTask(taskId, userId, outboundTaskVars, true);
     }
     /**
      * skipTask
@@ -398,7 +398,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
             kSessionProxy.completeWorkItem(taskObj.getTaskData().getProcessSessionId(), taskObj.getTaskData().getWorkItemId(), outboundTaskVars);
             
             if(disposeKsession)
-            	kSessionProxy.disposeStatefulKnowledgeSessionAndExtras(taskObj.getTaskData().getProcessSessionId());
+                kSessionProxy.disposeStatefulKnowledgeSessionAndExtras(taskObj.getTaskData().getProcessSessionId());
         }catch(org.jbpm.task.service.PermissionDeniedException x) {
             rollbackTrnx();
             throw x;
@@ -538,14 +538,14 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
         qBuilder.append(taskId); 
         EntityManager eManager = null;
         try {
-        	eManager = humanTaskEMF.createEntityManager();
-        	Query qObj = eManager.createNativeQuery(qBuilder.toString());
-        	return (String)qObj.getSingleResult();
+            eManager = humanTaskEMF.createEntityManager();
+            Query qObj = eManager.createNativeQuery(qBuilder.toString());
+            return (String)qObj.getSingleResult();
         } catch(Exception x) {
             throw new RuntimeException(x);
         } finally {
             if(eManager != null)
-            	eManager.close();
+                eManager.close();
         }
     }
 
@@ -789,32 +789,32 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
 
     @PostConstruct
     public void start() throws Exception {
-    	// 1)  instantiate a deadline handler 
-    	EscalatedDeadlineHandler deadlineHandler = null;
-    	if (System.getProperty(ITaskService.DEADLINE_HANDLER) != null) {
-    		deadlineHandler = (EscalatedDeadlineHandler) Class.forName(System.getProperty(ITaskService.DEADLINE_HANDLER)).newInstance();
-    	} else {
-    		throw new RuntimeException("start() need to pass system property = "+ITaskService.DEADLINE_HANDLER);
-    	}
-    	
-    	SystemEventListener sEventListener = SystemEventListenerFactory.getSystemEventListener();
-    	
-    	// 2) turn on/off the intelligent human task input/output mapping
-    	if (System.getProperty("org.jboss.processFlow.task.enableIntelligentMapping") != null)
-    		enableIntelligentMapping = Boolean.parseBoolean(System.getProperty("org.jboss.processFlow.task.enableIntelligentMapping"));
-    	log.info("start() enableIntelligentMapping = " + enableIntelligentMapping);
-    	
-    	
-    	// 3) instantiate TaskEventListeners
-    	log.info("TaskEventListeners: " + System.getProperty("org.jboss.processFlow.tasks.TaskEventListeners"));
-    	eventSupport = new PfpTaskEventSupport();
-    	if (System.getProperty("org.jboss.processFlow.tasks.TaskEventListeners") != null) {
-    		String[] listenerClasses = System.getProperty("org.jboss.processFlow.tasks.TaskEventListeners").split("\\s");
-    		for (String lcn : listenerClasses) {
-    			eventSupport.addEventListener((TaskEventListener) Class.forName(lcn).newInstance());
-    		}
-    	}
-    	
+        // 1)  instantiate a deadline handler 
+        EscalatedDeadlineHandler deadlineHandler = null;
+        if (System.getProperty(ITaskService.DEADLINE_HANDLER) != null) {
+            deadlineHandler = (EscalatedDeadlineHandler) Class.forName(System.getProperty(ITaskService.DEADLINE_HANDLER)).newInstance();
+        } else {
+            throw new RuntimeException("start() need to pass system property = "+ITaskService.DEADLINE_HANDLER);
+        }
+        
+        SystemEventListener sEventListener = SystemEventListenerFactory.getSystemEventListener();
+        
+        // 2) turn on/off the intelligent human task input/output mapping
+        if (System.getProperty("org.jboss.processFlow.task.enableIntelligentMapping") != null)
+            enableIntelligentMapping = Boolean.parseBoolean(System.getProperty("org.jboss.processFlow.task.enableIntelligentMapping"));
+        log.info("start() enableIntelligentMapping = " + enableIntelligentMapping);
+        
+        
+        // 3) instantiate TaskEventListeners
+        log.info("TaskEventListeners: " + System.getProperty("org.jboss.processFlow.tasks.TaskEventListeners"));
+        eventSupport = new PfpTaskEventSupport();
+        if (System.getProperty("org.jboss.processFlow.tasks.TaskEventListeners") != null) {
+            String[] listenerClasses = System.getProperty("org.jboss.processFlow.tasks.TaskEventListeners").split("\\s");
+            for (String lcn : listenerClasses) {
+                eventSupport.addEventListener((TaskEventListener) Class.forName(lcn).newInstance());
+            }
+        }
+        
         /**   1)  since TaskService is using a RESOURCE-LOCAL EMF (for performance reasons), jbpm assumes it can define its own trnx boundaries
          *    2)  in particular, jbpm human task impl defines its own trnx boundaries when this function creates a jbpm TaskService
          *    3)  not sure how to disable a JTA trnx in this @PostConstruct function other than to suspend the trnx using the TransactionManager 

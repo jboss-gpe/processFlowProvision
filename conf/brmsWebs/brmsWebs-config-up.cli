@@ -5,7 +5,7 @@ run-batch
 
 batch
 /server-group=brms-webs-group/jvm=brms-webs/:add(max-heap-size=1536m,env-classpath-ignored=false,permgen-size=256m,max-permgen-size=512m,heap-size=512m)
-/server-group=brms-webs-group/jvm=brms-webs/:write-attribute(name=jvm-options,value=["-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n"])
+/server-group=brms-webs-group/jvm=brms-webs/:write-attribute(name=jvm-options,value=["-Xrunjdwp:transport=dt_socket,address=${brms.webs.group.debugger.port},server=y,suspend=n"])
 /host=master/server-config=brms-webs:add(auto-start=false,group=brms-webs-group)
 run-batch
 

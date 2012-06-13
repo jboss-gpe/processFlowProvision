@@ -6,10 +6,9 @@
             <classpath refid="classpath" />
         </javac>
         <antcall target="filter" >
-            <param name="source.dir" value="${subproject.name}/src/main/resources/META-INF"/>
-            <param name="dest.dir" value="${subproject.build}/META-INF"/>
+            <param name="source.dir" value="${subproject.name}/src/main/resources"/>
+            <param name="dest.dir" value="${subproject.build}"/>
         </antcall>
-        <copy toDir="${subproject.build}/org/jbpm/task/service" overwrite="true" verbose="true" file="${subproject.name}/src/main/resources/jbpm.usergroup.callback.properties" />
         <jar jarfile="${temp.services.dir}/processFlow-taskService.jar" basedir="${subproject.build}" />
     </target>
 

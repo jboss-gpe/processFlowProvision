@@ -483,7 +483,6 @@
     </target>
 
     <target name="provision.pfp.core" description="">
-        <fail unless="refresh.master.jboss" message="provision.pfp.core:  need to pass 'refresh.master.jboss' property" />
         <condition property="useBRMS">
             <not><isset property="upstream.jbpm5.drools.libs.type" /></not>
         </condition>
@@ -507,7 +506,6 @@
         <antcall target="refreshGuvnor" />
     </target>
     <target name="provision.brms.webs" description="" >
-        <fail unless="refresh.master.jboss" message="different.brms.webs:  need to pass 'refresh.master.jboss' property" />
         <if>
             <equals arg1="${refresh.master.jboss}" arg2="true" />
             <then>
