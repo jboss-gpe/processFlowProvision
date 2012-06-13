@@ -28,6 +28,7 @@ OVERVIEW
   - PFP github branches :
     - master :  PFP/BRMS targeted for "domain" managed JBoss EAP6
     - er8   :   PFP/BRMS ER8 targeted for non-clustered JBoss EAP 5.*
+    - switchyard    :   automates provisioning of switchyard BPM component
 
 
 
