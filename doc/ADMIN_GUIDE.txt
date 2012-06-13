@@ -125,7 +125,6 @@ INSTALL   :
 
 
     --  required PFP shell environment variables
-      - processFlowProvision is reliant on the following shell environment variables :
           JBOSS_HOME        :   location of JBoss EAP
           PFP_HOME          :   location of process flow provision project
           JBOSS_PROJECTS    :   default location of PFP service task repository and guvnor filesystem
