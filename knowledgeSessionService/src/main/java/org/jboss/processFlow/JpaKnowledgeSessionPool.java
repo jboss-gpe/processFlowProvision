@@ -75,13 +75,14 @@ public class JpaKnowledgeSessionPool implements IKnowledgeSessionPool {
             logger.error("lookup jbpm emf failed", e);
         }
         finally {
-            if (jndiContext != null)
+            if (jndiContext != null) {
                 try {
                     jndiContext.close();
                 }
                 catch (NamingException e) {
                     e.printStackTrace();
                 }
+            }
         }
 
         populateAvailableSessions();

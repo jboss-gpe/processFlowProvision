@@ -45,6 +45,7 @@ import javax.ejb.Remote;
 import javax.management.ObjectName;
 import javax.management.MBeanServer;
 import javax.transaction.UserTransaction;
+import javax.transaction.TransactionManager;
 
 import javax.persistence.*;
 
@@ -249,6 +250,7 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
 
     private @PersistenceUnit(unitName=EMF_NAME)  EntityManagerFactory jbpmCoreEMF;
     private @javax.annotation.Resource UserTransaction uTrnx;
+    private @javax.annotation.Resource(name="java:/TransactionManager") TransactionManager tMgr;
     private @EJB ITaskService taskProxy;
 
 /******************************************************************************
@@ -818,6 +820,9 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
             public void afterProcessCompleted(ProcessCompletedEvent event) {
                 StatefulKnowledgeSession ksession = (StatefulKnowledgeSession)event.getKnowledgeRuntime();
                 ProcessInstance pInstance = event.getProcessInstance();
+                    try {
+                        log.info("afterProcessCompleted trnx status = "+tMgr.getStatus());
+                    } catch(Exception x) { x.printStackTrace(); }
                 if(sessionPool.isBorrowed(ksession.getId(), pInstance.getProcessId())) {
                     log.info("afterProcessCompleted()\tsessionId :  "+ksession.getId()+" : "+pInstance+" : session to be reused");
                     sessionPool.markAsReturned(ksession.getId());
@@ -870,9 +875,9 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
 
         // 4) register TaskCleanUpProcessEventListener
         //   NOTE:  need to ensure that task audit data has been pushed to BAM prior to this taskCleanUpProcessEventListener firing
-        TasksAdmin adminObj = taskService.createTaskAdmin();
+        TasksAdmin adminObj = jtaTaskService.createTaskAdmin();
         TaskCleanUpProcessEventListener taskCleanUpListener = new TaskCleanUpProcessEventListener(adminObj);
-        ksession.addEventListener(taskCleanUpListener);
+        //ksession.addEventListener(taskCleanUpListener);
 
        
         // 4)  register any other process event listeners specified via configuration

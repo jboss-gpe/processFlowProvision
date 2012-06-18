@@ -10,6 +10,11 @@ Pluggable strategies for task cleanup
     -- ksession.addEventListener(new TaskCleanUpProcessEventListener(admin));
     -- see jbpm-human-task/src/main/java/org/jbpm/task/admin/*.java
 
+1)  kproxy.signalEvent()                    :   BMT JTA
+2)  PFPFailTaskHandler.executeWorkItem()    :   JTA
+3)  taskProxy.failTask()                    :   JTA NOT_SUPPORTED
+4)  kproxy.completeWorkItem()               :   JTA.REQUIRED
+
 hi,  i'm wondering if org.jbpm.task.admin.TasksAdmin could please be modified to implement java.io.Serializable or Externalizable ?
 currently in our BRMS-deployable solution, we have the following function on a EJB session bean:  humanTaskEJBService.createTasksAdmin(...)
 in a different EJB session bean, humanTaskEJBService.createTasksAdmin(...) is invoked and that TasksAdmin object is used as follows:  ksession.addEventListener(new TaskCleanUpProcessEventListener( tasksAdminObj ));

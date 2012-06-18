@@ -112,7 +112,7 @@ import org.jboss.processFlow.PFPBaseService;
 public class HumanTaskService extends PFPBaseService implements ITaskService {
 
     public static final String JBPM_TASK_EMF_RESOURCE_LOCAL = "org.jbpm.task.resourceLocal";
-    public static final String JBPM_TASK_EMF = "java:jbpmTaskEMF";
+    public static final String JBPM_TASK_EMF = "org.jbpm.task";
     public static final String LOCAL_JTA = "local-JTA";
     public static final String RESOURCE_LOCAL = "RESOURCE_LOCAL";
     public static final String TASK_BY_TASK_ID = "TaskByTaskId";
@@ -123,11 +123,13 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
     private boolean enableIntelligentMapping = false;
 
     private @PersistenceUnit(unitName=JBPM_TASK_EMF_RESOURCE_LOCAL) EntityManagerFactory humanTaskEMF;
+    private @PersistenceUnit(unitName=JBPM_TASK_EMF) EntityManagerFactory jtaHumanTaskEMF;
     private @EJB IKnowledgeSessionService kSessionProxy;
     private @Resource UserTransaction uTrnx;
     private @Resource(name="java:/TransactionManager") TransactionManager tMgr;
 
     private PfpTaskEventSupport eventSupport;
+    private TaskService taskService;
 
 
     /**
@@ -299,7 +301,6 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
         }
     }
 
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public void failTask(Long taskId, Map<String, Object> outboundTaskVars, String userId, String faultName) {
         this.failTask(taskId, outboundTaskVars, userId, faultName, true);
     }
@@ -307,12 +308,11 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
     /**
      * NOTE:  allows for a null userId ... in which case this implementation will use the actual owner of the task to execute the fail task operation
      */
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public void failTask(Long taskId, Map<String, Object> outboundTaskVars, String userId, String faultName, boolean disposeKsession) {
         TaskServiceSession taskSession = null;
         Task taskObj;
         try {
-            taskSession = taskService.createSession();
+            taskSession = jtaTaskService.createSession();
     
             taskObj = taskSession.getTask(taskId);
             if(taskObj.getTaskData().getStatus() != Status.InProgress) {
@@ -333,18 +333,6 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
             if(disposeKsession)
                 kSessionProxy.disposeStatefulKnowledgeSessionAndExtras(taskObj.getTaskData().getProcessSessionId());
         }catch(PermissionDeniedException x) {
-            rollbackTrnx();
-            throw x;
-        }catch(RuntimeException x) {
-            rollbackTrnx();
-            if(x.getCause() != null && (x.getCause() instanceof javax.transaction.RollbackException) && (x.getMessage().indexOf("Could not commit transaction") != -1)) {
-                String message = "failTask() RollbackException thrown most likely because the following task object is dirty : "+taskId;
-                log.error(message);
-                throw new PermissionDeniedException(message);
-            }else {
-                throw x;
-            }
-        }catch(Exception x) {
             throw new RuntimeException(x);
         }finally {
             if(taskSession != null)
@@ -371,7 +359,6 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
         }
     }
 
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public void skipTask(Long taskId, String userId, Map<String, Object> outboundTaskVars) {
         this.skipTask(taskId, userId, outboundTaskVars, true);
     }
@@ -381,12 +368,11 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
      * NOTE:  underlying jbpm5 TaskServiceSession does not allow for outbound task variables with Operation.Skip
      * </pre>
      */
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public void skipTask(Long taskId, String userId, Map<String, Object> outboundTaskVars, boolean disposeKsession) {
         TaskServiceSession taskSession = null;
         Task taskObj;
         try {
-            taskSession = taskService.createSession();
+            taskSession = jtaTaskService.createSession();
     
             taskObj = taskSession.getTask(taskId);
             taskSession.taskOperation(Operation.Skip, taskId, userId, null, null, null);
@@ -400,17 +386,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
             if(disposeKsession)
                 kSessionProxy.disposeStatefulKnowledgeSessionAndExtras(taskObj.getTaskData().getProcessSessionId());
         }catch(org.jbpm.task.service.PermissionDeniedException x) {
-            rollbackTrnx();
             throw x;
-        }catch(RuntimeException x) {
-            rollbackTrnx();
-            if(x.getCause() != null && (x.getCause() instanceof javax.transaction.RollbackException) && (x.getMessage().indexOf("Could not commit transaction") != -1)) {
-                String message = "skipTask() RollbackException thrown most likely because the following task object is dirty : "+taskId;
-                log.error(message);
-                throw new PermissionDeniedException(message);
-            }else {
-                throw x;
-            }
         }catch(Exception x) {
             throw new RuntimeException(x);
         }finally {
@@ -826,6 +802,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
     
             //     NOTE:  this is a thread safe object that, via TaskSessionFactoryImpl, now automatically detects use of either RESORCE_LOCAL or JTA enabled EMF
             taskService = new TaskService(humanTaskEMF, sEventListener, deadlineHandler);
+            jtaTaskService  = new TaskService(jtaHumanTaskEMF, sEventListener, deadlineHandler);
 
             tMgr.resume(suspendedTrnx);
         } catch(Exception x) {
