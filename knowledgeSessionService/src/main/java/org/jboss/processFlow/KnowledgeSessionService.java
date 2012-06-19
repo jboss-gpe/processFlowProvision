@@ -877,7 +877,7 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
         //   NOTE:  need to ensure that task audit data has been pushed to BAM prior to this taskCleanUpProcessEventListener firing
         TasksAdmin adminObj = jtaTaskService.createTaskAdmin();
         TaskCleanUpProcessEventListener taskCleanUpListener = new TaskCleanUpProcessEventListener(adminObj);
-        //ksession.addEventListener(taskCleanUpListener);
+        ksession.addEventListener(taskCleanUpListener);
 
        
         // 4)  register any other process event listeners specified via configuration
