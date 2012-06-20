@@ -17,9 +17,15 @@
     <!-- even though this is in build.xml ... need it here as well for distro -->
     <import file="privateServiceTaskRepo/build.xml"/>
 
-    <target name="stop.jboss" >
-        <fail unless="management.port" message="stop.jboss:  need to pass 'management.port' property" />
-        <fail unless="node.to.stop" message="stop.jboss:  need to pass 'node.to.stop' property" />
+    <target name="stop.jboss" description="default behavior is to shutdown all jboss servers via management port of 9999" >
+        <if>
+            <not><isset property="node.to.stop"/></not>
+            <then><property name="node.to.stop" value="master" /></then>
+        </if>
+        <if>
+            <not><isset property="management.port"/></not>
+            <then><property name="management.port" value="9999" /></then>
+        </if>
         <exec executable="bash" failonerror="true" dir="." >
            <arg value="bin/jboss_eap.sh"/>
            <arg value="stop"/>
