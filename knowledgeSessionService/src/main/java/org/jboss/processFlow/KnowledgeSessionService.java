@@ -406,25 +406,26 @@ public class KnowledgeSessionService implements IKnowledgeSessionService {
     public void rebuildKnowledgeBaseViaKnowledgeBuilder() {
         guvnorProps = new Properties();
         try {
-            guvnorProps.load(KnowledgeSessionService.class.getResourceAsStream("/jbpm.console.properties"));
-            StringBuilder guvnorSBuilder = new StringBuilder();
-            guvnorSBuilder.append(guvnorProps.getProperty(GuvnorConnectionUtils.GUVNOR_PROTOCOL_KEY));
-            guvnorSBuilder.append("://");
-            guvnorSBuilder.append(guvnorProps.getProperty(GuvnorConnectionUtils.GUVNOR_HOST_KEY));
-            guvnorSBuilder.append("/");
-            guvnorSBuilder.append(guvnorProps.getProperty(GuvnorConnectionUtils.GUVNOR_SUBDOMAIN_KEY));
-            String guvnorURI = guvnorSBuilder.toString();
-            List<String> packages = guvnorUtils.getPackageNames();
             KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
-            for(String pkg : packages){
-                GuvnorRestApi guvnorRestApi = new GuvnorRestApi(guvnorURI);
-                InputStream binaryPackage = guvnorRestApi.getBinaryPackage(pkg);
-                kbuilder.add(new InputStreamResource(binaryPackage), ResourceType.PKG);
-                guvnorRestApi.close();
+            if(guvnorUtils.guvnorExists()) {
+                guvnorProps.load(KnowledgeSessionService.class.getResourceAsStream("/jbpm.console.properties"));
+                StringBuilder guvnorSBuilder = new StringBuilder();
+                guvnorSBuilder.append(guvnorProps.getProperty(GuvnorConnectionUtils.GUVNOR_PROTOCOL_KEY));
+                guvnorSBuilder.append("://");
+                guvnorSBuilder.append(guvnorProps.getProperty(GuvnorConnectionUtils.GUVNOR_HOST_KEY));
+                guvnorSBuilder.append("/");
+                guvnorSBuilder.append(guvnorProps.getProperty(GuvnorConnectionUtils.GUVNOR_SUBDOMAIN_KEY));
+                String guvnorURI = guvnorSBuilder.toString();
+                List<String> packages = guvnorUtils.getPackageNames();
+                for(String pkg : packages){
+                    GuvnorRestApi guvnorRestApi = new GuvnorRestApi(guvnorURI);
+                    InputStream binaryPackage = guvnorRestApi.getBinaryPackage(pkg);
+                    kbuilder.add(new InputStreamResource(binaryPackage), ResourceType.PKG);
+                    guvnorRestApi.close();
+                }
             }
             kbase = kbuilder.newKnowledgeBase();
         }catch(Exception x){
-            x.printStackTrace();
             throw new RuntimeException(x);
         }
     }
@@ -432,7 +433,7 @@ public class KnowledgeSessionService implements IKnowledgeSessionService {
     // compile a process into a package and add it to the knowledge base 
     public void addProcessToKnowledgeBase(Process processObj, Resource resourceObj) {
         if(kbase == null)
-            createKnowledgeBaseViaKnowledgeAgent();
+            rebuildKnowledgeBaseViaKnowledgeBuilder();
        
         PackageBuilder packageBuilder = new PackageBuilder();
         ProcessBuilderImpl processBuilder = new ProcessBuilderImpl( packageBuilder );
@@ -445,7 +446,7 @@ public class KnowledgeSessionService implements IKnowledgeSessionService {
 
     public void addProcessToKnowledgeBase(File bpmnFile) {
         if(kbase == null)
-            createKnowledgeBaseViaKnowledgeAgent();
+            rebuildKnowledgeBaseViaKnowledgeBuilder();
 
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         kbuilder.add(ResourceFactory.newFileResource(bpmnFile), ResourceType.BPMN2);
