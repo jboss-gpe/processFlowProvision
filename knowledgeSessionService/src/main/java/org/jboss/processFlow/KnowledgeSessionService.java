@@ -247,6 +247,7 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
     private ObjectName objectName;
     private MBeanServer platformMBeanServer;
     private Properties guvnorProps;
+    private String taskCleanUpImpl;
 
     private @PersistenceUnit(unitName=EMF_NAME)  EntityManagerFactory jbpmCoreEMF;
     private @javax.annotation.Resource UserTransaction uTrnx;
@@ -259,6 +260,8 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
     public void start() throws Exception {
         if(System.getProperty("org.jboss.processFlow.drools.resource.scanner.interval") != null)
             droolsResourceScannerInterval = System.getProperty("org.jboss.processFlow.drools.resource.scanner.interval");
+
+        taskCleanUpImpl = System.getProperty(IKnowledgeSessionService.TASK_CLEAN_UP_PROCESS_EVENT_LISTENER_IMPL);
 
         /*  - set KnowledgeBase properties
          *  - the alternative to this programmatic approach is a 'META-INF/drools.session.conf' on the classpath
@@ -876,9 +879,11 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
 
         // 4) register TaskCleanUpProcessEventListener
         //   NOTE:  need to ensure that task audit data has been pushed to BAM prior to this taskCleanUpProcessEventListener firing
-        TasksAdmin adminObj = jtaTaskService.createTaskAdmin();
-        TaskCleanUpProcessEventListener taskCleanUpListener = new TaskCleanUpProcessEventListener(adminObj);
-        ksession.addEventListener(taskCleanUpListener);
+        if(taskCleanUpImpl != null && taskCleanUpImpl.equals(TaskCleanUpProcessEventListener.class.getName())) {
+            TasksAdmin adminObj = jtaTaskService.createTaskAdmin();
+            TaskCleanUpProcessEventListener taskCleanUpListener = new TaskCleanUpProcessEventListener(adminObj);
+            ksession.addEventListener(taskCleanUpListener);
+        }
 
        
         // 4)  register any other process event listeners specified via configuration
