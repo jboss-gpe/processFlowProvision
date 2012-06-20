@@ -373,12 +373,17 @@
         <fail unless="management.port" message="deploy.brms.webs:  need to pass 'management.port' property" />
         <jar jarfile="${temp.dir}/${guvnor.name}" basedir="${guvnor.target}" />
         <jar jarfile="${temp.dir}/${designer.name}" basedir="${designer.target}" />
-        <!--antcall target="execute.cli">
-            <param name="cli.source.dir" value="conf/brmsWebs"/>
-            <param name="cli.to.filter.and.execute" value="brmsWebs-config-down.cli"/>
-            <param name="management.port" value="${management.port}"/>
-            <param name="cli.fail.on.error" value="false"/>
-        </antcall -->
+        <if>
+            <equals arg1="${refresh.jboss}" arg2="true" />
+            <then>
+                <antcall target="execute.cli">
+                    <param name="cli.source.dir" value="conf/brmsWebs"/>
+                    <param name="cli.to.filter.and.execute" value="brmsWebs-config-down.cli"/>
+                    <param name="management.port" value="${management.port}"/>
+                    <param name="cli.fail.on.error" value="false"/>
+                </antcall>
+            </then>
+        </if>
         <antcall target="execute.cli">
             <param name="cli.source.dir" value="conf/brmsWebs"/>
             <param name="cli.to.filter.and.execute" value="brmsWebs-config-up.cli"/>
@@ -509,12 +514,14 @@
         <if>
             <equals arg1="${refresh.master.jboss}" arg2="true" />
             <then>
+                <property name="refresh.jboss" value="false" />
                 <antcall target="refresh.master.jboss" >
                     <param name="node.to.stop" value="master"/>
                     <param name="jboss.domain.base.dir" value="${jboss.domain.base.dir}"/>
                     <param name="domain.config.file" value="${domain.config.file}"/>
                 </antcall>
             </then>
+            <else><property name="refresh.jboss" value="true" /></else>
         </if>
         <mkdir dir="${install.home}/lib" />
         <condition property="useBRMS">
@@ -524,6 +531,7 @@
         <antcall target="explode.guvnor.and.designer" />
         <antcall target="deploy.brms.webs" >
             <param name="management.port" value="${management.port}"/>
+            <param name="refresh.jboss" value="${refresh.jboss}"/>
         </antcall>
     </target>
 
