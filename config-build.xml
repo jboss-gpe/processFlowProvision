@@ -17,7 +17,7 @@
     <!-- even though this is in build.xml ... need it here as well for distro -->
     <import file="privateServiceTaskRepo/build.xml"/>
 
-    <target name="stop.jboss" description="">
+    <target name="stop.jboss" >
         <fail unless="management.port" message="stop.jboss:  need to pass 'management.port' property" />
         <fail unless="node.to.stop" message="stop.jboss:  need to pass 'node.to.stop' property" />
         <exec executable="bash" failonerror="true" dir="." >
@@ -27,7 +27,7 @@
            <arg value="${node.to.stop}"/>
         </exec>
     </target>
-    <target name="start.jboss" description="">
+    <target name="start.jboss" >
         <fail unless="jboss.domain.base.dir" message="start.jboss:  need to pass 'jboss.domain.base.dir' property" />
         <fail unless="domain.config.file" message="start.jboss:  need to pass 'domain.config.file' property" />
         <exec executable="bash" failonerror="true" dir="." >
@@ -37,7 +37,7 @@
            <arg value="${domain.config.file}"/>
         </exec>
     </target>
-    <target name="bounce.jboss" description="">
+    <target name="bounce.jboss" >
         <antcall target="stop.jboss" >
             <param name="management.port" value="${management.port}"/>
             <param name="node" value="master"/>
@@ -206,7 +206,7 @@
         </antcall>
     </target>
 
-    <target name="pfp-config" description="">
+    <target name="pfp-config" >
         <copy toDir="${temp.ear.dir}/META-INF" >
             <fileset dir="conf/pfp/META-INF"  />
         </copy>
@@ -294,7 +294,7 @@
     </target>
 
     <!-- re-create guvnor filesystem and copy over repository.xml -->
-    <target name="refreshGuvnor" description="" >
+    <target name="refreshGuvnor" >
         <delete dir="${guvnor_repo_location}" />
         <mkdir dir="${guvnor_repo_location}" />
         <if>
@@ -492,7 +492,11 @@
         <delete dir="${install.home}/${designer.name}" />
     </target>
 
-    <target name="provision.pfp.core" description="">
+    <!--
+      pass following parameters to this target :
+        1) refresh.master.jboss (optional)
+    -->
+    <target name="provision.pfp.core" description="if domain is not already running and/or needs to be refreshed :  -Drefresh.master.jboss=true ">
         <condition property="useBRMS">
             <not><isset property="upstream.jbpm5.drools.libs.type" /></not>
         </condition>
@@ -515,7 +519,12 @@
         <antcall target="privateServiceTaskRepoDeploy" />
         <antcall target="refreshGuvnor" />
     </target>
-    <target name="provision.brms.webs" description="" >
+
+    <!--
+      pass following parameters to this target :
+        1) refresh.master.jboss (optional)
+    -->
+    <target name="provision.brms.webs" description="if domain is not already running and/or needs to be refreshed :  -Drefresh.master.jboss=true ">
         <if>
             <equals arg1="${refresh.master.jboss}" arg2="true" />
             <then>
