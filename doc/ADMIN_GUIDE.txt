@@ -164,11 +164,6 @@ INSTALL   :
             (as jboss):
                 unzip $JBOSS_PROJECTS/downloads/apache-ant-1.8.3-bin.zip -d $JBOSS_PROJECTS/
 
-        -- copy ant-contrib*.jar to $ANT_HOME/lib
-            - ant-contrib is already provided in this PFP download.  You'll just need to copy it over to $ANT_HOME/lib as follows:
-            (as jboss):
-                cp $JBOSS_PROJECTS/processFlowProvision/lib/ant/ant-contrib-1.0b3.jar $JBOSS_PROJECTS/apache-ant-1.8.3/lib
-
         -- network considerations for Apache Ant (optional if behind corporate firewall)
             -- the processFlowProvision build attempts to download via the internet several components to include guvnor, 'designer' and the bpm gwt console
             -- subsequently, Ant will need to be configured to route internet requests through a web proxy if build environment is behind a corporate firewall
