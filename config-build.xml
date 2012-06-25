@@ -64,12 +64,13 @@
         <antcall target="clone.jboss" >
             <param name="jboss.domain.base.dir" value="${jboss.domain.base.dir}"/>
         </antcall>
+        <antcall target="configure.jboss.modules" />
         <antcall target="start.jboss" >
             <param name="jboss.domain.base.dir" value="${jboss.domain.base.dir}"/>
             <param name="domain.config.file" value="${domain.config.file}"/>
         </antcall>
         <antcall target="execute.cli">
-                <param name="cli.source.dir" value="conf/jbossEAP/"/>
+                <param name="cli.source.dir" value="conf/jboss/"/>
                 <param name="cli.to.filter.and.execute" value="jboss-config.cli"/>
                 <param name="management.port" value="${management.port}"/>
         </antcall>
@@ -95,7 +96,7 @@
             <fileset dir="${jboss.home}/domain" />
         </copy>
         <antcall target="filter">
-            <param name="source.dir" value="conf/jbossEAP"/>
+            <param name="source.dir" value="conf/jboss"/>
             <param name="file.name" value="domain.xml"/>
             <param name="dest.dir" value="${jboss.home}/${jboss.domain.base.dir}/configuration"/>
         </antcall>
@@ -375,7 +376,6 @@
             <param name="dest.dir" value="${designer.target}/profiles"/>
         </antcall>
         <copy file="conf/brmsWebs/designer/WEB-INF/jboss-web.xml" toDir="${designer.target}/WEB-INF" />
-        <copy file="${jdbc.lib.path}" toDir="${guvnor.target}/WEB-INF/lib" />
 
     <!-- may need to execute:  ant interfaces -->
         <copy file="${temp.client.dir}/processFlow-interfaces.jar" toDir="${guvnor.target}/WEB-INF/lib" />
@@ -497,6 +497,15 @@
         <delete dir="${install.home}/${guvnor.name}" />
         <delete dir="${install.home}/${designer.name}" />
     </target>
+
+    <target name="configure.jboss.modules" >
+        <antcall target="filter">
+            <param name="source.dir" value="conf/jboss/modules"/>
+            <param name="dest.dir" value="${jboss.home}/modules"/>
+        </antcall>
+        <copy file="${postgresql.jdbc.lib.path}" todir="${jboss.home}/modules/org/postgresql/jdbc/main" />
+        <copy file="${mysql.jdbc.lib.path}" todir="${jboss.home}/modules/com/mysql/jdbc/main" />
+    </target> 
 
     <!--
       pass following parameters to this target :

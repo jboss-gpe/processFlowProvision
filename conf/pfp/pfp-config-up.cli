@@ -11,7 +11,8 @@ run-batch
 
 batch
 /host=master/server-config=${pfp.core.server}/:start(server=${pfp.core.server},blocking=true)
-deploy ${jdbc.lib.path} --server-groups=${pfp.core.group}
+/profile=full-ha/subsystem=datasources/jdbc-driver=mysql/:add(driver-module-name=com.mysql.jdbc,driver-xa-datasource-class-name=com.mysql.jdbc.jdbc2.optional.MysqlXADataSource,jdbc-compliant=false)
+/profile=full-ha/subsystem=datasources/jdbc-driver=postgresql/:add(driver-module-name=org.postgresql.jdbc,driver-xa-datasource-class-name=org.postgresql.xa.PGXADataSource,jdbc-compliant=false)
 run-batch
 
 
@@ -52,10 +53,10 @@ run-batch
 
 ### datasources 
 batch
-/profile=full-ha/subsystem=datasources/data-source=jbpm-core-cp:add(jndi-name=java:/global/jbpm-core-cp,connection-url=${jbpm_connection_url},driver-class=${jbpm_driver_class},driver-name=${jdbc.lib},user-name=${jbpm_db_user},password=${jbpm_db_password},pool-name=jbpm-core_ds_pool,max-pool-size=50,min-pool-size=10)
+/profile=full-ha/subsystem=datasources/data-source=jbpm-core-cp:add(jndi-name=java:/global/jbpm-core-cp,connection-url=${jbpm_connection_url},driver-class=${jbpm_driver_class},driver-name=${jdbc.module.name},user-name=${jbpm_db_user},password=${jbpm_db_password},pool-name=jbpm-core_ds_pool,max-pool-size=50,min-pool-size=10)
 /profile=full-ha/subsystem=datasources/data-source=jbpm-core-cp:enable()
 
-/profile=full-ha/subsystem=datasources/data-source=jbpm-bam-cp:add(jndi-name=java:/global/jbpm-bam-cp,connection-url=${bam_connection_url},driver-class=${bam_driver_class},driver-name=${jdbc.lib},user-name=${bam_db_user},password=${bam_db_password},pool-name=jbpm-bam_ds_pool,max-pool-size=50,min-pool-size=10)
+/profile=full-ha/subsystem=datasources/data-source=jbpm-bam-cp:add(jndi-name=java:/global/jbpm-bam-cp,connection-url=${bam_connection_url},driver-class=${bam_driver_class},driver-name=${jdbc.module.name},user-name=${bam_db_user},password=${bam_db_password},pool-name=jbpm-bam_ds_pool,max-pool-size=50,min-pool-size=10)
 /profile=full-ha/subsystem=datasources/data-source=jbpm-bam-cp:enable()
 run-batch
 

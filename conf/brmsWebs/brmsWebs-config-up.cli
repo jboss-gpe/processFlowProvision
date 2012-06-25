@@ -10,14 +10,21 @@ batch
 run-batch
 
 batch
+# provision database drivers using previously configured database "modules"
 /host=master/server-config=brms-webs/:start(server=brms-webs,blocking=true)
-deploy ${jdbc.lib.path} --server-groups=brms-webs-group --name=postgresql-jdbc-brms-webs  --runtime-name=postgresql-jdbc-brms-webs
+/profile=default/subsystem=datasources/jdbc-driver=mysql/:add(driver-module-name=com.mysql.jdbc,driver-xa-datasource-class-name=com.mysql.jdbc.jdbc2.optional.MysqlXADataSource,jdbc-compliant=false)
+/profile=default/subsystem=datasources/jdbc-driver=postgresql/:add(driver-module-name=org.postgresql.jdbc,driver-xa-datasource-class-name=org.postgresql.xa.PGXADataSource,jdbc-compliant=false)
 run-batch
 
 
 #batch
-/profile=default/subsystem=datasources/data-source=guvnor-cp:add(jndi-name=java:/global/guvnor-cp,connection-url=${guvnor_connection_url},driver-class=${guvnor_driver_class},driver-name=postgresql-jdbc-brms-webs,user-name=${guvnor_db_user},password=${guvnor_db_password},max-pool-size=50,min-pool-size=10)
-/profile=default/subsystem=datasources/data-source=guvnor-cp:enable()
+#/profile=default/subsystem=datasources/data-source=guvnor-cp:add(jndi-name=java:/global/guvnor-cp,connection-url=${guvnor_connection_url},driver-class=${guvnor_driver_class},driver-name=${jdbc.module.name},user-name=${guvnor_db_user},password=${guvnor_db_password},max-pool-size=50,min-pool-size=10)
+#/profile=default/subsystem=datasources/data-source=guvnor-cp:enable()
+
+/profile=default/subsystem=datasources/xa-data-source=guvnor-cp:add(jndi-name=java:/global/guvnor-cp,driver-name=${jdbc.module.name},user-name=${guvnor_db_user},password=${guvnor_db_password},max-pool-size=50,min-pool-size=10,xa-datasource-class=${guvnor.xa.datasource.class})
+/profile=default/subsystem=datasources/xa-data-source=guvnor-cp/xa-datasource-properties=ServerName/:add(value=${guvnor_db_ip})
+/profile=default/subsystem=datasources/xa-data-source=guvnor-cp/xa-datasource-properties=DatabaseName/:add(value=guvnor)
+/profile=default/subsystem=datasources/xa-data-source=guvnor-cp:enable()
 #run-batch
 
 #batch
