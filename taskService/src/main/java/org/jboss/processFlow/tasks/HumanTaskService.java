@@ -75,35 +75,7 @@ import org.jboss.processFlow.PFPBaseService;
 /**  
  *  JA Bride
  *  23 March 2011
- *  Purpose :  
- *      1)  populate the jbpm5 'organizationentity' table with users and groups assigned to tasks
- *      2)  synchronous API to various human task functions
- *          NOTE:  actual implementations : org/jbpm/task/service/TaskServerHandler.java
- *                                          org/jbpm/task/service/TaskClient.java
-            consider leveraging org.jbpm.task.service.local.LocalTaskService
-
-    Notes :
-        1) org.jbpm.task.service.TaskServiceSession
-            - each instance includes its own application managed EntityManager
-                - EntityManager for that TaskServiceSession created via EntityManagerFactory in org.jbpm.task.service.TaskService
-            - supports 2 different transaction types via 'setTransactionType()' method :
-                - RESOURCE_LOCAL   :   non JTA
-                - local-JTA
-                    - must define a jta-data-source enabled persistence unit in META-INF/persistence.xml of jbp5-human-task.jar
-                    - transaction-type of persistence unit in META-INF/persistence.xml of jbpm5-human-task.jar must be :  JTA
-                    - if (each TaskServiceSession instance detects that an invocatin is not associated with a transaction context) {
-                        TaskServiceSession instance uses bean-managed trnx demarcation (via javax.transaction.UserTransaction API ) to 
-                            1) begin trnx
-                            2) have its EntityManager enroll in the transaction
-                            3) /commit/rollback JTA trnx
-                      } else {
-                        TaskServiceSession just uses existing container managed JTA trnx
-                      }
-
-        2) all public operations exposed by this service leverage are annotated with TransactionAttributeType.NOT_SUPPORTED
-            this allows for the following :
-                a)  toggle use of JTA or non-JTA enabled taskServiceSession 
-                b)  if using JTA enabled taskServiceSession & database resource, synchroneous flushing via an explicit trnx commit
+ *  Purpose :  synchronous API to various human task functions
  */
 @Remote(ITaskService.class)
 @Singleton
@@ -119,7 +91,6 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
 
     private static final Logger log = Logger.getLogger("HumanTaskService");
 
-    private String transactionType = RESOURCE_LOCAL; // valid values :  RESOURCE_LOCAL or local-JTA
     private boolean enableIntelligentMapping = false;
 
     private @PersistenceUnit(unitName=JBPM_TASK_EMF_RESOURCE_LOCAL) EntityManagerFactory humanTaskEMF;
@@ -206,7 +177,6 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
 
     /**
         - changes task status from : InProgress --> Completed
-        - TaskServiceSession set to 'local-JTA'
         - this method blocks until process instance arrives at next 'safe point'
         - this method uses BMT to define the scope of the transaction
      */
@@ -843,7 +813,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
 
     private void rollbackTrnx() {
         try {
-            if(LOCAL_JTA.equals(transactionType) && (uTrnx.getStatus() == javax.transaction.Status.STATUS_ACTIVE))
+            if(uTrnx.getStatus() == javax.transaction.Status.STATUS_ACTIVE)
                 uTrnx.rollback();
         }catch(Exception e) {
             e.printStackTrace();

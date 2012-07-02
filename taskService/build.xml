@@ -12,6 +12,13 @@
         <jar jarfile="${temp.services.dir}/processFlow-taskService.jar" basedir="${subproject.build}" />
     </target>
 
+    <target name="taskServiceTest" depends="taskServiceClean,setClasspath" >
+        <mkdir dir="${subproject.build}" />
+        <javac debug="true" srcdir="${subproject.name}/src/test/java" destdir="${subproject.build}" optimize="${javac.optimize}" >
+            <classpath refid="classpath" />
+        </javac>
+    </target>
+
     <target name="taskServiceClean" depends="taskServiceInit" >
         <delete dir="${subproject.build}" />
     </target>
