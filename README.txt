@@ -26,9 +26,9 @@ OVERVIEW
     - provide an example of one possible production BRMS environment using 
       BRMS deployable libraries
   - PFP github branches :
-    - master :  PFP/BRMS targeted for "domain" managed JBoss EAP6
-    - er8   :   PFP/BRMS ER8 targeted for non-clustered JBoss EAP 5.*
-    - switchyard    :   automates provisioning of switchyard BPM component
+    - master      :  PFP/BRMS targeted for "domain" managed JBoss EAP6
+    - 5.3.0.GA    :  PFP/BRMS 5.3.0.GA targeted for non-clustered JBoss EAP 5.*
+    - switchyard  :  automates provisioning of switchyard BPM component
 
 
 
