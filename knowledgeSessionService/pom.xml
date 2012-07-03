@@ -9,18 +9,13 @@
         <artifactId>processFlow-parent</artifactId>
         <version>1.0.0</version>
     </parent>
-	<artifactId>knowledgeSessionService</artifactId>
+    <artifactId>knowledgeSessionService</artifactId>
     <packaging>jar</packaging>
 
-	<dependencies>
+    <dependencies>
         <dependency>
             <groupId>org.jboss.processFlow</groupId>
             <artifactId>common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.processFlow</groupId>
-            <artifactId>bamService</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -29,17 +24,16 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.jboss.processFlow</groupId>
+            <artifactId>bamService</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
             <version>1.5</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-jaxrs</artifactId>
-            <version>2.2.1.GA</version>
-            <scope>provided</scope>
-        </dependency>
-	</dependencies>
+    </dependencies>
 
 </project>

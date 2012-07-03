@@ -14,8 +14,8 @@
         <module>interfaces</module>
         <module>common</module>
         <module>bam</module>
-        <module>taskService</module>
         <module>knowledgeSessionService</module>
+        <module>taskService</module>
     </modules>
 
     <properties>

@@ -12,7 +12,7 @@
 	<artifactId>taskService</artifactId>
     <packaging>jar</packaging>
 
-	<dependencies>
+    <dependencies>
         <dependency>
             <groupId>org.jboss.processFlow</groupId>
             <artifactId>common</artifactId>
@@ -20,9 +20,14 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.processFlow</groupId>
+            <artifactId>interfaces</artifactId>
+            <version>${project.version}</version>
+       </dependency>
+        <dependency>
+            <groupId>org.jboss.processFlow</groupId>
             <artifactId>knowledgeSessionService</artifactId>
             <version>${project.version}</version>
         </dependency>
-	</dependencies>
+    </dependencies>
 
 </project>
