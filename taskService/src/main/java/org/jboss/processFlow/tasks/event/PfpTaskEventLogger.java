@@ -1,9 +1,6 @@
 package org.jboss.processFlow.tasks.event;
 
-import org.jbpm.task.event.TaskClaimedEvent;
-import org.jbpm.task.event.TaskCompletedEvent;
-import org.jbpm.task.event.TaskFailedEvent;
-import org.jbpm.task.event.TaskSkippedEvent;
+import org.jbpm.task.event.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,8 +41,8 @@ public class PfpTaskEventLogger implements PfpTaskEventListener {
     }
 
     @Override
-    public void taskAdded(TaskAddedEvent event) {
-        logger.info("task {} added", event.getTaskId());
+    public void taskCreated(TaskCreatedEvent event) {
+        logger.info("task {} created", event.getTaskId());
     }
 
     @Override
@@ -56,6 +53,16 @@ public class PfpTaskEventLogger implements PfpTaskEventListener {
     @Override
     public void taskStarted(TaskStartedEvent event) {
         logger.info("task {} started by {}", event.getTaskId(), event.getUserId());
+    }
+
+    @Override
+    public void taskForwarded(TaskForwardedEvent event) {
+        logger.info("task {} forwarded by {}", event.getTaskId(), event.getUserId());
+    }
+
+    @Override
+    public void taskStopped(TaskStoppedEvent event) {
+        logger.info("task {} stopped by {}", event.getTaskId(), event.getUserId());
     }
 
 }

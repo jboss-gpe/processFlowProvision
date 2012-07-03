@@ -117,7 +117,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
         try {
             taskSession = taskService.createSession();
             taskSession.addTask(taskObj, cData);
-            eventSupport.fireTaskAdded(taskObj, cData);
+            eventSupport.fireTaskCreated(taskObj.getId(), taskObj.getTaskData().getActualOwner().getId());
             return taskObj.getId();
         }finally {
             if(taskSession != null)

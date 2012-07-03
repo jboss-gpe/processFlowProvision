@@ -16,12 +16,11 @@
         <module>bam</module>
         <module>taskService</module>
         <module>knowledgeSessionService</module>
-        <module>adminConsole</module>
     </modules>
 
     <properties>
-        <jbpm.version>5.3.0-SNAPSHOT</jbpm.version>
-        <drools.version>5.4.0-SNAPSHOT</drools.version>
+        <jbpm.version>5.4.0-SNAPSHOT</jbpm.version>
+        <drools.version>5.5.0-SNAPSHOT</drools.version>
     </properties>
 
     <build>
@@ -42,7 +41,13 @@
     </build>
 
     <dependencies>
-        <!-- jbpm5 -->
+        <dependency>
+            <groupId>org.jboss.spec</groupId>
+            <artifactId>jboss-javaee-6.0</artifactId>
+            <version>1.0.0.Final</version>
+            <type>pom</type>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.jbpm</groupId>
             <artifactId>jbpm-flow</artifactId>
@@ -63,7 +68,7 @@
         </dependency>
         <dependency>
             <groupId>org.jbpm</groupId>
-            <artifactId>jbpm-human-task</artifactId>
+            <artifactId>jbpm-human-task-core</artifactId>
             <version>${jbpm.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -112,23 +117,24 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- jboss jee -->
         <dependency>
-            <groupId>jboss</groupId>
-            <artifactId>jboss-j2se</artifactId>
-            <version>200504122039</version>
-            <scope>provided</scope>
+            <groupId>org.jboss.as</groupId>
+            <artifactId>jboss-as-arquillian-container-managed</artifactId>
+            <version>7.1.1.Final</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.jboss.javaee</groupId>
-            <artifactId>jboss-javaee</artifactId>
-            <version>5.0.0.GA</version>
-            <scope>provided</scope>
+            <groupId>org.jboss.arquillian</groupId>
+            <artifactId>arquillian-bom</artifactId>
+            <version>1.0.1.Final</version>
+            <scope>import</scope>
+            <type>pom</type>
         </dependency>
         <dependency>
-            <groupId>org.jboss.ejb3</groupId>
-            <artifactId>jboss-ejb3-ext-api</artifactId>
-            <version>1.1.1</version>
+            <groupId>org.jboss.arquillian.junit</groupId>
+            <artifactId>arquillian-junit-container</artifactId>
+            <scope>test</scope>
+            <version>1.0.1.Final</version>
         </dependency>
 
         <dependency>

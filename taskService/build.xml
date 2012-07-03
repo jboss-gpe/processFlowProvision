@@ -15,7 +15,7 @@
     <target name="taskServiceTest" depends="taskServiceClean,setTestClasspath" >
         <mkdir dir="${subproject.build}" />
         <javac debug="true" srcdir="${subproject.name}/src/test/java" destdir="${subproject.build}" optimize="${javac.optimize}" >
-            <classpath refid="classpath" />
+            <classpath refid="taskService.classpath" />
         </javac>
         <junit printsummary="true" fork="yes" >
             <jvmarg value="-Xms16m" />
