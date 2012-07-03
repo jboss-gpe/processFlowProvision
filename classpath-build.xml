@@ -22,6 +22,9 @@
         <if>
             <isset property="useCompiledJBPMLibs"/>
                 <then>
+                    <available file="${jbpm.source.dir}/jbpm-distribution/target/jbpm-${jBPM.version}-pre-bin/lib" property="jbpm5CommunitySourceExists" />
+                    <fail unless="jbpm5CommunitySourceExists" message="no compiled jbpm5/drools libraries at: ${jbpm.source.dir}/jbpm-distribution/target/jbpm-${jBPM.version}-pre-bin/lib.  Please review ${ENV.PFP_HOME}/doc/DEVELOPER_GUIDE.txt" />
+
                     <path id="classpath">
                     <path refid="base.classpath" />
                         <fileset dir="${jbpm.source.dir}/jbpm-bam/target" ><include name="*.jar" /></fileset>
@@ -54,6 +57,23 @@
                 </then>
         </if>
     </target>
+
+   
+    <!-- http://pub.admc.com/howtos/junit4x/ant-chapt.html --> 
+    <target name="setTestClasspath" depends="setClasspath" >
+        <if>
+            <available file="${junit.lib.path}" />
+            <then>
+                <path id="test.classpath">
+                    <path refid="classpath" />
+                </path>
+            </then>
+            <else>
+                <fail message="${junit.lib.path} not found" />
+            </else>
+        </if>
+    </target>
+
 
     <target name="printClasspath" description="" depends="setClasspath" >
         <pathconvert pathsep="${line.separator}|   |-- "
