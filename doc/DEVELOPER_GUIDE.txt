@@ -27,18 +27,21 @@ INSTALL   :
         - since you are reading this documentation, the assumption is that you've already cloned this project from github
         - the following are branches that you may be interested in :
             1)  master      :   PFP that leverages community drools/jbpm5 and executes in a 'domain managed' JBoss EAP 6 
-            2)  er6-eap5    :   PFP that leverages BRMS ER6 and executes in "default" server configuration of JBoss EAP 5
+            2)  5.3.0.GA    :   PFP that leverages BRMS ER6 and executes in "default" server configuration of JBoss EAP 5
                   (as jboss) :  cd $PFP_HOME
-                                git checkout er6-eap5
+                                git checkout 5.3.0.GA
         
 
     -- maven (optional)
-            -- NOTE:  maven is only used to build upstream jbpm5 community source code
-            -- this section can be skipped if processFlowProvision is to use supported BRMS libraries
-            -- maven is not included in the Red Hat Network for RHEL 5.5 
-            -- the version of maven in Fedora14 is too old to properly build the jbpm5 sources
-            -- subsequently, this project has standardized on maven-3.0.3
-            -- maven-3.0.3-bin.tar.gz can be aquired and unpackaged as follows :
+        - maven is only used to build upstream jbpm5 community source code
+        - if building the 'master' branch of PFP, then maven is required since the 'master' branch of PFP only builds from the upstream
+          jbpm5 community source code
+            
+        -- this section can be skipped if processFlowProvision is to use supported BRMS libraries
+        -- maven is not included in the Red Hat Network for RHEL 5.5 
+        -- the version of maven in Fedora14 is too old to properly build the jbpm5 sources
+        -- subsequently, this project has standardized on maven-3.0.3
+        -- maven-3.0.3-bin.tar.gz can be aquired and unpackaged as follows :
             
             (as jbossadm)   cd $JBOSS_PROJECTS/downloads
                             wget http://www.apache.org/dyn/closer.cgi/maven/binaries/apache-maven-3.0.4-bin.tar.gz 
@@ -53,6 +56,9 @@ INSTALL   :
 
     PFP using community drools/jbpm5 (optional)
         - useful if interested in building PFP using the latest drools and jbpm5 libraries available from github
+        - if building the 'master' branch of PFP, then maven is required since the 'master' branch of PFP only builds from the upstream
+          jbpm5 community source code
+            
         - clone jbpm5 source code repository
           - if behind a corporate firewall with an HTTP proxy:  git config --global http.proxy $HTTP_PROXY
           - cd $JBOSS_PROJECTS/jboss
