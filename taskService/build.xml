@@ -12,11 +12,25 @@
         <jar jarfile="${temp.services.dir}/processFlow-taskService.jar" basedir="${subproject.build}" />
     </target>
 
-    <target name="taskServiceTest" depends="taskServiceClean,setClasspath" >
+    <target name="taskServiceTest" depends="taskServiceClean,setTestClasspath" >
         <mkdir dir="${subproject.build}" />
         <javac debug="true" srcdir="${subproject.name}/src/test/java" destdir="${subproject.build}" optimize="${javac.optimize}" >
             <classpath refid="classpath" />
         </javac>
+        <junit printsummary="true" fork="yes" >
+            <jvmarg value="-Xms16m" />
+            <jvmarg value="-Xmx64m" />
+            <jvmarg value="-Xss128k" />
+            <sysproperty key="log4j.configuration" value="file:conf/test/resources/log4j.xml" />
+            <classpath refid="taskService.classpath" />
+            <!--batchtest todir="${subproject.build}">
+                <fileset dir="${subproject.build}"/>
+                <formatter type="xml"/>
+            </batchtest -->
+            <test name="org.jboss.processFlow.tasks.HumanTaskServiceTest" todir="${subproject.build}">
+                <formatter type="xml"/>
+            </test>
+        </junit>
     </target>
 
     <target name="taskServiceClean" depends="taskServiceInit" >
@@ -26,6 +40,11 @@
     <target name="taskServiceInit" >
         <var name="subproject.name" value="taskService" />
         <var name="subproject.build" value="${subproject.name}/${build.dir}" />
+        <path id="taskService.classpath">
+            <path refid="test.classpath" />
+            <pathelement location="${junit.lib.path}" />
+            <pathelement location="${subproject.build}" />
+        </path>
     </target>
 
 </project>

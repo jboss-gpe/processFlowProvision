@@ -1,5 +1,8 @@
 package org.jboss.processFlow.tasks;
 
+import org.jbpm.task.Task;
+import org.jbpm.task.service.ContentData;
+
 import static org.junit.Assert.assertEquals;
 import javax.ejb.EJB;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -26,6 +29,9 @@ public class HumanTaskServiceTest {
 
     @Test
     public void addTaskTest() {
-        //htService.addTask(taskObj, inboundTaskVars);
+        Task taskObj = new Task();
+        ContentData inboundTaskVars = null;
+        htService.addTask(taskObj, inboundTaskVars);
     }
+
 }
