@@ -34,13 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.ejb.EJB;
-import javax.ejb.Remote;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.ejb.Remote;
+import javax.ejb.*;
 import javax.management.ObjectName;
 import javax.management.MBeanServer;
 import javax.transaction.UserTransaction;
@@ -217,6 +211,7 @@ import org.jboss.processFlow.PFPBaseService;
  *</pre>
  */
 @Remote(IKnowledgeSessionService.class)
+@LocalBean
 @Singleton(name="prodKSessionProxy")
 @Startup
 @TransactionAttribute(TransactionAttributeType.REQUIRED)

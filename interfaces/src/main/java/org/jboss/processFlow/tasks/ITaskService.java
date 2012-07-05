@@ -92,7 +92,7 @@ import org.jbpm.task.service.CannotAddTaskException;
  */
 public interface ITaskService {
 
-    public static final String TASK_SERVICE_JNDI = "ejb:pfp/processFlow-taskService//HumanTaskService!org.jboss.processFlow.tasks.ITaskService";
+    public static final String TASK_SERVICE_JNDI = "ejb:pfp/processFlow-taskService//taskProxy!org.jboss.processFlow.tasks.ITaskService";
     public static final String TASK_SERVICE_PROVIDER_URL = "org.jboss.processFlow.tasks.TASK_SERVICE_PROVIDER_URL";
     public static final String ADMINISTRATOR = "admin";
     public static final String HUMAN_TASK = "Human Task";

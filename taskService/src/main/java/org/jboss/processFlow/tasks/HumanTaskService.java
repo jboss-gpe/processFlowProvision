@@ -78,7 +78,7 @@ import org.jboss.processFlow.PFPBaseService;
  *  Purpose :  synchronous API to various human task functions
  */
 @Remote(ITaskService.class)
-@Singleton
+@Singleton(name="taskProxy")
 @Startup
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class HumanTaskService extends PFPBaseService implements ITaskService {
@@ -98,7 +98,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
     private @Resource UserTransaction uTrnx;
     private @Resource(name="java:/TransactionManager") TransactionManager tMgr;
 
-    @EJB(name="kSessionProxy", beanName="prodKSessionProxy")
+    @EJB(name="kSessionProxy", beanName="mockKSessionProxy")
     private IKnowledgeSessionService kSessionProxy;
 
     private PfpTaskEventSupport eventSupport;
