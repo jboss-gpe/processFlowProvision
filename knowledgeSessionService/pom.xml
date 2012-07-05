@@ -23,17 +23,6 @@
             <artifactId>interfaces</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.jboss.processFlow</groupId>
-            <artifactId>bamService</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-            <version>1.5</version>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
 
 </project>

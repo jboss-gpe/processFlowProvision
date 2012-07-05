@@ -95,9 +95,11 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
 
     private @PersistenceUnit(unitName=JBPM_TASK_EMF_RESOURCE_LOCAL) EntityManagerFactory humanTaskEMF;
     private @PersistenceUnit(unitName=JBPM_TASK_EMF) EntityManagerFactory jtaHumanTaskEMF;
-    private @EJB IKnowledgeSessionService kSessionProxy;
     private @Resource UserTransaction uTrnx;
     private @Resource(name="java:/TransactionManager") TransactionManager tMgr;
+
+    @EJB(name="kSessionProxy", beanName="prodKSessionProxy")
+    private IKnowledgeSessionService kSessionProxy;
 
     private PfpTaskEventSupport eventSupport;
     private TaskService taskService;

@@ -35,7 +35,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.ejb.EJB;
-import javax.ejb.LocalBean;
 import javax.ejb.Remote;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
@@ -218,9 +217,8 @@ import org.jboss.processFlow.PFPBaseService;
  *</pre>
  */
 @Remote(IKnowledgeSessionService.class)
-@Singleton
+@Singleton(name="prodKSessionProxy")
 @Startup
-@LocalBean
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class KnowledgeSessionService extends PFPBaseService implements IKnowledgeSessionService, KnowledgeSessionServiceMXBean {
 
@@ -252,7 +250,6 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
     private @PersistenceUnit(unitName=EMF_NAME)  EntityManagerFactory jbpmCoreEMF;
     private @javax.annotation.Resource UserTransaction uTrnx;
     private @javax.annotation.Resource(name="java:/TransactionManager") TransactionManager tMgr;
-    private @EJB ITaskService taskProxy;
 
 /******************************************************************************
  **************        Singleton Lifecycle Management                     *********/
@@ -468,6 +465,7 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
         List<KnowledgePackage> kpackages = new ArrayList<KnowledgePackage>();
         kpackages.add( new KnowledgePackageImp( packageBuilder.getPackage() ) );
         kbase.addKnowledgePackages(kpackages);
+        log.info("addProcessToKnowledgeBase() just added the following bpmn2 process definition to the kbase: "+processObj.getId());
     }
 
     public void addProcessToKnowledgeBase(File bpmnFile) {
