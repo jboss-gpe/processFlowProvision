@@ -1,9 +1,11 @@
-package org.jboss.processFlow.tasks;
+package org.jboss.processFlow.tasks.handlers;
 
 import org.drools.runtime.process.WorkItem;
 import org.drools.runtime.process.WorkItemManager;
 import org.jbpm.task.Status;
 import org.apache.log4j.Logger;
+import org.jboss.processFlow.tasks.TaskChangeDetails;
+import org.jboss.processFlow.workItem.WorkItemHandlerLifecycle;
 
 
 /**

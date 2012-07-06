@@ -1,4 +1,4 @@
-package org.jboss.processFlow.tasks;
+package org.jboss.processFlow.tasks.identity;
 
 import java.util.List;
 import org.jbpm.task.identity.UserGroupCallback;

@@ -20,19 +20,20 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.jboss.processFlow.tasks;
+package org.jboss.processFlow.workItem;
 
-import org.jbpm.process.workitem.email.EmailWorkItemHandler;
+import org.drools.runtime.process.WorkItemHandler;
 import org.drools.runtime.StatefulKnowledgeSession;
 
-public class PFPEmailWorkItemHandler extends EmailWorkItemHandler implements WorkItemHandlerLifecycle {
-
-    public PFPEmailWorkItemHandler(String host, String port, String userName, String password) {
-        super(host, port, userName, password);
-    }
-
-    public void init(StatefulKnowledgeSession sessionObj) {
-    }
-    public void dispose() {
-    }
-}
+/*
+    JA Bride:  18 August 2011
+        -- an instance of a workItemHandler is associated with an instance of a StatefulKnowledgeSession
+        -- when a StatefulKnowledgeSession is disposed, so to should a workItemHandler
+        -- currently, there is no mechanism from within the statefulKnowledgeSession to dispose of it workItemHandler when it (the knowledgeSession) is disposed
+        -- this 'lifecycle' interface is a temporary work around to allow a knowledge session 'service' to dispose of a work item handler 
+            in conjuntion with the disposal of its corresponding knowledgeSession
+*/
+public interface WorkItemHandlerLifecycle extends WorkItemHandler {
+    public void init(StatefulKnowledgeSession ksession);
+    public void dispose();
+} 

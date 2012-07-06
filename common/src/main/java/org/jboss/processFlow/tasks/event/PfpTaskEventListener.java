@@ -1,7 +1,5 @@
 package org.jboss.processFlow.tasks.event;
 
-import org.drools.event.process.ProcessEventListener;
-import org.jboss.processFlow.tasks.HumanTaskService;
 import org.jbpm.task.event.TaskEventListener;
 
 /**

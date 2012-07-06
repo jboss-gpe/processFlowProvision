@@ -60,7 +60,7 @@ import org.jbpm.process.audit.ProcessInstanceLog;
  *   - implementations of this may or may not feed a BAM data warehouse of process instance events
  *</pre>
  */
-public interface IKnowledgeSessionService {
+public interface IKnowledgeSessionService extends IBaseKnowledgeSessionService {
     public static final String KNOWLEDGE_SESSION_SERVICE_JNDI = "ejb:pfp/processFlow-knowledgeSessionService//prodKSessionProxy!org.jboss.processFlow.knowledgeService.IKnowledgeSessionService";
     public static final String KNOWLEDGE_SERVICE_PROVIDER_URL = "org.jboss.processFlow.knowledgeService.KNOWLEDGE_SERVICE_PROVIDER_URL";
     public static final String SPACE_DELIMITED_PROCESS_EVENT_LISTENERS = "space.delimited.process.event.listeners";
@@ -70,34 +70,6 @@ public interface IKnowledgeSessionService {
     public static final String KSESSION_ID = "ksessionId";
     public static final String EMAIL = "Email";
 
-    /**
-     *Given the id of a process definition and a Map of process instance variables, start a process instance.
-     *<pre>
-     *This method will block until the new process instance either completes or reaches a safe point (ie:  human task).
-     *returns a Map with the following content :
-     *  - IKnowledgeSessionService.PROCESS_INSTANCE_ID  / java.lang.Long
-     *  - IKnowledgeSessionService.KSESSION_ID          / java.lang.Integer
-     *</pre>
-     */
-    public Map<String, Object> startProcessAndReturnId(String processId, Map<String, Object> parameters) throws Exception;
-
-
-    /**
-     * complete a workItem.
-     *<pre>
-     *Completion of a work item signals to a StatefulKnowledgeSession to continue to the next node of the process instance.
-     *This method will block until the new process instance either completes or reaches a safe point (ie:  another human task).
-     
-     *This method is available to remote services that were involved in the processing of an 'asynchroneous' workItemHandler.
-     *One example of a service commonly invoking this method is org.jboss.processFlow.tasks.HumanTaskService. 
-     *  during execution of its 'completeTask(...), this method is subsequently invoked
-    </pre>
-     * @param ksessionId the id of the KnowledgeSession that is managing the lifecycle of the process instance
-     * @param workItemId the id of the workItem that has completed
-     * @param pInstanceVariables Map of any parameter results to be passed to process instance 
-     */
-    public void completeWorkItem(Integer ksessionId, Long workItemId, Map<String, Object> pInstanceVariables);
-    
     /**
      * printWorkItemHandlers
      * <pre>
@@ -200,5 +172,4 @@ public interface IKnowledgeSessionService {
      */  
     public String                   dumpBAMProducerPoolInfo();
 
-    public void disposeStatefulKnowledgeSessionAndExtras(Integer sessionId);
 }

@@ -1,10 +1,11 @@
-package org.jboss.processFlow.tasks;
+package org.jboss.processFlow.tasks.handlers;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
+import org.jboss.processFlow.tasks.ITaskService;
 
 
 public class BasePFPTaskHandler {

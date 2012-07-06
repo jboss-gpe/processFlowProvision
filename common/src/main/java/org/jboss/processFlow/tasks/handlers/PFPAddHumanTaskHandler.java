@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.jboss.processFlow.tasks;
+package org.jboss.processFlow.tasks.handlers;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -45,6 +45,8 @@ import org.jbpm.task.Task;
 import org.jbpm.task.TaskData;
 import org.jbpm.task.User;
 import org.jbpm.task.service.ContentData;
+import org.jboss.processFlow.tasks.ITaskService;
+import org.jboss.processFlow.workItem.WorkItemHandlerLifecycle;
 
 /*
  * 15 Sept 2011

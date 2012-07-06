@@ -68,7 +68,7 @@ import org.jbpm.task.service.TaskException;
 import org.jbpm.task.service.TaskService;
 import org.jbpm.task.service.TaskServiceSession;
 
-import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
+import org.jboss.processFlow.knowledgeService.IBaseKnowledgeSessionService;
 import org.jboss.processFlow.tasks.event.PfpTaskEventSupport;
 import org.jboss.processFlow.PFPBaseService;
 
@@ -99,7 +99,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
     private @Resource(name="java:/TransactionManager") TransactionManager tMgr;
 
     @EJB(name="kSessionProxy", beanName="mockKSessionProxy")
-    private IKnowledgeSessionService kSessionProxy;
+    private IBaseKnowledgeSessionService kSessionProxy;
 
     private PfpTaskEventSupport eventSupport;
     private TaskService taskService;
@@ -231,7 +231,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
             changeDetails.setReason(TaskChangeDetails.NORMAL_COMPLETION_REASON);
             changeDetails.setTaskId(taskId);
             newOutboundTaskVarMap.put(TaskChangeDetails.TASK_CHANGE_DETAILS, changeDetails);
-    
+   
             kSessionProxy.completeWorkItem(taskObj.getTaskData().getProcessSessionId(), taskObj.getTaskData().getWorkItemId(), newOutboundTaskVarMap);
     
             if(disposeKsession)
@@ -299,7 +299,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
 
             StringBuilder sBuilder = new StringBuilder("failTask()");
             this.dumpTaskDetails(taskObj, sBuilder);
-            
+           
             kSessionProxy.completeWorkItem(taskObj.getTaskData().getProcessSessionId(), taskObj.getTaskData().getWorkItemId(), outboundTaskVars);
             
             if(disposeKsession)
@@ -352,7 +352,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
 
             StringBuilder sBuilder = new StringBuilder("skipTask()");
             this.dumpTaskDetails(taskObj, sBuilder);
-            
+           
             kSessionProxy.completeWorkItem(taskObj.getTaskData().getProcessSessionId(), taskObj.getTaskData().getWorkItemId(), outboundTaskVars);
             
             if(disposeKsession)

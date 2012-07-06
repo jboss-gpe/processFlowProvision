@@ -103,10 +103,11 @@ import org.jbpm.task.admin.TasksAdmin;
 import org.jboss.processFlow.bam.IBAMService;
 import org.jboss.processFlow.bam.AsyncBAMProducerPool;
 import org.jboss.processFlow.bam.AsyncBAMProducer;
+import org.jboss.processFlow.knowledgeService.IBaseKnowledgeSessionService;
 import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
 import org.jboss.processFlow.knowledgeService.KnowledgeSessionServiceMXBean;
 import org.jboss.processFlow.tasks.ITaskService;
-import org.jboss.processFlow.tasks.WorkItemHandlerLifecycle;
+import org.jboss.processFlow.workItem.WorkItemHandlerLifecycle;
 import org.jboss.processFlow.util.LogSystemEventListener;
 import org.jboss.processFlow.PFPBaseService;
 
@@ -138,10 +139,10 @@ import org.jboss.processFlow.PFPBaseService;
  *         -- every StatefulKnowledgeSession managed by the processFlowProvision knowledgeSessionService is automatically registered with
  *
  *          the following workItemHandlers :
- *           1)  "Human Task"    :   org.jboss.processFlow.tasks.PFPAddHumanTaskHandler
- *           2)  "Skip Task"     :   org.jboss.processFlow.tasks.PFPSkipTaskHandler
- *           3)  "Fail Task"     :   org.jboss.processFlow.tasks.PFPFailTaskHandler
- *           4)  "Email"         :   org.jboss.processFlow.tasks.PFPEmailWorkItemHandler
+ *           1)  "Human Task"    :   org.jboss.processFlow.tasks.handlers.PFPAddHumanTaskHandler
+ *           2)  "Skip Task"     :   org.jboss.processFlow.tasks.handlers.PFPSkipTaskHandler
+ *           3)  "Fail Task"     :   org.jboss.processFlow.tasks.handlers.PFPFailTaskHandler
+ *           4)  "Email"         :   org.jboss.processFlow.tasks.handlers.PFPEmailWorkItemHandler
  *
  *      2)  defining configurable work item handlers
  *        -- jbpm5 allows for more than one META-INF/drools.session.conf in the runtime classpath
@@ -211,7 +212,7 @@ import org.jboss.processFlow.PFPBaseService;
  *</pre>
  */
 @Remote(IKnowledgeSessionService.class)
-@LocalBean
+@Local(IBaseKnowledgeSessionService.class)
 @Singleton(name="prodKSessionProxy")
 @Startup
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
@@ -302,10 +303,10 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
 
         log.info("start() instantiated StatefulKnowledge : drools guvnor scanner interval = "+droolsResourceScannerInterval);
 
-        programmaticallyLoadedWorkItemHandlers.put(ITaskService.HUMAN_TASK, Class.forName("org.jboss.processFlow.tasks.PFPAddHumanTaskHandler"));
-        programmaticallyLoadedWorkItemHandlers.put(ITaskService.SKIP_TASK, Class.forName("org.jboss.processFlow.tasks.PFPSkipTaskHandler"));
-        programmaticallyLoadedWorkItemHandlers.put(ITaskService.FAIL_TASK, Class.forName("org.jboss.processFlow.tasks.PFPFailTaskHandler"));
-        programmaticallyLoadedWorkItemHandlers.put(IKnowledgeSessionService.EMAIL, Class.forName("org.jboss.processFlow.tasks.PFPEmailWorkItemHandler"));
+        programmaticallyLoadedWorkItemHandlers.put(ITaskService.HUMAN_TASK, Class.forName("org.jboss.processFlow.tasks.handlers.PFPAddHumanTaskHandler"));
+        programmaticallyLoadedWorkItemHandlers.put(ITaskService.SKIP_TASK, Class.forName("org.jboss.processFlow.tasks.handlers.PFPSkipTaskHandler"));
+        programmaticallyLoadedWorkItemHandlers.put(ITaskService.FAIL_TASK, Class.forName("org.jboss.processFlow.tasks.handlers.PFPFailTaskHandler"));
+        programmaticallyLoadedWorkItemHandlers.put(IKnowledgeSessionService.EMAIL, Class.forName("org.jboss.processFlow.email.PFPEmailWorkItemHandler"));
 
         try {
             objectName = new ObjectName("org.jboss.processFlow:type="+this.getClass().getName());

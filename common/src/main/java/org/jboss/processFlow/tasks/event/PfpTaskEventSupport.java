@@ -3,8 +3,8 @@ package org.jboss.processFlow.tasks.event;
 import java.util.Iterator;
 
 import org.jbpm.task.Task;
-import org.jbpm.task.event.*;
-import org.jbpm.task.service.ContentData;
+import org.jbpm.task.event.TaskEventSupport;
+import org.jbpm.task.event.TaskEventListener;
 
 /**
  * helper class manages the {@link PfpTaskEventListener} registration, and fire events
