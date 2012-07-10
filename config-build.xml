@@ -1,4 +1,4 @@
-<project name="processFlowProvision-distro" default="provision.pfp.core" >
+<project name="processFlowProvision-distro" xmlns:artifact="antlib:org.apache.maven.artifact.ant" default="provision.pfp.core" >
 
     <property environment="ENV"/>
     <property file="build.properties" />
@@ -236,13 +236,13 @@
         <if>
             <isset property="useCompiledJBPMLibs"/>
             <then>
-                <antcall target="useCompiledJBPMLibs" />
+                <antcall target="download.community.brms.webs" />
             </then>
             <else>
                 <antcall target="useBRMSLibs" />
             </else>
         </if>
-        <copy toDir="${temp.ear.lib.dir}" overwrite="true" >
+        <copy toDir="${temp.pfp.lib.dir}" overwrite="true" >
             <fileset dir="lib" >
                 <include name="*.jar" />
             </fileset>
@@ -263,7 +263,7 @@
         <unzip src="${temp.dir}/jboss-jbpm-console.zip" dest="${temp.dir}" />
         <delete file="${temp.dir}/jboss-jbpm-console.zip" />
 
-        <copy toDir="${temp.ear.lib.dir}" overwrite="true" >
+        <copy toDir="${temp.pfp.lib.dir}" overwrite="true" >
             <fileset dir="${temp.dir}/designer.war/WEB-INF/lib" >
                 <include name="jackson*.jar" />
             </fileset>
@@ -346,7 +346,7 @@
                 </copy>
             </then>
             <else>
-                <antcall target="useCompiledJBPMLibs" />
+                <antcall target="download.community.brms.webs" />
                 <unzip src="${install.home}/lib/guvnor-distribution-wars-${drools.guvnor.version}-jboss-as-7.0.war" dest="${guvnor.target}" />
                 <unzip src="${install.home}/lib/designer-${designer.version}.war" dest="${designer.target}" />
             </else>
@@ -376,9 +376,6 @@
             <param name="dest.dir" value="${designer.target}/profiles"/>
         </antcall>
         <copy file="conf/brmsWebs/designer/WEB-INF/jboss-web.xml" toDir="${designer.target}/WEB-INF" />
-
-    <!-- may need to execute:  ant interfaces -->
-        <copy file="${temp.client.dir}/processFlow-interfaces.jar" toDir="${guvnor.target}/WEB-INF/lib" />
     </target>
     <target name="deploy.brms.webs" >
         <fail unless="management.port" message="deploy.brms.webs:  need to pass 'management.port' property" />
@@ -426,7 +423,7 @@
             </then>
         </if>
 
-        <move todir="${temp.ear.lib.dir}" >
+        <move todir="${temp.pfp.lib.dir}" >
             <fileset dir="${console.server.target}/WEB-INF/lib/" includes="commons-codec-*.jar" />
         </move>
         <delete file="${console.server.target}/WEB-INF/classes/ChangeSet.xml" />
@@ -499,12 +496,69 @@
     </target>
 
     <target name="configure.jboss.modules" >
+        <antcall target="resolve.droolsjbpm.dependencies" />
         <antcall target="filter">
             <param name="source.dir" value="conf/jboss/modules"/>
             <param name="dest.dir" value="${jboss.home}/modules"/>
         </antcall>
+
+        <property name="jbpm.lib.path" value="${jbpm.source.dir}/jbpm-distribution/target/jbpm-${jBPM.version}-pre-bin" />
+        <property name="deps.lib.path" value="${jbpm.source.dir}/jbpm-distribution/target/jbpm-${jBPM.version}-pre-bin/lib" />
+
         <copy file="${postgresql.jdbc.lib.path}" todir="${jboss.home}/modules/org/postgresql/jdbc/main" />
         <copy file="${mysql.jdbc.lib.path}" todir="${jboss.home}/modules/com/mysql/jdbc/main" />
+        <copy file="${deps.lib.path}/protobuf-java-${version.protobuf}.jar" todir="${jboss.home}/modules/com/google/protobuf/main" />
+        <copy file="${deps.lib.path}/antlr-runtime-${version.antlr}.jar" todir="${jboss.home}/modules/org/antlr/antlr-runtime/main" />
+        <copy file="${deps.lib.path}/ecj-${version.ecj}.jar" todir="${jboss.home}/modules/org/eclipse/jdt/core/compiler/ecj/main" />
+        <copy tofile="${jboss.home}/modules/org/drools/main/drools-compiler-${version.drools}.jar" >
+            <fileset dir="${deps.lib.path}" ><include name="drools-compiler-*.jar" /></fileset>
+        </copy>
+        <copy tofile="${jboss.home}/modules/org/drools/main/drools-core-${version.drools}.jar" >
+            <fileset dir="${deps.lib.path}" ><include name="drools-core-*.jar" /></fileset>
+        </copy>
+        <copy tofile="${jboss.home}/modules/org/drools/main/drools-persistence-jpa-${version.drools}.jar" >
+            <fileset dir="${deps.lib.path}" ><include name="drools-persistence-jpa-*.jar" /></fileset>
+        </copy>
+        <copy tofile="${jboss.home}/modules/org/drools/main/knowledge-api-${version.drools}.jar" >
+            <fileset dir="${deps.lib.path}" ><include name="knowledge-api-*.jar" /></fileset>
+        </copy>
+        <copy tofile="${jboss.home}/modules/org/drools/main/knowledge-internal-api-${version.drools}.jar" >
+            <fileset dir="${deps.lib.path}" ><include name="knowledge-internal-api-*.jar" /></fileset>
+        </copy>
+        <copy tofile="${jboss.home}/modules/org/mvel/mvel2/main/mvel2-${version.mvel}.jar" >
+            <fileset dir="${deps.lib.path}" ><include name="mvel2-*.jar" /></fileset>
+        </copy>
+        <copy todir="${jboss.home}/modules/org/jbpm/main" >
+            <fileset dir="${jbpm.lib.path}" >
+                <include name="jbpm-*.jar" />
+                <exclude name="jbpm-human-task-hornetq-*.jar" />
+                <exclude name="jbpm-human-task-jms-*.jar" />
+                <exclude name="jbpm-human-task-mina-*.jar" />
+                <exclude name="jbpm-test-*.jar" />
+            </fileset>
+        </copy>
+        <if>
+            <isset property="useCompiledJBPMLibs"/>
+            <then><antcall target="copy.community.jbpm.deps.to.modules" /></then>
+        </if>
+        <copy todir="${jboss.home}/modules/org/jboss/processFlow/main" >
+            <fileset dir="${temp.pfp.lib.dir}" />
+        </copy>
+    </target> 
+
+    <target name="resolve.droolsjbpm.dependencies" >
+        <typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant" >
+            <classpath>
+                <pathelement location="lib/ant/maven-ant-tasks-2.1.3.jar"/>
+            </classpath>
+        </typedef>
+        <artifact:pom id="droolsjbpm-build-bootstrap" file="${droolsjbpm.source.dir}/droolsjbpm-build-bootstrap/pom.xml" />
+        <artifact:dependencies filesetId="droolsjbpm.deps.path" pomRefId="droolsjbpm-build-bootstrap" useScope="test" />
+        <pathconvert pathsep="${line.separator}|   |- "
+             property="echo.droolsjbpm.deps.path"
+             refid="droolsjbpm.deps.path">
+        </pathconvert>
+        <echo message="droolsjbpm-build-bootstrap-version = ${echo.droolsjbpm.deps.path} " />
     </target> 
 
     <!--

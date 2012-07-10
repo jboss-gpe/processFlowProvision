@@ -55,6 +55,7 @@ import org.apache.log4j.Logger;
 import org.drools.SystemEventListener;
 import org.drools.SystemEventListenerFactory;
 import org.jbpm.task.*;
+import org.jbpm.task.identity.UserGroupCallbackManager;
 import org.jbpm.task.admin.TasksAdmin;
 import org.jbpm.task.event.TaskEventListener;
 import org.jbpm.task.query.TaskSummary;
@@ -98,7 +99,9 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
     private @Resource UserTransaction uTrnx;
     private @Resource(name="java:/TransactionManager") TransactionManager tMgr;
 
-    @EJB(name="kSessionProxy", beanName="mockKSessionProxy")
+    // https://issues.jboss.org/browse/AS7-4567
+    //@EJB(name="kSessionProxy", beanName="ejb/prodKSessionProxy")
+    @EJB(name="kSessionProxy", lookup="java:global/processFlow-knowledgeSessionService/prodKSessionProxy!org.jboss.processFlow.knowledgeService.IBaseKnowledgeSessionService")
     private IBaseKnowledgeSessionService kSessionProxy;
 
     private PfpTaskEventSupport eventSupport;
@@ -416,9 +419,12 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
         EntityManager eManager = null;
         try {
             eManager = humanTaskEMF.createEntityManager();
+/*
             Query qObj = eManager.createNamedQuery(TASK_BY_TASK_ID);
             qObj.setParameter("taskId", taskId);
             return (TaskSummary)qObj.getSingleResult();
+*/
+            return null;
         }catch(RuntimeException x) {
             throw x;
         }finally {
@@ -737,6 +743,12 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
 
     @PostConstruct
     public void start() throws Exception {
+        // 0)  set properites for UserGroupCallbackManager
+        UserGroupCallbackManager callbackMgr = UserGroupCallbackManager.getInstance();
+        callbackMgr.setCallback(new org.jboss.processFlow.tasks.identity.PFPUserGroupCallback());        
+        callbackMgr.setProperty("disable.all.groups", "true");
+        log.info("start() just set UserGroupCallbackManager with properties");
+
         // 1)  instantiate a deadline handler 
         EscalatedDeadlineHandler deadlineHandler = null;
         if (System.getProperty(ITaskService.DEADLINE_HANDLER) != null) {
@@ -762,6 +774,8 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
                 eventSupport.addEventListener((TaskEventListener) Class.forName(lcn).newInstance());
             }
         }
+
+        jtaTaskService  = new TaskService(jtaHumanTaskEMF, sEventListener, deadlineHandler);
         
         /**   1)  since TaskService is using a RESOURCE-LOCAL EMF (for performance reasons), jbpm assumes it can define its own trnx boundaries
          *    2)  in particular, jbpm human task impl defines its own trnx boundaries when this function creates a jbpm TaskService
@@ -769,13 +783,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
          */
         try {
             Transaction suspendedTrnx = tMgr.suspend(); 
-             
-            log.info("start() trnx status = "+uTrnx.getStatus()+" :  humanTaskEMF = "+humanTaskEMF);
-    
-            //     NOTE:  this is a thread safe object that, via TaskSessionFactoryImpl, now automatically detects use of either RESORCE_LOCAL or JTA enabled EMF
             taskService = new TaskService(humanTaskEMF, sEventListener, deadlineHandler);
-            jtaTaskService  = new TaskService(jtaHumanTaskEMF, sEventListener, deadlineHandler);
-
             tMgr.resume(suspendedTrnx);
         } catch(Exception x) {
             throw new RuntimeException(x);

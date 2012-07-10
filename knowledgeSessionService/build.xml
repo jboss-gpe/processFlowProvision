@@ -14,7 +14,7 @@
             <param name="source.dir" value="${subproject.name}/src/main/resources"/>
             <param name="dest.dir" value="${subproject.build}"/>
         </antcall>
-        <jar jarfile="${temp.services.dir}/processFlow-${subproject.name}.jar" basedir="${subproject.build}" >
+        <jar jarfile="${temp.pfp.services.dir}/processFlow-${subproject.name}.jar" basedir="${subproject.build}" >
              <manifest>
                 <attribute name="Built-By" value="${ENV.USERNAME}"/>
                 <attribute name="Implementation-Vendor" value="Red Hat, Inc"/>

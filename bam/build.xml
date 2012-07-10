@@ -10,11 +10,11 @@
         <copy toDir="${subproject.build}/META-INF/" overwrite="true" verbose="true" >
             <fileset dir="${subproject.name}/src/main/resources/META-INF" />
         </copy>
-        <jar jarfile="${temp.services.dir}/processFlow-${subproject.name}Service.jar" 
+        <jar jarfile="${temp.pfp.services.dir}/processFlow-${subproject.name}Service.jar" 
             basedir="${subproject.build}" 
             includes="**/*BAMService*.class,META-INF/*"
         />
-        <jar jarfile="${temp.ear.lib.dir}/processFlow-${subproject.name}-libs.jar" 
+        <jar jarfile="${temp.pfp.lib.dir}/processFlow-${subproject.name}-libs.jar" 
             basedir="${subproject.build}" 
             excludes="**/*BAMService*.class,META-INF/*"
         />

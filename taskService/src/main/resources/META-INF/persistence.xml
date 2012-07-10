@@ -11,7 +11,7 @@
     <provider>org.hibernate.ejb.HibernatePersistence</provider>
     <jta-data-source>java:/global/jbpm-core-cp</jta-data-source>
     <mapping-file>META-INF/Taskorm.xml</mapping-file>
-    <mapping-file>META-INF/pfp-Taskorm.xml</mapping-file>
+    <!-- mapping-file>META-INF/pfp-Taskorm.xml</mapping-file -->
     <class>org.jbpm.task.Attachment</class>
     <class>org.jbpm.task.BooleanExpression</class>
     <class>org.jbpm.task.Comment</class>
@@ -59,7 +59,7 @@
   <persistence-unit name="org.jbpm.task.resourceLocal" transaction-type="RESOURCE_LOCAL" >
     <non-jta-data-source>java:/global/jbpm-core-cp</non-jta-data-source>
     <mapping-file>META-INF/Taskorm.xml</mapping-file>
-    <mapping-file>META-INF/pfp-Taskorm.xml</mapping-file>
+    <!-- mapping-file>META-INF/pfp-Taskorm.xml</mapping-file -->
     <class>org.jbpm.task.Attachment</class>
     <class>org.jbpm.task.BooleanExpression</class>
     <class>org.jbpm.task.Comment</class>

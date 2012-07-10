@@ -3,7 +3,6 @@
     <target name="interfaces" depends="interfacesClean,setClasspath" >
         <echo message="subproject.name = ${subproject.name}" />
         <mkdir dir="${subproject.build}" />
-        <mkdir dir="${temp.services.dir}" />
 
         <javac debug="true" srcdir="${subproject.name}/src/main/java" destdir="${subproject.build}" >
             <classpath refid="classpath" />
@@ -11,7 +10,7 @@
         <jar jarfile="${subproject.build}/processFlow-${subproject.name}.jar" 
             basedir="${subproject.build}" 
         />
-        <copy file="${subproject.build}/processFlow-${subproject.name}.jar" toDir="${temp.ear.lib.dir}" />
+        <copy file="${subproject.build}/processFlow-${subproject.name}.jar" toDir="${temp.pfp.lib.dir}" />
         <copy file="${subproject.build}/processFlow-${subproject.name}.jar" toDir="${temp.client.dir}" />
 
         <javadoc sourcepath="${subproject.name}/src/main/java" destdir="${subproject.build}" />

@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!--
   ~ JBoss, Home of Professional Open Source.
   ~ Copyright 2010, Red Hat, Inc., and individual contributors
@@ -21,13 +20,32 @@
   ~ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
   ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
   -->
-
-<module xmlns="urn:jboss:module:1.1" name="org.mvel.mvel2">
-
+<module xmlns="urn:jboss:module:1.1" name="org.jboss.processFlow">
     <resources>
-        <resource-root path="mvel2-${version.mvel}.jar"/>
+        <resource-root path="processFlow-bam-libs.jar"/>
+        <resource-root path="processFlow-common.jar"/>
+        <resource-root path="processFlow-interfaces.jar"/>
     </resources>
-
     <dependencies>
+        <module name="org.drools" export="true" />
+        <module name="org.jbpm" export="true" >
+            <imports>
+                <!-- JA Bride: 9 July 2012 .... this doesn't seem to work -->
+                <include path="META-INF/Taskorm.xml"/>
+                <include path="META-INF/*.conf"/>
+            </imports>
+        </module>
+        <module name="org.apache.commons.pool" export="true" />
+        <module name="org.apache.log4j" export="true" />
+
+        <!-- needed by bamService, knowledgeSessionService and various org.jboss.processFlow static libraries -->
+        <module name="org.jboss.marshalling" export="true" />
+        <module name="org.jboss.marshalling.river" export="true" />
+
+
+        <!-- org.jboss.processFlow uses javax.* APIs that are not implicitly loaded -->
+        <module name="javax.api" />
+        <module name="javax.transaction.api" />
+        <module name="javax.jms.api" />
     </dependencies>
 </module>

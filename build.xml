@@ -21,14 +21,16 @@
         <delete dir="privateServiceTaskRepo/${build.dir}" />
         <delete dir="${install.home}/tmp" />
         <delete dir="${temp.client.dir}" />
+        <delete dir="${temp.pfp.services.dir}" />
+        <delete dir="${temp.pfp.lib.dir}" />
         <delete dir="${temp.distro.dir}" />
         <delete dir="${temp.ear.dir}" />
         <delete dir="${distro.clean}" />
     </target>
 
-    <target name="temp.client.dir" >
+    <target name="create.temp.client.dir" >
         <copy toDir="${temp.client.dir}" overwrite="true" >
-            <fileset dir="${temp.ear.lib.dir}" >
+            <fileset dir="${temp.pfp.lib.dir}" >
                 <include name="jbpm-human-task-*.jar" />
                 <include name="knowledge-api-*.jar" />
                 <include name="processFlow-interfaces*.jar" />
@@ -71,46 +73,24 @@
         <get src="${jBPM.url}/jbpm-${console.server.version}-gwt-console.zip" dest="${install.home}/lib/jbpm-${console.server.version}-gwt-console.zip"  />
     </target>
 
-    <target name="useCompiledJBPMLibs" depends="" if="useCompiledJBPMLibs">
-        <echo message="inside useCompiledJBPMLibs" />
+    <target name="download.community.brms.webs" if="useCompiledJBPMLibs">
         <antcall target="download.drools.guvnor" />
         <antcall target="download.designer" />
         <antcall target="download.jBPM.gwt-console" />
+    </target>
 
-        <copy toDir="${temp.ear.lib.dir}" overwrite="true" >
+    <target name="copy.community.jbpm.deps.to.modules" >
+        <copy toDir="${jboss.home}/modules/org/jbpm/main" overwrite="true" >
+            <fileset dir="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-shared/target/" >
+                <include name="jbpm-gwt-shared-${jBPM.version}.jar" />
+            </fileset>
+<!--
             <fileset dir="${jbpm.source.dir}/jbpm-distribution/target/jbpm-${jBPM.version}-pre-bin/lib" >
-                <include name="antlr*.jar" />
-                <include name="drools-*.jar" />
-                <include name="ecj-*.jar" />
-                <include name="knowledge-*.jar" />
-                <include name="mvel2-2*.jar" />
                 <include name="stringtemplate*.jar" />
-                <include name="protobuf-java*.jar" />
                 <exclude name="*test*.jar" />
-            </fileset>
-            <fileset dir="${jbpm.source.dir}/jbpm-flow/target/" >
-                <include name="jbpm-flow-${jBPM.version}.jar" />
-            </fileset>
-            <fileset dir="${jbpm.source.dir}/jbpm-flow-builder/target/" >
-                <include name="jbpm-flow-builder-${jBPM.version}.jar" />
-            </fileset>
-            <fileset dir="${jbpm.source.dir}/jbpm-workitems/target/" >
-                <include name="jbpm-workitems-${jBPM.version}.jar" />
-            </fileset>
-            <fileset dir="${jbpm.source.dir}/jbpm-bam/target/" >
-                <include name="jbpm-bam-${jBPM.version}.jar" />
-            </fileset>
-            <fileset dir="${jbpm.source.dir}/jbpm-bpmn2/target/" >
-                <include name="jbpm-bpmn2-${jBPM.version}.jar" />
             </fileset>
             <fileset dir="${jbpm.source.dir}/jbpm-bpmn2-emfextmodel/target/" >
                 <include name="jbpm-bpmn2-emfextmodel-${jBPM.version}.jar" />
-            </fileset>
-            <fileset dir="${jbpm.source.dir}/jbpm-human-task/jbpm-human-task-core/target/" >
-                <include name="jbpm-human-task-core-${jBPM.version}.jar" />
-            </fileset>
-            <fileset dir="${jbpm.source.dir}/jbpm-persistence-jpa/target/" >
-                <include name="jbpm-persistence-jpa-${jBPM.version}.jar" />
             </fileset>
             <fileset dir="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-form/target/" >
                 <include name="jbpm-gwt-form-${jBPM.version}.jar" />
@@ -118,23 +98,20 @@
             <fileset dir="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-graph/target/" >
                 <include name="jbpm-gwt-graph-${jBPM.version}.jar" />
             </fileset>
-            <fileset dir="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-shared/target/" >
-                <include name="jbpm-gwt-shared-${jBPM.version}.jar" />
-            </fileset>
-            <!-- NOTE:  not using jbpm-gwt-core -->
             <fileset dir="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-console-server/target/jbpm-gwt-console-server-${jBPM.version}/WEB-INF/lib" >
                 <include name="gwt-console*.jar" />
                 <include name="freemarker*.jar" />
                 <include name="commons-io-*.jar" />
                 <include name="commons-codec-*.jar" />
             </fileset>
+-->
         </copy>
     </target>
 
-    <target name="all" >
-        <antcall target="clean" />
-        <mkdir dir="${temp.ear.lib.dir}" />
-        <mkdir dir="${install.home}/lib" />
+    <target name="compile.pfp" >
+        <mkdir dir="${temp.pfp.lib.dir}" />
+        <mkdir dir="${temp.pfp.services.dir}" />
+
         <antcall target="setClasspath" />
         <antcall target="interfaces" />
         <antcall target="common" />
@@ -142,14 +119,20 @@
         <antcall target="knowledgeSessionService" />
         <antcall target="taskService" />
         <antcall target="adminConsole" />
-        <antcall target="useCompiledJBPMLibs" />
+    </target>
+
+    <target name="all" >
+        <antcall target="clean" />
+        <mkdir dir="${install.home}/lib" />
+        <antcall target="compile.pfp" />
+        <antcall target="download.community.brms.webs" />
         <antcall target="provision.brms.webs">
             <param name="refresh.master.jboss" value="true"/>
         </antcall>
         <antcall target="provision.pfp.core">
             <param name="refresh.master.jboss" value="false"/>
         </antcall>
-        <antcall target="temp.client.dir" />
+        <antcall target="create.temp.client.dir" />
         <antcall target="clean.jbpm.install" />
     </target>
 </project>

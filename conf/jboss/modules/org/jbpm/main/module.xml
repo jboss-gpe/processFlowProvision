@@ -20,22 +20,19 @@
   ~ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
   ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
   -->
-<module xmlns="urn:jboss:module:1.0" name="org.jbpm">
+<module xmlns="urn:jboss:module:1.1" name="org.jbpm">
     <resources>
+        <resource-root path="jbpm-bam-${jBPM.version}.jar"/>
         <resource-root path="jbpm-bpmn2-${jBPM.version}.jar"/>
         <resource-root path="jbpm-flow-${jBPM.version}.jar"/>
         <resource-root path="jbpm-flow-builder-${jBPM.version}.jar"/>
+        <resource-root path="jbpm-gwt-shared-${jBPM.version}.jar"/>
         <resource-root path="jbpm-human-task-core-${jBPM.version}.jar"/>
         <resource-root path="jbpm-persistence-jpa-${jBPM.version}.jar"/>
         <resource-root path="jbpm-workitems-${jBPM.version}.jar"/>
-    </resources>
+    </resources >
     <dependencies>
-        <module name="com.google.protobuf"/>
-        <module name="javax.api"/>
-        <module name="org.drools"/>
-        <module name="org.hibernate"/>
-        <module name="org.javassist"/>
-        <module name="org.mvel.mvel2"/>
-        <module name="org.slf4j"/>
+        <module name="org.drools" export="true" />
+        <module name="org.jbpm.configuration" export="true" />
     </dependencies>
 </module>

@@ -9,7 +9,7 @@
             <param name="source.dir" value="${subproject.name}/src/main/resources"/>
             <param name="dest.dir" value="${subproject.build}"/>
         </antcall>
-        <jar jarfile="${temp.services.dir}/processFlow-taskService.jar" basedir="${subproject.build}" />
+        <jar jarfile="${temp.pfp.services.dir}/processFlow-taskService.jar" basedir="${subproject.build}" />
     </target>
 
     <target name="taskServiceTest" depends="taskServiceClean,setTestClasspath" >
