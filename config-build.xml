@@ -496,7 +496,7 @@
     </target>
 
     <target name="configure.jboss.modules" >
-        <antcall target="resolve.droolsjbpm.dependencies" />
+        <!--antcall target="resolve.droolsjbpm.dependencies" / -->
         <antcall target="filter">
             <param name="source.dir" value="conf/jboss/modules"/>
             <param name="dest.dir" value="${jboss.home}/modules"/>
