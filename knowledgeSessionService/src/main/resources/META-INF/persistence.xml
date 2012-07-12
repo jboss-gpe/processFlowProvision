@@ -18,7 +18,7 @@
         <class>org.drools.persistence.info.SessionInfo</class>
         <class>org.drools.persistence.info.WorkItemInfo</class>
 
-        <class>org.jboss.processFlow.SessionProcessXref</class>
+        <class>org.jboss.processFlow.knowledgeService.SessionProcessXref</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 

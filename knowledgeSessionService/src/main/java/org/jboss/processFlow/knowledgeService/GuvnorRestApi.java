@@ -1,4 +1,4 @@
-package org.jboss.processFlow;
+package org.jboss.processFlow.knowledgeService;
 
 import java.io.InputStream;
 import java.net.HttpURLConnection;

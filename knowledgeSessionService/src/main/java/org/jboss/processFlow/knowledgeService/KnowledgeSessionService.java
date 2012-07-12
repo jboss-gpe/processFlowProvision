@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.jboss.processFlow;
+package org.jboss.processFlow.knowledgeService;
 
 import java.io.File;
 import java.io.InputStream;
