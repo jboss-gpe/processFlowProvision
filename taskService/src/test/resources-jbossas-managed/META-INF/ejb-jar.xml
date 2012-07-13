@@ -7,9 +7,10 @@
     <enterprise-beans>
         <session>
             <ejb-name>taskProxy</ejb-name>
+            <session-type>Singleton</session-type>
             <ejb-local-ref>
                 <ejb-ref-name>kSessionProxy</ejb-ref-name>
-                <local>org.jboss.processFlow.MockKnowledgeSessionService</local>
+                <local>org.jboss.processFlow.knowledgeService.IBaseKnowledgeSessionService</local>
             </ejb-local-ref>
         </session>
     </enterprise-beans>

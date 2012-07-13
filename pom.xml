@@ -123,6 +123,9 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- only one container adapter on the classpath is allowed at a time 
+             execution of the test will be aborted if more than one adapter is detected
+        -->
         <dependency>
             <groupId>org.jboss.as</groupId>
             <artifactId>jboss-as-arquillian-container-managed</artifactId>
@@ -158,6 +161,30 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>as7-managed</id>
+            <activation>
+                <property>
+                    <name>!foo.bar</name>
+                </property>
+            </activation>
+            <build>
+              <plugins>
+               <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-surefire-plugin</artifactId>
+                  <configuration>
+                     <systemPropertyVariables>
+                        <jboss.server.config.file.name>standalone-full.xml</jboss.server.config.file.name>                       
+                     </systemPropertyVariables>
+                  </configuration>
+               </plugin>
+              </plugins>
+            </build>
+        </profile>
+    </profiles>
 
     <repositories>
         <repository>
