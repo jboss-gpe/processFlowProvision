@@ -253,6 +253,7 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
     public void start() throws Exception {
         if(System.getProperty("org.jboss.processFlow.drools.resource.scanner.interval") != null)
             droolsResourceScannerInterval = System.getProperty("org.jboss.processFlow.drools.resource.scanner.interval");
+        log.info("start() drools guvnor scanner interval = "+droolsResourceScannerInterval);
 
         taskCleanUpImpl = System.getProperty(IKnowledgeSessionService.TASK_CLEAN_UP_PROCESS_EVENT_LISTENER_IMPL);
 
@@ -268,6 +269,7 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
 
         guvnorUtils = new GuvnorConnectionUtils();
 
+        // instantiate kSession pool
         if (System.getProperty("org.jboss.processFlow.KnowledgeSessionPool") != null) {
             String clazzName = System.getProperty("org.jboss.processFlow.KnowledgeSessionPool");
             sessionPool = (IKnowledgeSessionPool) Class.forName(clazzName).newInstance();
@@ -298,10 +300,6 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
         }
         SystemEventListenerFactory.setSystemEventListener(new LogSystemEventListener());
 
-        // 4)  grabbing instance of AsyncBAMProducerPool so that it can be closed as this knowledgeSessionService is closed
-        bamProducerPool = AsyncBAMProducerPool.getInstance();
-
-        log.info("start() instantiated StatefulKnowledge : drools guvnor scanner interval = "+droolsResourceScannerInterval);
 
         programmaticallyLoadedWorkItemHandlers.put(ITaskService.HUMAN_TASK, Class.forName("org.jboss.processFlow.tasks.handlers.PFPAddHumanTaskHandler"));
         programmaticallyLoadedWorkItemHandlers.put(ITaskService.SKIP_TASK, Class.forName("org.jboss.processFlow.tasks.handlers.PFPSkipTaskHandler"));
@@ -319,7 +317,7 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
   
     @PreDestroy 
     public void stop() throws Exception{
-        // JA Bride :  completely plagarized from David Ward in his org.jboss.internal.soa.esb.services.rules.DroolsResourceChangeService
+        // JA Bride :  completely plagarized from David Ward in his org.jboss.internal.soa.esb.services.rules.DroolsResourceChangeService implementation
 
         // ORDER IS IMPORTANT!
         // 1) stop the scanner
@@ -331,7 +329,8 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
          // 3) set the system event listener back to the original implementation
         SystemEventListenerFactory.setSystemEventListener(originalSystemEventListener);
 
-        bamProducerPool.close();
+        if(bamProducerPool != null)
+            bamProducerPool.close();
 
         try {
             platformMBeanServer.unregisterMBean(this.objectName);
@@ -880,16 +879,18 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
         }
 
        
-        // 4)  register any other process event listeners specified via configuration
+        // 5)  register any other process event listeners specified via configuration
         AsyncBAMProducer bamProducer= null;
         if(processEventListeners != null) {
-            // 5)  register any other processEventListeners that have been specified via configuration
             for(String peString : processEventListeners) {
                 try {
                     Class peClass = Class.forName(peString);
                     ProcessEventListener peListener = (ProcessEventListener)peClass.newInstance();
                     if(IBAMService.ASYNC_BAM_PRODUCER.equals(peListener.getClass().getName())){
                         bamProducer = (AsyncBAMProducer)peListener;
+       
+                        if(bamProducerPool == null) 
+                            bamProducerPool = AsyncBAMProducerPool.getInstance();
                     }
                     ksession.addEventListener(peListener);
                 } catch(Exception x) {
@@ -898,11 +899,11 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
             }
         }
  
-        // 5)  create a kWrapper object with optional bamProducer
+        // 6)  create a kWrapper object with optional bamProducer
         KnowledgeSessionWrapper kWrapper = new KnowledgeSessionWrapper(ksession, bamProducer);
         kWrapperHash.put(ksession.getId(), kWrapper);
 
-        // 6)  add KnowledgeRuntimeLogger as per section 4.1.3 of jbpm5 user manual
+        // 7)  add KnowledgeRuntimeLogger as per section 4.1.3 of jbpm5 user manual
         if(enableKnowledgeRuntimeLogger) {
             StringBuilder sBuilder = new StringBuilder();
             sBuilder.append(System.getProperty("jboss.server.log.dir"));
@@ -912,7 +913,7 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
         }
 
 
-        // 6) allow JMX statistics to be gathered on this Stateful Knowledge Session
+        // 8) allow JMX statistics to be gathered on this Stateful Knowledge Session
         //((CommandBasedStatefulKnowledgeSession)ksession).getInternalWorkingMemory();
         //kmanagement.registerKnowledgeSession(((StatefulKnowledgeSessionImpl)ksession).getInternalWorkingMemory());
 
@@ -939,9 +940,13 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
 
     public String dumpBAMProducerPoolInfo() {
         StringBuilder sBuilder = new StringBuilder("dumpBAMProducerPoolInfo()\n\tNumber Active = ");
-        sBuilder.append(bamProducerPool.getNumActive());
-        sBuilder.append("\n\tNumber Idle = ");
-        sBuilder.append(bamProducerPool.getNumIdle());
+        if(bamProducerPool != null) {
+            sBuilder.append(bamProducerPool.getNumActive());
+            sBuilder.append("\n\tNumber Idle = ");
+            sBuilder.append(bamProducerPool.getNumIdle());
+        } else {
+            sBuilder.append("bamProducerPool is null.  most likely environment is not configured correctly for async logging of bam events from jbpm5 process engine");
+        }
         return sBuilder.toString();
     }
     

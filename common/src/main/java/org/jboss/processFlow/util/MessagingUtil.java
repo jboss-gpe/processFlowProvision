@@ -26,12 +26,18 @@ import javax.naming.InitialContext;
 import javax.naming.Context;
 import javax.jms.ConnectionFactory;
 
+import org.apache.log4j.Logger;
+
 public class MessagingUtil {
+
+    private static Logger log = Logger.getLogger("MessagingUtil");
 
     public static ConnectionFactory grabConnectionFactory() throws Exception {
         String cFactoryName = System.getProperty("org.jboss.processFlow.messaging.connectionFactory");
-        if(cFactoryName == null)
-            throw new RuntimeException("must set a value for system property:  org.jboss.processFlow.messaging.connectionFactory");
+        if(cFactoryName == null) {
+            log.warn("system property not set :  org.jboss.processFlow.messaging.connectionFactory ... will set to default:  ConnectionFactory");
+            cFactoryName="ConnectionFactory";
+        }
 
         return (ConnectionFactory)grabJMSObject(cFactoryName);
     }
