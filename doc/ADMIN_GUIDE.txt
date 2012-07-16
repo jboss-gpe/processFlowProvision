@@ -309,6 +309,9 @@ POST INSTALL ADMINISTRATION
                 
     Eclipse Tooling                
         -- NOTES:  
+            -- it's recommended that creation of process definitions be done via the guvnor web designer web app rather than via any of the eclipse plugins
+                provided by jbpm5
+            -- if still interested in using a jbpm5 eclipse plugin, then this section applies ... otherwise skip
             -- Eclipse does not need to be co-located in the same virtual machine as the jbpm5 runtime 
             -- also, probably best to use a fresh install of eclipse-java-helios that does not have any other JBoss related components such as JBoss Tools
 
@@ -513,5 +516,20 @@ asynch messaging in PFP
                 BAM events to a messaging broker
             - PFP implements a BAMService MDB that ultimately consumes BAM events and inserts into a different BAM data wharehouse in batch
 
-domain / ratwater
-To represent the user add the following to the server-identities definition <secret value="cmF0d2F0ZXI=" />
+
+in general, what does the PFP ant script do ???
+    - returns AS7 environment to original state (promoting a repeatable runtime environment)
+    - configures AS7 modules from drools, jbpm5 and PFP libraries
+    - configures AS7 modules of either mysql or postgresql libraries
+    - creates an AS7 server-group called "brms-webs-group" with appropriate jvm and port settings to support the deployment of guvnor, designer and bpm-console
+    - configures the following AS7 datasource pools from either mysql or postgresql drivers:
+        1) guvnor-cp
+        2)  jbpm-core-cp
+        3)  jbpm-bam-cp
+    - downloads latest community drools guvnor, bpm-console and web designer releases (if not already present on local drive)
+    - provisions an AS7 server called "domain-brmsWebs" that includes guvnor, bpm-console and web designer artifacts
+    - configures embedded Hornetq such that its journal, paging and large-message directories could potentially be directed to different hard-disk partitions
+    - configures Hornetq queue used to support PFP's async BAM event producer / consumer architecture
+    - creates an AS7 server-group called "pfp-core-group" with appropriate jvm and port settings to support deployment of PFP runtime services
+    - provisions an AS7 server called "domain-pfp" that includes PFP's bam, humanTask and knowledgeSession services
+

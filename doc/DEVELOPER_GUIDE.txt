@@ -61,7 +61,7 @@ INSTALL   :
             
         - clone jbpm5 source code repository
           - if behind a corporate firewall with an HTTP proxy:  git config --global http.proxy $HTTP_PROXY
-          - cd $JBOSS_PROJECTS/jboss
+          - cd $JBOSS_PROJECTS
           - follow the procedure for building communit drools and jbpm5 as described here:
                 https://github.com/droolsjbpm/droolsjbpm-build-bootstrap/blob/master/README.md
 
