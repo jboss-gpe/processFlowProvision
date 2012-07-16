@@ -58,6 +58,7 @@ import org.jbpm.task.*;
 import org.jbpm.task.identity.UserGroupCallbackManager;
 import org.jbpm.task.admin.TasksAdmin;
 import org.jbpm.task.event.TaskEventListener;
+import org.jbpm.task.event.TaskEventSupport;
 import org.jbpm.task.query.TaskSummary;
 import org.jbpm.task.service.CannotAddTaskException;
 import org.jbpm.task.service.ContentData;
@@ -70,7 +71,6 @@ import org.jbpm.task.service.TaskService;
 import org.jbpm.task.service.TaskServiceSession;
 
 import org.jboss.processFlow.knowledgeService.IBaseKnowledgeSessionService;
-import org.jboss.processFlow.tasks.event.PfpTaskEventSupport;
 import org.jboss.processFlow.PFPBaseService;
 
 /**  
@@ -104,7 +104,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
     @EJB(name="kSessionProxy", lookup="java:global/processFlow-knowledgeSessionService/prodKSessionProxy!org.jboss.processFlow.knowledgeService.IBaseKnowledgeSessionService")
     private IBaseKnowledgeSessionService kSessionProxy;
 
-    private PfpTaskEventSupport eventSupport;
+    private TaskEventSupport eventSupport;
     private TaskService taskService;
 
 
@@ -265,7 +265,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
         try {
             taskSession = taskService.createSession();
             taskSession.taskOperation(Operation.Delegate, taskId, userId, targetUserId, null, null);
-            eventSupport.fireTaskDelegated(taskId, userId, targetUserId);
+            //eventSupport.fireTaskDelegated(taskId, userId, targetUserId);
         }catch(RuntimeException x) {
             throw x;
         }catch(Exception x) {
@@ -767,7 +767,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
         
         // 3) instantiate TaskEventListeners
         log.info("TaskEventListeners: " + System.getProperty("org.jboss.processFlow.tasks.TaskEventListeners"));
-        eventSupport = new PfpTaskEventSupport();
+        eventSupport = new TaskEventSupport();
         if (System.getProperty("org.jboss.processFlow.tasks.TaskEventListeners") != null) {
             String[] listenerClasses = System.getProperty("org.jboss.processFlow.tasks.TaskEventListeners").split("\\s");
             for (String lcn : listenerClasses) {

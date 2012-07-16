@@ -1,6 +1,7 @@
 package org.jboss.processFlow.tasks.event;
 
-import org.jbpm.task.event.*;
+import org.jbpm.task.event.entity.*;
+import org.jbpm.task.event.TaskEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,47 +12,43 @@ import org.slf4j.LoggerFactory;
  * @date May 12, 2012
  * @since
  */
-public class PfpTaskEventLogger implements PfpTaskEventListener {
+public class PfpTaskEventLogger implements TaskEventListener {
 
     private static final Logger logger = LoggerFactory.getLogger(PfpTaskEventLogger.class);
 
-    public void taskClaimed(TaskClaimedEvent event) {
+    public void taskClaimed(TaskUserEvent event) {
         logger.info("task {} claimed by {}", event.getTaskId(), event.getUserId());
     }
 
-    public void taskCompleted(TaskCompletedEvent event) {
+    public void taskCompleted(TaskUserEvent event) {
         logger.info("task {} completed by {}", event.getTaskId(), event.getUserId());
     }
 
-    public void taskFailed(TaskFailedEvent event) {
+    public void taskFailed(TaskUserEvent event) {
         logger.info("task {} failed by {}", event.getTaskId(), event.getUserId());
     }
 
-    public void taskSkipped(TaskSkippedEvent event) {
+    public void taskSkipped(TaskUserEvent event) {
         logger.info("task {} skipped by {}", event.getTaskId(), event.getUserId());
     }
 
-    public void taskDelegated(TaskDelegatedEvent event) {
-        logger.info("task {} delegated by {}", event.getTaskId(), event.getUserId());
-    }
-
-    public void taskCreated(TaskCreatedEvent event) {
+    public void taskCreated(TaskUserEvent event) {
         logger.info("task {} created", event.getTaskId());
     }
 
-    public void taskReleased(TaskReleasedEvent event) {
+    public void taskReleased(TaskUserEvent event) {
         logger.info("task {} released by {}", event.getTaskId(), event.getUserId());
     }
 
-    public void taskStarted(TaskStartedEvent event) {
+    public void taskStarted(TaskUserEvent event) {
         logger.info("task {} started by {}", event.getTaskId(), event.getUserId());
     }
 
-    public void taskForwarded(TaskForwardedEvent event) {
+    public void taskForwarded(TaskUserEvent event) {
         logger.info("task {} forwarded by {}", event.getTaskId(), event.getUserId());
     }
 
-    public void taskStopped(TaskStoppedEvent event) {
+    public void taskStopped(TaskUserEvent event) {
         logger.info("task {} stopped by {}", event.getTaskId(), event.getUserId());
     }
 
