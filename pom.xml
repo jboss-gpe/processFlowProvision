@@ -42,13 +42,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.jboss.spec</groupId>
-            <artifactId>jboss-javaee-6.0</artifactId>
-            <version>1.0.0.Final</version>
-            <type>pom</type>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>org.jbpm</groupId>
             <artifactId>jbpm-persistence-jpa</artifactId>
             <version>${jbpm.version}</version>
@@ -126,6 +119,13 @@
         <!-- only one container adapter on the classpath is allowed at a time 
              execution of the test will be aborted if more than one adapter is detected
         -->
+        <dependency>
+            <groupId>org.jboss.spec</groupId>
+            <artifactId>jboss-javaee-6.0</artifactId>
+            <version>1.0.0.Final</version>
+            <type>pom</type>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.jboss.as</groupId>
             <artifactId>jboss-as-arquillian-container-managed</artifactId>
