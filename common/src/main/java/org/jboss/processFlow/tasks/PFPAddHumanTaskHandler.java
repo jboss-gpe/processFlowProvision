@@ -160,7 +160,10 @@ public class PFPAddHumanTaskHandler extends BasePFPTaskHandler implements WorkIt
         HashMap<String, Object> contentObject = new HashMap<String, Object>();
         contentObject.putAll(workItem.getParameters());
 
-        Map<String, Object> contentMap = (HashMap<String, Object>) workItem.getParameter("Content");
+        Object contentObj = workItem.getParameter("Content");
+        Map<String, Object> contentMap = null;
+        if(contentObj instanceof Map)
+            contentMap = (HashMap<String, Object>)contentObj;
         if(contentMap == null) {
             if(enableLog) {
                 log.warn("executeWorkItem() processInstance-->task variable 'Content' is null for workItemId = "+workItem.getId()+ "\n\tthis could occur for either one (or both) of the following reasons\n\t\t1)  upstream to this workItem, a knowledge context variable of type java.util.HashMap with key = 'map' was not set.\n\t\t2)  Parameter Mapping of 'Content=map' was not set in this task node in the process definition \n\twill initialize an empty hashmap and use this empty hashmap when invoking TaskServiceSession.addTask()");
