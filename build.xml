@@ -31,9 +31,13 @@
     <target name="create.temp.client.dir" >
         <copy toDir="${temp.client.dir}" overwrite="true" >
             <fileset dir="${temp.pfp.lib.dir}" >
-                <include name="jbpm-human-task-*.jar" />
-                <include name="knowledge-api-*.jar" />
                 <include name="processFlow-interfaces*.jar" />
+            </fileset>
+            <fileset dir="${jbpm.lib.path}" >
+                <include name="jbpm-human-task-core*.jar" />
+            </fileset>
+            <fileset dir="${deps.lib.path}" >
+                <include name="knowledge-api-*.jar" />
             </fileset>
         </copy>
     </target>

@@ -502,9 +502,6 @@
             <param name="dest.dir" value="${jboss.home}/modules"/>
         </antcall>
 
-        <property name="jbpm.lib.path" value="${jbpm.source.dir}/jbpm-distribution/target/jbpm-${jBPM.version}-pre-bin" />
-        <property name="deps.lib.path" value="${jbpm.source.dir}/jbpm-distribution/target/jbpm-${jBPM.version}-pre-bin/lib" />
-
         <copy file="${postgresql.jdbc.lib.path}" todir="${jboss.home}/modules/org/postgresql/jdbc/main" />
         <copy file="${mysql.jdbc.lib.path}" todir="${jboss.home}/modules/com/mysql/jdbc/main" />
         <copy file="${deps.lib.path}/protobuf-java-${version.protobuf}.jar" todir="${jboss.home}/modules/com/google/protobuf/main" />
