@@ -533,3 +533,17 @@ in general, what does the PFP ant script do ???
     - creates an AS7 server-group called "pfp-core-group" with appropriate jvm and port settings to support deployment of PFP runtime services
     - provisions an AS7 server called "domain-pfp" that includes PFP's bam, humanTask and knowledgeSession services
 
+remote client example
+    - $PFP_HOME/test contains an example of conducting a lookup of the PFP kSessionService and taskService from a remote EJB client 
+    - subsequently, the client proceeds to add a simple bpmn2 process definition to the kSessionService's knowledge base via the drools KnowledgeBuilder API
+        - use of the knowledgebuilder API isolates testing to just 'pfp-core' functionality ('brms-webs' functionality is not needed for the test)
+    - to execute on a running process flow provision environment, open up two terminals and execute the following :
+        terminal 1 :  $JBOSS_HOME/domain-pfp/servers/pfp-core/log/server.log
+
+        terminal 2 :  cd $PFP_HOME
+                      ant simpleTaskTest
+
+    - in terminal 1, you should see log statements similar to the following :   http://pastebin.com/MLf6SPsR
+    - in terminal 2, you should see log statements similar to the following :   http://pastebin.com/ChQ4LgpK
+        
+

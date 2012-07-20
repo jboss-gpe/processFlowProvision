@@ -9,6 +9,7 @@
     <import file="adminConsole/build.xml"/>
     <import file="bam/build.xml"/>
     <import file="privateServiceTaskRepo/build.xml"/>
+    <import file="test/build.xml"/>
     
     <target name="clean" description="" >
         <delete dir="${guvnor_repo_location}" />
@@ -19,6 +20,7 @@
         <delete dir="adminConsole/${build.dir}" />
         <delete dir="bam/${build.dir}" />
         <delete dir="privateServiceTaskRepo/${build.dir}" />
+        <delete dir="test/${build.dir}" />
         <delete dir="${install.home}/tmp" />
         <delete dir="${temp.client.dir}" />
         <delete dir="${temp.pfp.services.dir}" />

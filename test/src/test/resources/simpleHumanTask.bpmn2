@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<definitions id="Definition"
+             targetNamespace="http://www.example.org/MinimalExample"
+             typeLanguage="http://www.java.com/javaTypes"
+             expressionLanguage="http://www.mvel.org/2.0"
+             xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd"
+             xmlns:g="http://www.jboss.org/drools/flow/gpd"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             xmlns:tns="http://www.jboss.org/drools">
+
+  <itemDefinition id="_employeeListItem" structureRef="java.util.List" />
+  <itemDefinition id="_selectedEmployeeItem" structureRef="String" />
+  <itemDefinition id="_bonusAmountItem" structureRef="Integer" />
+  <itemDefinition id="_mapItem" structureRef="java.util.Map" />
+
+  <process processType="Private" isExecutable="true" id="simpleTask" name="Simple Task" tns:packageName="org.jboss.processFlow" >
+
+    <!-- process variables -->
+    <property id="employeeList" itemSubjectRef="_employeeListItem"/>
+    <property id="selectedEmployee" itemSubjectRef="_selectedEmployeeItem"/>
+    <property id="bonusAmount" itemSubjectRef="_bonusAmountItem"/>
+    <property id="map" itemSubjectRef="_mapItem"/>
+
+    <!-- nodes -->
+    <endEvent id="_3" name="EndProcess" >
+        <terminateEventDefinition/>
+    </endEvent>
+    <userTask id="_4" name="nominateAndAward" >
+      <extensionElements>
+        <tns:onEntry-script scriptFormat="http://www.java.com/java">
+          <script>if(kcontext.getVariable("map") == null) {
+      		java.util.Map contentMap = new java.util.HashMap();
+        	contentMap.put("selectedEmployee", "Not Selected Yet");
+        	contentMap.put("bonusAmount", new Integer(0));
+        	kcontext.setVariable("map", contentMap);
+        }</script>
+        </tns:onEntry-script>
+      </extensionElements>
+      <ioSpecification>
+        <dataInput id="_4_taskEmployeeListInput" name="taskEmployeeList" />
+        <dataInput id="_4_taskSelectedEmployeeInput" name="taskSelectedEmployee" />
+        <dataInput id="_4_taskBonusAmountInput" name="taskBonusAmount" />
+        <dataInput id="_4_ContentInput" name="Content" />
+        <dataInput id="_4_CommentInput" name="Comment" />
+        <dataInput id="_4_TaskNameInput" name="TaskName" />
+        <dataInput id="_4_GroupIdInput" name="GroupId" />
+        <dataOutput id="_4_taskEmployeeListOutput" name="taskEmployeeList" />
+        <dataOutput id="_4_taskSelectedEmployeeOutput" name="taskSelectedEmployee" />
+        <dataOutput id="_4_taskBonusAmountOutput" name="taskBonusAmount" />
+        <inputSet>
+          <dataInputRefs>_4_taskEmployeeListInput</dataInputRefs>
+          <dataInputRefs>_4_taskSelectedEmployeeInput</dataInputRefs>
+          <dataInputRefs>_4_taskBonusAmountInput</dataInputRefs>
+          <dataInputRefs>_4_ContentInput</dataInputRefs>
+          <dataInputRefs>_4_CommentInput</dataInputRefs>
+          <dataInputRefs>_4_TaskNameInput</dataInputRefs>
+          <dataInputRefs>_4_GroupIdInput</dataInputRefs>
+        </inputSet>
+        <outputSet>
+          <dataOutputRefs>_4_taskEmployeeListOutput</dataOutputRefs>
+          <dataOutputRefs>_4_taskSelectedEmployeeOutput</dataOutputRefs>
+          <dataOutputRefs>_4_taskBonusAmountOutput</dataOutputRefs>
+        </outputSet>
+      </ioSpecification>
+      <dataInputAssociation>
+        <sourceRef>employeeList</sourceRef>
+        <targetRef>_4_taskEmployeeListInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <sourceRef>selectedEmployee</sourceRef>
+        <targetRef>_4_taskSelectedEmployeeInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <sourceRef>bonusAmount</sourceRef>
+        <targetRef>_4_taskBonusAmountInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <sourceRef>map</sourceRef>
+        <targetRef>_4_ContentInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <targetRef>_4_CommentInput</targetRef>
+        <assignment>
+          <from xsi:type="tFormalExpression">nominate employee of the year and award bonus</from>
+          <to xsi:type="tFormalExpression">_4_CommentInput</to>
+        </assignment>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <targetRef>_4_TaskNameInput</targetRef>
+        <assignment>
+          <from xsi:type="tFormalExpression">nominateAndAwardBonusTask</from>
+          <to xsi:type="tFormalExpression">_4_TaskNameInput</to>
+        </assignment>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <targetRef>_4_GroupIdInput</targetRef>
+        <assignment>
+          <from xsi:type="tFormalExpression">creditController</from>
+          <to xsi:type="tFormalExpression">_4_GroupIdInput</to>
+        </assignment>
+      </dataInputAssociation>
+      <dataOutputAssociation>
+        <sourceRef>_4_taskEmployeeListOutput</sourceRef>
+        <targetRef>employeeList</targetRef>
+      </dataOutputAssociation>
+      <dataOutputAssociation>
+        <sourceRef>_4_taskSelectedEmployeeOutput</sourceRef>
+        <targetRef>selectedEmployee</targetRef>
+      </dataOutputAssociation>
+      <dataOutputAssociation>
+        <sourceRef>_4_taskBonusAmountOutput</sourceRef>
+        <targetRef>bonusAmount</targetRef>
+      </dataOutputAssociation>
+    </userTask>
+    <startEvent id="_6" name="Start" />
+
+    <!-- connections -->
+    <sequenceFlow id="_4-_3" sourceRef="_4" targetRef="_3" />
+    <sequenceFlow id="_6-_4" sourceRef="_6" targetRef="_4" />
+
+  </process>
+
+  <bpmndi:BPMNDiagram>
+    <bpmndi:BPMNPlane bpmnElement="simpleTask" >
+      <bpmndi:BPMNShape bpmnElement="_3" >
+        <dc:Bounds x="576" y="115" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_4" >
+        <dc:Bounds x="234" y="110" width="151" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_6" >
+        <dc:Bounds x="2" y="108" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="_4-_3" >
+        <di:waypoint x="309" y="134" />
+        <di:waypoint x="600" y="139" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_6-_4" >
+        <di:waypoint x="26" y="132" />
+        <di:waypoint x="309" y="134" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+</definitions>

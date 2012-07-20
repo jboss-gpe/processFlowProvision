@@ -1,0 +1,45 @@
+<project name="simpleTaskTest" default="simpleTaskTest" >
+
+    <property name="org.jboss.processFlow.test.absolutePathToBpmn" value="${basedir}/test/src/test/resources/simpleHumanTask.bpmn2" />
+
+    <target name="simpleTaskTest" depends="testCompile" description="">
+        <java fork="yes" classname="org.jboss.processFlow.test.SimpleTaskClient" failonerror="true">
+            <jvmarg value="-Xms16m" />
+            <jvmarg value="-Xmx64m" />
+            <jvmarg value="-Xss128k" />
+            <jvmarg value="-Dorg.jboss.processFlow.test.absolutePathToBpmn=${org.jboss.processFlow.test.absolutePathToBpmn}" />
+            <sysproperty key="log4j.configuration" value="file:conf/test/log4j.xml" />
+            <classpath refid="sub.classpath"/>
+        </java>
+    </target>
+
+    <target name="testPrep" depends="setTestClasspath" >
+        <var name="subproject.name" value="test" />
+        <var name="subproject.build" value="${subproject.name}/target" />
+        <path id="sub.classpath" >
+            <path refid="test.classpath" />
+            <pathelement location="${subproject.build}"/>
+        </path>
+
+        <!-- review classpath
+        <property name="subproject.cp" refid="sub.classpath" />
+        <echo message="sub.classpath = ${subproject.cp}" /> 
+        -->
+    </target>
+    <target name="testClean" depends="testPrep" >
+        <delete dir="${subproject.build}" />
+    </target>
+    <target name="testCompile" depends="testClean" >
+        <mkdir dir="${subproject.build}" />
+        <math result="pfp.core.remoting.port" operand1="${base.remoting.port}" operation="+" operand2="${pfp.core.port.offset}" datatype="int"/>
+        <antcall target="filter" >
+            <param name="source.dir" value="${subproject.name}/src/test/resources"/>
+            <param name="file.name" value="jboss-ejb-client.properties"/>
+            <param name="dest.dir" value="${subproject.build}"/>
+        </antcall>
+        <javac debug="true" srcdir="${subproject.name}/src/test/java" destdir="${subproject.build}" optimize="true" >
+            <classpath refid="test.classpath" />
+        </javac>
+    </target>
+
+</project>
