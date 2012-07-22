@@ -142,6 +142,9 @@
             <arg value="--gui"/>
         </exec>
     </target>
+    <target name="print.eap.cli" depends="" description="">
+        <echo message="cli command = ${jboss.home}/bin/jboss-cli.sh --connect --controller=${ENV.HOSTNAME}:${management.port}" />
+    </target>
 
     <!--
       pass following parameters to this target :
@@ -351,11 +354,11 @@
                 <unzip src="${install.home}/lib/designer-${designer.version}.war" dest="${designer.target}" />
             </else>
         </if>
-        <antcall target="filter">
+        <!--antcall target="filter">
             <param name="source.dir" value="conf/brmsWebs/drools-guvnor/WEB-INF"/>
             <param name="file.name" value="beans.xml"/>
             <param name="dest.dir" value="${guvnor.target}/WEB-INF"/>
-        </antcall>
+        </antcall -->
         <antcall target="filter">
             <param name="source.dir" value="conf/brmsWebs/drools-guvnor/WEB-INF/classes"/>
             <param name="file.name" value="preferences.properties"/>
@@ -502,8 +505,10 @@
             <param name="dest.dir" value="${jboss.home}/modules"/>
         </antcall>
 
+        <copy file="lib/commons/commons-codec-1.5.jar" todir="${jboss.home}/modules/org/apache/commons/codec/5" /> <!-- GuvnorConnectionUtils needs this version -->
         <copy file="${postgresql.jdbc.lib.path}" todir="${jboss.home}/modules/org/postgresql/jdbc/main" />
         <copy file="${mysql.jdbc.lib.path}" todir="${jboss.home}/modules/com/mysql/jdbc/main" />
+        <copy file="${deps.lib.path}/stringtemplate-${version.stringtemplate}.jar" todir="${jboss.home}/modules/org/antlr/stringtemplate/main" />
         <copy file="${deps.lib.path}/protobuf-java-${version.protobuf}.jar" todir="${jboss.home}/modules/com/google/protobuf/main" />
         <copy file="${deps.lib.path}/antlr-runtime-${version.antlr}.jar" todir="${jboss.home}/modules/org/antlr/antlr-runtime/main" />
         <copy file="${deps.lib.path}/ecj-${version.ecj}.jar" todir="${jboss.home}/modules/org/eclipse/jdt/core/compiler/ecj/main" />

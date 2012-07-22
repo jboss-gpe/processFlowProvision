@@ -379,7 +379,7 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
             sBuilder.append(guvnorUtils.getGuvnorHost());
             sBuilder.append("/");
             sBuilder.append(guvnorUtils.getGuvnorSubdomain());
-            sBuilder.append("/package/");
+            sBuilder.append("/rest/packages/");
             throw new RuntimeException("createKnowledgeBase() cannot connect to guvnor at URL : "+sBuilder.toString()); 
         }
 

@@ -28,6 +28,7 @@
     <dependencies>
         <module name="com.google.protobuf" export="true" />
         <module name="org.antlr.antlr-runtime" export="true" />
+        <module name="org.antlr.stringtemplate" export="true" />
         <module name="org.eclipse.jdt.core.compiler.ecj" export="true" />
         <module name="org.mvel.mvel2" export="true" />
         <module name="org.slf4j" export="true" />
@@ -39,7 +40,7 @@
         <module name="javaee.api" export="true" />
 
         <!-- jbpm needs access to org.apache.commons.codec -->
-        <module name="org.apache.commons.codec" export="true" />
+        <module name="org.apache.commons.codec" export="true" slot="5" />
 
         <!-- drools needs org.jbpm, otherwise :  java.lang.ClassNotFoundException: org.jbpm.bpmn2.BPMN2ProcessProviderImpl from [Module "org.drools:main" -->
         <module name="org.jbpm" />
