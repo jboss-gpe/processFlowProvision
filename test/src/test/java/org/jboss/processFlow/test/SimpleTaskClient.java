@@ -71,7 +71,7 @@ public class SimpleTaskClient {
         parameters.put("pInstanceVar2", "Red Hat");
 
         // 1)  start new process instance
-        Map<String, Object> returnMap = kSessionProxy.startProcessAndReturnId("simpleTask", parameters);
+        Map<String, Object> returnMap = kSessionProxy.startProcessAndReturnId("org.jboss.processFlow.simpleTask", parameters);
         long processInstanceId = (Long)returnMap.get(IKnowledgeSessionService.PROCESS_INSTANCE_ID);
         Map<String, Object> pVariables = kSessionProxy.getActiveProcessInstanceVariables(processInstanceId, null);
         log.info("executeProcessInstanceLifecycle() created pInstance w/ id = "+processInstanceId+ " : # of pInstance variables = "+pVariables.size());
@@ -92,7 +92,7 @@ public class SimpleTaskClient {
         for(TaskSummary tObj : taskList) {
             try {
                 TaskSummary tTestObj = taskServiceProxy.getTask(tObj.getId());
-                log.info("***** test obj = "+tTestObj);
+                log.info("***** test obj with id : "+tObj.getId()+" = "+tTestObj);
 
                 Map<String, Object> inboundContent = taskServiceProxy.getTaskContent(tObj.getId(), true);
                 log.info("***** size of inbound task content  = "+inboundContent.size());
@@ -117,5 +117,6 @@ public class SimpleTaskClient {
         completedTaskHash.put("taskVar1", new Integer(3000));
         completedTaskHash.put("taskVar2", "JBoss");
         taskServiceProxy.completeTask(claimedTask.getId(), completedTaskHash, "jbride");
+        log.info("executeProcessInstanceLifecycle() : just completed task = "+claimedTask.getId());
     }
 }
