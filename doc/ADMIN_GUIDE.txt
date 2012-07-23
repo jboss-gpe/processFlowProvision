@@ -378,14 +378,19 @@ modifications to runtime directory structure
 
 Guvnor Configurations
     1) background :
-        - Guvnor 'packages' are created in Guvnor as per: http://docs.jboss.org/drools/release/5.4.0.CR1/drools-guvnor-docs/html_single/index.html#d0e361
-        - in PFP, the KnowledgeSessionService is a client to Drools Guvnor
-        - a single instance of a Drools KnowledgeBase is managed by the PFP KnowledgeSessionService
+        - importing an existing BPMN2 into a specific package in guvnor can be accomplished as per :
+            - https://hudson.jboss.org/hudson/view/Drools%20jBPM/job/jbpm/lastSuccessfulBuild/artifact/jbpm-distribution/target/jbpm-5.4.0-SNAPSHOT-docs-build/jbpm-docs/html_single/index.html#d0e4528
+        - in PFP, a KnowledgeAgent is instantiated and is a client to Drools Guvnor
+        - this KnowledgeAgent is used in PFP to instantiate a single instance of a KnowledgeBase
         - other components in PFP, such as the gwt-console-server, use the knowledgeSessionService as a proxy to Guvnor
-        - the knowledgeSessionService needs to be explicity configured to query for your specific packages in Guvnor
+        - the KnowledgeAgent needs to be explicity configured to query for your specific packages in Guvnor
         - for example, if you've created (or intend to create) a Guvnor package called:  org.my.package
-          then, the the knowledgeSessionService needs to be configured to query guvnor using the package name as a key:  org.my.package
-        - configuring the knowledgeSessionService is done via the guvnor.packages property as described below
+          then, the the KnowledgeAgent needs to be configured to query guvnor using the package name as a key:  org.my.package
+        - once the process definition is imported into guvnor and the package is built in guvnor, then the knowledgeAgent in PFP will detect that change
+        - runtime configurations for the knowledgeAgent in PFP can be found in $PFP_HOME/build.properties :
+            1)  guvnor.packages
+            2)  guvnor.connect.timeout
+            3)  guvnor.read.timeout
 
     2) guvnor.packages property
         - please pay particular attention to the following property in $PFP_HOME/build.properties:  guvnor.packages   
@@ -401,7 +406,9 @@ Guvnor Configurations
         - the PFP IKnowledgeSessionService interface exposes a function called:  printKnowledgeBaseContent()
         - the purpose of this function is to view which packages (and the process definitions of each package) that the 
           knowledgeSessionService's knowledgeBase is aware of
-        - this function can be invoked remotely by an EJB client or via the JBoss EAP jmx-console 
+        - this function can be invoked remotely by an EJB client
+        - this function is also exposed as part of an MBean with object name of :  org.jboss.processFlow:type=KnowledgeSessionService
+            - subsequently, it this methoed can be invoked via the jmx-console (if using JBoss EAP 5* ) or jconsole (if using JBoss EAP 6*)
 
 
 
