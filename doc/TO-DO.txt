@@ -1,3 +1,6 @@
+JBoss Moodules for BRMS components
+    - https://bugzilla.redhat.com/show_bug.cgi?id=842452
+
 Pluggable variable persistence for human tasks
     - https://issues.jboss.org/browse/JBPM-3596 
     - As discussed, pluggable task persistence won't make it into BRMS 5.3
