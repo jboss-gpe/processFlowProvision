@@ -48,6 +48,7 @@ public class SimpleTaskClient {
 
             taskServiceProxy = (ITaskService)jndiContext.lookup(ITaskService.TASK_SERVICE_JNDI);
             kSessionProxy = (IKnowledgeSessionService)jndiContext.lookup(IKnowledgeSessionService.KNOWLEDGE_SESSION_SERVICE_JNDI);
+            log.info("lookupProxies() taskServiceProxy = "+taskServiceProxy+" : kSessionProxy = "+kSessionProxy);
         } finally {
             if(jndiContext != null)
                 jndiContext.close();
@@ -56,6 +57,8 @@ public class SimpleTaskClient {
         }
     }
 
+    // will add a simple bpmn2 process definition to the kSessionService's knowledge base via the drools KnowledgeBuilder API
+    // use of the knowledgebuilder API isolates testing to just 'pfp-core' functionality ('brms-webs' functionality is not needed for the test)
     public static void addProcessToKnowledgeBase() {
         File bpmnFile = new File(absolutePathToBpmn);
         if(!bpmnFile.exists())
