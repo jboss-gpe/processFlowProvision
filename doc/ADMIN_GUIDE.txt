@@ -555,6 +555,10 @@ remote client examples
         2)  webTaskTest
                 - contains an example of conducting a lookup of the PFP kSessionService and taskService from a remote server instance (ie:  web archive)
                 - implements the approach documented here:  https://docs.jboss.org/author/display/AS71/EJB+invocations+from+a+remote+server+instance#
+                - deployment
+                    - pfp-core server hosts the PFP ksession, task and bam services
+                    - brms-webs server is used to host a test web archive called :  pfpServicesTest.war
+                    - the GETful functions of pfpServicesTest.war will invoke PFP EJB services hosted in pfp-core server
                 - procedure
                     - command terminal #1
                         - cd $JBOSS_HOME
@@ -570,4 +574,7 @@ remote client examples
                         - ant webTaskTest 
                             - should now see the following log statement in terminal #1 :
                                 DEBUG [org.jboss.as.ee.structure.EJBClientDescriptorParsingProcessor] (MSC service thread 1-6) Successfully parsed jboss-ejb-client.xml for deployment unit deployment "pfpServicesTest.war"
+                        - ant provision.pfp.core
                         - curl $HOSTNAME:8230/pfpServicesTest/all 
+                            - should return:  Borat:  Great Success!!
+                            - in terminal #1, you'll also see various logs regarding claiming and completing a task

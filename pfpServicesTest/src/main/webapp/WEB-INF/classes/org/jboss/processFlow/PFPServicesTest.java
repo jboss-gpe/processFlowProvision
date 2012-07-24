@@ -73,7 +73,7 @@ public class PFPServicesTest {
         lookup();
         addProcessToKnowledgeBase();
         executeProcessInstanceLifecycle();
-        ResponseBuilder builder = Response.ok("Borat:  Great Success!!");
+        ResponseBuilder builder = Response.ok("Borat:  Great Success!!\n");
         return builder.build();
     }
 

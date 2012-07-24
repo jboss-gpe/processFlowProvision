@@ -43,6 +43,6 @@ batch
 run-batch
 
 #batch
-#deploy ${temp.dir}/${guvnor.name} --name=jboss-brms.war  --server-groups=brms-webs-group
-#deploy ${temp.dir}/${designer.name} --name=designer.war --server-groups=brms-webs-group
+deploy ${temp.dir}/${guvnor.name} --name=jboss-brms.war  --server-groups=brms-webs-group
+deploy ${temp.dir}/${designer.name} --name=designer.war --server-groups=brms-webs-group
 #run-batch

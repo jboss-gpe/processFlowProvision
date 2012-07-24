@@ -383,8 +383,8 @@
     </target>
     <target name="deploy.brms.webs" >
         <fail unless="management.port" message="deploy.brms.webs:  need to pass 'management.port' property" />
-        <!--jar jarfile="${temp.dir}/${guvnor.name}" basedir="${guvnor.target}" />
-        <jar jarfile="${temp.dir}/${designer.name}" basedir="${designer.target}" / -->
+        <jar jarfile="${temp.dir}/${guvnor.name}" basedir="${guvnor.target}" />
+        <jar jarfile="${temp.dir}/${designer.name}" basedir="${designer.target}" />
         <if>
             <equals arg1="${refresh.jboss}" arg2="true" />
             <then>
@@ -614,7 +614,7 @@
             <not><isset property="upstream.jbpm5.drools.libs.type" /></not>
         </condition>
         <antcall target="distro.clean" />
-        <!--antcall target="explode.guvnor.and.designer" / -->
+        <antcall target="explode.guvnor.and.designer" />
         <antcall target="deploy.brms.webs" >
             <param name="management.port" value="${management.port}"/>
             <param name="refresh.jboss" value="${refresh.jboss}"/>
