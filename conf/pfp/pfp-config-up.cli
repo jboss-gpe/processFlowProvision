@@ -21,7 +21,6 @@ batch
 /host=master/server-config=${pfp.core.server}/system-property=organization.name/:add(value=${organization.name},boot-time=true)
 /host=master/server-config=${pfp.core.server}/system-property=org.jboss.enableLog/:add(value=${org.jboss.enableLog},boot-time=true)
 
-/host=master/server-config=${pfp.core.server}/system-property=org.jbpm.taskService.executeUserAndGroupHumanTaskDataLoad/:add(value=${org.jbpm.taskService.executeUserAndGroupHumanTaskDataLoad},boot-time=true)
 /host=master/server-config=${pfp.core.server}/system-property=org.jboss.processFlow.task.transactionType/:add(value=${org.jboss.processFlow.task.transactionType},boot-time=true)
 /host=master/server-config=${pfp.core.server}/system-property=org.jboss.processFlow.tasks.DeadlineHandler/:add(value=${org.jboss.processFlow.tasks.DeadlineHandler},boot-time=true)
 /host=master/server-config=${pfp.core.server}/system-property=org.jboss.processFlow.tasks.TaskEventListeners/:add(value=${org.jboss.processFlow.tasks.TaskEventListeners},boot-time=true)
