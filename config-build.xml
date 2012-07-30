@@ -352,7 +352,7 @@
             <else>
                 <antcall target="download.community.brms.webs" />
                 <unzip src="${install.home}/lib/guvnor-distribution-wars-${drools.guvnor.version}-jboss-as-7.0.war" dest="${guvnor.target}" />
-                <unzip src="${install.home}/lib/designer-${designer.version}.war" dest="${designer.target}" />
+                <unzip src="${install.home}/lib/jbpm-designer-${designer.version}.war" dest="${designer.target}" />
             </else>
         </if>
         <!--antcall target="filter">

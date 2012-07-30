@@ -72,7 +72,7 @@
         <get src="${drools.guvnor.url}" dest="${install.home}/lib/guvnor-distribution-wars-${drools.guvnor.version}-jboss-as-7.0.war"  skipexisting="true" />
     </target>
     <target name="download.designer" >
-        <get src="${designer.url}/designer-${designer.version}.war" dest="${install.home}/lib/designer-${designer.version}.war"  skipexisting="true" />
+        <get src="${designer.url}/jbpm-designer-${designer.version}.war" dest="${install.home}/lib/jbpm-designer-${designer.version}.war"  skipexisting="true" />
     </target>
     <target name="download.jBPM.gwt-console">
         <property name="jBPM.url" value="file://${jbpm.source.dir}/jbpm-distribution/target" />
@@ -114,7 +114,7 @@
         </copy>
     </target>
 
-    <target name="compile.pfp" >
+    <target name="compile.pfp" description="" >
         <mkdir dir="${temp.pfp.lib.dir}" />
         <mkdir dir="${temp.pfp.services.dir}" />
 
