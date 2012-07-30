@@ -24,11 +24,9 @@
         (e.g. registered namespaces, custom node types, etc.)
     -->
     <FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
-  <param name="driver" value="${guvnor_driver_class}"/>
-    <param name="url" value="${guvnor_connection_url}"/>
-    <param name="user" value="${guvnor_db_user}"/>
-    <param name="password" value="${guvnor_db_password}"/>
-  <param name="schema" value="postgresql"/>
+  <param name="driver" value="javax.naming.InitialContext"/>
+    <param name="url" value="java:/global/guvnor-cp"/>
+  <param name="schema" value="${guvnor_schema_type}"/>
   <param name="schemaObjectPrefix" value="FS_"/>
     </FileSystem>
 
@@ -71,11 +69,9 @@
 
 
     <FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
-      <param name="driver" value="${guvnor_driver_class}"/>
-           <param name="url" value="${guvnor_connection_url}"/>
-           <param name="user" value="${guvnor_db_user}"/>
-           <param name="password" value="${guvnor_db_password}"/>
-      <param name="schema" value="postgresql"/>
+      <param name="driver" value="javax.naming.InitialContext"/>
+        <param name="url" value="java:/global/guvnor-cp"/>
+      <param name="schema" value="${guvnor_schema_type}"/>
       <param name="schemaObjectPrefix" value="FS_WS_${wsp.name}_"/>
     </FileSystem>
 
@@ -83,12 +79,10 @@
             persistence manager of the workspace:
             class: FQN of class implementing the PersistenceManager interface
         -->
-    <PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.PostgreSQLPersistenceManager">
-      <param name="driver" value="${guvnor_driver_class}"/>
-           <param name="url" value="${guvnor_connection_url}"/>
-           <param name="user" value="${guvnor_db_user}"/>
-           <param name="password" value="${guvnor_db_password}"/>
-      <param name="schema" value="postgresql"/>
+    <PersistenceManager class="${guvnor_persistence_manager_class}">
+      <param name="driver" value="javax.naming.InitialContext"/>
+        <param name="url" value="java:/global/guvnor-cp"/>
+      <param name="schema" value="${guvnor_schema_type}"/>
       <param name="schemaObjectPrefix" value="PM_WS_${wsp.name}_" />
     </PersistenceManager>
 
@@ -114,11 +108,9 @@
         -->
 
         <FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
-      <param name="driver" value="${guvnor_driver_class}"/>
-           <param name="url" value="${guvnor_connection_url}"/>
-           <param name="user" value="${guvnor_db_user}"/>
-           <param name="password" value="${guvnor_db_password}"/>
-      <param name="schema" value="postgresql"/>
+      <param name="driver" value="javax.naming.InitialContext"/>
+        <param name="url" value="java:/global/guvnor-cp"/>
+      <param name="schema" value="${guvnor_schema_type}"/>
       <param name="schemaObjectPrefix" value="Versioning_FS_"/>
     </FileSystem>
 
@@ -128,12 +120,10 @@
             a 'normal' persistence manager, but this could change in future
             implementations.
         -->
-    <PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.PostgreSQLPersistenceManager">
-      <param name="driver" value="${guvnor_driver_class}"/>
-           <param name="url" value="${guvnor_connection_url}"/>
-           <param name="user" value="${guvnor_db_user}"/>
-           <param name="password" value="${guvnor_db_password}"/>
-      <param name="schema" value="postgresql"/>
+    <PersistenceManager class="${guvnor_persistence_manager_class}">
+      <param name="driver" value="javax.naming.InitialContext"/>
+        <param name="url" value="java:/global/guvnor-cp"/>
+      <param name="schema" value="${guvnor_schema_type}"/>
       <param name="schemaObjectPrefix" value="Versioning_PM_" />
     </PersistenceManager>
 

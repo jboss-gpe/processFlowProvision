@@ -385,7 +385,7 @@
         <fail unless="management.port" message="deploy.brms.webs:  need to pass 'management.port' property" />
         <jar jarfile="${temp.dir}/${guvnor.name}" basedir="${guvnor.target}" />
         <jar jarfile="${temp.dir}/${designer.name}" basedir="${designer.target}" />
-        <if>
+        <!--if>
             <equals arg1="${refresh.jboss}" arg2="true" />
             <then>
                 <antcall target="execute.cli">
@@ -395,7 +395,7 @@
                     <param name="cli.fail.on.error" value="false"/>
                 </antcall>
             </then>
-        </if>
+        </if -->
         <antcall target="execute.cli">
             <param name="cli.source.dir" value="conf/brmsWebs"/>
             <param name="cli.to.filter.and.execute" value="brmsWebs-config-up.cli"/>
