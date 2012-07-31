@@ -35,7 +35,7 @@ OVERVIEW
 
 LEGAL
   - PFP is copyright of Red Hat, Inc. and distributed with a LGPL license
-  - PFP is maintained by Red Hat Global Solutions and Strategies Office
+  - PFP is maintained by Red Hat Global Partner Strategy & Enablement Office
   - PFP is a community project with no contractual support offerings
   - Please contact Red Hat to discuss support details for BRMS "Deployable"
 
@@ -71,6 +71,8 @@ FEATURES
         - Authentication requirements
         - Method-level authorization
         - Programmatic authorization via SessionContext
+    - avoids management of jbpm5/drools knowledge sessions in client code
+    - simplifies usability of the jpm5 engine from the client perspective
 
 
 5)  task functionality
