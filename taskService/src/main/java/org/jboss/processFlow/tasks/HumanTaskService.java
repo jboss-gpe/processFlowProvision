@@ -638,68 +638,6 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
     }
 
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public List<TaskSummary> getUnclaimedTasksAssignedAsPotentialOwner(String userId, List<String> groupIds, String language, Integer firstResult, Integer maxResults) {
-        EntityManager eManager = null;
-        try {
-            if (firstResult == null)
-                firstResult = 0;
-            if (maxResults == null)
-                maxResults = 50;
-            eManager = humanTaskEMF.createEntityManager();
-            // @formatter:off
-            final Query query = eManager
-                    .createNativeQuery(
-                            "SELECT t.id AS id,t.processinstanceid AS processInstanceId,t.status AS status,t.priority AS priority,t.skipable AS skipable,t.actualowner_id AS actualOwner,t.createdby_id AS createdBy,t.createdon AS createdOn,t.activationtime AS activationTime,t.expirationtime AS expirationTime,t.processid AS processId,t.processsessionid AS processSessionId,nam.text AS name" +
-                                    " FROM task t" +
-                                    " LEFT JOIN i18ntext nam ON t.id=nam.task_names_id" +
-                                    " LEFT OUTER JOIN peopleassignments_potowners p ON p.task_id=t.id" +
-                                    " LEFT OUTER JOIN organizationalentity o ON p.entity_id=o.id" +
-                                    " WHERE (o.id=:userId or o.id in (:groupIds))" +
-                                    " AND t.status IN ('Created', 'Ready', 'Suspended')" +
-                                    " AND t.expirationtime is null" +
-                                    " AND nam.language=:language" +
-                                    " LIMIT :maxResults OFFSET :firstResult");
-            query.setParameter("userId", userId);
-            query.setParameter("groupIds", groupIds);
-            query.setParameter("language", language);
-            query.setParameter("firstResult", firstResult);
-            query.setParameter("maxResults", maxResults);
-            List<Object[]> resultSet = query.getResultList();
-            List<TaskSummary> taskList = new ArrayList<TaskSummary>(resultSet.size());
-            for (Object[] row : resultSet) {
-                TaskSummary task = new TaskSummary();
-                task.setId(((BigInteger) row[0]).longValue());
-                task.setProcessInstanceId(((BigInteger) row[1]).longValue());
-                task.setStatus(Status.valueOf((String) row[2]));
-                task.setPriority((Integer) row[3]);
-                task.setSkipable((Boolean) row[4]);
-                String actualOwnerId = (String) row[5];
-                if (actualOwnerId != null) {
-                    task.setActualOwner(new User(actualOwnerId));
-                }
-                String createdById = (String) row[6];
-                if (createdById != null) {
-                    task.setCreatedBy(new User(createdById));
-                }
-                task.setCreatedOn((Date) row[7]);
-                task.setActivationTime((Date) row[8]);
-                task.setExpirationTime((Date) row[9]);
-                task.setProcessId((String) row[10]);
-                task.setProcessSessionId((Integer) row[11]);
-                task.setName((String) row[12]);
-
-                taskList.add(task);
-            }
-            return taskList;
-        }catch(Exception x) {
-            throw new RuntimeException(x);
-        } finally {
-            if(eManager != null)
-                eManager.close();
-        }
-    }
-
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public List<TaskSummary> getTasksOwned(final String userId, final String language) {
         TaskServiceSession taskSession = null;
         try {

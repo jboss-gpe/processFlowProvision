@@ -27,6 +27,16 @@
         <resource-root path="processFlow-interfaces.jar"/>
     </resources>
     <dependencies>
+
+        <!-- org.jboss.processFlow uses javax.* APIs that are not implicitly loaded -->
+        <module name="javax.api" />
+        <module name="javax.transaction.api" />
+        <module name="javax.jms.api" />
+
+        <module name="org.apache.commons.io" export="true" />
+        <module name="org.apache.commons.pool" export="true" />
+        <module name="org.apache.log4j" export="true" />
+
         <module name="org.drools" export="true" />
         <module name="org.jbpm" export="true" >
             <imports>
@@ -35,17 +45,10 @@
                 <include path="META-INF/*.conf"/>
             </imports>
         </module>
-        <module name="org.apache.commons.pool" export="true" />
-        <module name="org.apache.log4j" export="true" />
 
         <!-- needed by bamService, knowledgeSessionService and various org.jboss.processFlow static libraries -->
         <module name="org.jboss.marshalling" export="true" />
         <module name="org.jboss.marshalling.river" export="true" />
 
-
-        <!-- org.jboss.processFlow uses javax.* APIs that are not implicitly loaded -->
-        <module name="javax.api" />
-        <module name="javax.transaction.api" />
-        <module name="javax.jms.api" />
     </dependencies>
 </module>

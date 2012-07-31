@@ -52,7 +52,7 @@ import org.jboss.processFlow.tasks.ITaskService;
 /**
  * @author Kris Verlaenen
 
-JA Bride :  modified until base jbpm5 stops using hibernate.cfg.xml (which does not leverage our JCA DataSource pools)
+JA Bride :  modified to invoke PFP's TaskService
  */
 public class TaskFormDispatcher extends AbstractFormDispatcher {
 
@@ -63,11 +63,7 @@ public class TaskFormDispatcher extends AbstractFormDispatcher {
         Context jndiContext = null;
         try {
             Properties jndiProps = new Properties();
-            jndiProps.put(Context.INITIAL_CONTEXT_FACTORY, "org.jboss.security.jndi.JndiLoginInitialContextFactory");
-            jndiProps.put(Context.URL_PKG_PREFIXES, "org.jboss.naming:org.jnp.interfaces");
-            jndiProps.put(Context.SECURITY_PRINCIPAL, "admin");
-            jndiProps.put(Context.SECURITY_CREDENTIALS, "admin");
-            jndiProps.put(Context.PROVIDER_URL, System.getProperty(ITaskService.TASK_SERVICE_PROVIDER_URL));
+            jndiProps.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
 
             jndiContext = new InitialContext(jndiProps);
             taskServiceProxy = (ITaskService)jndiContext.lookup(ITaskService.TASK_SERVICE_JNDI);

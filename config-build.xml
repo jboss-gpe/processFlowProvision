@@ -323,17 +323,6 @@
 
     </target>
 
-    <condition property="guvnorServerIsSameAsJBPM" >
-        <equals arg1="${brms.webs.server.configuration}" arg2="${jboss.domain.base.dir}" />
-    </condition>
-
-    <target name="explode.brms.webs.into.core" if="guvnorServerIsSameAsJBPM" >
-        <antcall target="explode.guvnor.and.designer" />
-        <antcall target="deploy.brms.webs" >
-            <param name="management.port" value="${management.port}"/>
-        </antcall>
-    </target>
-
      <!-- this is common guvnor functionality whether guvnor is co-located with jbpm5 or is used in a different JBoss runtime -->
     <target name="explode.guvnor.and.designer" >
         <if>
@@ -385,6 +374,8 @@
         <fail unless="management.port" message="deploy.brms.webs:  need to pass 'management.port' property" />
         <jar jarfile="${temp.dir}/${guvnor.name}" basedir="${guvnor.target}" />
         <jar jarfile="${temp.dir}/${designer.name}" basedir="${designer.target}" />
+        <jar jarfile="${temp.dir}/${console.server.name}" basedir="${console.server.target}" />
+        <jar jarfile="${temp.dir}/${console.name}" basedir="${console.target}" />
         <!--if>
             <equals arg1="${refresh.jboss}" arg2="true" />
             <then>
@@ -405,7 +396,7 @@
     </target>
 
 
-    <target name="explode.jBPM-gwt-console.into.jboss" >
+    <target name="explode.jbpm.gwt.console" >
         <if>
             <isset property="useCompiledJBPMLibs"/>
             <then>
@@ -427,46 +418,23 @@
             </then>
         </if>
 
-        <move todir="${temp.pfp.lib.dir}" >
-            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="commons-codec-*.jar" />
-        </move>
         <delete file="${console.server.target}/WEB-INF/classes/ChangeSet.xml" />
-        <delete>
-            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="activation*.jar"/>
-            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="antlr*.jar"/>
-            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="apache-mime4j*.jar"/>
-            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="commons-io-*.jar" />
-            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="drools-*.jar"/>
-            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="freemarker*.jar"/>
-            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="gwt-console*.jar"/>
-            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="hornetq*.jar"/>
-            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="javassist*.jar"/>
-            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="jaxrs*.jar"/>
-            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="jbpm*.jar"/>
-            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="jcip-annotations*.jar"/>
-            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="jsr250-api*.jar"/>
-            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="knowledge-*.jar"/>
-            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="log4j*.jar"/>
-            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="mina*.jar"/>
-            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="protobuf*.jar"/>
-            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="resteasy*.jar"/>
-            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="scannotation*.jar"/>
-            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="slf4j*.jar"/>
-            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="mvel*.jar"/>
-            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="stringtemplate*.jar" />
-            <fileset dir="${console.server.target}/WEB-INF/lib/" includes="sjsxp-*.jar" />
-            <fileset dir="${console.server.target}/WEB-INF/classes/META-INF" includes="persistence.xml" />
-        </delete>
-        <delete>
-            <fileset dir="${console.target}/WEB-INF/lib/" includes="slf4j*.jar" />
-        </delete>
+        <delete file="${console.server.target}/WEB-INF/classes/META-INF/persistence.xml" />
 
         <!-- authentication configuration -->
-        <copy file="conf/brmsWebs/bpm-console-server/WEB-INF/web.xml" toDir="${console.server.target}/WEB-INF" overwrite="true" />
-        <delete file="${console.server.target}/WEB-INF/classes/jbpm.console.properties" />
+        <!--copy file="conf/brmsWebs/bpm-console-server/WEB-INF/web.xml" toDir="${console.server.target}/WEB-INF" overwrite="true" />
+        <copy file="conf/brmsWebs/bpm-console-server/WEB-INF/jboss-web.xml" toDir="${console.server.target}/WEB-INF" overwrite="true" />
+        <copy file="conf/brmsWebs/bpm-console-server/WEB-INF/jboss-deployment-structure.xml" toDir="${console.server.target}/WEB-INF" overwrite="true" />
+        <copy file="conf/brmsWebs/bpm-console-server/WEB-INF/jboss-ejb-client.xml" toDir="${console.server.target}/WEB-INF" overwrite="true" />
         <copy toDir="${console.server.target}/WEB-INF/classes/META-INF/services"  overwrite="true" verbose="true" >
             <fileset dir="conf/brmsWebs/bpm-console-server/WEB-INF/classes/META-INF/services/"  />
-        </copy>
+        </copy -->
+        <antcall target="filter">
+            <param name="source.dir" value="conf/brmsWebs/bpm-console-server/WEB-INF"/>
+            <param name="dest.dir" value="${console.server.target}/WEB-INF"/>
+        </antcall>
+        <copy file="${temp.pfp.lib.dir}/processFlow-adminConsole.jar" toDir="${console.server.target}/WEB-INF/lib" overwrite="true" />
+        <delete file="${console.server.target}/WEB-INF/classes/jbpm.console.properties" />
     </target>
 
     <target name="clean.jbpm.install" depends="">
@@ -584,7 +552,6 @@
             </then>
         </if>
         <antcall target="process.brms.libs" />
-        <antcall target="explode.brms.webs.into.core" />
         <antcall target="hornetq-config" />
         <antcall target="pfp-config" />
         <antcall target="qpid-config" />
@@ -615,6 +582,7 @@
         </condition>
         <antcall target="distro.clean" />
         <antcall target="explode.guvnor.and.designer" />
+        <antcall target="explode.jbpm.gwt.console" />
         <antcall target="deploy.brms.webs" >
             <param name="management.port" value="${management.port}"/>
             <param name="refresh.jboss" value="${refresh.jboss}"/>

@@ -209,8 +209,6 @@ public interface ITaskService {
 
     public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, List<String> groupIds, String language, Integer firstResult, Integer maxResults);
 
-    public List<TaskSummary> getUnclaimedTasksAssignedAsPotentialOwner(String userId, List<String> groupIds, String language, Integer firstResult, Integer maxResults);
-
     /**
      *getTasksByProcessInstance
      *<pre>

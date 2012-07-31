@@ -50,15 +50,11 @@ public class CommandDelegate {
         Context bamContext = null;
         try {
             Properties jndiProps = new Properties();
-            jndiProps.put(Context.INITIAL_CONTEXT_FACTORY, "org.jboss.security.jndi.JndiLoginInitialContextFactory");
-            jndiProps.put(Context.URL_PKG_PREFIXES, "org.jboss.naming:org.jnp.interfaces");
-            jndiProps.put(Context.SECURITY_PRINCIPAL, "admin");
-            jndiProps.put(Context.SECURITY_CREDENTIALS, "admin");
-            jndiProps.put(Context.PROVIDER_URL, System.getProperty(IKnowledgeSessionService.KNOWLEDGE_SERVICE_PROVIDER_URL));
+            jndiProps.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
+
             ksessionContext = new InitialContext(jndiProps);
             ksessionProxy = (IKnowledgeSessionService)ksessionContext.lookup(IKnowledgeSessionService.KNOWLEDGE_SESSION_SERVICE_JNDI);
 
-            jndiProps.put(Context.PROVIDER_URL, System.getProperty(IBAMService.BAM_SERVICE_PROVIDER_URL));
             bamContext = new InitialContext(jndiProps);
             bamProxy = (IBAMService)bamContext.lookup(IBAMService.BAM_SERVICE_JNDI);
         } catch(Exception x) {
