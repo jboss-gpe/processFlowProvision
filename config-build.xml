@@ -416,8 +416,11 @@
         </copy>
         <mkdir dir="${console.server.target}/WEB-INF/output"/>
         <mkdir dir="${console.server.target}/WEB-INF/reports"/>
-        <copy file="${jbpm.source.dir}/jbpm-installer/report/${birt.version}/overall_activity.rptdesign" overwrite="true"
-          tofile="${console.server.target}/WEB-INF/reports/overall_activity.rptdesign" />
+        <antcall target="filter">
+            <param name="source.dir" value="conf/brmsWebs/bpm-console-server/WEB-INF/reports/"/>
+            <param name="file.name" value="overall_activity.rptdesign"/>
+            <param name="dest.dir" value="${console.server.target}/WEB-INF/reports"/>
+        </antcall>
     </target>
 
     <target name="deploy.brms.webs" >
