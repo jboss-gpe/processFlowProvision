@@ -370,39 +370,13 @@
         </antcall>
         <copy file="conf/brmsWebs/designer/WEB-INF/jboss-web.xml" toDir="${designer.target}/WEB-INF" />
     </target>
-    <target name="deploy.brms.webs" >
-        <fail unless="management.port" message="deploy.brms.webs:  need to pass 'management.port' property" />
-        <jar jarfile="${temp.dir}/${guvnor.name}" basedir="${guvnor.target}" />
-        <jar jarfile="${temp.dir}/${designer.name}" basedir="${designer.target}" />
-        <jar jarfile="${temp.dir}/${console.server.name}" basedir="${console.server.target}" />
-        <jar jarfile="${temp.dir}/${console.name}" basedir="${console.target}" />
-        <!--if>
-            <equals arg1="${refresh.jboss}" arg2="true" />
-            <then>
-                <antcall target="execute.cli">
-                    <param name="cli.source.dir" value="conf/brmsWebs"/>
-                    <param name="cli.to.filter.and.execute" value="brmsWebs-config-down.cli"/>
-                    <param name="management.port" value="${management.port}"/>
-                    <param name="cli.fail.on.error" value="false"/>
-                </antcall>
-            </then>
-        </if -->
-        <antcall target="execute.cli">
-            <param name="cli.source.dir" value="conf/brmsWebs"/>
-            <param name="cli.to.filter.and.execute" value="brmsWebs-config-up.cli"/>
-            <param name="management.port" value="${management.port}"/>
-            <param name="cli.fail.on.error" value="true"/>
-        </antcall>
-    </target>
-
 
     <target name="explode.jbpm.gwt.console" >
         <if>
             <isset property="useCompiledJBPMLibs"/>
             <then>
                 <unzip src="${install.home}/lib/jbpm-${jBPM.version}-gwt-console.zip" dest="${temp.dir}" />
-                <unzip src="${temp.dir}/jbpm-gwt-console-${jBPM.version}.war" 
-                    dest="${console.target}"/>
+                <unzip src="${temp.dir}/jbpm-gwt-console-${jBPM.version}.war" dest="${console.target}"/>
                 <unzip src="${temp.dir}/jbpm-gwt-console-server-${jBPM.version}.war" dest="${console.server.target}"/>
             </then>
         </if>
@@ -425,9 +399,41 @@
             <param name="source.dir" value="conf/brmsWebs/bpm-console-server/WEB-INF"/>
             <param name="dest.dir" value="${console.server.target}/WEB-INF"/>
         </antcall>
+        <!-- TO-DO:  add this as a as7 module.  gwt-console-* dependencies can be found here :
+            ${jbpm.source}/jbpm/jbpm-gwt/jbpm-gwt-console-server/target/war/work/org.jboss.bpm/gwt-console-server-jbpm/WEB-INF/
+        -->
         <copy file="${temp.pfp.lib.dir}/processFlow-adminConsole.jar" toDir="${console.server.target}/WEB-INF/lib" overwrite="true" />
         <delete file="${console.server.target}/WEB-INF/classes/jbpm.console.properties" />
     </target>
+
+    <target name="install.reporting.into.jboss7" >
+        <unzip src="${install.home}/lib/birt-runtime-${birt.version}.zip" dest="${install.home}"/>
+        <copy todir="${console.server.target}/WEB-INF/lib">
+            <fileset dir="${birt.target}/ReportEngine/lib">
+                <include name="**/*.jar"/>
+                <exclude name="org.apache.commons.codec*.jar"/>
+            </fileset>
+        </copy>
+        <mkdir dir="${console.server.target}/WEB-INF/output"/>
+        <mkdir dir="${console.server.target}/WEB-INF/reports"/>
+        <copy file="${jbpm.source.dir}/jbpm-installer/report/${birt.version}/overall_activity.rptdesign" overwrite="true"
+          tofile="${console.server.target}/WEB-INF/reports/overall_activity.rptdesign" />
+    </target>
+
+    <target name="deploy.brms.webs" >
+        <fail unless="management.port" message="deploy.brms.webs:  need to pass 'management.port' property" />
+        <jar jarfile="${temp.dir}/${guvnor.name}" basedir="${guvnor.target}" />
+        <jar jarfile="${temp.dir}/${designer.name}" basedir="${designer.target}" />
+        <jar jarfile="${temp.dir}/${console.server.name}" basedir="${console.server.target}" />
+        <jar jarfile="${temp.dir}/${console.name}" basedir="${console.target}" />
+        <antcall target="execute.cli">
+            <param name="cli.source.dir" value="conf/brmsWebs"/>
+            <param name="cli.to.filter.and.execute" value="brmsWebs-config-up.cli"/>
+            <param name="management.port" value="${management.port}"/>
+            <param name="cli.fail.on.error" value="true"/>
+        </antcall>
+    </target>
+
 
     <target name="clean.jbpm.install" depends="">
         <!-- JA Bride :  now deleting anything that is not previously downloaded -->
@@ -575,6 +581,7 @@
         <antcall target="distro.clean" />
         <antcall target="explode.guvnor.and.designer" />
         <antcall target="explode.jbpm.gwt.console" />
+        <antcall target="install.reporting.into.jboss7" />
         <antcall target="deploy.brms.webs" >
             <param name="management.port" value="${management.port}"/>
             <param name="refresh.jboss" value="${refresh.jboss}"/>

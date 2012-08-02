@@ -76,13 +76,18 @@
     </target>
     <target name="download.jBPM.gwt-console">
         <property name="jBPM.url" value="file://${jbpm.source.dir}/jbpm-distribution/target" />
-        <get src="${jBPM.url}/jbpm-${console.server.version}-gwt-console.zip" dest="${install.home}/lib/jbpm-${console.server.version}-gwt-console.zip"  />
+        <get src="${jBPM.url}/jbpm-${console.server.version}-gwt-console.zip" dest="${install.home}/lib/jbpm-${console.server.version}-gwt-console.zip"  skipexisting="true" />
     </target>
+    <target name="download.birt.as7" >
+        <get src="${birt.download.url.as7}" dest="${install.home}/lib/birt-runtime-${birt.version}.zip" skipexisting="true" />
+    </target>
+
 
     <target name="download.community.brms.webs" if="useCompiledJBPMLibs">
         <antcall target="download.drools.guvnor" />
         <antcall target="download.designer" />
         <antcall target="download.jBPM.gwt-console" />
+        <antcall target="download.birt.as7" />
     </target>
 
     <target name="copy.community.jbpm.deps.to.modules" >
