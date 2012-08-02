@@ -152,7 +152,7 @@ public class PFPServicesTest {
         // 2)  query for any tasks with role 'creditController'
         List<String> groupList = new ArrayList<String>();
         groupList.add("creditController");
-        List<TaskSummary> taskList = taskServiceProxy.getUnclaimedTasksAssignedAsPotentialOwner("jbride", groupList, "en-UK", 0, 10);
+        List<TaskSummary> taskList = taskServiceProxy.getTasksAssignedAsPotentialOwner("jbride", groupList, "en-UK", 0, 10);
         if(groupList.size() == 0) {
             log.error("executeProcessInstanceLifecycle() # of tasks with group creditController == 0");
             return;
