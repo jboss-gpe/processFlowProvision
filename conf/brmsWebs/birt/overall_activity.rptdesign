@@ -65,6 +65,7 @@
                 </ex-property>
             </list-property>
             <!-- JA Bride:  modifying to work with PFP bam provisioning -->
+            <!--property name="odaJndiName">jbpm-bam-cp</property -->
             <property name="odaDriverClass">${bam_driver_class}</property>
             <property name="odaURL">${bam_connection_url}</property>
             <property name="odaUser">${bam_db_user}</property>
@@ -75,42 +76,42 @@
         <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.JdbcSelectDataSet" name="ProcessInstanceLog" id="26">
             <list-property name="columnHints">
                 <structure>
-                    <property name="columnName">PROCESSINSTANCEID</property>
-                    <text-property name="displayName">PROCESSINSTANCEID</text-property>
+                    <property name="columnName">processinstanceid</property>
+                    <text-property name="displayName">processinstanceid</text-property>
                 </structure>
                 <structure>
-                    <property name="columnName">PROCESSID</property>
-                    <text-property name="displayName">PROCESSID</text-property>
+                    <property name="columnName">processid</property>
+                    <text-property name="displayName">processid</text-property>
                 </structure>
                 <structure>
-                    <property name="columnName">START_DATE</property>
-                    <text-property name="displayName">START_DATE</text-property>
+                    <property name="columnName">start_date</property>
+                    <text-property name="displayName">start_date</text-property>
                 </structure>
                 <structure>
-                    <property name="columnName">END_DATE</property>
-                    <text-property name="displayName">END_DATE</text-property>
+                    <property name="columnName">end_date</property>
+                    <text-property name="displayName">end_date</text-property>
                 </structure>
             </list-property>
             <structure name="cachedMetaData">
                 <list-property name="resultSet">
                     <structure>
                         <property name="position">1</property>
-                        <property name="name">PROCESSINSTANCEID</property>
+                        <property name="name">processinstanceid</property>
                         <property name="dataType">decimal</property>
                     </structure>
                     <structure>
                         <property name="position">2</property>
-                        <property name="name">PROCESSID</property>
+                        <property name="name">processid</property>
                         <property name="dataType">string</property>
                     </structure>
                     <structure>
                         <property name="position">3</property>
-                        <property name="name">START_DATE</property>
+                        <property name="name">start_date</property>
                         <property name="dataType">date-time</property>
                     </structure>
                     <structure>
                         <property name="position">4</property>
-                        <property name="name">END_DATE</property>
+                        <property name="name">end_date</property>
                         <property name="dataType">date-time</property>
                     </structure>
                 </list-property>
@@ -119,38 +120,38 @@
             <list-property name="resultSet">
                 <structure>
                     <property name="position">1</property>
-                    <property name="name">PROCESSINSTANCEID</property>
-                    <property name="nativeName">PROCESSINSTANCEID</property>
+                    <property name="name">processinstanceid</property>
+                    <property name="nativeName">processinstanceid</property>
                     <property name="dataType">decimal</property>
                     <property name="nativeDataType">-5</property>
                 </structure>
                 <structure>
                     <property name="position">2</property>
-                    <property name="name">PROCESSID</property>
-                    <property name="nativeName">PROCESSID</property>
+                    <property name="name">processid</property>
+                    <property name="nativeName">processid</property>
                     <property name="dataType">string</property>
                     <property name="nativeDataType">12</property>
                 </structure>
                 <structure>
                     <property name="position">3</property>
-                    <property name="name">START_DATE</property>
-                    <property name="nativeName">START_DATE</property>
+                    <property name="name">start_date</property>
+                    <property name="nativeName">start_date</property>
                     <property name="dataType">date-time</property>
                     <property name="nativeDataType">93</property>
                 </structure>
                 <structure>
                     <property name="position">4</property>
-                    <property name="name">END_DATE</property>
-                    <property name="nativeName">END_DATE</property>
+                    <property name="name">end_date</property>
+                    <property name="nativeName">end_date</property>
                     <property name="dataType">date-time</property>
                     <property name="nativeDataType">93</property>
                 </structure>
             </list-property>
             <xml-property name="queryText"><![CDATA[select 
-  p.PROCESSINSTANCEID,
-  p.PROCESSID,
-  p.START_DATE,
-  p.END_DATE  
+  p.processinstanceid,
+  p.processid,
+  p.start_date,
+  p.end_date  
 from
   PUBLIC.PROCESSINSTANCELOG as p]]></xml-property>
             <xml-property name="designerValues"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
@@ -161,18 +162,18 @@ from
       <design:resultSetColumns>
         <design:resultColumnDefinitions>
           <design:attributes>
-            <design:name>PROCESSINSTANCEID</design:name>
+            <design:name>processinstanceid</design:name>
             <design:position>1</design:position>
             <design:nativeDataTypeCode>-5</design:nativeDataTypeCode>
             <design:precision>19</design:precision>
             <design:scale>0</design:scale>
             <design:nullability>NotNullable</design:nullability>
             <design:uiHints>
-              <design:displayName>PROCESSINSTANCEID</design:displayName>
+              <design:displayName>processinstanceid</design:displayName>
             </design:uiHints>
           </design:attributes>
           <design:usageHints>
-            <design:label>PROCESSINSTANCEID</design:label>
+            <design:label>processinstanceid</design:label>
             <design:formattingHints>
               <design:displaySize>20</design:displaySize>
             </design:formattingHints>
@@ -180,18 +181,18 @@ from
         </design:resultColumnDefinitions>
         <design:resultColumnDefinitions>
           <design:attributes>
-            <design:name>PROCESSID</design:name>
+            <design:name>processid</design:name>
             <design:position>2</design:position>
             <design:nativeDataTypeCode>12</design:nativeDataTypeCode>
             <design:precision>255</design:precision>
             <design:scale>0</design:scale>
             <design:nullability>Nullable</design:nullability>
             <design:uiHints>
-              <design:displayName>PROCESSID</design:displayName>
+              <design:displayName>processid</design:displayName>
             </design:uiHints>
           </design:attributes>
           <design:usageHints>
-            <design:label>PROCESSID</design:label>
+            <design:label>processid</design:label>
             <design:formattingHints>
               <design:displaySize>255</design:displaySize>
             </design:formattingHints>
@@ -199,18 +200,18 @@ from
         </design:resultColumnDefinitions>
         <design:resultColumnDefinitions>
           <design:attributes>
-            <design:name>START_DATE</design:name>
+            <design:name>start_date</design:name>
             <design:position>3</design:position>
             <design:nativeDataTypeCode>93</design:nativeDataTypeCode>
             <design:precision>23</design:precision>
             <design:scale>10</design:scale>
             <design:nullability>Nullable</design:nullability>
             <design:uiHints>
-              <design:displayName>START_DATE</design:displayName>
+              <design:displayName>start_date</design:displayName>
             </design:uiHints>
           </design:attributes>
           <design:usageHints>
-            <design:label>START_DATE</design:label>
+            <design:label>start_date</design:label>
             <design:formattingHints>
               <design:displaySize>23</design:displaySize>
             </design:formattingHints>
@@ -218,18 +219,18 @@ from
         </design:resultColumnDefinitions>
         <design:resultColumnDefinitions>
           <design:attributes>
-            <design:name>END_DATE</design:name>
+            <design:name>end_date</design:name>
             <design:position>4</design:position>
             <design:nativeDataTypeCode>93</design:nativeDataTypeCode>
             <design:precision>23</design:precision>
             <design:scale>10</design:scale>
             <design:nullability>Nullable</design:nullability>
             <design:uiHints>
-              <design:displayName>END_DATE</design:displayName>
+              <design:displayName>end_date</design:displayName>
             </design:uiHints>
           </design:attributes>
           <design:usageHints>
-            <design:label>END_DATE</design:label>
+            <design:label>end_date</design:label>
             <design:formattingHints>
               <design:displaySize>23</design:displaySize>
             </design:formattingHints>
@@ -259,12 +260,12 @@ from
                     <text-property name="displayName">NODEID</text-property>
                 </structure>
                 <structure>
-                    <property name="columnName">PROCESSINSTANCEID</property>
-                    <text-property name="displayName">PROCESSINSTANCEID</text-property>
+                    <property name="columnName">processinstanceid</property>
+                    <text-property name="displayName">processinstanceid</text-property>
                 </structure>
                 <structure>
-                    <property name="columnName">PROCESSID</property>
-                    <text-property name="displayName">PROCESSID</text-property>
+                    <property name="columnName">processid</property>
+                    <text-property name="displayName">processid</text-property>
                 </structure>
                 <structure>
                     <property name="columnName">DATE</property>
@@ -295,12 +296,12 @@ from
                     </structure>
                     <structure>
                         <property name="position">5</property>
-                        <property name="name">PROCESSINSTANCEID</property>
+                        <property name="name">processinstanceid</property>
                         <property name="dataType">decimal</property>
                     </structure>
                     <structure>
                         <property name="position">6</property>
-                        <property name="name">PROCESSID</property>
+                        <property name="name">processid</property>
                         <property name="dataType">string</property>
                     </structure>
                     <structure>
@@ -342,15 +343,15 @@ from
                 </structure>
                 <structure>
                     <property name="position">5</property>
-                    <property name="name">PROCESSINSTANCEID</property>
-                    <property name="nativeName">PROCESSINSTANCEID</property>
+                    <property name="name">processinstanceid</property>
+                    <property name="nativeName">processinstanceid</property>
                     <property name="dataType">decimal</property>
                     <property name="nativeDataType">-5</property>
                 </structure>
                 <structure>
                     <property name="position">6</property>
-                    <property name="name">PROCESSID</property>
-                    <property name="nativeName">PROCESSID</property>
+                    <property name="name">processid</property>
+                    <property name="nativeName">processid</property>
                     <property name="dataType">string</property>
                     <property name="nativeDataType">12</property>
                 </structure>
@@ -367,8 +368,8 @@ from
   p.TYPE,
   p.NODEINSTANCEID,
   p.NODEID,
-  p.PROCESSINSTANCEID,
-  p.PROCESSID,
+  p.processinstanceid,
+  p.processid,
   p.DATE
 from
   PUBLIC.NODEINSTANCELOG as p]]></xml-property>
@@ -824,7 +825,7 @@ from
       <TitlePosition>Left</TitlePosition>
       <SeriesDefinitions>
         <Query>
-          <Definition>row[&quot;PROCESSID&quot;]</Definition>
+          <Definition>row[&quot;processid&quot;]</Definition>
         </Query>
         <SeriesPalette>
           <Entries xsi:type="attribute:ColorDefinition">
@@ -1055,7 +1056,7 @@ from
             <Visible>true</Visible>
           </Label>
           <DataDefinition>
-            <Definition>row[&quot;PROCESSINSTANCEID&quot;]</Definition>
+            <Definition>row[&quot;processinstanceid&quot;]</Definition>
           </DataDefinition>
           <SeriesIdentifier></SeriesIdentifier>
           <DataPoint>
@@ -1416,7 +1417,7 @@ from
           <Visible>false</Visible>
         </Label>
         <DataDefinition>
-          <Definition>row[&quot;START_DATE&quot;]</Definition>
+          <Definition>row[&quot;start_date&quot;]</Definition>
         </DataDefinition>
         <SeriesIdentifier></SeriesIdentifier>
         <DataPoint>
@@ -1557,23 +1558,23 @@ from
             <property name="width">5.9895833333in</property>
             <list-property name="boundDataColumns">
                 <structure>
-                    <property name="name">PROCESSINSTANCEID</property>
-                    <expression name="expression">dataSetRow["PROCESSINSTANCEID"]</expression>
+                    <property name="name">processinstanceid</property>
+                    <expression name="expression">dataSetRow["processinstanceid"]</expression>
                     <property name="dataType">decimal</property>
                 </structure>
                 <structure>
-                    <property name="name">PROCESSID</property>
-                    <expression name="expression">dataSetRow["PROCESSID"]</expression>
+                    <property name="name">processid</property>
+                    <expression name="expression">dataSetRow["processid"]</expression>
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
-                    <property name="name">START_DATE</property>
-                    <expression name="expression">dataSetRow["START_DATE"]</expression>
+                    <property name="name">start_date</property>
+                    <expression name="expression">dataSetRow["start_date"]</expression>
                     <property name="dataType">date-time</property>
                 </structure>
                 <structure>
-                    <property name="name">END_DATE</property>
-                    <expression name="expression">dataSetRow["END_DATE"]</expression>
+                    <property name="name">end_date</property>
+                    <expression name="expression">dataSetRow["end_date"]</expression>
                     <property name="dataType">date-time</property>
                 </structure>
             </list-property>
@@ -2188,7 +2189,7 @@ from
             <Visible>true</Visible>
           </Label>
           <DataDefinition>
-            <Definition>row[&quot;PROCESSINSTANCEID&quot;]</Definition>
+            <Definition>row[&quot;processinstanceid&quot;]</Definition>
           </DataDefinition>
           <SeriesIdentifier></SeriesIdentifier>
           <DataPoint>
@@ -2549,7 +2550,7 @@ from
           <Visible>false</Visible>
         </Label>
         <DataDefinition>
-          <Definition>row[&quot;PROCESSID&quot;]</Definition>
+          <Definition>row[&quot;processid&quot;]</Definition>
         </DataDefinition>
         <SeriesIdentifier></SeriesIdentifier>
         <DataPoint>
@@ -2684,7 +2685,7 @@ from
             <list-property name="filter">
                 <structure>
                     <property name="operator">is-null</property>
-                    <expression name="expr">row["END_DATE"]</expression>
+                    <expression name="expr">row["end_date"]</expression>
                 </structure>
             </list-property>
             <property name="dataSet">ProcessInstanceLog</property>
@@ -2692,23 +2693,23 @@ from
             <property name="width">2.9791666667in</property>
             <list-property name="boundDataColumns">
                 <structure>
-                    <property name="name">PROCESSINSTANCEID</property>
-                    <expression name="expression">dataSetRow["PROCESSINSTANCEID"]</expression>
+                    <property name="name">processinstanceid</property>
+                    <expression name="expression">dataSetRow["processinstanceid"]</expression>
                     <property name="dataType">decimal</property>
                 </structure>
                 <structure>
-                    <property name="name">PROCESSID</property>
-                    <expression name="expression">dataSetRow["PROCESSID"]</expression>
+                    <property name="name">processid</property>
+                    <expression name="expression">dataSetRow["processid"]</expression>
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
-                    <property name="name">START_DATE</property>
-                    <expression name="expression">dataSetRow["START_DATE"]</expression>
+                    <property name="name">start_date</property>
+                    <expression name="expression">dataSetRow["start_date"]</expression>
                     <property name="dataType">date-time</property>
                 </structure>
                 <structure>
-                    <property name="name">END_DATE</property>
-                    <expression name="expression">dataSetRow["END_DATE"]</expression>
+                    <property name="name">end_date</property>
+                    <expression name="expression">dataSetRow["end_date"]</expression>
                     <property name="dataType">date-time</property>
                 </structure>
             </list-property>
@@ -3324,7 +3325,7 @@ from
             <Visible>true</Visible>
           </Label>
           <DataDefinition>
-            <Definition>DateTimeSpan.minutes(row[&quot;START_DATE&quot;], row[&quot;END_DATE&quot;])</Definition>
+            <Definition>DateTimeSpan.minutes(row[&quot;start_date&quot;], row[&quot;end_date&quot;])</Definition>
           </DataDefinition>
           <SeriesIdentifier></SeriesIdentifier>
           <DataPoint>
@@ -3686,7 +3687,7 @@ from
           <Visible>false</Visible>
         </Label>
         <DataDefinition>
-          <Definition>row[&quot;PROCESSID&quot;]</Definition>
+          <Definition>row[&quot;processid&quot;]</Definition>
         </DataDefinition>
         <SeriesIdentifier></SeriesIdentifier>
         <DataPoint>
@@ -3821,7 +3822,7 @@ from
             <list-property name="filter">
                 <structure>
                     <property name="operator">is-not-null</property>
-                    <expression name="expr">row["END_DATE"]</expression>
+                    <expression name="expr">row["end_date"]</expression>
                 </structure>
             </list-property>
             <property name="dataSet">ProcessInstanceLog</property>
@@ -3829,23 +3830,23 @@ from
             <property name="width">3in</property>
             <list-property name="boundDataColumns">
                 <structure>
-                    <property name="name">PROCESSINSTANCEID</property>
-                    <expression name="expression">dataSetRow["PROCESSINSTANCEID"]</expression>
+                    <property name="name">processinstanceid</property>
+                    <expression name="expression">dataSetRow["processinstanceid"]</expression>
                     <property name="dataType">decimal</property>
                 </structure>
                 <structure>
-                    <property name="name">PROCESSID</property>
-                    <expression name="expression">dataSetRow["PROCESSID"]</expression>
+                    <property name="name">processid</property>
+                    <expression name="expression">dataSetRow["processid"]</expression>
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
-                    <property name="name">START_DATE</property>
-                    <expression name="expression">dataSetRow["START_DATE"]</expression>
+                    <property name="name">start_date</property>
+                    <expression name="expression">dataSetRow["start_date"]</expression>
                     <property name="dataType">date-time</property>
                 </structure>
                 <structure>
-                    <property name="name">END_DATE</property>
-                    <expression name="expression">dataSetRow["END_DATE"]</expression>
+                    <property name="name">end_date</property>
+                    <expression name="expression">dataSetRow["end_date"]</expression>
                     <property name="dataType">date-time</property>
                 </structure>
             </list-property>
