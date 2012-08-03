@@ -65,7 +65,7 @@
                 </ex-property>
             </list-property>
             <!-- JA Bride:  modifying to work with PFP bam provisioning -->
-            <property name="odaDriverClass">${bam_db_ip}</property>
+            <property name="odaDriverClass">${bam_driver_class}</property>
             <property name="odaURL">${bam_connection_url}</property>
             <property name="odaUser">${bam_db_user}</property>
             <property name="odaPassword">${bam_db_password}</property>

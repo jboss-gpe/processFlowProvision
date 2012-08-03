@@ -6,9 +6,11 @@ batch
 /host=master/core-service=management/security-realm=ejb-security-realm/server-identity=secret:add(value=${pfp.core.remoting.base64.passcode})
 /socket-binding-group=standard-sockets/remote-destination-outbound-socket-binding=remote-ejb/:add(port=${pfp.core.remoting.port},host=${pfp.core.host.name},fixed-source-port=false)
 
+/profile=default/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=level,value=TRACE)
+
 # pfpServicesTest:  enable TRACE logging of org.jboss.as.ee.structure to indicate whether client-side jboss-ejb-client.xml config is being parsed
 /profile=default/subsystem=logging/logger=org.jboss.as.ee.structure/:add(category=org.jboss.as.ee.structure,level=TRACE,use-parent-handlers=true)
-/profile=default/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=level,value=TRACE)
+/profile=default/subsystem=logging/logger=org.jboss.bpm.report/:add(category=org.jboss.bpm.report,level=TRACE,use-parent-handlers=true)
 
 
 
@@ -40,6 +42,8 @@ batch
 
 # add system property to support pfpServicesTest
 /host=master/server-config=brms-webs/system-property=org.jboss.processFlow.test.absolutePathToBpmn/:add(value=${org.jboss.processFlow.test.absolutePathToBpmn},boot-time=true)
+# add system property to birt reporting
+/host=master/server-config=brms-webs/system-property=org.jbpm.report.engine.dir/:add(value=${org.jbpm.report.dir},boot-time=true)
 run-batch
 
 #batch

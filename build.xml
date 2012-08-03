@@ -79,7 +79,10 @@
         <get src="${jBPM.url}/jbpm-${console.server.version}-gwt-console.zip" dest="${install.home}/lib/jbpm-${console.server.version}-gwt-console.zip"  skipexisting="true" />
     </target>
     <target name="download.birt.as7" >
+        <mkdir dir="${install.home}/lib/reporting" />
         <get src="${birt.download.url.as7}" dest="${install.home}/lib/birt-runtime-${birt.version}.zip" skipexisting="true" />
+        <get src="${jboss.nexus.url}/content/repositories/releases/org/jboss/bpm/report-core/1.3.0/report-core-1.3.0.jar" dest="${install.home}/lib/reporting" skipexisting="true" />
+        <get src="${jboss.nexus.url}/content/repositories/releases/org/jboss/bpm/report-shared/1.3.0/report-shared-1.3.0.jar" dest="${install.home}/lib/reporting" skipexisting="true" />
     </target>
 
 

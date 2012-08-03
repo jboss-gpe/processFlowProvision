@@ -576,5 +576,16 @@ remote client examples
                                 DEBUG [org.jboss.as.ee.structure.EJBClientDescriptorParsingProcessor] (MSC service thread 1-6) Successfully parsed jboss-ejb-client.xml for deployment unit deployment "pfpServicesTest.war"
                         - ant provision.pfp.core
                         - curl $HOSTNAME:8230/pfpServicesTest/all 
-                            - should return:  Borat:  Great Success!!
+                            - should return:  Great Success!!
                             - in terminal #1, you'll also see various logs regarding claiming and completing a task
+
+
+BIRT reporting
+    - the BIRT report engine is integrated in with business-central-server.war
+    - upon brmsWebs server start-up, statements similar to the following indicating that the BIRT reporting engine 
+        is alive should be visible in $JBOSS_HOME/default-pfp/servers/brms-webs/log/server.log
+
+        INFO  [org.jboss.bpm.report.ReportFacade] (MSC service thread 1-14) BIRT home: /shared/source/jboss/jbossProjects/jboss/birt/ReportEngine
+        INFO  [org.jboss.bpm.report.ReportFacade] (MSC service thread 1-14) Output dir: /shared/source/jboss/jbossProjects/jboss/birt/output/
+        INFO  [org.jboss.bpm.report.ReportFacade] (MSC service thread 1-14) Report dir: /shared/source/jboss/jbossProjects/jboss/birt/
+        INFO  [org.jboss.bpm.report.BirtService] (BirtService-Init) Creating BIRT service in the background

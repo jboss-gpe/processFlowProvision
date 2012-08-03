@@ -34,9 +34,9 @@
            <arg value="${node.to.stop}"/>
         </exec>
     </target>
-    <target name="start.jboss" >
-        <fail unless="jboss.domain.base.dir" message="start.jboss:  need to pass 'jboss.domain.base.dir' property" />
-        <fail unless="domain.config.file" message="start.jboss:  need to pass 'domain.config.file' property" />
+    <target name="start.master" >
+        <fail unless="jboss.domain.base.dir" message="start.master:  need to pass 'jboss.domain.base.dir' property" />
+        <fail unless="domain.config.file" message="start.master:  need to pass 'domain.config.file' property" />
         <exec executable="bash" failonerror="true" dir="." >
            <arg value="bin/jboss_eap.sh"/>
            <arg value="start"/>
@@ -44,21 +44,23 @@
            <arg value="${domain.config.file}"/>
         </exec>
     </target>
-    <target name="bounce.jboss" >
-        <antcall target="stop.jboss" >
-            <param name="management.port" value="${management.port}"/>
-            <param name="node" value="master"/>
-        </antcall>
-        <antcall target="start.jboss" >
+    <target name="start.all" description="">
+        <!--antcall target="refresh.master.jboss" >
+            <param name="node.to.stop" value="master"/>
             <param name="jboss.domain.base.dir" value="${jboss.domain.base.dir}"/>
-            <param name="server.config.file.with.no.suffix" value="${domain.config.file.with.no.suffix}"/>
-        </antcall>
+            <param name="domain.config.file" value="${domain.config.file}"/>
+        </antcall -->
+        <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
+            <arg value="--connect"/>
+            <arg value="--controller=${ENV.HOSTNAME}:${management.port}"/>
+           <arg value="/host=master/server-config=${pfp.core.server}/:start(server=${pfp.core.server},blocking=true)"/>
+        </exec>
     </target>
     <target name="refresh.master.jboss" >
         <fail unless="node.to.stop" message="refresh.master.jboss:  need to pass 'node.to.stop' property" />
         <fail unless="jboss.domain.base.dir" message="refresh.master.jboss:  need to pass 'jboss.domain.base.dir' property" />
         <fail unless="domain.config.file" message="refresh.master.jboss:  need to pass 'domain.config.file' property" />
-        <echo message="***** refresh.master.jboss :  will now call the following target :  stop.jboss, clone.jboss, and start.jboss" />
+        <echo message="***** refresh.master.jboss :  will now call the following target :  stop.jboss, clone.jboss, and start.master" />
         <antcall target="stop.jboss" >
             <param name="${node.to.stop}" value="${node.to.stop}"/>
         </antcall>
@@ -66,7 +68,7 @@
             <param name="jboss.domain.base.dir" value="${jboss.domain.base.dir}"/>
         </antcall>
         <antcall target="configure.jboss.modules" />
-        <antcall target="start.jboss" >
+        <antcall target="start.master" >
             <param name="jboss.domain.base.dir" value="${jboss.domain.base.dir}"/>
             <param name="domain.config.file" value="${domain.config.file}"/>
         </antcall>
@@ -222,12 +224,6 @@
             <fileset dir="conf/pfp/META-INF"  />
         </copy>
         <jar jarfile="${temp.dir}/${pfp.ear.name}" basedir="${temp.ear.dir}" />
-        <antcall target="execute.cli">
-            <param name="cli.source.dir" value="conf/pfp"/>
-            <param name="cli.to.filter.and.execute" value="pfp-config-down.cli"/>
-            <param name="management.port" value="${management.port}"/>
-            <param name="cli.fail.on.error" value="false"/>
-        </antcall>
         <antcall target="execute.cli">
             <param name="cli.source.dir" value="conf/pfp"/>
             <param name="cli.to.filter.and.execute" value="pfp-config-up.cli"/>
@@ -407,20 +403,28 @@
     </target>
 
     <target name="install.reporting.into.jboss7" >
+        <delete dir="${org.jbpm.report.dir}" />
+        <mkdir dir="${org.jbpm.report.dir}/ReportEngine" />
+        <antcall target="filter">
+            <param name="source.dir" value="conf/brmsWebs/birt"/>
+            <param name="file.name" value="overall_activity.rptdesign"/>
+            <param name="dest.dir" value="${org.jbpm.report.dir}"/>
+        </antcall>
         <unzip src="${install.home}/lib/birt-runtime-${birt.version}.zip" dest="${install.home}"/>
+        <delete >
+            <fileset dir="${console.server.target}/WEB-INF/lib" >
+                <include name="report*.*" />
+            </fileset>
+        </delete>
         <copy todir="${console.server.target}/WEB-INF/lib">
             <fileset dir="${birt.target}/ReportEngine/lib">
                 <include name="**/*.jar"/>
                 <exclude name="org.apache.commons.codec*.jar"/>
             </fileset>
+            <fileset dir="${install.home}/lib/reporting">
+                <include name="*.jar"/>
+            </fileset>
         </copy>
-        <mkdir dir="${console.server.target}/WEB-INF/output"/>
-        <mkdir dir="${console.server.target}/WEB-INF/reports"/>
-        <antcall target="filter">
-            <param name="source.dir" value="conf/brmsWebs/bpm-console-server/WEB-INF/reports/"/>
-            <param name="file.name" value="overall_activity.rptdesign"/>
-            <param name="dest.dir" value="${console.server.target}/WEB-INF/reports"/>
-        </antcall>
     </target>
 
     <target name="deploy.brms.webs" >
