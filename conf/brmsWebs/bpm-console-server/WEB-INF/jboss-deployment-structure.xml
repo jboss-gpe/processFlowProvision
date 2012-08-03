@@ -4,6 +4,7 @@
             <module name="org.apache.commons.collections" />
             <module name="org.apache.commons.io" />
             <module name="org.jboss.processFlow" />
+            <module name="org.postgresql.jdbc" />
         </dependencies>
     </deployment>
 
