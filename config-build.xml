@@ -30,7 +30,7 @@
            <arg value="master"/>
         </exec>
     </target>
-    <target name="start.master" >
+    <target name="start.master" description="">
         <exec executable="bash" failonerror="true" dir="." >
            <arg value="bin/jboss_eap.sh"/>
            <arg value="start"/>

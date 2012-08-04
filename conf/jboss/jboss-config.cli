@@ -13,6 +13,6 @@ batch
 /profile=full-ha/subsystem=datasources/data-source=ExampleDS/:remove
 /profile=full-ha/subsystem=ejb3/:write-attribute(name=enable-statistics,value=true)
 
-# trace level logginf of org.jboss.modules module
+# trace level logging of org.jboss.modules module
 # /profile=full-ha/subsystem=logging/logger=org.jboss.modules/:add(category=org.jboss.modules,level=TRACE,use-parent-handlers=true)
 run-batch
