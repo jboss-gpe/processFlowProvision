@@ -26,7 +26,6 @@
         <delete dir="${temp.pfp.services.dir}" />
         <delete dir="${temp.pfp.lib.dir}" />
         <delete dir="${temp.distro.dir}" />
-        <delete dir="${temp.ear.dir}" />
         <delete dir="${distro.clean}" />
     </target>
 
@@ -55,7 +54,6 @@
         <zip destfile="${install.home}/${distro.name}.zip">
             <zipfileset dir="${temp.distro.dir}" prefix="${distro.name}" />
             <zipfileset dir="bin" prefix="${distro.name}/bin" />
-            <zipfileset dir="${temp.ear.dir}" prefix="${distro.name}/${pfp.ear.name}" />
             <zipfileset dir="privateServiceTaskRepo" prefix="${distro.name}/privateServiceTaskRepo" />
             <zipfileset dir="${temp.client.dir}" prefix="${distro.name}/clientLibs" />
             <zipfileset dir="conf" prefix="${distro.name}/conf"/>
@@ -139,12 +137,11 @@
         <antcall target="clean" />
         <mkdir dir="${install.home}/lib" />
         <antcall target="compile.pfp" />
-        <antcall target="download.community.brms.webs" />
         <antcall target="provision.brms.webs">
-            <param name="refresh.master.jboss" value="true"/>
+            <param name="refresh.master" value="true"/>
         </antcall>
         <antcall target="provision.pfp.core">
-            <param name="refresh.master.jboss" value="false"/>
+            <param name="refresh.master" value="false"/>
         </antcall>
         <antcall target="create.temp.client.dir" />
         <antcall target="clean.jbpm.install" />

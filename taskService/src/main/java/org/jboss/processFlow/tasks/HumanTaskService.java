@@ -636,6 +636,36 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
                 taskSession.dispose();
         }
     }
+    
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+    public List<TaskSummary> getTasksAssignedAsPotentialOwnerByStatusByGroup(String userId, List<String> groupIds, List<Status> statuses, String language, Integer firstResult, Integer maxResults){
+    	TaskServiceSession taskSession = null;
+        try {
+            taskSession = taskService.createSession();
+            taskSession.getTasksAssignedAsPotentialOwnerByStatus(userId, statuses, language);
+            return taskSession.getTasksAssignedAsPotentialOwnerByStatusByGroup(userId, groupIds, statuses, language);
+            
+        }catch(Exception x) {
+            throw new RuntimeException(x);
+        }finally {
+            if(taskSession != null)
+                taskSession.dispose();
+        }
+    }
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+    public List<TaskSummary> getTasksAssignedAsPotentialOwnerByStatus(String userId, List<Status> statuses, String language, Integer firstResult, Integer maxResults){
+    	TaskServiceSession taskSession = null;
+        try {
+            taskSession = taskService.createSession();
+            return taskSession.getTasksAssignedAsPotentialOwnerByStatus(userId, statuses, language);
+            
+        }catch(Exception x) {
+            throw new RuntimeException(x);
+        }finally {
+            if(taskSession != null)
+                taskSession.dispose();
+        }
+    }
 
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public List<TaskSummary> getTasksOwned(final String userId, final String language) {

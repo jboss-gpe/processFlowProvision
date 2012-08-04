@@ -566,11 +566,11 @@ remote client examples
                             - What type of user do you wish to add?             :   (b) Application User
                             - Username                                          :   pfp
                             - Password                                          :   brms
-                            - What roles do you want this user to belong to?    :   blank
+                            - What roles do you want this user to belong to?    :   creditController
                         - tail -f domain-pfp/servers/brms-webs/log/server.log
                     - command terminal #2
                         - cd $PFP_HOME
-                        - ant provision.brms.webs -Drefresh.master.jboss=true
+                        - ant provision.brms.webs -Drefresh.master=true
                         - ant webTaskTest 
                             - should now see the following log statement in terminal #1 :
                                 DEBUG [org.jboss.as.ee.structure.EJBClientDescriptorParsingProcessor] (MSC service thread 1-6) Successfully parsed jboss-ejb-client.xml for deployment unit deployment "pfpServicesTest.war"

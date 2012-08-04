@@ -27,8 +27,12 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
+import java.security.Principal;
+import java.security.acl.Group;
 
-import javax.naming.Context;
+import javax.security.auth.Subject;
+import javax.security.jacc.PolicyContext;
+
 import javax.naming.InitialContext;
 
 import org.jboss.bpm.console.client.model.TaskRef;
@@ -39,6 +43,11 @@ import org.jbpm.task.Status;
 import org.jbpm.task.query.TaskSummary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.SecurityContext;
 
 /*
  *  14 Nov 2011 :  what is the proper way to forward a user friendly message to the gwt javascript during exception handling ?
@@ -51,10 +60,10 @@ public class TaskManagement implements org.jboss.bpm.console.server.integration.
     private DataBinderManager dataBinderManager;
 
     static {
-        Context jndiContext = null;
+        javax.naming.Context jndiContext = null;
         try {
             Properties jndiProps = new Properties();
-            jndiProps.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
+            jndiProps.put(javax.naming.Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
             jndiContext = new InitialContext(jndiProps);
             taskServiceProxy = (ITaskService)jndiContext.lookup(ITaskService.TASK_SERVICE_JNDI);
 
@@ -126,13 +135,11 @@ public class TaskManagement implements org.jboss.bpm.console.server.integration.
 
     public List<TaskRef> getAssignedTasks(String idRef) {
         List<TaskRef> result = new ArrayList<TaskRef>();
-        List<TaskSummary> tasks = null;
         try {
-            tasks = taskServiceProxy.getAssignedTasks(idRef, "en-UK");
+            List<Status> onlyReserved = Collections.singletonList(Status.Reserved);    
+            List<TaskSummary> tasks = taskServiceProxy.getAssignedTasks(idRef, "en-UK");
             for (TaskSummary task: tasks) {
-                if (task.getStatus() == Status.Reserved) {
-                    result.add(Transform.task(task));
-                }
+                result.add(Transform.task(task));
             }
             return result;
         }catch(Exception x){
@@ -144,10 +151,10 @@ public class TaskManagement implements org.jboss.bpm.console.server.integration.
         List<TaskRef> result = new ArrayList<TaskRef>();
         List<TaskSummary> tasks = null;
         try {
+            List<String> callerRoles = getCallerRoles();
             List<Status> onlyReady = Collections.singletonList(Status.Ready);
             
-            // JA Bride:  fix me ... need to get roles associated with user
-            tasks = taskServiceProxy.getTasksAssignedAsPotentialOwner(userId, null, "en-UK", 0, 10);
+            tasks = taskServiceProxy.getTasksAssignedAsPotentialOwner(userId, callerRoles, "en-UK", 0, 10);
             for (TaskSummary task: tasks) {
                 result.add(Transform.task(task));
             }
@@ -156,4 +163,37 @@ public class TaskManagement implements org.jboss.bpm.console.server.integration.
             throw new RuntimeException(x);
         }
     }
+
+    private List<String> getCallerRoles() {
+        List<String> roles = null;
+        try {
+            Subject subject = (Subject) PolicyContext.getContext("javax.security.auth.Subject.container");
+
+            if (subject != null) {
+                Set<Principal> principals = subject.getPrincipals();
+
+                if (principals != null) {
+                    roles = new ArrayList<String>();
+                    for (Principal principal : principals) {
+                        log.info("principal = "+principal);
+                        if (principal instanceof Group  && "Roles".equalsIgnoreCase(principal.getName())) {
+                            Enumeration<? extends Principal> groups = ((Group) principal).members();
+
+                            while (groups.hasMoreElements()) {
+                                Principal groupPrincipal = (Principal) groups.nextElement();
+                                roles.add(groupPrincipal.getName());
+
+                            }
+                            break;
+                        }
+
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return roles;
+    }
+
 }

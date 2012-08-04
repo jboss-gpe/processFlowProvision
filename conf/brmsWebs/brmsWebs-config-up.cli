@@ -47,10 +47,3 @@ batch
 # add system property to birt reporting
 /host=master/server-config=brms-webs/system-property=org.jbpm.report.engine.dir/:add(value=${org.jbpm.report.dir},boot-time=true)
 run-batch
-
-#batch
-deploy ${temp.dir}/${guvnor.name} --name=${guvnor.name}  --server-groups=brms-webs-group
-deploy ${temp.dir}/${designer.name} --name=${designer.name} --server-groups=brms-webs-group
-deploy ${temp.dir}/${console.server.name} --name=${console.server.name} --server-groups=brms-webs-group
-deploy ${temp.dir}/${console.name} --name=${console.name} --server-groups=brms-webs-group
-#run-batch

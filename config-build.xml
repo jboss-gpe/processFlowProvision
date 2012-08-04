@@ -18,11 +18,7 @@
     <!-- even though this is in build.xml ... need it here as well for distro -->
     <import file="privateServiceTaskRepo/build.xml"/>
 
-    <target name="stop.jboss" description="default behavior is to shutdown all jboss servers via management port of 9999" >
-        <if>
-            <not><isset property="node.to.stop"/></not>
-            <then><property name="node.to.stop" value="master" /></then>
-        </if>
+    <target name="stop.master" description="default behavior is to shutdown all jboss servers via management port of 9999" >
         <if>
             <not><isset property="management.port"/></not>
             <then><property name="management.port" value="9999" /></then>
@@ -31,12 +27,10 @@
            <arg value="bin/jboss_eap.sh"/>
            <arg value="stop"/>
            <arg value="${management.port}"/>
-           <arg value="${node.to.stop}"/>
+           <arg value="master"/>
         </exec>
     </target>
     <target name="start.master" >
-        <fail unless="jboss.domain.base.dir" message="start.master:  need to pass 'jboss.domain.base.dir' property" />
-        <fail unless="domain.config.file" message="start.master:  need to pass 'domain.config.file' property" />
         <exec executable="bash" failonerror="true" dir="." >
            <arg value="bin/jboss_eap.sh"/>
            <arg value="start"/>
@@ -44,39 +38,35 @@
            <arg value="${domain.config.file}"/>
         </exec>
     </target>
-    <target name="start.all" description="">
-        <!--antcall target="refresh.master.jboss" >
-            <param name="node.to.stop" value="master"/>
-            <param name="jboss.domain.base.dir" value="${jboss.domain.base.dir}"/>
-            <param name="domain.config.file" value="${domain.config.file}"/>
-        </antcall -->
+    <target name="refresh.master" >
+        <echo message="***** refresh.master :  will now call the following target :  stop.master, clone.jboss, and start.master" />
+        <antcall target="distro.clean" />
+        <antcall target="stop.master"  />
+        <antcall target="clone.jboss" />
+        <antcall target="configure.jboss.modules" />
+        <antcall target="start.master"  />
+        <antcall target="execute.cli">
+                <param name="cli.source.dir" value="conf/jboss/"/>
+                <param name="cli.to.filter.and.execute" value="jboss-config.cli"/>
+        </antcall>
+    </target>
+    <target name="bounce.all.servers" description="">
+        <if>
+            <not><isset property="management.port"/></not>
+            <then><property name="management.port" value="9999" /></then>
+        </if>
+        <antcall target="stop.master"  />
+        <antcall target="start.master" />
         <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
             <arg value="--connect"/>
             <arg value="--controller=${ENV.HOSTNAME}:${management.port}"/>
            <arg value="/host=master/server-config=${pfp.core.server}/:start(server=${pfp.core.server},blocking=true)"/>
         </exec>
-    </target>
-    <target name="refresh.master.jboss" >
-        <fail unless="node.to.stop" message="refresh.master.jboss:  need to pass 'node.to.stop' property" />
-        <fail unless="jboss.domain.base.dir" message="refresh.master.jboss:  need to pass 'jboss.domain.base.dir' property" />
-        <fail unless="domain.config.file" message="refresh.master.jboss:  need to pass 'domain.config.file' property" />
-        <echo message="***** refresh.master.jboss :  will now call the following target :  stop.jboss, clone.jboss, and start.master" />
-        <antcall target="stop.jboss" >
-            <param name="${node.to.stop}" value="${node.to.stop}"/>
-        </antcall>
-        <antcall target="clone.jboss" >
-            <param name="jboss.domain.base.dir" value="${jboss.domain.base.dir}"/>
-        </antcall>
-        <antcall target="configure.jboss.modules" />
-        <antcall target="start.master" >
-            <param name="jboss.domain.base.dir" value="${jboss.domain.base.dir}"/>
-            <param name="domain.config.file" value="${domain.config.file}"/>
-        </antcall>
-        <antcall target="execute.cli">
-                <param name="cli.source.dir" value="conf/jboss/"/>
-                <param name="cli.to.filter.and.execute" value="jboss-config.cli"/>
-                <param name="management.port" value="${management.port}"/>
-        </antcall>
+        <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
+            <arg value="--connect"/>
+            <arg value="--controller=${ENV.HOSTNAME}:${management.port}"/>
+           <arg value="/host=master/server-config=brms-webs/:start(server=brms-webs,blocking=true)"/>
+        </exec>
     </target>
     <target name="checkServersAndProjectLib">
         <available file="${JBOSS_HOME}/jboss-modules.jar" property="defaultServerExists" />
@@ -93,7 +83,6 @@
 
     <!-- create a clone of the JBoss EAP 'domain' config and name it the value of ${jboss.domain.base.dir} -->
     <target name="clone.jboss" >
-        <fail unless="jboss.domain.base.dir" message="clone.jboss:  need to pass 'jboss.domain.base.dir' property" />
         <delete dir="${jboss.home}/${jboss.domain.base.dir}" />
         <copy overwrite="true" todir="${jboss.home}/${jboss.domain.base.dir}">
             <fileset dir="${jboss.home}/domain" />
@@ -138,7 +127,10 @@
         </exec>
     </target>
     <target name="eap.cli.gui" depends="" description="">
-        <fail unless="management.port" message="eap.cli.gui:  need to pass 'management.port' property" />
+        <if>
+            <not><isset property="management.port"/></not>
+            <then><property name="management.port" value="9999" /></then>
+        </if>
         <exec spawn="true" executable="${jboss.home}/bin/jboss-cli.sh">
             <arg value="--connect"/>
             <arg value="--controller=${ENV.HOSTNAME}:${management.port}"/>
@@ -197,40 +189,15 @@
         <antcall target="execute.cli">
             <param name="cli.source.dir" value="conf/hornetq/"/>
             <param name="cli.to.filter.and.execute" value="hornetq-config-down.cli"/>
-            <param name="management.port" value="${management.port}"/>
             <param name="cli.fail.on.error" value="false"/>
         </antcall>
         <antcall target="execute.cli">
             <param name="cli.source.dir" value="conf/hornetq/"/>
             <param name="cli.to.filter.and.execute" value="hornetq-config-up.cli"/>
-            <param name="management.port" value="${management.port}"/>
             <param name="cli.fail.on.error" value="true"/>
         </antcall>
     </target>
 
-    <condition property="useMRG" >
-        <equals arg1="${org.jboss.processFlow.messagingProvider}" arg2="MRG" />
-    </condition>
-    <target name="qpid-config" if="useMRG" >
-        <antcall target="execute.cli">
-            <param name="cli.source.dir" value="conf/qpid"/>
-            <param name="cli.to.filter.and.execute" value="qpid-config.cli"/>
-            <param name="management.port" value="${management.port}"/>
-        </antcall>
-    </target>
-
-    <target name="pfp-config" >
-        <copy toDir="${temp.ear.dir}/META-INF" >
-            <fileset dir="conf/pfp/META-INF"  />
-        </copy>
-        <jar jarfile="${temp.dir}/${pfp.ear.name}" basedir="${temp.ear.dir}" />
-        <antcall target="execute.cli">
-            <param name="cli.source.dir" value="conf/pfp"/>
-            <param name="cli.to.filter.and.execute" value="pfp-config-up.cli"/>
-            <param name="management.port" value="${management.port}"/>
-            <param name="cli.fail.on.error" value="true"/>
-        </antcall>
-    </target>
 
     <target name="process.brms.libs" >
         <if>
@@ -319,7 +286,6 @@
 
     </target>
 
-     <!-- this is common guvnor functionality whether guvnor is co-located with jbpm5 or is used in a different JBoss runtime -->
     <target name="explode.guvnor.and.designer" >
         <if>
             <isset property="useBRMS"/>
@@ -340,7 +306,8 @@
                 <unzip src="${install.home}/lib/jbpm-designer-${designer.version}.war" dest="${designer.target}" />
             </else>
         </if>
-        <!--antcall target="filter">
+        <!-- disable until database integration with guvnor 5.5. is fixed  -->
+        <!-- antcall target="filter">
             <param name="source.dir" value="conf/brmsWebs/drools-guvnor/WEB-INF"/>
             <param name="file.name" value="beans.xml"/>
             <param name="dest.dir" value="${guvnor.target}/WEB-INF"/>
@@ -358,7 +325,6 @@
 
         <antcall target="refreshGuvnor" />
 
-        <!-- designer assumes guvnor is bound to localhost .... change this to reflect bind address of jboss server that guvnor is deployed on -->
         <antcall target="filter">
             <param name="source.dir" value="conf/brmsWebs/designer/profiles"/>
             <param name="file.name" value="jbpm.xml"/>
@@ -427,18 +393,37 @@
         </copy>
     </target>
 
-    <target name="deploy.brms.webs" >
-        <fail unless="management.port" message="deploy.brms.webs:  need to pass 'management.port' property" />
-        <jar jarfile="${temp.dir}/${guvnor.name}" basedir="${guvnor.target}" />
-        <jar jarfile="${temp.dir}/${designer.name}" basedir="${designer.target}" />
+    <target name="bounce.jbpm.gwt.console" description="">
+        <antcall target="explode.jbpm.gwt.console" />
+        <antcall target="install.reporting.into.jboss7" />
         <jar jarfile="${temp.dir}/${console.server.name}" basedir="${console.server.target}" />
+        <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
+            <arg value="--connect"/>
+            <arg value="--controller=${ENV.HOSTNAME}:${management.port}"/>
+            <arg value="deploy ${temp.dir}/${console.server.name} --name=${console.server.name} --server-groups=brms-webs-group"/>
+        </exec>
         <jar jarfile="${temp.dir}/${console.name}" basedir="${console.target}" />
-        <antcall target="execute.cli">
-            <param name="cli.source.dir" value="conf/brmsWebs"/>
-            <param name="cli.to.filter.and.execute" value="brmsWebs-config-up.cli"/>
-            <param name="management.port" value="${management.port}"/>
-            <param name="cli.fail.on.error" value="true"/>
-        </antcall>
+        <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
+            <arg value="--connect"/>
+            <arg value="--controller=${ENV.HOSTNAME}:${management.port}"/>
+            <arg value="deploy ${temp.dir}/${console.name} --name=${console.name} --server-groups=brms-webs-group"/>
+        </exec>
+    </target>
+
+    <target name="bounce.guvnor.designer" description="" >
+        <antcall target="explode.guvnor.and.designer" />
+        <jar jarfile="${temp.dir}/${guvnor.name}" basedir="${guvnor.target}" />
+        <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
+            <arg value="--connect"/>
+            <arg value="--controller=${ENV.HOSTNAME}:${management.port}"/>
+            <arg value="deploy ${temp.dir}/${guvnor.name} --name=${guvnor.name} --server-groups=brms-webs-group"/>
+        </exec>
+        <jar jarfile="${temp.dir}/${designer.name}" basedir="${designer.target}" />
+        <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
+            <arg value="--connect"/>
+            <arg value="--controller=${ENV.HOSTNAME}:${management.port}"/>
+            <arg value="deploy ${temp.dir}/${designer.name} --name=${designer.name} --server-groups=brms-webs-group"/>
+        </exec>
     </target>
 
 
@@ -468,8 +453,11 @@
 
     <target name="distro.clean" >
         <delete dir="${temp.dir}" />
-        <delete dir="${install.home}/${guvnor.name}" />
-        <delete dir="${install.home}/${designer.name}" />
+        <delete dir="${guvnor.target}" />
+        <delete dir="${designer.target}" />
+        <delete dir="${console.server.target}" />
+        <delete dir="${console.target}" />
+        <delete dir="${birt.target}" />
     </target>
 
     <target name="configure.jboss.modules" >
@@ -539,60 +527,49 @@
 
     <!--
       pass following parameters to this target :
-        1) refresh.master.jboss (optional)
+        1) refresh.master (optional)
     -->
-    <target name="provision.pfp.core" description="if domain is not already running and/or needs to be refreshed :  -Drefresh.master.jboss=true ">
+    <target name="provision.pfp.core" description="if domain is not already running and/or needs to be refreshed :  -Drefresh.master=true ">
         <condition property="useBRMS">
             <not><isset property="upstream.jbpm5.drools.libs.type" /></not>
         </condition>
-        <antcall target="distro.clean" />
         <if>
-            <equals arg1="${refresh.master.jboss}" arg2="true" />
+            <equals arg1="${refresh.master}" arg2="true" />
             <then>
-                <antcall target="refresh.master.jboss" >
-                    <param name="node.to.stop" value="master"/>
-                    <param name="jboss.domain.base.dir" value="${jboss.domain.base.dir}"/>
-                    <param name="domain.config.file" value="${domain.config.file}"/>
-                </antcall>
+                <antcall target="refresh.master" />
             </then>
         </if>
         <antcall target="process.brms.libs" />
         <antcall target="hornetq-config" />
-        <antcall target="pfp-config" />
-        <antcall target="qpid-config" />
+        <antcall target="execute.cli">
+            <param name="cli.source.dir" value="conf/pfp"/>
+            <param name="cli.to.filter.and.execute" value="pfp-config-up.cli"/>
+            <param name="cli.fail.on.error" value="true"/>
+        </antcall>
         <antcall target="privateServiceTaskRepoDeploy" />
         <antcall target="refreshGuvnor" />
     </target>
 
     <!--
       pass following parameters to this target :
-        1) refresh.master.jboss (optional)
+        1) refresh.master (optional)
     -->
-    <target name="provision.brms.webs" description="if domain is not already running and/or needs to be refreshed :  -Drefresh.master.jboss=true ">
+    <target name="provision.brms.webs" description="if domain is not already running and/or needs to be refreshed :  -Drefresh.master=true ">
         <if>
-            <equals arg1="${refresh.master.jboss}" arg2="true" />
-            <then>
-                <property name="refresh.jboss" value="false" />
-                <antcall target="refresh.master.jboss" >
-                    <param name="node.to.stop" value="master"/>
-                    <param name="jboss.domain.base.dir" value="${jboss.domain.base.dir}"/>
-                    <param name="domain.config.file" value="${domain.config.file}"/>
-                </antcall>
-            </then>
-            <else><property name="refresh.jboss" value="true" /></else>
+            <equals arg1="${refresh.master}" arg2="true" />
+            <then><antcall target="refresh.master" /></then>
         </if>
         <mkdir dir="${install.home}/lib" />
         <condition property="useBRMS">
             <not><isset property="upstream.jbpm5.drools.libs.type" /></not>
         </condition>
-        <antcall target="distro.clean" />
-        <antcall target="explode.guvnor.and.designer" />
-        <antcall target="explode.jbpm.gwt.console" />
-        <antcall target="install.reporting.into.jboss7" />
-        <antcall target="deploy.brms.webs" >
-            <param name="management.port" value="${management.port}"/>
-            <param name="refresh.jboss" value="${refresh.jboss}"/>
+        <antcall target="execute.cli">
+            <param name="cli.source.dir" value="conf/brmsWebs"/>
+            <param name="cli.to.filter.and.execute" value="brmsWebs-config-up.cli"/>
+            <param name="cli.fail.on.error" value="true"/>
         </antcall>
+        <antcall target="bounce.guvnor.designer" />
+        <antcall target="bounce.jbpm.gwt.console" />
     </target>
 
 
