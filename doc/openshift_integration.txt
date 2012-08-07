@@ -1,36 +1,42 @@
 - create an account with the following requirements :
     - gear allocation requirement :  6
     - needs access to "medium" sized gears
+    - userId needs to be unique across all of public openshift (userId will be used as openshift domain name)
 
 
-- define:  brms_openshift_provision.xsd
+- define:  $PFP_HOME/conf/pfp/openshift/pfp_openshift_provision.xsd
+    - allows BLDW lab instructor to create an XML that contains all openshift student userIds and password
+
+- ant provisionOpenshift
+    - properties
+        - openshift.host
+        - pfp.openshift.provision.file.location
+        - pfp.openshift.account.log.dir
     - validate XML, iterate through accounts and spawn new thread for each account
-    - invoke:  provisionOpenshiftAccount(String accountId, String password)
+    - invoke:  provisionOpenshiftAccount(String openShiftUserId, String openShiftPassword)
         - refreshDomain()
         - createBrmsWebsApp()
-            - include postgresql cartridge
         - createPfpCoreApp()
-            - include postgresql cartridge
 
 refreshDomain()
     - NOTE:  only one domain allowed per user account
-    - curl -k -X GET https://openshift.redhat.com/broker/rest/domains --user "rhn-gps-jbride:xxx"
+    - curl -k -X GET https://openshift.redhat.com/broker/rest/domains --user "<openShiftUserId>:<openShiftPassword>"
         - parse for "id"
-    - curl -k -X DELETE https://openshift.redhat.com/broker/rest/domains/jbride --user "rhn-gps-jbride:xxx" --data "force=true"
+    - curl -k -X DELETE https://openshift.redhat.com/broker/rest/domains/jbride --user "<openShiftUserId>:<openShiftPassword>" --data "force=true"
         - Force delete domain.  i.e. delete any applications under this domain
-    - curl -k -X POST https://openshift.redhat.com/broker/rest/domains/ --user "rhn-gps-jbride:xxx" --data "id=pfpBRMS"
+    - curl -k -X POST https://openshift.redhat.com/broker/rest/domains/ --user "<openShiftUserId>:<openShiftPassword>" --data "id=<openShiftUserId>"
         - create a new domain
 
 
 createBrmsWebsApp()
     - create medium size "brmsWebs" app
-        curl -k -X POST https://openshift.redhat.com/broker/rest/domains/pfpBRMS/applications --user "rhn-gps-jbride:xxx" \
+        curl -k -X POST https://openshift.redhat.com/broker/rest/domains/<openShiftUserId>/applications --user "<openShiftUserId>:<openShiftPassword>" \
             --data "name=brmsWebs&cartridge=jbossas-7&scale=false&gear_profile=medium"
         - parse response for:
             git_url
         - write properties to a log file
     - add postgresql cartridge
-        curl -k -X POST https://openshift.redhat.com/broker/rest/domains/pfpBRMS/applications/brmsWebs/cartridges --user "rhn-gps-jbride:xxx" \
+        curl -k -X POST https://openshift.redhat.com/broker/rest/domains/<openShiftUserId>/applications/brmsWebs/cartridges --user "<openShiftUserId>:<openShiftPassword>" \
             --data "cartridge=postgresql-8.4"
         - parse response for:  
             connection_url
