@@ -1,0 +1,27 @@
+- create an account with the following requirements :
+    - manual step
+    - gear allocation requirement :  6
+    - needs access to "medium" sized gears
+
+- define:  brms_openshift_provision.xsd
+    - validate XML, iterate through accounts and spawn new thread for each account
+    - invoke:  provisionOpenshiftAccount(String accountId, String password)
+        - refreshDomain()
+        - createBrmsWebsApp()
+            - include postgresql cartridge
+        - createPfpCoreApp()
+            - include postgresql cartridge
+
+refreshDomain()
+    - NOTE:  only one domain allowed per user account
+    - curl -k -X GET https://openshift.redhat.com/broker/rest/domains --user "rhn-gps-jbride:ratwater1972"
+        - parse for "id"
+    - curl -k -X DELETE https://openshift.redhat.com/broker/rest/domains/jbride --user "rhn-gps-jbride:ratwater1972" --data "force=true"
+        - Force delete domain.  i.e. delete any applications under this domain
+    - curl -k -X POST https://openshift.redhat.com/broker/rest/domains/ --user "rhn-gps-jbride:ratwater1972" --data "id=pfpBRMS"
+        - create a new domain
+
+createBrmsWebsApp()
+    - curl -k -X POST https://openshift.redhat.com/broker/rest/domains/pfpBRMS/applications --user "rhn-gps-jbride:ratwater1972" \
+      --data "name=brmsWebs&cartridge=jbossas-7&scale=false&gear_profile=medium"
+        - provides 1GB ram, 100MB swap & 1GB disk space
