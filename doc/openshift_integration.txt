@@ -1,7 +1,7 @@
 - create an account with the following requirements :
-    - manual step
     - gear allocation requirement :  6
     - needs access to "medium" sized gears
+
 
 - define:  brms_openshift_provision.xsd
     - validate XML, iterate through accounts and spawn new thread for each account
@@ -14,14 +14,27 @@
 
 refreshDomain()
     - NOTE:  only one domain allowed per user account
-    - curl -k -X GET https://openshift.redhat.com/broker/rest/domains --user "rhn-gps-jbride:ratwater1972"
+    - curl -k -X GET https://openshift.redhat.com/broker/rest/domains --user "rhn-gps-jbride:xxx"
         - parse for "id"
-    - curl -k -X DELETE https://openshift.redhat.com/broker/rest/domains/jbride --user "rhn-gps-jbride:ratwater1972" --data "force=true"
+    - curl -k -X DELETE https://openshift.redhat.com/broker/rest/domains/jbride --user "rhn-gps-jbride:xxx" --data "force=true"
         - Force delete domain.  i.e. delete any applications under this domain
-    - curl -k -X POST https://openshift.redhat.com/broker/rest/domains/ --user "rhn-gps-jbride:ratwater1972" --data "id=pfpBRMS"
+    - curl -k -X POST https://openshift.redhat.com/broker/rest/domains/ --user "rhn-gps-jbride:xxx" --data "id=pfpBRMS"
         - create a new domain
 
+
 createBrmsWebsApp()
-    - curl -k -X POST https://openshift.redhat.com/broker/rest/domains/pfpBRMS/applications --user "rhn-gps-jbride:ratwater1972" \
-      --data "name=brmsWebs&cartridge=jbossas-7&scale=false&gear_profile=medium"
-        - provides 1GB ram, 100MB swap & 1GB disk space
+    - create medium size "brmsWebs" app
+        curl -k -X POST https://openshift.redhat.com/broker/rest/domains/pfpBRMS/applications --user "rhn-gps-jbride:xxx" \
+            --data "name=brmsWebs&cartridge=jbossas-7&scale=false&gear_profile=medium"
+        - parse response for:
+            git_url
+        - write properties to a log file
+    - add postgresql cartridge
+        curl -k -X POST https://openshift.redhat.com/broker/rest/domains/pfpBRMS/applications/brmsWebs/cartridges --user "rhn-gps-jbride:xxx" \
+            --data "cartridge=postgresql-8.4"
+        - parse response for:  
+            connection_url
+            username
+            password
+        - write properties to a log file
+    - execute $PFP_HOME/conf/postgresql/processFlowProvision.sql
