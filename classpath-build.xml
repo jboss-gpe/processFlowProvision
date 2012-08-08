@@ -19,6 +19,7 @@
     </condition>
 
     <target name="setClasspath">
+        <antcall target="mkPfpDirs" />
         <if>
             <isset property="useCompiledJBPMLibs"/>
                 <then>
