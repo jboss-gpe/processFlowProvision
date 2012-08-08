@@ -7,7 +7,7 @@
             <jvmarg value="-Xmx64m" />
             <jvmarg value="-Xss128k" />
             <sysproperty key="log4j.configuration" value="file:conf/test/log4j.xml" />
-            <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${org.jboss.processFlow.client.debuggerPort},server=y,suspend=y" />
+            <!--jvmarg value="-Xrunjdwp:transport=dt_socket,address=${org.jboss.processFlow.client.debuggerPort},server=y,suspend=y" / -->
             <classpath refid="sub.classpath"/>
         </java>
     </target>
@@ -20,8 +20,8 @@
             <pathelement location="${subproject.build}"/>
         </path>
 
-        <property name="openshift.cp" refid="sub.classpath" />
-        <echo message="sub.classpath = ${openshift.cp}" /> 
+        <!--property name="openshift.cp" refid="sub.classpath" />
+        <echo message="sub.classpath = ${openshift.cp}" / --> 
 
     </target>
     <target name="openshiftClean" depends="openshiftPrep" >
@@ -29,7 +29,11 @@
     </target>
     <target name="openshiftCompile" depends="openshiftClean" >
         <mkdir dir="${subproject.build}" />
-        <copy file="build.properties" tofile="${subproject.build}/openshift.pfp.properties" overwrite="true" />
+        <copy file="build.properties" tofile="${subproject.build}/openshift.pfp.properties" overwrite="true" >
+            <filterchain><expandproperties/></filterchain>
+        </copy>
+        <copy file="conf/pfp/openshift/openshift_account_details.xsd" todir="${subproject.build}" />
+
         <javac debug="true" srcdir="${subproject.name}/src/main/java" destdir="${subproject.build}" optimize="true" >
             <classpath refid="test.classpath" />
         </javac>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.example.org/openshift_accounts_details" xmlns:tns="http://www.example.org/openshift_accounts_details" elementFormDefault="qualified">
+
+    
+
+
+
+    <element name="openshiftAccounts"
+    	type="tns:openshiftAccountsType">
+    </element>
+
+
+    
+
+    <complexType name="openshiftAccountsType">
+    	<sequence>
+    		<element name="account" type="tns:accountType"
+    			maxOccurs="unbounded" minOccurs="1">
+    		</element>
+    	</sequence>
+    </complexType>
+
+    <complexType name="accountType">
+    	<sequence>
+    		<element name="accountId" type="string" maxOccurs="1" minOccurs="1"></element>
+    		<element name="password" type="string" maxOccurs="1" minOccurs="1"></element>
+    	</sequence>
+    </complexType>
+</schema>

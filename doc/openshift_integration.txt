@@ -4,7 +4,7 @@
     - userId needs to be unique across all of public openshift (userId will be used as openshift domain name)
 
 
-- define:  $PFP_HOME/conf/pfp/openshift/pfp_openshift_provision.xsd
+- define:  $PFP_HOME/conf/pfp/openshift/openshift_account_details.xsd
     - allows BLDW lab instructor to create an XML that contains all openshift student userIds and password
 
 - ant provisionOpenshift
