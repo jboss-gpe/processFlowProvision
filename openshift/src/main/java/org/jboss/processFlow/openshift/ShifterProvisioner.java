@@ -94,25 +94,11 @@ public class ShifterProvisioner {
     private static File accountLogDir;
 
     public static void main(String args[] ) throws Exception{
-    	RegisterBuiltin.register(ResteasyProviderFactory.getInstance());
-        setProps();
-        validateAccountDetails();
-        provisionAccounts();
-    }
-    
-    private static Document createDocument(File fileObj) throws Exception {
-        if(builder == null)
-            builder = factory.newDocumentBuilder();
+        RegisterBuiltin.register(ResteasyProviderFactory.getInstance());
         
-        FileReader fileReader = null;
-        try {
-            fileReader = new FileReader(fileObj);
-            InputSource source = new InputSource(fileReader);
-            return builder.parse(source);
-        } finally {
-            if(fileReader != null)
-                fileReader.close();
-        }
+        getSystemProperties();
+        validateAccountDetailsXmlFile();
+        provisionAccounts();
     }
     
     private static void provisionAccounts() throws Exception {
@@ -129,20 +115,25 @@ public class ShifterProvisioner {
         for(int t=0; t<= accountsList.getLength(); t++){
             Node account = accountsList.item(t);
             if(account != null && account.getNodeType() == Node.ELEMENT_NODE) {
-            	String accountId = null;
-            	String password = null;
+                
+                /*  now parsing openshift accounts
+                 *  will iterate through each account and with each account will spawn a new thread
+                 *  thread is responsible for provisioning that openshift account
+                 */
+                String accountId = null;
+                String password = null;
                 NodeList accountDetailsList = ((Element)account).getChildNodes();
                 for(int y=0; y<=accountDetailsList.getLength(); y++){
-                	Node detail = accountDetailsList.item(y);
-                	if(detail != null && detail.getNodeType() == Node.ELEMENT_NODE){
-                		Element detailElem = (Element)detail;
-                		if(ACCOUNT_ID.equals(detailElem.getNodeName()))
-                			accountId = detailElem.getTextContent();
-                		else if(PASSWORD.equals(detailElem.getNodeName()))
-                			password = detailElem.getTextContent();
-                		else
-                			throw new RuntimeException("provisionAccounts() invalid Element = "+detailElem.getNodeName()+" : in file = "+openshiftAccountDetailsFile);
-                	}
+                    Node detail = accountDetailsList.item(y);
+                    if(detail != null && detail.getNodeType() == Node.ELEMENT_NODE){
+                        Element detailElem = (Element)detail;
+                        if(ACCOUNT_ID.equals(detailElem.getNodeName()))
+                            accountId = detailElem.getTextContent();
+                        else if(PASSWORD.equals(detailElem.getNodeName()))
+                            password = detailElem.getTextContent();
+                        else
+                            throw new RuntimeException("provisionAccounts() invalid Element = "+detailElem.getNodeName()+" : in file = "+openshiftAccountDetailsFile);
+                    }
                 }
                 ProvisionerThread shifterProvisioner = new ProvisionerThread(accountId, password);
                 Thread pThread = new Thread(shifterProvisioner);
@@ -153,116 +144,120 @@ public class ShifterProvisioner {
     
     static class ProvisionerThread implements Runnable {
 
-    	private String accountId;
-    	private String password;
-    	private File accountLog;
-    	private StringBuilder logBuilder = new StringBuilder();
-    	private OpenshiftClient osClient;
-    	private DefaultHttpClient httpClient;
-    	
-		public ProvisionerThread(String accountId, String password){
-			this.accountId = accountId;
-			this.password = password;
-			accountLog = new File(accountLogDir, accountId+".log");
-		}
-		public void run() {
-			logBuilder.append("now provisioning openshift accountId = "+accountId);
-			try {
-				prepConnection();
-				
-				Response.Status sObj = osClient.getDomains();
-				String message = "getDomains() response status = "+sObj.getStatusCode()+" : reason = "+sObj.getReasonPhrase();
-				if(Status.OK ==  sObj)
-					logBuilder.append(message);
-				else
-					throw new RuntimeException(message);
-				
-			}catch(Exception x){
-				throw new RuntimeException(x);
-			}finally{
-				if(httpClient != null)
-					httpClient.getConnectionManager().shutdown();
-				if(accountLog != null){
-					FileOutputStream fStream = null;
-					try {
-						fStream = new FileOutputStream(accountLog);
-						fStream.write(logBuilder.toString().getBytes());
-					}catch(Exception x){
-						x.printStackTrace();
-					}finally {
-						if(fStream != null)
-							try{fStream.close();}catch(Exception x){x.printStackTrace();}
-					}
-					
-				}
-			}
-		}
-    	
-		private void prepConnection() throws Exception {
-			httpClient = new DefaultHttpClient();
-			
-			/* the following prevents this type of exception:  
-			 * 		javax.net.ssl.SSLPeerUnverifiedException: peer not authenticated
-			 * with this, the client does not need a valid public cert to conduct handshake with server
-			 */
-			SSLContext sslContext = SSLContext.getInstance( "SSL" );
-			sslContext.init(null, new TrustManager[] { new X509TrustManager() {
-				public X509Certificate[] getAcceptedIssuers() {
-					System.out.println("getAcceptedIssuers =============");
-					return null;
-				}
-				
-				public void checkClientTrusted(X509Certificate[] certs,
-						String authType) {
-					System.out.println("checkClientTrusted =============");
-				}
-				
-				public void checkServerTrusted(X509Certificate[] certs,
-						String authType) {
-					System.out.println("checkServerTrusted =============");
-				}
-			} }, new SecureRandom());
-			SSLSocketFactory ssf = new SSLSocketFactory(sslContext, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-			ClientConnectionManager ccm = httpClient.getConnectionManager();
-			SchemeRegistry sr = ccm.getSchemeRegistry();
-			sr.register(new Scheme("https", 443, ssf));  
-			
-			//UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(accountId, password);
-			UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("admin", "admin");
-			
-			
-			    HttpGet httpget = new HttpGet(openshiftRestURI+"/domains");
-			    httpget.setHeader("Accept", "application/json");
-			    httpget.addHeader(BasicScheme.authenticate(credentials,"US-ASCII",false));
-
-			    HttpResponse response = httpClient.execute(httpget);
-			    HttpEntity entity = response.getEntity();
-			    log.info("response = "+response);
-			    InputStream content = (InputStream)entity.getContent();
-                BufferedReader in =  new BufferedReader (new InputStreamReader (content));
+        private String accountId;
+        private String password;
+        private File accountLog;
+        private StringBuilder logBuilder = new StringBuilder();
+        private OpenshiftClient osClient;
+        private DefaultHttpClient httpClient;
+        
+        public ProvisionerThread(String accountId, String password){
+            this.accountId = accountId;
+            this.password = password;
+            accountLog = new File(accountLogDir, accountId+".log");
+        }
+        public void run() {
+            logBuilder.append("now provisioning openshift accountId = "+accountId);
+            try {
+                prepConnection();
+                
+                Response.Status sObj = osClient.getDomains();
+                String message = "getDomains() response status = "+sObj.getStatusCode()+" : reason = "+sObj.getReasonPhrase();
+                if(Status.OK ==  sObj)
+                    logBuilder.append(message);
+                else
+                    throw new RuntimeException(message);
+                
+            }catch(Exception x){
+                throw new RuntimeException(x);
+            }finally{
+                if(httpClient != null)
+                    httpClient.getConnectionManager().shutdown();
+                if(accountLog != null){
+                    FileOutputStream fStream = null;
+                    try {
+                        fStream = new FileOutputStream(accountLog);
+                        fStream.write(logBuilder.toString().getBytes());
+                    }catch(Exception x){
+                        x.printStackTrace();
+                    }finally {
+                        if(fStream != null)
+                            try{fStream.close();}catch(Exception x){x.printStackTrace();}
+                    }
                     
+                }
+            }
+        }
+        
+        // Openshift broker uses BASIC authentication ... this function preps http client to support BASIC auth
+        private void prepConnection() throws Exception {
+            httpClient = new DefaultHttpClient();
+            
+            /* the following prevents this type of exception:  
+             *         javax.net.ssl.SSLPeerUnverifiedException: peer not authenticated
+             * with this, the client does not need a valid public cert to conduct handshake with server
+             */
+            SSLContext sslContext = SSLContext.getInstance( "SSL" );
+            sslContext.init(null, new TrustManager[] { new X509TrustManager() {
+                public X509Certificate[] getAcceptedIssuers() {
+                    System.out.println("getAcceptedIssuers =============");
+                    return null;
+                }
+                
+                public void checkClientTrusted(X509Certificate[] certs,
+                        String authType) {
+                    System.out.println("checkClientTrusted =============");
+                }
+                
+                public void checkServerTrusted(X509Certificate[] certs,
+                        String authType) {
+                    System.out.println("checkServerTrusted =============");
+                }
+            } }, new SecureRandom());
+            SSLSocketFactory ssf = new SSLSocketFactory(sslContext, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            ClientConnectionManager ccm = httpClient.getConnectionManager();
+            SchemeRegistry sr = ccm.getSchemeRegistry();
+            sr.register(new Scheme("https", 443, ssf));  
+            
+            //UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(accountId, password);
+            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("admin", "admin");
+            
+            URL urlObj = new URL(openshiftRestURI);
+            AuthScope aScope = new AuthScope(urlObj.getHost(), urlObj.getPort());
+            httpClient.getCredentialsProvider().setCredentials(aScope, credentials);
+            
+            httpClient.addRequestInterceptor(new PreemptiveAuthInterceptor(), 0);
+            ApacheHttpClient4Executor cExecutor = new ApacheHttpClient4Executor(httpClient, new BasicHttpContext());
+            osClient = ProxyFactory.create(OpenshiftClient.class, openshiftRestURI, cExecutor);
+            
+            /*  httpClient mechanism ... not used in favor of using RESTeasy client
+                HttpGet httpget = new HttpGet(openshiftRestURI+"/domains");
+                httpget.setHeader("Accept", "application/json");
+                httpget.addHeader(BasicScheme.authenticate(credentials,"US-ASCII",false));
+
+                HttpResponse response = httpClient.execute(httpget);
+                HttpEntity entity = response.getEntity();
+                InputStream content = (InputStream)entity.getContent();
+                BufferedReader in =  new BufferedReader (new InputStreamReader (content));
                 String line;
                 while ((line = in.readLine()) != null) {
                     System.out.println(line);
-                }
-			
-			
-			URL urlObj = new URL(openshiftRestURI);
-			AuthScope aScope = new AuthScope(urlObj.getHost(), urlObj.getPort());
-			httpClient.getCredentialsProvider().setCredentials(aScope, credentials);
-			
-			httpClient.addRequestInterceptor(new PreemptiveAuthInterceptor(), 0);
-			ApacheHttpClient4Executor cExecutor = new ApacheHttpClient4Executor(httpClient, new BasicHttpContext());
-			osClient = ProxyFactory.create(OpenshiftClient.class, openshiftRestURI, cExecutor);
-		}
+                } */
+        }
     }
     
     
+    /*
+     * ensures that first request to openshift broker includes authentication credentials in header
+     * otherwise, apache commons httpClient will fire off an initial request that does NOT include auth credentials
+     * Not including auth credentials in the first request is per the http specification
+     * however, public openshift is misbehaving such that if auth credentials are not included in a request, the openshift broker fails a returns a 500 Internal Server Error
+     * see :  http://stackoverflow.com/questions/9539141/httpclient-sends-out-two-requests-when-using-basic-auth
+     */
     static class PreemptiveAuthInterceptor implements HttpRequestInterceptor {
 
         public void process(final HttpRequest request, final HttpContext context) throws HttpException, IOException {
             AuthState authState = (AuthState) context.getAttribute(ClientContext.TARGET_AUTH_STATE);
-            request.setHeader("Accept", "application/json");
 
             if (authState.getAuthScheme() == null) {
                 CredentialsProvider credsProvider = (CredentialsProvider) context.getAttribute(ClientContext.CREDS_PROVIDER);
@@ -278,7 +273,7 @@ public class ShifterProvisioner {
 
     }
     
-    private static void validateAccountDetails() throws Exception {
+    private static void validateAccountDetailsXmlFile() throws Exception {
         SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         InputStream xsdStream = null;
         InputStream xmlStream = null;
@@ -303,7 +298,22 @@ public class ShifterProvisioner {
         }
     }
     
-    private static void setProps() {
+    private static Document createDocument(File fileObj) throws Exception {
+        if(builder == null)
+            builder = factory.newDocumentBuilder();
+        
+        FileReader fileReader = null;
+        try {
+            fileReader = new FileReader(fileObj);
+            InputSource source = new InputSource(fileReader);
+            return builder.parse(source);
+        } finally {
+            if(fileReader != null)
+                fileReader.close();
+        }
+    }
+
+    private static void getSystemProperties() {
         InputStream iStream = null;
         Properties props = null;
         try {

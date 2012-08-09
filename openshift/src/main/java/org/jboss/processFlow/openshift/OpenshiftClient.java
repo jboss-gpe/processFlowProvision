@@ -8,10 +8,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 public interface OpenshiftClient {
-	
-	@GET
-	@Path("domains")
-	@Produces("applications/json")
-	Response.Status getDomains();
+    
+    @GET
+    @Path("domains")
+    @Produces("application/json")
+    Response.Status getDomains();
 
 }
