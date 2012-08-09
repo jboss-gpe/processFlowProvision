@@ -51,6 +51,7 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.AuthCache;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.conn.ClientConnectionManager;
@@ -68,11 +69,16 @@ import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.log4j.Logger;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import org.jboss.resteasy.client.ClientExecutor;
+import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.ProxyFactory;
 import org.jboss.resteasy.client.core.executors.ApacheHttpClient4Executor;
+import org.jboss.resteasy.spi.MarshalledEntity;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
+import org.jboss.resteasy.util.GenericType;
 import org.jboss.resteasy.plugins.providers.RegisterBuiltin;
 
 public class ShifterProvisioner {
@@ -82,13 +88,35 @@ public class ShifterProvisioner {
     public static final String OPENSHIFT_ACCOUNT_DETAILS_FILE_LOCATION  = "openshift.account.details.file.location";
     public static final String OPENSHIFT_ACCOUNT_PROVISIONING_LOG_DIR  = "openshift.account.provisioning.log.dir";
     public static final String OPENSHIFT_ACCOUNT_DETAILS_SCHEMA_FILE="/openshift_account_details.xsd";
+    public static final String OPENSHIFT_BRMS_WEBS_APP_SIZE="openshift.brmsWebs.app.size";
     public static final String ACCOUNT_ID = "tns:accountId";
     public static final String PASSWORD = "tns:password";
+    
+    public static final String DATA = "data";
+    public static final String LINKS = "links";
+    public static final String ADD_APPLICATION = "ADD_APPLICATION";
+    public static final String LIST_APPLICATIONS = "LIST_APPLICATIONS";
+    public static final String GET = "GET";
+    public static final String DELETE = "DELETE";
+    public static final String HREF = "href";
+    public static final String START = "START";
+	public static final String GET_DOMAIN = "GET_DOMAIN";
+	public static final String DELETE_DOMAIN = "DELETE_DOMAIN";
+	public static final String CREATE_DOMAIN = "CREATE_DOMAIN";
+	public static final String BRMS_WEBS = "brmsWebs";
+	public static final String MEDIUM = "medium";
+	public static final String SMALL = "small";
+	public static final String CREATE_BRMS_WEBS_APP = "CREATE_BRMS_WEBS_APP";
+	public static final String CREATE_PFP_CORE = "CREATE_PFP_CORE";
+	public static final String JBOSSAS7 = "jbossas-7";
+
+
 
     private static Logger log = Logger.getLogger("ShifterProvisioner"); 
     private static String openshiftRestURI;
     private static String openshiftAccountDetailsFile;
     private static String openshiftAccountProvisioningLogDir;
+    private static String openshiftBrmsWebsAppSize = SMALL;
     private static DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     private static DocumentBuilder builder;
     private static File accountLogDir;
@@ -150,24 +178,22 @@ public class ShifterProvisioner {
         private StringBuilder logBuilder = new StringBuilder();
         private OpenshiftClient osClient;
         private DefaultHttpClient httpClient;
+        private ObjectMapper jsonMapper;
+        private String body = null;
         
         public ProvisionerThread(String accountId, String password){
             this.accountId = accountId;
             this.password = password;
             accountLog = new File(accountLogDir, accountId+".log");
+            jsonMapper = new ObjectMapper();
         }
         public void run() {
-            logBuilder.append("now provisioning openshift accountId = "+accountId);
+            logBuilder.append(START+" :  now provisioning openshift accountId = "+accountId);
             try {
                 prepConnection();
-                
-                Response.Status sObj = osClient.getDomains();
-                String message = "getDomains() response status = "+sObj.getStatusCode()+" : reason = "+sObj.getReasonPhrase();
-                if(Status.OK ==  sObj)
-                    logBuilder.append(message);
-                else
-                    throw new RuntimeException(message);
-                
+                prepRESTeasy();
+                refreshDomain();
+                createBrmsWebsApp();
             }catch(Exception x){
                 throw new RuntimeException(x);
             }finally{
@@ -187,6 +213,72 @@ public class ShifterProvisioner {
                     
                 }
             }
+        }
+        
+        private void createBrmsWebsApp() throws Exception {
+        	ClientResponse<?> cResponse = osClient.createApp(accountId, BRMS_WEBS, JBOSSAS7, "false", openshiftBrmsWebsAppSize);
+        	consumeEntityAndCheckResponse(CREATE_BRMS_WEBS_APP, cResponse);
+        }
+        private void refreshDomain() throws Exception {
+        	
+        	// 1)  get any existing openshift domains for this account
+        	ClientResponse<?> cResponse = osClient.getDomains();
+        	consumeEntityAndCheckResponse(GET_DOMAIN, cResponse);
+        	
+        	JsonNode rootNode = jsonMapper.readValue(body, JsonNode.class);
+        	String deleteDomainHref = rootNode.path(DATA).path(0).path(LINKS).path(DELETE).path(HREF).getTextValue();
+        	if(deleteDomainHref == null){
+        		logBuilder.append("\n\n"+DELETE_DOMAIN+": refreshDomain() no pre-existing domain found");
+        	}else {
+        		// 2)  this is an existing openshift domain.  delete the domain along with any apps
+        		HttpDelete httpRequest = new HttpDelete(deleteDomainHref+"?force=true");
+        		httpRequest.setHeader("Accept", "*/*");
+        		HttpResponse dResponse = httpClient.execute(httpRequest);
+        		checkResponse(DELETE_DOMAIN, dResponse);
+        	}
+        	
+        	// 3) create a new domain using the openshift accountId (which should be unique)
+        	cResponse = osClient.createDomain(accountId);
+        	consumeEntityAndCheckResponse(CREATE_DOMAIN, cResponse);
+        }
+        private void checkResponse(String eventName, HttpResponse response) throws Exception {
+        	int status = response.getStatusLine().getStatusCode();
+        	StringBuilder messageBuilder = new StringBuilder("\n\n"+eventName+" : response status = "+status+" : phrase = "+response.getStatusLine().getReasonPhrase());
+        	if(status > 204){
+        		HttpEntity entity = null;
+        		InputStream content = null;
+        		try {
+        			entity = response.getEntity();
+        			if(entity != null){	
+        				content = (InputStream)entity.getContent();
+        				BufferedReader in =  new BufferedReader (new InputStreamReader (content));
+        				String line;
+        				messageBuilder.append("\n");
+        				while ((line = in.readLine()) != null) {
+        					messageBuilder.append(line);
+        				}
+        			}
+        		}finally {
+        			if(content != null){ content.close(); }
+        		}
+            	logBuilder.append(messageBuilder.toString());
+        		throw new RuntimeException(messageBuilder.toString());
+        	}else {
+        		logBuilder.append(messageBuilder.toString());
+        	}
+        }
+        private void consumeEntityAndCheckResponse(String eventName, ClientResponse response) {
+        	int status = response.getStatus();
+        	MarshalledEntity<String> mBody = (MarshalledEntity<String>) response.getEntity(new GenericType<MarshalledEntity<String>>(){});
+        	body = mBody.getEntity();
+        	StringBuilder messageBuilder = new StringBuilder("\n\n"+eventName+" : response status = "+status);
+        	if(status > 204) {
+        		messageBuilder.append("\n"+body);
+        		logBuilder.append(messageBuilder.toString());
+        		throw new RuntimeException(messageBuilder.toString());
+        	}else {
+        		logBuilder.append(messageBuilder.toString());
+        	}
         }
         
         // Openshift broker uses BASIC authentication ... this function preps http client to support BASIC auth
@@ -219,32 +311,25 @@ public class ShifterProvisioner {
             SchemeRegistry sr = ccm.getSchemeRegistry();
             sr.register(new Scheme("https", 443, ssf));  
             
-            //UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(accountId, password);
-            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("admin", "admin");
+            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(accountId, password);
+            /*  httpClient mechanism ... not used in favor of using RESTeasy client
+                HttpGet httpget = new HttpGet(openshiftRestURI+"/domains");
+                httpget.setHeader("Accept", "application/json");
+                httpget.addHeader(BasicScheme.authenticate(credentials,"US-ASCII",false));
+             */
             
             URL urlObj = new URL(openshiftRestURI);
             AuthScope aScope = new AuthScope(urlObj.getHost(), urlObj.getPort());
             httpClient.getCredentialsProvider().setCredentials(aScope, credentials);
             
             httpClient.addRequestInterceptor(new PreemptiveAuthInterceptor(), 0);
-            ApacheHttpClient4Executor cExecutor = new ApacheHttpClient4Executor(httpClient, new BasicHttpContext());
-            osClient = ProxyFactory.create(OpenshiftClient.class, openshiftRestURI, cExecutor);
-            
-            /*  httpClient mechanism ... not used in favor of using RESTeasy client
-                HttpGet httpget = new HttpGet(openshiftRestURI+"/domains");
-                httpget.setHeader("Accept", "application/json");
-                httpget.addHeader(BasicScheme.authenticate(credentials,"US-ASCII",false));
-
-                HttpResponse response = httpClient.execute(httpget);
-                HttpEntity entity = response.getEntity();
-                InputStream content = (InputStream)entity.getContent();
-                BufferedReader in =  new BufferedReader (new InputStreamReader (content));
-                String line;
-                while ((line = in.readLine()) != null) {
-                    System.out.println(line);
-                } */
+        }
+        private void prepRESTeasy() {
+        	ApacheHttpClient4Executor cExecutor = new ApacheHttpClient4Executor(httpClient, new BasicHttpContext());
+        	osClient = ProxyFactory.create(OpenshiftClient.class, openshiftRestURI, cExecutor);
         }
     }
+    
     
     
     /*
@@ -339,11 +424,15 @@ public class ShifterProvisioner {
         if(props.getProperty(OPENSHIFT_ACCOUNT_PROVISIONING_LOG_DIR) == null)
             throw new RuntimeException("must pass system property : "+OPENSHIFT_ACCOUNT_PROVISIONING_LOG_DIR);
         openshiftAccountProvisioningLogDir = props.getProperty(OPENSHIFT_ACCOUNT_PROVISIONING_LOG_DIR);
+        
+        if(props.getProperty(OPENSHIFT_BRMS_WEBS_APP_SIZE) != null)
+        	openshiftBrmsWebsAppSize = props.getProperty(OPENSHIFT_BRMS_WEBS_APP_SIZE);
 
         StringBuilder sBuilder = new StringBuilder("setProps() props = ");
         sBuilder.append("\n\topenshiftRestURI = "+openshiftRestURI);
         sBuilder.append("\n\tpenshiftAccountDetailsFile = "+openshiftAccountDetailsFile);
         sBuilder.append("\n\topenshiftAccountProvisioningLogDir = "+openshiftAccountProvisioningLogDir);
+        sBuilder.append("\n\topenshift.brmsWebs.app.size = "+openshiftBrmsWebsAppSize);
         log.info(sBuilder.toString());
     }
 }

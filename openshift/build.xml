@@ -7,7 +7,7 @@
             <jvmarg value="-Xmx64m" />
             <jvmarg value="-Xss128k" />
             <sysproperty key="log4j.configuration" value="file:conf/test/log4j.xml" />
-            <!--jvmarg value="-Xrunjdwp:transport=dt_socket,address=${org.jboss.processFlow.client.debuggerPort},server=y,suspend=y" / -->
+            <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${org.jboss.processFlow.client.debuggerPort},server=y,suspend=n" />
             <classpath refid="sub.classpath"/>
         </java>
     </target>
