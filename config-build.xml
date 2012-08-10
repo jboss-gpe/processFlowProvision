@@ -1,4 +1,4 @@
-<project name="processFlowProvision-distro" xmlns:artifact="antlib:org.apache.maven.artifact.ant" default="provision.pfp.core" >
+<project name="processFlowProvision-distro" xmlns:artifact="antlib:org.apache.maven.artifact.ant" default="local.provision.pfp.core" >
 
     <property environment="ENV"/>
     <property file="build.properties" />
@@ -18,7 +18,7 @@
     <!-- even though this is in build.xml ... need it here as well for distro -->
     <import file="privateServiceTaskRepo/build.xml"/>
 
-    <target name="stop.master" description="default behavior is to shutdown all jboss servers via management port of 9999" >
+    <target name="local.stop.master" description="default behavior is to shutdown all jboss servers via management port of 9999" >
         <if>
             <not><isset property="management.port"/></not>
             <then><property name="management.port" value="9999" /></then>
@@ -30,7 +30,7 @@
            <arg value="master"/>
         </exec>
     </target>
-    <target name="start.master" description="">
+    <target name="local.start.master" description="">
         <exec executable="bash" failonerror="true" dir="." >
            <arg value="bin/jboss_eap.sh"/>
            <arg value="start"/>
@@ -39,24 +39,24 @@
         </exec>
     </target>
     <target name="refresh.master" >
-        <echo message="***** refresh.master :  will now call the following target :  stop.master, clone.jboss, and start.master" />
+        <echo message="***** refresh.master :  will now call the following target :  local.stop.master, clone.jboss, and local.start.master" />
         <antcall target="distro.clean" />
-        <antcall target="stop.master"  />
+        <antcall target="local.stop.master"  />
         <antcall target="clone.jboss" />
-        <antcall target="deploy.local.jboss.modules" />
-        <antcall target="start.master"  />
+        <antcall target="local.deploy.jboss.modules" />
+        <antcall target="local.start.master"  />
         <antcall target="execute.cli">
                 <param name="cli.source.dir" value="conf/jboss/"/>
                 <param name="cli.to.filter.and.execute" value="jboss-config.cli"/>
         </antcall>
     </target>
-    <target name="bounce.all.servers" description="">
+    <target name="local.bounce.all.servers" description="">
         <if>
             <not><isset property="management.port"/></not>
             <then><property name="management.port" value="9999" /></then>
         </if>
-        <antcall target="stop.master"  />
-        <antcall target="start.master" />
+        <antcall target="local.stop.master"  />
+        <antcall target="local.start.master" />
         <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
             <arg value="--connect"/>
             <arg value="--controller=${ENV.HOSTNAME}:${management.port}"/>
@@ -126,7 +126,7 @@
             <arg value="--file=${temp.dir}/${cli.to.filter.and.execute}"/>
         </exec>
     </target>
-    <target name="eap.cli.gui" depends="" description="">
+    <target name="local.eap.cli.gui" depends="" description="">
         <if>
             <not><isset property="management.port"/></not>
             <then><property name="management.port" value="9999" /></then>
@@ -137,7 +137,7 @@
             <arg value="--gui"/>
         </exec>
     </target>
-    <target name="print.eap.cli" depends="" description="">
+    <target name="local.print.eap.cli" depends="" description="">
         <echo message="cli command = ${jboss.home}/bin/jboss-cli.sh --connect --controller=${ENV.HOSTNAME}:${management.port}" />
     </target>
 
@@ -393,7 +393,7 @@
         </copy>
     </target>
 
-    <target name="bounce.jbpm.gwt.console" description="">
+    <target name="local.bounce.jbpm.gwt.console" description="">
         <antcall target="explode.jbpm.gwt.console" />
         <antcall target="install.reporting.into.jboss7" />
         <jar jarfile="${temp.dir}/${console.server.name}" basedir="${console.server.target}" />
@@ -410,7 +410,7 @@
         </exec>
     </target>
 
-    <target name="bounce.guvnor.designer" description="" >
+    <target name="local.bounce.guvnor.designer" description="" >
         <antcall target="explode.guvnor.and.designer" />
         <jar jarfile="${temp.dir}/${guvnor.name}" basedir="${guvnor.target}" />
         <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
@@ -438,7 +438,7 @@
     </target>
 
   <!-- Install Eclipse plugins -->
-  <target name="install.drools-eclipse.into.eclipse" description="">
+  <target name="local.install.drools-eclipse.into.eclipse" description="">
     <get src="${drools.eclipse.url}" dest="${install.home}/lib/org.drools.updatesite-${drools.eclipse.version}-assembly.zip"  skipexisting="true" />
     <mkdir dir="${eclipse.home}/drools-update-site"/>
     <unzip src="${install.home}/lib/org.drools.updatesite-${drools.eclipse.version}-assembly.zip" dest="${eclipse.home}/drools-update-site" />
@@ -502,16 +502,16 @@
         </copy>
         <if>
             <isset property="useCompiledJBPMLibs"/>
-            <then><antcall target="copy.community.jbpm.deps.to.modules" /></then>
+            <then><antcall target="local.copy.community.jbpm.deps.to.modules" /></then>
         </if>
         <copy todir="${temp.jboss.dir}/modules/org/jboss/processFlow/main" >
             <fileset dir="${temp.pfp.lib.dir}" />
         </copy>
     </target> 
-    <target name="deploy.local.jboss.modules" >
+    <target name="local.deploy.jboss.modules" >
         <antcall target="configure.jboss.modules" />
-        <copy todir="${temp.jboss.dir}/modules" >
-            <fileset dir="${jboss.home}/modules" />
+        <copy todir="${jboss.home}/modules" overwrite="true" >
+            <fileset dir="${temp.jboss.dir}/modules" />
         </copy>
     </target>
 
@@ -534,7 +534,7 @@
       pass following parameters to this target :
         1) refresh.master (optional)
     -->
-    <target name="provision.pfp.core" description="if domain is not already running and/or needs to be refreshed :  -Drefresh.master=true ">
+    <target name="local.provision.pfp.core" description="if domain is not already running and/or needs to be refreshed :  -Drefresh.master=true ">
         <condition property="useBRMS">
             <not><isset property="upstream.jbpm5.drools.libs.type" /></not>
         </condition>
@@ -559,7 +559,7 @@
       pass following parameters to this target :
         1) refresh.master (optional)
     -->
-    <target name="provision.brms.webs" description="if domain is not already running and/or needs to be refreshed :  -Drefresh.master=true ">
+    <target name="local.provision.brms.webs" description="if domain is not already running and/or needs to be refreshed :  -Drefresh.master=true ">
         <if>
             <equals arg1="${refresh.master}" arg2="true" />
             <then><antcall target="refresh.master" /></then>
@@ -573,8 +573,8 @@
             <param name="cli.to.filter.and.execute" value="brmsWebs-config-up.cli"/>
             <param name="cli.fail.on.error" value="true"/>
         </antcall>
-        <antcall target="bounce.guvnor.designer" />
-        <antcall target="bounce.jbpm.gwt.console" />
+        <antcall target="local.bounce.guvnor.designer" />
+        <antcall target="local.bounce.jbpm.gwt.console" />
     </target>
 
 

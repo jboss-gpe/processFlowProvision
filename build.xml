@@ -13,7 +13,7 @@
     <import file="pfpServicesTest/build.xml"/>
     <import file="openshift/build.xml"/>
     
-    <target name="clean" description="" >
+    <target name="pfp.clean" description="" >
         <delete dir="${guvnor_repo_location}" />
         <delete dir="interfaces/${build.dir}" />
         <delete dir="common/${build.dir}" />
@@ -47,7 +47,7 @@
         </copy>
     </target>
 
-    <target name="distro" depends="all" description="" >
+    <target name="pfp.distro" depends="all" description="" >
 
         <property name="distro.name" value="processFlow-bin-${brms.major.version}-${brms.minor.version}" />
 
@@ -95,8 +95,8 @@
         <antcall target="download.birt.as7" />
     </target>
 
-    <target name="copy.community.jbpm.deps.to.modules" >
-        <copy toDir="${jboss.home}/modules/org/jbpm/main" overwrite="true" >
+    <target name="local.copy.community.jbpm.deps.to.modules" >
+        <copy toDir="${temp.jboss.dir}/modules/org/jbpm/main" overwrite="true" >
             <fileset dir="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-shared/target/" >
                 <include name="jbpm-gwt-shared-${jBPM.version}.jar" />
             </fileset>
@@ -129,7 +129,7 @@
         <mkdir dir="${temp.pfp.services.dir}" />
     </target>
 
-    <target name="compile.pfp" description="" >
+    <target name="pfp.compile" description="" >
         <antcall target="setClasspath" />
         <antcall target="interfaces" />
         <antcall target="common" />
@@ -140,13 +140,13 @@
     </target>
 
     <target name="all" >
-        <antcall target="clean" />
+        <antcall target="local.clean" />
         <mkdir dir="${install.home}/lib" />
         <antcall target="compile.pfp" />
-        <antcall target="provision.brms.webs">
+        <antcall target="local.provision.brms.webs">
             <param name="refresh.master" value="true"/>
         </antcall>
-        <antcall target="provision.pfp.core">
+        <antcall target="local.provision.pfp.core">
             <param name="refresh.master" value="false"/>
         </antcall>
         <antcall target="create.temp.client.dir" />

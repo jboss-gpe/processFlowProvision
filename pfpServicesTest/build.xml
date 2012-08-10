@@ -1,7 +1,7 @@
-<project name="pfpServicesTest" default="simpleTaskTest" >
+<project name="pfpServicesTest" default="test.standaloneTask" >
 
 
-    <target name="webTaskTest" depends="pfpServicesTestClean" description="" >
+    <target name="test.webTask" depends="pfpServicesTestClean" description="" >
         <mkdir dir="${subproject.build}/webapp/WEB-INF/classes" />
         <antcall target="filter">
             <param name="source.dir" value="${subproject.name}/src/main/webapp"/>
@@ -26,7 +26,7 @@
     </target>
 
 
-    <target name="standaloneTaskTest" depends="standaloneCompile" description="">
+    <target name="test.standaloneTask" depends="standaloneCompile" description="">
         <java fork="yes" classname="org.jboss.processFlow.test.SimpleTaskClient" failonerror="true">
             <jvmarg value="-Xms16m" />
             <jvmarg value="-Xmx64m" />

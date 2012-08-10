@@ -1,7 +1,7 @@
-<project name="openshift" default="shifterProvisioner" >
+<project name="openshift" default="openshift.shifterProvisioner" >
 
 
-    <target name="shifterProvisioner" depends="openshiftCompile" description="">
+    <target name="openshift.shifterProvisioner" depends="openshiftCompile" description="">
         <java fork="yes" classname="org.jboss.processFlow.openshift.ShifterProvisioner" failonerror="true">
             <jvmarg value="-Xms16m" />
             <jvmarg value="-Xmx64m" />

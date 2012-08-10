@@ -333,7 +333,7 @@ POST INSTALL ADMINISTRATION
             -- if interested in using the legacy Drools Flow plugin for eclipse (rather than the new BPMN2 editor from codehoop) , execute the following : 
                 -- ensure that the 'eclipse.home' property is set correctly in $JBOSS_PROJECTS/processFlowProvision/build.properties
                 -- (as jboss) cd $JBOSS_PROJECTS/processFlowProvision
-                -- ant install.drools-eclipse.into.eclipse  (note:  this will install both jbpm5 and guvnor plugins into eclipse)
+                -- ant local.install.drools-eclipse.into.eclipse  (note:  this will install both jbpm5 and guvnor plugins into eclipse)
 
         -- Eclipse Guvnor Tools (EGT)
             -- the Eclipse Guvnor Tools can be used with either the BPMN2 Visual Editor or the legacy Drools-Flow Eclipse plugin
@@ -342,7 +342,7 @@ POST INSTALL ADMINISTRATION
             -- if installing the Eclipse Guvnor Tools, execute the following :
                 --  (as jboss) cd $JBOSS_PROJECTS/processFlowProvision
                 -- ensure that the 'eclipse.home' property is set correctly in $JBOSS_PROJECTS/processFlowProvision/build.properties
-                -- ant install.drools-eclipse.into.eclipse  (note:  this will install both jbpm5 and guvnor plugins into eclipse)
+                -- ant local.install.drools-eclipse.into.eclipse  (note:  this will install both jbpm5 and guvnor plugins into eclipse)
                 
         -- To install Drools-Flow and Guvnor plugins manually on a Windows Eclipse client
             -- Download the following to a temporary directory :
@@ -546,7 +546,7 @@ in general, what does the PFP ant script do ???
 remote client examples
     - one of the challenges for new developers and admins attempting to leverage Process Flow Provision is invoking its EJB services
     - the functionality in $PFP_HOME/pfpServicesTest attempts to reduce this learning curve by providing the following examples :
-        1)  standaloneTaskTest
+        1)  test.standaloneTask
                 - contains an example of conducting a lookup of the PFP kSessionService and taskService from a standalone remote EJB client 
                 - implements the 'EJB client API' approach documented here:  https://docs.jboss.org/author/display/AS71/EJB+invocations+from+a+remote+client+using+JNDI
                 - procedure
@@ -554,8 +554,8 @@ remote client examples
                         - tail -f $JBOSS_HOME/domain-pfp/servers/pfp-core/log/server.log
                     - command terminal 2 :  
                         - cd $PFP_HOME
-                        - ant standaloneTaskTest
-        2)  webTaskTest
+                        - ant test.standaloneTask
+        2)  test.webTask
                 - contains an example of conducting a lookup of the PFP kSessionService and taskService from a remote server instance (ie:  web archive)
                 - implements the approach documented here:  https://docs.jboss.org/author/display/AS71/EJB+invocations+from+a+remote+server+instance#
                 - deployment
@@ -573,11 +573,11 @@ remote client examples
                         - tail -f domain-pfp/servers/brms-webs/log/server.log
                     - command terminal #2
                         - cd $PFP_HOME
-                        - ant provision.brms.webs -Drefresh.master=true
-                        - ant webTaskTest 
+                        - ant local.provision.brms.webs -Drefresh.master=true
+                        - ant test.webTask 
                             - should now see the following log statement in terminal #1 :
                                 DEBUG [org.jboss.as.ee.structure.EJBClientDescriptorParsingProcessor] (MSC service thread 1-6) Successfully parsed jboss-ejb-client.xml for deployment unit deployment "pfpServicesTest.war"
-                        - ant provision.pfp.core
+                        - ant local.provision.pfp.core
                         - curl $HOSTNAME:8230/pfpServicesTest/all 
                             - should return:  Great Success!!
                             - in terminal #1, you'll also see various logs regarding claiming and completing a task
