@@ -43,7 +43,7 @@
         <antcall target="distro.clean" />
         <antcall target="stop.master"  />
         <antcall target="clone.jboss" />
-        <antcall target="configure.jboss.modules" />
+        <antcall target="deploy.local.jboss.modules" />
         <antcall target="start.master"  />
         <antcall target="execute.cli">
                 <param name="cli.source.dir" value="conf/jboss/"/>
@@ -461,38 +461,37 @@
     </target>
 
     <target name="configure.jboss.modules" >
-        <!--antcall target="resolve.droolsjbpm.dependencies" / -->
         <antcall target="filter">
             <param name="source.dir" value="conf/jboss/modules"/>
-            <param name="dest.dir" value="${jboss.home}/modules"/>
+            <param name="dest.dir" value="${temp.jboss.dir}/modules"/>
         </antcall>
 
-        <copy file="lib/commons/commons-codec-1.5.jar" todir="${jboss.home}/modules/org/apache/commons/codec/5" /> <!-- GuvnorConnectionUtils needs this version -->
-        <copy file="${postgresql.jdbc.lib.path}" todir="${jboss.home}/modules/org/postgresql/jdbc/main" />
-        <copy file="${mysql.jdbc.lib.path}" todir="${jboss.home}/modules/com/mysql/jdbc/main" />
-        <copy file="${deps.lib.path}/stringtemplate-${version.stringtemplate}.jar" todir="${jboss.home}/modules/org/antlr/stringtemplate/main" />
-        <copy file="${deps.lib.path}/protobuf-java-${version.protobuf}.jar" todir="${jboss.home}/modules/com/google/protobuf/main" />
-        <copy file="${deps.lib.path}/antlr-runtime-${version.antlr}.jar" todir="${jboss.home}/modules/org/antlr/antlr-runtime/main" />
-        <copy file="${deps.lib.path}/ecj-${version.ecj}.jar" todir="${jboss.home}/modules/org/eclipse/jdt/core/compiler/ecj/main" />
-        <copy tofile="${jboss.home}/modules/org/drools/main/drools-compiler-${version.drools}.jar" >
+        <copy file="lib/commons/commons-codec-1.5.jar" todir="${temp.jboss.dir}/modules/org/apache/commons/codec/5" /> <!-- GuvnorConnectionUtils needs this version -->
+        <copy file="${postgresql.jdbc.lib.path}" todir="${temp.jboss.dir}/modules/org/postgresql/jdbc/main" />
+        <copy file="${mysql.jdbc.lib.path}" todir="${temp.jboss.dir}/modules/com/mysql/jdbc/main" />
+        <copy file="${deps.lib.path}/stringtemplate-${version.stringtemplate}.jar" todir="${temp.jboss.dir}/modules/org/antlr/stringtemplate/main" />
+        <copy file="${deps.lib.path}/protobuf-java-${version.protobuf}.jar" todir="${temp.jboss.dir}/modules/com/google/protobuf/main" />
+        <copy file="${deps.lib.path}/antlr-runtime-${version.antlr}.jar" todir="${temp.jboss.dir}/modules/org/antlr/antlr-runtime/main" />
+        <copy file="${deps.lib.path}/ecj-${version.ecj}.jar" todir="${temp.jboss.dir}/modules/org/eclipse/jdt/core/compiler/ecj/main" />
+        <copy tofile="${temp.jboss.dir}/modules/org/drools/main/drools-compiler-${version.drools}.jar" >
             <fileset dir="${deps.lib.path}" ><include name="drools-compiler-*.jar" /></fileset>
         </copy>
-        <copy tofile="${jboss.home}/modules/org/drools/main/drools-core-${version.drools}.jar" >
+        <copy tofile="${temp.jboss.dir}/modules/org/drools/main/drools-core-${version.drools}.jar" >
             <fileset dir="${deps.lib.path}" ><include name="drools-core-*.jar" /></fileset>
         </copy>
-        <copy tofile="${jboss.home}/modules/org/drools/main/drools-persistence-jpa-${version.drools}.jar" >
+        <copy tofile="${temp.jboss.dir}/modules/org/drools/main/drools-persistence-jpa-${version.drools}.jar" >
             <fileset dir="${deps.lib.path}" ><include name="drools-persistence-jpa-*.jar" /></fileset>
         </copy>
-        <copy tofile="${jboss.home}/modules/org/drools/main/knowledge-api-${version.drools}.jar" >
+        <copy tofile="${temp.jboss.dir}/modules/org/drools/main/knowledge-api-${version.drools}.jar" >
             <fileset dir="${deps.lib.path}" ><include name="knowledge-api-*.jar" /></fileset>
         </copy>
-        <copy tofile="${jboss.home}/modules/org/drools/main/knowledge-internal-api-${version.drools}.jar" >
+        <copy tofile="${temp.jboss.dir}/modules/org/drools/main/knowledge-internal-api-${version.drools}.jar" >
             <fileset dir="${deps.lib.path}" ><include name="knowledge-internal-api-*.jar" /></fileset>
         </copy>
-        <copy tofile="${jboss.home}/modules/org/mvel/mvel2/main/mvel2-${version.mvel}.jar" >
+        <copy tofile="${temp.jboss.dir}/modules/org/mvel/mvel2/main/mvel2-${version.mvel}.jar" >
             <fileset dir="${deps.lib.path}" ><include name="mvel2-*.jar" /></fileset>
         </copy>
-        <copy todir="${jboss.home}/modules/org/jbpm/main" >
+        <copy todir="${temp.jboss.dir}/modules/org/jbpm/main" >
             <fileset dir="${jbpm.lib.path}" >
                 <include name="jbpm-*.jar" />
                 <exclude name="jbpm-human-task-hornetq-*.jar" />
@@ -505,10 +504,16 @@
             <isset property="useCompiledJBPMLibs"/>
             <then><antcall target="copy.community.jbpm.deps.to.modules" /></then>
         </if>
-        <copy todir="${jboss.home}/modules/org/jboss/processFlow/main" >
+        <copy todir="${temp.jboss.dir}/modules/org/jboss/processFlow/main" >
             <fileset dir="${temp.pfp.lib.dir}" />
         </copy>
     </target> 
+    <target name="deploy.local.jboss.modules" >
+        <antcall target="configure.jboss.modules" />
+        <copy todir="${temp.jboss.dir}/modules" >
+            <fileset dir="${jboss.home}/modules" />
+        </copy>
+    </target>
 
     <target name="resolve.droolsjbpm.dependencies" >
         <typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant" >

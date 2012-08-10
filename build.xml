@@ -1,6 +1,7 @@
 <project name="processFlowProvision" default="all" >
 
     <import file="config-build.xml" />
+    <import file="openshift-build.xml" />
     <import file="classpath-build.xml" />
     <import file="interfaces/build.xml"/>
     <import file="common/build.xml"/>
@@ -24,10 +25,11 @@
         <delete dir="pfpServicesTest/${build.dir}" />
         <delete dir="openshift/${build.dir}" />
         <delete dir="${install.home}/tmp" />
+        <delete dir="${install.home}/pfp" />
         <delete dir="${temp.client.dir}" />
-        <delete dir="${temp.pfp.services.dir}" />
-        <delete dir="${temp.pfp.lib.dir}" />
         <delete dir="${temp.distro.dir}" />
+        <delete dir="${temp.brmsWebs.dir}" />
+        <delete dir="${temp.jboss.dir}" />
         <delete dir="${distro.clean}" />
     </target>
 
