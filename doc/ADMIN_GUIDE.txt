@@ -543,6 +543,9 @@ in general, what does the PFP ant script do ???
     - creates an AS7 server-group called "pfp-core-group" with appropriate jvm and port settings to support deployment of PFP runtime services
     - provisions an AS7 server called "domain-pfp" that includes PFP's bam, humanTask and knowledgeSession services
 
+
+
+
 remote client examples
     - one of the challenges for new developers and admins attempting to leverage Process Flow Provision is invoking its EJB services
     - the functionality in $PFP_HOME/pfpServicesTest attempts to reduce this learning curve by providing the following examples :
@@ -592,3 +595,35 @@ BIRT reporting
         INFO  [org.jboss.bpm.report.ReportFacade] (MSC service thread 1-14) Output dir: /shared/source/jboss/jbossProjects/jboss/birt/output/
         INFO  [org.jboss.bpm.report.ReportFacade] (MSC service thread 1-14) Report dir: /shared/source/jboss/jbossProjects/jboss/birt/
         INFO  [org.jboss.bpm.report.BirtService] (BirtService-Init) Creating BIRT service in the background
+
+
+openshift provisioning
+  - purpose :
+    - in addition to the automated provisioning of a local EAP6 environment, PFP allows for the automated provisioning of one or more remote openshift accounts
+    - the openshift provisioning functionality offered by PFP will provision each account in parrellel.
+
+  - implementation approach
+    - PFP is a client to one or more remote openshift accounts
+    - PFP uses account information provided in a xml file to provision each of those accounts
+    - PFP does so using the REST API exposed by Openshift as documented here :  
+            http://docs.redhat.com/docs/en-US/OpenShift/2.0/html-single/REST_API_Guide/#chap-API_Guide-Add_Domain
+    - PFP also customizes each EAP6 & postgresql application in each openshift account via ssh and rsync
+    - PFP does not use git to customize openshift accounts as described here :  
+            http://docs.redhat.com/docs/en-US/OpenShift/2.0/html-single/User_Guide/#sect-User_Guide-OpenShift_Web_Interface-Editing_and_Deploying_Applications
+    - the reason why PFP chooses to customize EAP6 & Postgresql applications via ssh and rsync to avoid having git clones of each app on the local filesystem
+    - for instance, if provisioning 30 openshift accounts each with 3 apps, there would need to be 90 git projects on the local filesystem
+
+  - pre-requisites : (applicable to both the public openshift as well as an internal Origin PaaS)
+    1)  create one or more accounts with the following
+        a)  gear allocation requirement per account : 6
+        b)  account needs acces to "medium" sized gears
+        c)  accountId needs to be unique across all of public openshift (accountId will be used as openshift domain name)
+        d)  accountId can not contain any special characters
+
+  - procedure :
+    - cd $PFP_HOME
+    - vi build.properties
+        - familiarize yourself with the properties that begin with a prefix of 'openshift'
+    - create an xml file containing openshift account details
+        - modify value of 'openshift.account.details.file.location' property in $PFP_HOME/build.properties if needed
+    - ant openshift.provision.accounts

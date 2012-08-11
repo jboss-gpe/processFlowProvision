@@ -2,12 +2,14 @@
 
 command=$1
 socketIsOpen=2
-remoteJbossHome=jbossas-7/jbossas-7
 fileSize=0
 
 for var in $@
 do
     case $var in
+        -remoteJbossHome=*)
+            remoteJbossHome=`echo $var | cut -f2 -d\=`
+            ;;
         -localJbossHome=*)
             localJbossHome=`echo $var | cut -f2 -d\=`
             ;;
@@ -65,6 +67,7 @@ stopJboss() {
 
 # Test remote host:port availability (TCP-only as UDP does not reply)
 function checkRemotePort() {
+    echo "checkRemotePort"
     (echo >/dev/tcp/$serverIpAddr/$port) &>/dev/null
     if [ $? -eq 0 ]; then
         echo -en "\n$serverIpAddr:$port is open."
@@ -82,9 +85,13 @@ function getRemoteFileSize() {
     echo -ne "remote file size of $file = $fileSize"
 }
 
+#rsync with recursion, verbosity & compression flags
+function openshiftRsync() {
+    echo -en "rsync() :  rsync -avz $localDir $sshUrl:$remoteDir\n"
+    rsync -avz $localDir $sshUrl:$remoteDir
+}
 
-# what's the problem with using rsync 
-# rsync -avz <deployments directory> <ssh-key of your application>@<application url>:~<application name>/repo/deployments
+
 function copyFileToRemote() {
     getRemoteFileSize
     localFileSize=$(ls -nl $localDir/$file | awk '{print $5}')
@@ -100,6 +107,8 @@ function copyFileToRemote() {
     fi
 }
 
+# ssh -N -L {OPENSHIFT_INTERNAL_IP}:{port}:{OPENSHIFT_INTERNAL_IP}:{port} {UUID}@{appName}-{domain}.rhcloud.com
+# determine ports by :  ssh {UUID}@{appName}-{domain}.rhcloud.com 'rhc-list-ports'
 function createTunnel() {
     echo -en "\nattempting to create ssh tunnel"
     ssh -N -L $serverIpAddr:$port:$serverIpAddr:$port $sshUrl &
@@ -167,10 +176,10 @@ refreshGuvnor() {
 
 
 case "$1" in
-    startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor)
+    startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync)
         $1
         ;;
     *)
-    echo 1>&2 $"Usage: $0 {startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor}"
+    echo 1>&2 $"Usage: $0 {startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync}"
     exit 1
 esac

@@ -1,11 +1,19 @@
-<project name="openshift" default="openshift.shifterProvisioner" >
+<project name="openshift" default="openshift.provision.accounts" >
 
 
-    <target name="openshift.shifterProvisioner" depends="openshiftCompile" description="">
+    <target name="openshift.provision.accounts" depends="openshiftCompile" description="">
         <java fork="yes" classname="org.jboss.processFlow.openshift.ShifterProvisioner" failonerror="true">
             <jvmarg value="-Xms16m" />
             <jvmarg value="-Xmx64m" />
             <jvmarg value="-Xss128k" />
+            <sysproperty key="log4j.configuration" value="file:conf/test/log4j.xml" />
+            <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${org.jboss.processFlow.client.debuggerPort},server=y,suspend=n" />
+            <classpath refid="sub.classpath"/>
+        </java>
+    </target>
+    <target name="openshift.json.parser" depends="openshiftCompile" description="">
+        <copy file="${json.file.dir}/${json.file}" todir="${subproject.build}" />
+        <java fork="yes" classname="org.jboss.processFlow.openshift.JsonParser" failonerror="true">
             <sysproperty key="log4j.configuration" value="file:conf/test/log4j.xml" />
             <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${org.jboss.processFlow.client.debuggerPort},server=y,suspend=n" />
             <classpath refid="sub.classpath"/>

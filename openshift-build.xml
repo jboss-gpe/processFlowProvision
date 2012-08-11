@@ -1,5 +1,13 @@
 <project name="pfp-openshift" >
 
+    <target name="openshift.provision.pfp.core" description="" >
+       <antcall target="openshift.refresh.jboss" >
+            <param name="server.ip.address" value="${openshift.pfpCore.internal.ip}"/>
+            <param name="management.port" value="${openshift.pfpCore.management.port}"/>
+            <param name="ssh.url" value="${openshift.pfpCore.ssh.url}"/>
+        </antcall>
+    </target>
+
     <target name="openshift.provision.brms.webs" description="" >
         <mkdir dir="${install.home}/lib" />
         <antcall target="distro.clean" />
@@ -25,25 +33,24 @@
             <param name="management.port" value="${brms.webs.management.port}"/>
             <param name="cli.fail.on.error" value="true"/>
         </antcall>
-
     </target>
 
-    <target name="os.refresh.jboss" >
+    <target name="openshift.refresh.jboss" >
         <fail unless="server.ip.address" message="refresh.jboss:  need to pass 'server.ip.address' property" />
         <fail unless="management.port" message="refresh.jboss:  need to pass 'management.port' property" />
         <fail unless="ssh.url" message="refresh.jboss:  need to pass 'ssh.url' property" />
         <echo message="***** refresh.jboss :  will now call the following target :  stop.jboss, start.jboss" />
-        <antcall target="os.stop.jboss" >
+        <antcall target="openshift.stop.jboss" >
             <param name="server.ip.address" value="${server.ip.address}"/>
             <param name="management.port" value="${management.port}"/>
             <param name="ssh.url" value="${ssh.url}"/>
         </antcall>
-        <antcall target="os.start.jboss" >
+        <antcall target="openshift.start.jboss" >
             <param name="ssh.url" value="${ssh.url}"/>
         </antcall>
     </target>
 
-    <target name="os.stop.jboss" >
+    <target name="openshift.stop.jboss" >
         <fail unless="management.port" message="stop.jboss:  need to pass 'management.port' property" />
         <fail unless="ssh.url" message="stop.jboss:  need to pass 'ssh.url' property" />
         <if>    
@@ -61,15 +68,16 @@
     </target>
 
 
-    <target name="os.start.jboss" >
+    <target name="openshift.start.jboss" >
         <fail unless="ssh.url" message="start.jboss:  need to pass 'ssh.url' property" />
         <exec executable="bin/openshift.sh" failonerror="true" >
             <arg value="startJboss"/>
+            <arg value="-remoteJbossHome=${openshift.remote.jboss.home}"/>
             <arg value="-sshUrl=${ssh.url}"/>
         </exec> 
     </target>
 
-    <target name="os.deploy.brms.webs" >
+    <target name="openshift.deploy.brms.webs" >
         <fail unless="ssh.url" message="os.deploy.brms.webs:  need to pass 'ssh.url' property" />
         <fail unless="remote.deployments.dir" message="os.deploy.brms.webs:  need to pass 'remote.deployments.dir' property" />
         <antcall target="create.brms.webs" />
@@ -90,7 +98,7 @@
            <arg value="-remoteDir=${remote.deployments.dir}"/>
         </exec> 
     </target>
-    <target name="os.refreshGuvnor" >
+    <target name="openshift.refreshGuvnor" >
         <fail unless="ssh.url" message="os.refreshGuvnor:  need to pass 'ssh.url' property" />
         <fail unless="os.data.dir" message="os.refreshGuvnor:  need to pass 'os.data.dir' property" />
         <antcall target="filter">
@@ -107,20 +115,22 @@
 
     </target>
 
-    <target name="openshift.provision.brmsWebs.db" description="">
-        <antcall target="filter">
-            <param name="source.dir" value="conf/${jdbc.module.name}"/>
-            <param name="file.name" value="processFlowProvision.sql"/>
-            <param name="dest.dir" value="target/tmp"/>
-        </antcall>
+    <target name="openshift.deploy.jboss.modules" >
+        <antcall target="configure.jboss.modules" />
+        <exec executable="bash" failonerror="true" dir="." >
+           <arg value="bin/openshift.sh"/>
+           <arg value="openshiftRsync"/>
+           <arg value="-ssh.url=${openshift.pfpCore.ssh.url}"/>
+           <arg value="-localDir=${install.home}/jboss/modules" />
+           <arg value="-remoteDir=app-root/runtime/repo/.openshift/config" />
+        </exec> 
+    </target>
+
+    <target name="openshift.provision.db" description="">
         <if>    
             <equals arg1="${jdbc.module.name}" arg2="postgresql" />
-            <then>  
-                <property name="command" value="executePostgresqlScript" />
-            </then> 
-            <else>  
-                <property name="command" value="executeMysqlScript" />
-            </else> 
+            <then><property name="command" value="executePostgresqlScript" /></then>
+            <else><property name="command" value="executeMysqlScript" /></else>
         </if>   
         <exec executable="bash" failonerror="true" dir="." >
            <arg value="bin/openshift.sh"/>
@@ -130,7 +140,7 @@
            <arg value="-sshUrl=${brmsWebs.db.ssh.url}"/>
            <arg value="-user=${brmsWebs.db.root.user}"/>
            <arg value="-password=${brmsWebs.db.root.password}"/>
-           <arg value="-localDir=target/tmp" />
+           <arg value="-localDir=conf/postgresql" />
            <arg value="-file=processFlowProvision.sql" />
            <arg value="-remoteDir=/tmp" />
         </exec> 

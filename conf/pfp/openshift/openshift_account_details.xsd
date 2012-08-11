@@ -22,8 +22,13 @@
 
     <complexType name="accountType">
     	<sequence>
-    		<element name="accountId" type="string" maxOccurs="1" minOccurs="1"></element>
-    		<element name="password" type="string" maxOccurs="1" minOccurs="1"></element>
+    		<element name="accountId" type="string" maxOccurs="1"
+    			minOccurs="1">
+    		</element>
+    		<element name="password" type="string" maxOccurs="1"
+    			minOccurs="1">
+    		</element>
+    		<element name="domainId" type="string" maxOccurs="1" minOccurs="1"></element>
     	</sequence>
     </complexType>
 </schema>

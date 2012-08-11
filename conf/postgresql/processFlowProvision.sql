@@ -18,8 +18,3 @@ alter user jbpm_bam with password 'jbpm_bam';
 create user guvnor with password 'guvnor';
 grant all privileges on database guvnor to guvnor;
 alter user guvnor with password 'guvnor';
-
--- esb database
-create user esb with password 'esb';
-grant all privileges on database esb to esb;
-alter user esb with password 'esb';

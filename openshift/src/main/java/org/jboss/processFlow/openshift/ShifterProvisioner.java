@@ -64,6 +64,7 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.SingleClientConnManager;
 import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
@@ -91,6 +92,7 @@ public class ShifterProvisioner {
     public static final String OPENSHIFT_BRMS_WEBS_APP_SIZE="openshift.brmsWebs.app.size";
     public static final String ACCOUNT_ID = "tns:accountId";
     public static final String PASSWORD = "tns:password";
+    public static final String DOMAIN_ID = "tns:domainId";
     
     public static final String DATA = "data";
     public static final String LINKS = "links";
@@ -100,15 +102,21 @@ public class ShifterProvisioner {
     public static final String DELETE = "DELETE";
     public static final String HREF = "href";
     public static final String START = "START";
-	public static final String GET_DOMAIN = "GET_DOMAIN";
-	public static final String DELETE_DOMAIN = "DELETE_DOMAIN";
-	public static final String CREATE_DOMAIN = "CREATE_DOMAIN";
-	public static final String BRMS_WEBS = "brmsWebs";
-	public static final String MEDIUM = "medium";
-	public static final String SMALL = "small";
-	public static final String CREATE_BRMS_WEBS_APP = "CREATE_BRMS_WEBS_APP";
-	public static final String CREATE_PFP_CORE = "CREATE_PFP_CORE";
-	public static final String JBOSSAS7 = "jbossas-7";
+    public static final String GET_DOMAIN = "GET_DOMAIN";
+    public static final String DELETE_DOMAIN = "DELETE_DOMAIN";
+    public static final String CREATE_DOMAIN = "CREATE_DOMAIN";
+    public static final String BRMS_WEBS = "brmsWebs";
+    public static final String PFP_CORE = "pfpCore";
+    public static final String MEDIUM = "medium";
+    public static final String SMALL = "small";
+    public static final String CREATE_BRMS_WEBS_APP = "CREATE_BRMS_WEBS_APP";
+    public static final String CREATE_PFP_CORE = "CREATE_PFP_CORE";
+    public static final String JBOSSAS7 = "jbossas-7";
+    public static final String EAP6 = "jbosseap-6.0";
+	public static final String MESSAGES = "messages";
+	public static final String ADD_DATABASE_CARTRIDGE = "ADD_DATABASE_CARTRIDGE";
+	public static final String POSTGRESQL_8_4 = "postgresql-8.4";
+	public static final String TEXT = "text";
 
 
 
@@ -150,6 +158,7 @@ public class ShifterProvisioner {
                  */
                 String accountId = null;
                 String password = null;
+                String domainId = null;
                 NodeList accountDetailsList = ((Element)account).getChildNodes();
                 for(int y=0; y<=accountDetailsList.getLength(); y++){
                     Node detail = accountDetailsList.item(y);
@@ -159,11 +168,13 @@ public class ShifterProvisioner {
                             accountId = detailElem.getTextContent();
                         else if(PASSWORD.equals(detailElem.getNodeName()))
                             password = detailElem.getTextContent();
+                        else if(DOMAIN_ID.equals(detailElem.getNodeName()))
+                            domainId = detailElem.getTextContent();
                         else
                             throw new RuntimeException("provisionAccounts() invalid Element = "+detailElem.getNodeName()+" : in file = "+openshiftAccountDetailsFile);
                     }
                 }
-                ProvisionerThread shifterProvisioner = new ProvisionerThread(accountId, password);
+                ProvisionerThread shifterProvisioner = new ProvisionerThread(accountId, password, domainId);
                 Thread pThread = new Thread(shifterProvisioner);
                 pThread.start();
             }
@@ -174,16 +185,20 @@ public class ShifterProvisioner {
 
         private String accountId;
         private String password;
+        private String domainId;
         private File accountLog;
         private StringBuilder logBuilder = new StringBuilder();
         private OpenshiftClient osClient;
         private DefaultHttpClient httpClient;
         private ObjectMapper jsonMapper;
         private String body = null;
+        private String pfpCoreSSHUrl = null;
+        private String brmsWebsSSHUrl = null;
         
-        public ProvisionerThread(String accountId, String password){
+        public ProvisionerThread(String accountId, String password, String domainId){
             this.accountId = accountId;
             this.password = password;
+            this.domainId = domainId;
             accountLog = new File(accountLogDir, accountId+".log");
             jsonMapper = new ObjectMapper();
         }
@@ -193,7 +208,8 @@ public class ShifterProvisioner {
                 prepConnection();
                 prepRESTeasy();
                 refreshDomain();
-                createBrmsWebsApp();
+                createPfpCore();
+                //createBrmsWebsApp();
             }catch(Exception x){
                 throw new RuntimeException(x);
             }finally{
@@ -215,74 +231,96 @@ public class ShifterProvisioner {
             }
         }
         
+        private void createPfpCore() throws Exception {
+        	log.info(CREATE_PFP_CORE);
+            ClientResponse<?> cResponse = osClient.createApp(domainId, PFP_CORE, EAP6, "false", SMALL);
+            consumeEntityAndCheckResponse(CREATE_PFP_CORE, cResponse);
+            JsonNode rootNode = jsonMapper.readValue(body, JsonNode.class);
+            pfpCoreSSHUrl = rootNode.path("data").path("ssh_url").getTextValue();
+            logBuilder.append("\n\tsshUrl = ");
+            logBuilder.append(pfpCoreSSHUrl);
+            
+            log.info(ADD_DATABASE_CARTRIDGE);
+            cResponse = osClient.addCartridge(domainId, PFP_CORE, POSTGRESQL_8_4);
+            consumeEntityAndCheckResponse(ADD_DATABASE_CARTRIDGE, cResponse);
+            rootNode = jsonMapper.readValue(body, JsonNode.class);
+            String dbAddResponseText = rootNode.path(MESSAGES).path(1).path(TEXT).getTextValue();
+            logBuilder.append("\n\t");
+            logBuilder.append(dbAddResponseText);
+
+        }
         private void createBrmsWebsApp() throws Exception {
-        	ClientResponse<?> cResponse = osClient.createApp(accountId, BRMS_WEBS, JBOSSAS7, "false", openshiftBrmsWebsAppSize);
-        	consumeEntityAndCheckResponse(CREATE_BRMS_WEBS_APP, cResponse);
+        	log.info(CREATE_BRMS_WEBS_APP);
+            ClientResponse<?> cResponse = osClient.createApp(domainId, BRMS_WEBS, EAP6, "false", openshiftBrmsWebsAppSize);
+            consumeEntityAndCheckResponse(CREATE_BRMS_WEBS_APP, cResponse);
         }
         private void refreshDomain() throws Exception {
-        	
-        	// 1)  get any existing openshift domains for this account
-        	ClientResponse<?> cResponse = osClient.getDomains();
-        	consumeEntityAndCheckResponse(GET_DOMAIN, cResponse);
-        	
-        	JsonNode rootNode = jsonMapper.readValue(body, JsonNode.class);
-        	String deleteDomainHref = rootNode.path(DATA).path(0).path(LINKS).path(DELETE).path(HREF).getTextValue();
-        	if(deleteDomainHref == null){
-        		logBuilder.append("\n\n"+DELETE_DOMAIN+": refreshDomain() no pre-existing domain found");
-        	}else {
-        		// 2)  this is an existing openshift domain.  delete the domain along with any apps
-        		HttpDelete httpRequest = new HttpDelete(deleteDomainHref+"?force=true");
-        		httpRequest.setHeader("Accept", "*/*");
-        		HttpResponse dResponse = httpClient.execute(httpRequest);
-        		checkResponse(DELETE_DOMAIN, dResponse);
-        	}
-        	
-        	// 3) create a new domain using the openshift accountId (which should be unique)
-        	cResponse = osClient.createDomain(accountId);
-        	consumeEntityAndCheckResponse(CREATE_DOMAIN, cResponse);
+            log.info(GET_DOMAIN);
+            // 1)  get any existing openshift domains for this account
+            ClientResponse<?> cResponse = osClient.getDomains();
+            consumeEntityAndCheckResponse(GET_DOMAIN, cResponse);
+            
+            JsonNode rootNode = jsonMapper.readValue(body, JsonNode.class);
+            String deleteDomainHref = rootNode.path(DATA).path(0).path(LINKS).path(DELETE).path(HREF).getTextValue();
+            if(deleteDomainHref == null){
+                logBuilder.append("\n\n"+DELETE_DOMAIN+": refreshDomain() no pre-existing domain found");
+            }else {
+            	log.info(DELETE_DOMAIN);
+                // 2)  this is an existing openshift domain.  delete the domain along with any apps
+                HttpDelete httpRequest = new HttpDelete(deleteDomainHref+"?force=true");
+                httpRequest.setHeader("Accept", "*/*");
+                HttpResponse dResponse = httpClient.execute(httpRequest);
+                checkResponse(DELETE_DOMAIN, dResponse);
+            }
+            
+            // 3) create a new domain using the openshift domainId (which must be unique across all openshift)
+            log.info(CREATE_DOMAIN);
+            cResponse = osClient.createDomain(domainId);
+            consumeEntityAndCheckResponse(CREATE_DOMAIN, cResponse);
         }
         private void checkResponse(String eventName, HttpResponse response) throws Exception {
-        	int status = response.getStatusLine().getStatusCode();
-        	StringBuilder messageBuilder = new StringBuilder("\n\n"+eventName+" : response status = "+status+" : phrase = "+response.getStatusLine().getReasonPhrase());
-        	if(status > 204){
-        		HttpEntity entity = null;
-        		InputStream content = null;
-        		try {
-        			entity = response.getEntity();
-        			if(entity != null){	
-        				content = (InputStream)entity.getContent();
-        				BufferedReader in =  new BufferedReader (new InputStreamReader (content));
-        				String line;
-        				messageBuilder.append("\n");
-        				while ((line = in.readLine()) != null) {
-        					messageBuilder.append(line);
-        				}
-        			}
-        		}finally {
-        			if(content != null){ content.close(); }
-        		}
-            	logBuilder.append(messageBuilder.toString());
-        		throw new RuntimeException(messageBuilder.toString());
-        	}else {
-        		logBuilder.append(messageBuilder.toString());
-        	}
+            int status = response.getStatusLine().getStatusCode();
+            StringBuilder messageBuilder = new StringBuilder("\n\n"+eventName+" : response status = "+status+" : phrase = "+response.getStatusLine().getReasonPhrase());
+            if(status > 204){
+                HttpEntity entity = null;
+                InputStream content = null;
+                try {
+                    entity = response.getEntity();
+                    if(entity != null){    
+                        content = (InputStream)entity.getContent();
+                        BufferedReader in =  new BufferedReader (new InputStreamReader (content));
+                        String line;
+                        messageBuilder.append("\n");
+                        while ((line = in.readLine()) != null) {
+                            messageBuilder.append(line);
+                        }
+                    }
+                }finally {
+                    if(content != null){ content.close(); }
+                }
+                logBuilder.append(messageBuilder.toString());
+                throw new RuntimeException(messageBuilder.toString());
+            }else {
+                logBuilder.append(messageBuilder.toString());
+            }
         }
         private void consumeEntityAndCheckResponse(String eventName, ClientResponse response) {
-        	int status = response.getStatus();
-        	MarshalledEntity<String> mBody = (MarshalledEntity<String>) response.getEntity(new GenericType<MarshalledEntity<String>>(){});
-        	body = mBody.getEntity();
-        	StringBuilder messageBuilder = new StringBuilder("\n\n"+eventName+" : response status = "+status);
-        	if(status > 204) {
-        		messageBuilder.append("\n"+body);
-        		logBuilder.append(messageBuilder.toString());
-        		throw new RuntimeException(messageBuilder.toString());
-        	}else {
-        		logBuilder.append(messageBuilder.toString());
-        	}
+            int status = response.getStatus();
+            MarshalledEntity<String> mBody = (MarshalledEntity<String>) response.getEntity(new GenericType<MarshalledEntity<String>>(){});
+            body = mBody.getEntity();
+            StringBuilder messageBuilder = new StringBuilder("\n\n"+eventName+" : response status = "+status);
+            if(status > 204) {
+                messageBuilder.append("\n"+body);
+                logBuilder.append(messageBuilder.toString());
+                throw new RuntimeException(messageBuilder.toString());
+            }else {
+                logBuilder.append(messageBuilder.toString());
+            }
         }
         
         // Openshift broker uses BASIC authentication ... this function preps http client to support BASIC auth
         private void prepConnection() throws Exception {
+        	
             httpClient = new DefaultHttpClient();
             
             /* the following prevents this type of exception:  
@@ -325,8 +363,8 @@ public class ShifterProvisioner {
             httpClient.addRequestInterceptor(new PreemptiveAuthInterceptor(), 0);
         }
         private void prepRESTeasy() {
-        	ApacheHttpClient4Executor cExecutor = new ApacheHttpClient4Executor(httpClient, new BasicHttpContext());
-        	osClient = ProxyFactory.create(OpenshiftClient.class, openshiftRestURI, cExecutor);
+            ApacheHttpClient4Executor cExecutor = new ApacheHttpClient4Executor(httpClient, new BasicHttpContext());
+            osClient = ProxyFactory.create(OpenshiftClient.class, openshiftRestURI, cExecutor);
         }
     }
     
@@ -426,7 +464,7 @@ public class ShifterProvisioner {
         openshiftAccountProvisioningLogDir = props.getProperty(OPENSHIFT_ACCOUNT_PROVISIONING_LOG_DIR);
         
         if(props.getProperty(OPENSHIFT_BRMS_WEBS_APP_SIZE) != null)
-        	openshiftBrmsWebsAppSize = props.getProperty(OPENSHIFT_BRMS_WEBS_APP_SIZE);
+            openshiftBrmsWebsAppSize = props.getProperty(OPENSHIFT_BRMS_WEBS_APP_SIZE);
 
         StringBuilder sBuilder = new StringBuilder("setProps() props = ");
         sBuilder.append("\n\topenshiftRestURI = "+openshiftRestURI);
