@@ -9,7 +9,7 @@
 
   <persistence-unit name="org.jbpm.task" transaction-type="JTA">
     <provider>org.hibernate.ejb.HibernatePersistence</provider>
-    <jta-data-source>java:/global/jbpm-core-cp</jta-data-source>
+    <jta-data-source>java:jboss/datasources/jbpm-core-cp</jta-data-source>
     <mapping-file>META-INF/Taskorm.xml</mapping-file>
     <!-- mapping-file>META-INF/pfp-Taskorm.xml</mapping-file -->
     <class>org.jbpm.task.Attachment</class>
@@ -57,7 +57,7 @@
          - this RESOURCE_LOCAL EMF does not involve the use of a JTA trnx manager ... which becomes a bottleneck if performance is required
   -->
   <persistence-unit name="org.jbpm.task.resourceLocal" transaction-type="RESOURCE_LOCAL" >
-    <non-jta-data-source>java:/global/jbpm-core-cp</non-jta-data-source>
+    <non-jta-data-source>java:jboss/datasources/jbpm-core-cp</non-jta-data-source>
     <mapping-file>META-INF/Taskorm.xml</mapping-file>
     <!-- mapping-file>META-INF/pfp-Taskorm.xml</mapping-file -->
     <class>org.jbpm.task.Attachment</class>

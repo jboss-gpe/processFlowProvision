@@ -11,7 +11,7 @@
     xmlns="http://java.sun.com/xml/ns/persistence">
 
     <persistence-unit name="org.jbpm.bam.jpa" transaction-type="JTA">
-        <jta-data-source>java:/global/jbpm-bam-cp</jta-data-source>
+        <jta-data-source>java:jboss/datasources/jbpm-bam-cp</jta-data-source>
 
         <class>org.jbpm.process.audit.ProcessInstanceLog</class>
         <class>org.jbpm.process.audit.NodeInstanceLog</class>
