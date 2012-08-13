@@ -2,6 +2,11 @@
     - gear allocation requirement :  6
     - needs access to "medium" sized gears
     - userId needs to be unique across all of public openshift (userId will be used as openshift domain name)
+    - ssh key management for each account
+        - current approach is to leverage REST api provided by openshift for many management operations
+        - however, for admin tasks that require (rsync, ssh or git) .... ssh keys for each account need to be already in place
+        - https://openshift.redhat.com/community/blogs/dive-into-openshift-with-ssh
+        - good news is that same rsa key pair can be used in multiple openshift accounts
 
 
 - define:  $PFP_HOME/conf/pfp/openshift/openshift_account_details.xsd

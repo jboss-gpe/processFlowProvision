@@ -11,7 +11,7 @@
     <import file="bam/build.xml"/>
     <import file="privateServiceTaskRepo/build.xml"/>
     <import file="pfpServicesTest/build.xml"/>
-    <import file="openshift/build.xml"/>
+    <import file="osProvision/build.xml"/>
     
     <target name="pfp.clean" description="" >
         <delete dir="${guvnor_repo_location}" />
@@ -23,7 +23,7 @@
         <delete dir="bam/${build.dir}" />
         <delete dir="privateServiceTaskRepo/${build.dir}" />
         <delete dir="pfpServicesTest/${build.dir}" />
-        <delete dir="openshift/${build.dir}" />
+        <delete dir="osProvision/${build.dir}" />
         <delete dir="${install.home}/tmp" />
         <delete dir="${install.home}/pfp" />
         <delete dir="${temp.client.dir}" />

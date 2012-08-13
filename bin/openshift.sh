@@ -7,6 +7,12 @@ fileSize=0
 for var in $@
 do
     case $var in
+        -domainName=*)
+            domainName=`echo $var | cut -f2 -d\=`
+            ;;
+        -localAppLocation=*)
+            localAppLocation=`echo $var | cut -f2 -d\=`
+            ;;
         -remoteJbossHome=*)
             remoteJbossHome=`echo $var | cut -f2 -d\=`
             ;;
@@ -174,12 +180,21 @@ refreshGuvnor() {
     scp target/tmp/repository.xml $sshUrl:$remoteDir
 }
 
+push() {
+    echo "git push $domainName"
+    cd $localAppLocation
+    chmod -R 775 .openshift/action_hooks
+    git add -u
+    git commit -m 'latest from pfp'
+    git push $domainName master
+}
+
 
 case "$1" in
-    startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync)
+    startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort)
         $1
         ;;
     *)
-    echo 1>&2 $"Usage: $0 {startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync}"
+    echo 1>&2 $"Usage: $0 {startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort}"
     exit 1
 esac

@@ -1,4 +1,4 @@
-<project name="openshift" default="openshift.provision.accounts" >
+<project name="osProvision" default="openshift.provision.accounts" >
 
 
     <target name="openshift.provision.accounts" depends="openshiftCompile" description="">
@@ -21,7 +21,7 @@
     </target>
 
     <target name="openshiftPrep" depends="setTestClasspath" >
-        <var name="subproject.name" value="openshift" />
+        <var name="subproject.name" value="osProvision" />
         <var name="subproject.build" value="${subproject.name}/target" />
         <path id="sub.classpath" >
             <path refid="test.classpath" />
@@ -40,7 +40,7 @@
         <copy file="build.properties" tofile="${subproject.build}/openshift.pfp.properties" overwrite="true" >
             <filterchain><expandproperties/></filterchain>
         </copy>
-        <copy file="conf/pfp/openshift/openshift_account_details.xsd" todir="${subproject.build}" />
+        <copy file="${subproject.name}/src/main/resources/openshift_account_details.xsd" todir="${subproject.build}" />
 
         <javac debug="true" srcdir="${subproject.name}/src/main/java" destdir="${subproject.build}" optimize="true" >
             <classpath refid="test.classpath" />

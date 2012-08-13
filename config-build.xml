@@ -461,14 +461,24 @@
     </target>
 
     <target name="configure.jboss.modules" >
+        <delete dir="${temp.jboss.dir}/modules" />
         <antcall target="filter">
             <param name="source.dir" value="conf/jboss/modules"/>
             <param name="dest.dir" value="${temp.jboss.dir}/modules"/>
         </antcall>
 
+        <if>
+            <isset property="non.openshift.environment"/>
+            <then>
+                <!-- openshift adds database driver as a jboss module when adding database cartridge.
+                     this must not be an openshift enviroment ....so adding db drivers now
+                -->
+                <copy file="${postgresql.jdbc.lib.path}" todir="${temp.jboss.dir}/modules/org/postgresql/jdbc/main" />
+                <copy file="${mysql.jdbc.lib.path}" todir="${temp.jboss.dir}/modules/com/mysql/jdbc/main" />
+            </then>
+        </if>
+
         <copy file="lib/commons/commons-codec-1.5.jar" todir="${temp.jboss.dir}/modules/org/apache/commons/codec/5" /> <!-- GuvnorConnectionUtils needs this version -->
-        <copy file="${postgresql.jdbc.lib.path}" todir="${temp.jboss.dir}/modules/org/postgresql/jdbc/main" />
-        <copy file="${mysql.jdbc.lib.path}" todir="${temp.jboss.dir}/modules/com/mysql/jdbc/main" />
         <copy file="${deps.lib.path}/stringtemplate-${version.stringtemplate}.jar" todir="${temp.jboss.dir}/modules/org/antlr/stringtemplate/main" />
         <copy file="${deps.lib.path}/protobuf-java-${version.protobuf}.jar" todir="${temp.jboss.dir}/modules/com/google/protobuf/main" />
         <copy file="${deps.lib.path}/antlr-runtime-${version.antlr}.jar" todir="${temp.jboss.dir}/modules/org/antlr/antlr-runtime/main" />
@@ -509,7 +519,9 @@
         </copy>
     </target> 
     <target name="local.deploy.jboss.modules" >
-        <antcall target="configure.jboss.modules" />
+        <antcall target="configure.jboss.modules" >
+            <param name="non.openshift.environment" value="true"/>
+        </antcall>
         <copy todir="${jboss.home}/modules" overwrite="true" >
             <fileset dir="${temp.jboss.dir}/modules" />
         </copy>
