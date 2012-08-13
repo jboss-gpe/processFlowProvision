@@ -1,51 +1,130 @@
-- create an account with the following requirements :
+this document describes details of automated provisioning of one or more openshift accounts using PFP
+
+there are several phases to this automated provisioning :
+    1)  openshift account creation
+    2)  creation of "openshift_account_details.xml"
+    3)  execution of 'openshift.provision.accounts' target of PFP
+    4)  rsa key management for each account
+    5)  configuring git "remotes" for each account for both pfpCore and brmsWebs apps
+    6)  openshift.provision.pfp.core
+        6.a)  customization of postgresql-8.4 rdbms in openshift to support pfpCore
+        6.b)  customization of jbosseap-6.0 cartridge in openshift to support pfpCore
+        6.c)  deployment of pfp services to openshift
+    7)  git push to 'pfpCore' application of each openshift account
+    8)  openshift.provision.brms.webs
+        7.a)  deployment of brms web archives to openshift
+    9)  git push to 'brmsWebs' application of each openshift account
+
+the remainder of this document discusses details of each of these phases
+
+
+
+1)  openshift account creation :
     - gear allocation requirement :  6
     - needs access to "medium" sized gears
-    - userId needs to be unique across all of public openshift (userId will be used as openshift domain name)
-    - ssh key management for each account
-        - current approach is to leverage REST api provided by openshift for many management operations
-        - however, for admin tasks that require (rsync, ssh or git) .... ssh keys for each account need to be already in place
-        - https://openshift.redhat.com/community/blogs/dive-into-openshift-with-ssh
-        - good news is that same rsa key pair can be used in multiple openshift accounts
+    - this step is entirely manual
 
 
-- define:  $PFP_HOME/conf/pfp/openshift/openshift_account_details.xsd
-    - allows BLDW lab instructor to create an XML that contains all openshift student userIds and password
 
-- ant provisionOpenshift
-    - properties
-        - openshift.host
-        - pfp.openshift.provision.file.location
-        - pfp.openshift.account.log.dir
-    - validate XML, iterate through accounts and spawn new thread for each account
-    - invoke:  provisionOpenshiftAccount(String openShiftUserId, String openShiftPassword)
+2)  creation of "openshift_account_details.xml"
+    - per results of step #1, need to create an xml file that validates against:  $PFP_HOME/osProvision/src/main/resources/openshift_account_details.xsd
+    - need to set appropriate value for "openshift.account.details.file.location" in $PFP_HOME/build.properties 
+    - this step is entirely manual
+
+
+
+3)  execution of 'openshift.provision.accounts' target of PFP
+    - validate "openshift.account.details.file.location" xml
+    - iterate through accounts and spawn new thread for each account for parallel processing
+    - for each account, invoke provisionOpenshiftAccount(String openShiftUserId, String openShiftPassword, String domainId)
+        - NOTE:  the following functions can use the REST api provided by openshift
         - refreshDomain()
-        - createBrmsWebsApp()
+            - NOTE:  only one domain allowed per user account
+            - curl -k -X GET https://openshift.redhat.com/broker/rest/domains --user "<openShiftUserId>:<openShiftPassword>"
+                - parse for "id"
+            - curl -k -X DELETE https://openshift.redhat.com/broker/rest/domains/jbride --user "<openShiftUserId>:<openShiftPassword>" --data "force=true"
+                - Force delete domain.  i.e. delete any applications under this domain
+            - curl -k -X POST https://openshift.redhat.com/broker/rest/domains/ --user "<openShiftUserId>:<openShiftPassword>" --data "id=<openShiftUserId>"
         - createPfpCoreApp()
+        - createBrmsWebsApp()
+            - create medium size "brmsWebs" app
+                curl -k -X POST https://openshift.redhat.com/broker/rest/domains/<openShiftUserId>/applications --user "<openShiftUserId>:<openShiftPassword>" \
+                    --data "name=brmsWebs&cartridge=jbossas-7&scale=false&gear_profile=medium"
+            - parse response for:
+                git_url
+            - write properties to a log file
+            - add postgresql cartridge
+                curl -k -X POST https://openshift.redhat.com/broker/rest/domains/<openShiftUserId>/applications/brmsWebs/cartridges \
+                    --user "<openShiftUserId>:<openShiftPassword>" --data "cartridge=postgresql-8.4"
+            - parse response for:  
+                connection_url
+                username
+                password
+            - write properties to a log file
 
-refreshDomain()
-    - NOTE:  only one domain allowed per user account
-    - curl -k -X GET https://openshift.redhat.com/broker/rest/domains --user "<openShiftUserId>:<openShiftPassword>"
-        - parse for "id"
-    - curl -k -X DELETE https://openshift.redhat.com/broker/rest/domains/jbride --user "<openShiftUserId>:<openShiftPassword>" --data "force=true"
-        - Force delete domain.  i.e. delete any applications under this domain
-    - curl -k -X POST https://openshift.redhat.com/broker/rest/domains/ --user "<openShiftUserId>:<openShiftPassword>" --data "id=<openShiftUserId>"
-        - create a new domain
+
+4)  rsa key management for each account
+    - steps 5 & 6 of this openshift provisioning process require rsa keys to be in place.
+    - step #3 did not need RSA keys 
+        - tasks were accomplished in step #3 via the openshift REST api (which uses BASIC http authentication ... not certificate based auth)
+    - specifically, an rsa public key needs to be uploaded to openshift and associated with a particular account
+    - also, the rsa private key needs to be maintained in the ~/.ssh directory of the client executing the provisioning
+    - optionally, the client can use ~/.ssh/config for greater key management flexibility
+    - good news is that same rsa key pair can be used in multiple openshift accounts
+    - this step is entirely manual
 
 
-createBrmsWebsApp()
-    - create medium size "brmsWebs" app
-        curl -k -X POST https://openshift.redhat.com/broker/rest/domains/<openShiftUserId>/applications --user "<openShiftUserId>:<openShiftPassword>" \
-            --data "name=brmsWebs&cartridge=jbossas-7&scale=false&gear_profile=medium"
-        - parse response for:
-            git_url
-        - write properties to a log file
-    - add postgresql cartridge
-        curl -k -X POST https://openshift.redhat.com/broker/rest/domains/<openShiftUserId>/applications/brmsWebs/cartridges --user "<openShiftUserId>:<openShiftPassword>" \
-            --data "cartridge=postgresql-8.4"
-        - parse response for:  
-            connection_url
-            username
-            password
-        - write properties to a log file
-    - execute $PFP_HOME/conf/postgresql/processFlowProvision.sql
+
+5)  configuring git "remotes" for each account for both pfpCore and brmsWebs apps
+    - now that RSA keys are in place, numberous mechanisms are available to customize previously provisioned apps and cartridges:
+        1)  git
+        2)  rsync
+        3)  ssh / scp
+        4)  jboss-cli.sh (via ssh tunnel)
+    - each mechanism will have its strenght/weaknesses that may make it better suited for particular tasks
+    - probably good to be familiar with all of them
+
+    - the current mechanism used to customize the jboss and postgresql runtimes in steps 5-7 is via git for the following reasons:
+        1)  master branch of PFP uses jboss-cli.sh to populate a local eap 6.0 environment
+            however, these scripts are "domain-mode" specific.
+            jbosseap-6.0 cartridge of openshift currently only supports "standalone" mode
+            (Bill DeCoste, however, is currently working on supporting "domain-mode" .... no ETA yet)
+            so none of the existing PFP batch scripts can be used in an openshift environment
+        2)  if none of the existing PFP batch scripts can be used, its easier in the short-term to just create a single standalone.xml
+            although managing a standalone.xml file is not as maintanable as CLI batch scripts, standalone.xml is initially easier to write
+
+    - the use of git requires that a 'remote' reference to each accounts git repo be configured for both the pfpCore and brmsWebs applications
+        - this step is entirely manual (although a future phase could conceivably automate this)
+        
+6)  openshift.provision.pfp.core
+    6.a)  customization of postgresql-8.4 rdbms in openshift to support pfpCore
+      - when the postgresql cartridge is added to a jbosseap-6.0 based app, several environment variables are created :
+        OPENSHIFT_DB_HOST
+        OPENSHIFT_DB_PASSWORD
+        OPENSHIFT_DB_PORT
+        OPENSHIFT_DB_USERNAME
+      - these environment variables can be used in the application's action_hooks/deploy script
+      - action_hooks/deploy can create the jbpm and jbpm_bam databases and configure with those databases with appropriate db roles and passwords
+      - action_hooks/deploy can then be pushed to each openshift account via git
+
+    6.b)  customization of jbosseap-6.0 cartridge in openshift to support pfpCore
+      - all additional PFP/BRMS related modules need to be configured and pushed to each openshift account
+        - this task can be accomplished via git
+      - all system properties and custom security-realms need to be set in standalone.xml
+      - standalone.xml needs to be pushed to each openshift account via git
+
+    6.c)  deployment of pfp services to openshift
+
+
+
+7)  git push to 'pfpCore' application of each openshift account
+        - this step is entirely manual (although a future phase could conceivably automate this)
+
+
+8)  openshift.provision.brms.webs
+        8.a)  deployment of brms web archives to openshift
+
+
+9)  git push to 'brmsWebs' application of each openshift account
+        - this step is entirely manual (although a future phase could conceivably automate this)
+
