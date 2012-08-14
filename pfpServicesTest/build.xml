@@ -26,7 +26,7 @@
     </target>
 
 
-    <target name="test.standaloneTask" depends="standaloneCompile" description="">
+    <target name="test.standaloneTask" depends="standaloneSetup" description="optional :  -Dtest.openshift=true">
         <java fork="yes" classname="org.jboss.processFlow.test.SimpleTaskClient" failonerror="true">
             <jvmarg value="-Xms16m" />
             <jvmarg value="-Xmx64m" />
@@ -53,9 +53,26 @@
     <target name="pfpServicesTestClean" depends="testPrep" >
         <delete dir="${subproject.build}" />
     </target>
-    <target name="standaloneCompile" depends="pfpServicesTestClean" >
+    <target name="standaloneSetup" depends="pfpServicesTestClean" >
         <mkdir dir="${subproject.build}" />
-        <math result="pfp.core.remoting.port" operand1="${base.remoting.port}" operation="+" operand2="${pfp.core.port.offset}" datatype="int"/>
+        <if>
+            <isset property="test.openshift"/>
+            <then>
+                <property name="configurable.pfp.core.host.name" value="${openshift.pfpCore.internal.ip}" />
+                <property name="pfp.core.remoting.port" value="4447" />
+                <exec executable="bash" failonerror="true" dir="." >
+                    <arg value="bin/openshift.sh"/>
+                    <arg value="createTunnel"/>
+                    <arg value="-serverIpAddr=${openshift.pfpCore.internal.ip}"/>
+                    <arg value="-port=${pfp.core.remoting.port}"/>
+                    <arg value="-sshUrl=${openshift.pfpCore.ssh.url}"/>
+                </exec>
+            </then>
+            <else>
+                <math result="pfp.core.remoting.port" operand1="${base.remoting.port}" operation="+" operand2="${pfp.core.port.offset}" datatype="int"/>
+                <property name="configurable.pfp.core.host.name" value="${pfp.core.host.name}" />
+            </else>
+        </if>
         <antcall target="filter" >
             <param name="source.dir" value="${subproject.name}/src/test/resources"/>
             <param name="file.name" value="jboss-ejb-client.properties"/>

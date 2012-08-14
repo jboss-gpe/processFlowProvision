@@ -28,7 +28,7 @@ do
         -password=*)
             password=`echo $var | cut -f2 -d\=`
             ;;
-        -managementPort=*)
+        -port=*)
             port=`echo $var | cut -f2 -d\=`
             ;;
         -sshUrl=*)
@@ -55,15 +55,7 @@ done
 #echo "sshUrl = $sshUrl";
 
 stopJboss() {
-    checkRemotePort
-    if [ $socketIsOpen -ne 0 ]; then
-        createTunnel
-        checkRemotePort
-        if [ $socketIsOpen -ne 0 ]; then
-            echo -en "\n unable to create tunnel.  see previous errors"
-            exit 1
-        fi
-    fi
+    createTunnel
 
     echo -en $"\nstopping jboss daemon using script at: $localJbossHome/bin/jboss-cli.sh \n"
     cd $localJbossHome
@@ -116,10 +108,19 @@ function copyFileToRemote() {
 # ssh -N -L {OPENSHIFT_INTERNAL_IP}:{port}:{OPENSHIFT_INTERNAL_IP}:{port} {UUID}@{appName}-{domain}.rhcloud.com
 # determine ports by :  ssh {UUID}@{appName}-{domain}.rhcloud.com 'rhc-list-ports'
 function createTunnel() {
-    echo -en "\nattempting to create ssh tunnel"
-    ssh -N -L $serverIpAddr:$port:$serverIpAddr:$port $sshUrl &
-    #echo -en "createTunnel() response = $? "
-    sleep 5
+    checkRemotePort
+    if [ $socketIsOpen -ne 0 ]; then
+        echo -en "\nattempting to create ssh tunnel serverIpAddr = $serverIpAddr : port = $port sshUrl = $sshUrl\n"
+        ssh -N -L $serverIpAddr:$port:$serverIpAddr:$port $sshUrl &
+        #echo -en "createTunnel() response = $? "
+        sleep 5
+        checkRemotePort
+        if [ $socketIsOpen -ne 0 ]; then
+            echo -en "\n unable to create tunnel.  see previous errors"
+            exit 1
+        fi
+    fi
+
 }
 
 startJboss() {
@@ -137,30 +138,12 @@ startJboss() {
 }
 
 executeMysqlScript() {
-    checkRemotePort
-    if [ $socketIsOpen -ne 0 ]; then
-        createTunnel
-        checkRemotePort
-        if [ $socketIsOpen -ne 0 ]; then
-            echo -en "\n unable to create tunnel.  see previous errors"
-            exit 1
-        fi
-    fi
-
+    createTunnel
     mysql -u$user -p$password -h$serverIpAddr < $file
 }
 
 executePostgresqlScript() {
-    checkRemotePort
-    if [ $socketIsOpen -ne 0 ]; then
-        createTunnel
-        checkRemotePort
-        if [ $socketIsOpen -ne 0 ]; then
-            echo -en "\n unable to create tunnel.  see previous errors"
-            exit 1
-        fi
-    fi
-
+    createTunnel
     scp $localDir/$file $sshUrl:/$remoteDir
     ssh $sshUrl "
         createdb guvnor;
@@ -184,17 +167,17 @@ push() {
     echo "git push $domainName"
     cd $localAppLocation
     chmod -R 775 .openshift/action_hooks
-    git add -u
+    git add -A
     git commit -m 'latest from pfp'
     git push $domainName master
 }
 
 
 case "$1" in
-    startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort)
+    startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel)
         $1
         ;;
     *)
-    echo 1>&2 $"Usage: $0 {startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort}"
+    echo 1>&2 $"Usage: $0 {startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel}"
     exit 1
 esac

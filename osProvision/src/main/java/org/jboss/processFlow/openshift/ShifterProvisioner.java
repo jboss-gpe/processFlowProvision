@@ -113,10 +113,10 @@ public class ShifterProvisioner {
     public static final String CREATE_PFP_CORE = "CREATE_PFP_CORE";
     public static final String JBOSSAS7 = "jbossas-7";
     public static final String EAP6 = "jbosseap-6.0";
-	public static final String MESSAGES = "messages";
-	public static final String ADD_DATABASE_CARTRIDGE = "ADD_DATABASE_CARTRIDGE";
-	public static final String POSTGRESQL_8_4 = "postgresql-8.4";
-	public static final String TEXT = "text";
+    public static final String MESSAGES = "messages";
+    public static final String ADD_DATABASE_CARTRIDGE = "ADD_DATABASE_CARTRIDGE";
+    public static final String POSTGRESQL_8_4 = "postgresql-8.4";
+    public static final String TEXT = "text";
 
 
 
@@ -192,8 +192,6 @@ public class ShifterProvisioner {
         private DefaultHttpClient httpClient;
         private ObjectMapper jsonMapper;
         private String body = null;
-        private String pfpCoreSSHUrl = null;
-        private String brmsWebsSSHUrl = null;
         
         public ProvisionerThread(String accountId, String password, String domainId){
             this.accountId = accountId;
@@ -209,7 +207,7 @@ public class ShifterProvisioner {
                 prepRESTeasy();
                 refreshDomain();
                 createPfpCore();
-                //createBrmsWebsApp();
+                createBrmsWebsApp();
             }catch(Exception x){
                 throw new RuntimeException(x);
             }finally{
@@ -232,11 +230,11 @@ public class ShifterProvisioner {
         }
         
         private void createPfpCore() throws Exception {
-        	log.info(CREATE_PFP_CORE);
+            log.info(CREATE_PFP_CORE);
             ClientResponse<?> cResponse = osClient.createApp(domainId, PFP_CORE, EAP6, "false", SMALL);
             consumeEntityAndCheckResponse(CREATE_PFP_CORE, cResponse);
             JsonNode rootNode = jsonMapper.readValue(body, JsonNode.class);
-            pfpCoreSSHUrl = rootNode.path("data").path("ssh_url").getTextValue();
+            String pfpCoreSSHUrl = rootNode.path("data").path("ssh_url").getTextValue();
             logBuilder.append("\n\tsshUrl = ");
             logBuilder.append(pfpCoreSSHUrl);
             
@@ -250,9 +248,13 @@ public class ShifterProvisioner {
 
         }
         private void createBrmsWebsApp() throws Exception {
-        	log.info(CREATE_BRMS_WEBS_APP);
+            log.info(CREATE_BRMS_WEBS_APP);
             ClientResponse<?> cResponse = osClient.createApp(domainId, BRMS_WEBS, EAP6, "false", openshiftBrmsWebsAppSize);
             consumeEntityAndCheckResponse(CREATE_BRMS_WEBS_APP, cResponse);
+            JsonNode rootNode = jsonMapper.readValue(body, JsonNode.class);
+            String brmsWebsSSHUrl = rootNode.path("data").path("ssh_url").getTextValue();
+            logBuilder.append("\n\tsshUrl = ");
+            logBuilder.append(brmsWebsSSHUrl);
         }
         private void refreshDomain() throws Exception {
             log.info(GET_DOMAIN);
@@ -265,7 +267,7 @@ public class ShifterProvisioner {
             if(deleteDomainHref == null){
                 logBuilder.append("\n\n"+DELETE_DOMAIN+": refreshDomain() no pre-existing domain found");
             }else {
-            	log.info(DELETE_DOMAIN);
+                log.info(DELETE_DOMAIN);
                 // 2)  this is an existing openshift domain.  delete the domain along with any apps
                 HttpDelete httpRequest = new HttpDelete(deleteDomainHref+"?force=true");
                 httpRequest.setHeader("Accept", "*/*");
@@ -320,7 +322,7 @@ public class ShifterProvisioner {
         
         // Openshift broker uses BASIC authentication ... this function preps http client to support BASIC auth
         private void prepConnection() throws Exception {
-        	
+            
             httpClient = new DefaultHttpClient();
             
             /* the following prevents this type of exception:  

@@ -4,42 +4,42 @@
         <antcall target="openshift.deploy.jboss.modules" />
         <antcall target="filter">
             <param name="source.dir" value="conf/openshift/pfpCore"/>
-            <param name="dest.dir" value="${openshift.pfp.core.app.location}/.openshift"/>
+            <param name="dest.dir" value="${openshift.pfpCore.app.location}/.openshift"/>
         </antcall>
-        <delete file="${openshift.pfp.core.app.location}/pom.xml" />
+        <copy todir="${openshift.pfpCore.app.location}/deployments">
+            <fileset dir="${temp.pfp.services.dir}" >
+                <include name="*.jar" />
+            </fileset>
+        </copy>
+        <delete file="${openshift.pfpCore.app.location}/pom.xml" />
         <exec executable="bash" failonerror="true" dir="." >
            <arg value="bin/openshift.sh"/>
            <arg value="push"/>
-           <arg value="-localAppLocation=${openshift.pfp.core.app.location}"/>
-           <arg value="-domainName=${openshift.pfp.core.domain.name}"/>
+           <arg value="-localAppLocation=${openshift.pfpCore.app.location}"/>
+           <arg value="-domainName=${openshift.domain.name}"/>
         </exec> 
     </target>
 
     <target name="openshift.provision.brms.webs" description="" >
-        <mkdir dir="${install.home}/lib" />
+        <antcall target="filter">
+            <param name="source.dir" value="conf/openshift/brmsWebs"/>
+            <param name="dest.dir" value="${openshift.brmsWebs.app.location}/.openshift"/>
+        </antcall>
+        <delete file="${openshift.brmsWebs.app.location}/pom.xml" />
         <antcall target="distro.clean" />
         <antcall target="download.jbpm5.artifacts" />
         <antcall target="prepare.brms.webs" />
-        <antcall target="os.refreshGuvnor" >
-            <param name="ssh.url" value="${brmsWebs.ssh.url}"/>
-            <param name="os.data.dir" value="${brmsWebs.data.dir}"/>
-        </antcall>
-        <antcall target="os.deploy.brms.webs" >
-            <param name="ssh.url" value="${brmsWebs.ssh.url}"/>
-            <param name="remote.deployments.dir" value="${brmsWebs.deployments.dir}"/>
-        </antcall>
-       <antcall target="os.refresh.jboss" >
-            <param name="server.ip.address" value="${brms.webs.ip.address}"/>
-            <param name="management.port" value="${brms.webs.management.port}"/>
-            <param name="ssh.url" value="${brmsWebs.ssh.url}"/>
-        </antcall>
-        <antcall target="execute.cli">
-            <param name="cli.source.dir" value="conf/brmsWebs"/>
-            <param name="cli.to.filter.and.execute" value="brmsWebs-config-up.cli"/>
-            <param name="server.ip.address" value="${brms.webs.ip.address}"/>
-            <param name="management.port" value="${brms.webs.management.port}"/>
-            <param name="cli.fail.on.error" value="true"/>
-        </antcall>
+        <copy todir="${openshift.brmsWebs.app.location}/deployments">
+            <fileset dir="${temp.brmsWebs.dir}" >
+                <include name="*.war" />
+            </fileset>
+        </copy>
+        <exec executable="bash" failonerror="true" dir="." >
+           <arg value="bin/openshift.sh"/>
+           <arg value="push"/>
+           <arg value="-localAppLocation=${openshift.brmsWebs.app.location}"/>
+           <arg value="-domainName=${openshift.domain.name}"/>
+        </exec> 
     </target>
 
     <target name="openshift.refresh.jboss" >
@@ -69,7 +69,7 @@
            <arg value="stopJboss"/>
            <arg value="-localJbossHome=${jboss.home}"/>
            <arg value="-serverIpAddr=${server.ip.address}"/>
-           <arg value="-managementPort=${management.port}"/>
+           <arg value="-port=${management.port}"/>
            <arg value="-sshUrl=${ssh.url}"/>
         </exec> 
     </target>
@@ -123,9 +123,9 @@
     </target>
 
     <target name="openshift.deploy.jboss.modules" >
-        <delete dir="${openshift.pfp.core.app.location}/.openshift/config/modules" />
+        <delete dir="${openshift.pfpCore.app.location}/.openshift/config/modules" />
         <antcall target="configure.jboss.modules" />
-        <copy overwrite="true" todir="${openshift.pfp.core.app.location}/.openshift/config/modules">
+        <copy overwrite="true" todir="${openshift.pfpCore.app.location}/.openshift/config/modules">
             <fileset dir="${temp.jboss.dir}/modules" />
         </copy>
     </target>

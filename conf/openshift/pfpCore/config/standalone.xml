@@ -34,6 +34,29 @@
 		<extension module="org.jboss.as.weld" />
 	</extensions>
 
+        <!-- JA Bride :  added system properties -->
+        <system-properties>
+            <property name="organization.name" value="${organization.name}"/>
+            <property name="org.jboss.enableLog" value="${org.jboss.enableLog}"/>
+            <property name="org.jboss.processFlow.task.transactionType" value="${org.jboss.processFlow.task.transactionType}"/>
+            <property name="org.jboss.processFlow.tasks.DeadlineHandler" value="${org.jboss.processFlow.tasks.DeadlineHandler}"/>
+            <property name="org.jboss.processFlow.tasks.TaskEventListeners" value="${org.jboss.processFlow.tasks.TaskEventListeners}"/>
+            <property name="org.jboss.processFlow.task.enableIntelligentMapping" value="${org.jboss.processFlow.task.enableIntelligentMapping}"/>
+            <property name="org.jboss.processFlow.KnowledgeSessionPool" value="${org.jboss.processFlow.KnowledgeSessionPool}"/>
+            <property name="org.jboss.processFlow.statefulKnowledge.enableKnowledgeRuntimeLogger" value="${org.jboss.processFlow.statefulKnowledge.enableKnowledgeRuntimeLogger}"/>
+            <property name="space.delimited.process.event.listeners" value="${space.delimited.process.event.listeners}"/>
+            <property name="task.clean.up.process.event.listener.impl" value="${task.clean.up.process.event.listener.impl}"/>
+            <property name="org.jboss.processFlow.drools.resource.scanner.interval" value="${org.jboss.processFlow.drools.resource.scanner.interval}"/>
+            <property name="org.jboss.processFlow.bam.queue" value="${org.jboss.processFlow.bam.queue}"/>
+            <property name="org.jboss.processFlow.messagingProvider" value="${org.jboss.processFlow.messagingProvider}"/>
+            <property name="org.jboss.processFlow.messaging.connectionFactory" value="${org.jboss.processFlow.messaging.connectionFactory}"/>
+            <property name="hibernate.hbm2ddl.auto" value="${hibernate.hbm2ddl.auto}"/>
+            <property name="hibernate.jdbc.batch_size" value="${hibernate.jdbc.batch_size}"/>
+            <property name="hibernate.cache.use_second_level_cache" value="${hibernate.cache.use_second_level_cache}"/>
+            <property name="hibernate.dialect" value="${hibernate.dialect}"/>
+            <property name="hibernate.show_sql" value="${hibernate.show_sql}"/>
+        </system-properties>
+
 	<management>
 		<management-interfaces>
             <native-interface>
@@ -401,6 +424,17 @@
 						<message-counter-history-day-limit>10
 						</message-counter-history-day-limit>
 					</address-setting>
+
+                                        <!-- JA Bride :  added asyncWorkingMemoryLogger queue for async bam producer -->
+                                        <address-setting match="jms.queue.processFlow.asyncWorkingMemoryLogger">
+                                            <dead-letter-address>jms.queue.DLQ</dead-letter-address>
+                                            <max-size-bytes>10485760</max-size-bytes>
+                                            <page-size-bytes>1048576</page-size-bytes>
+                                            <address-full-policy>PAGE</address-full-policy>
+                                            <last-value-queue>false</last-value-queue>
+                                            <send-to-dla-on-no-route>false</send-to-dla-on-no-route>
+                                        </address-setting>
+
 				</address-settings>
 				<jms-connection-factories>
 					<connection-factory name="InVmConnectionFactory">
@@ -429,6 +463,15 @@
 						</entries>
 					</pooled-connection-factory>
 				</jms-connection-factories>
+
+                                <jms-destinations>
+                                    <jms-queue name="processFlow.asyncWorkingMemoryLogger">
+                                        <entry name="queue/processFlow.asyncWorkingMemoryLogger"/>
+                                        <entry name="java:jboss/exported/jms/processFlow.asyncWorkingMemoryLogger"/>
+                                        <durable>true</durable>
+                                    </jms-queue>
+                                </jms-destinations>
+
 			</hornetq-server>
 		</subsystem>
 		<subsystem xmlns="urn:jboss:domain:naming:1.2">
