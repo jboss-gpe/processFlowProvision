@@ -90,9 +90,13 @@ public class ShifterProvisioner {
     public static final String OPENSHIFT_ACCOUNT_PROVISIONING_LOG_DIR  = "openshift.account.provisioning.log.dir";
     public static final String OPENSHIFT_ACCOUNT_DETAILS_SCHEMA_FILE="/openshift_account_details.xsd";
     public static final String OPENSHIFT_BRMS_WEBS_APP_SIZE="openshift.brmsWebs.app.size";
+    public static final String OPENSHIFT_PFP_CORE_SCALED_APP="openshift.pfp.core.scaled.app";
     public static final String ACCOUNT_ID = "tns:accountId";
     public static final String PASSWORD = "tns:password";
     public static final String DOMAIN_ID = "tns:domainId";
+    public static final String REFRESH_DOMAIN ="openshift.refresh.domain";
+    public static final String CREATE_PFP_CORE="openshift.create.pfp.core";
+    public static final String CREATE_BRMS_WEBS="openshift.create.brms.webs";
     
     public static final String DATA = "data";
     public static final String LINKS = "links";
@@ -109,8 +113,6 @@ public class ShifterProvisioner {
     public static final String PFP_CORE = "pfpCore";
     public static final String MEDIUM = "medium";
     public static final String SMALL = "small";
-    public static final String CREATE_BRMS_WEBS_APP = "CREATE_BRMS_WEBS_APP";
-    public static final String CREATE_PFP_CORE = "CREATE_PFP_CORE";
     public static final String JBOSSAS7 = "jbossas-7";
     public static final String EAP6 = "jbosseap-6.0";
     public static final String MESSAGES = "messages";
@@ -128,6 +130,10 @@ public class ShifterProvisioner {
     private static DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     private static DocumentBuilder builder;
     private static File accountLogDir;
+    private static boolean refreshDomain=true;
+    private static boolean createPfpCore=true;
+    private static boolean createBrmsWebs=true;
+    private static boolean openshiftPfpCoreScaledApp=false;
 
     public static void main(String args[] ) throws Exception{
         RegisterBuiltin.register(ResteasyProviderFactory.getInstance());
@@ -205,9 +211,12 @@ public class ShifterProvisioner {
             try {
                 prepConnection();
                 prepRESTeasy();
-                refreshDomain();
-                createPfpCore();
-                createBrmsWebsApp();
+                if(refreshDomain)
+                	refreshDomain();
+                if(createPfpCore)
+                	createPfpCore();
+                if(createBrmsWebs)
+                	createBrmsWebs();
             }catch(Exception x){
                 throw new RuntimeException(x);
             }finally{
@@ -216,7 +225,8 @@ public class ShifterProvisioner {
                 if(accountLog != null){
                     FileOutputStream fStream = null;
                     try {
-                        fStream = new FileOutputStream(accountLog);
+                    	//write log to file:  append only if refreshDomain == false
+                        fStream = new FileOutputStream(accountLog, !refreshDomain);
                         fStream.write(logBuilder.toString().getBytes());
                     }catch(Exception x){
                         x.printStackTrace();
@@ -231,7 +241,7 @@ public class ShifterProvisioner {
         
         private void createPfpCore() throws Exception {
             log.info(CREATE_PFP_CORE);
-            ClientResponse<?> cResponse = osClient.createApp(domainId, PFP_CORE, EAP6, "false", SMALL);
+            ClientResponse<?> cResponse = osClient.createApp(domainId, PFP_CORE, EAP6, Boolean.toString(openshiftPfpCoreScaledApp), SMALL);
             consumeEntityAndCheckResponse(CREATE_PFP_CORE, cResponse);
             JsonNode rootNode = jsonMapper.readValue(body, JsonNode.class);
             String pfpCoreSSHUrl = rootNode.path("data").path("ssh_url").getTextValue();
@@ -247,10 +257,10 @@ public class ShifterProvisioner {
             logBuilder.append(dbAddResponseText);
 
         }
-        private void createBrmsWebsApp() throws Exception {
-            log.info(CREATE_BRMS_WEBS_APP);
+        private void createBrmsWebs() throws Exception {
+            log.info(CREATE_BRMS_WEBS);
             ClientResponse<?> cResponse = osClient.createApp(domainId, BRMS_WEBS, EAP6, "false", openshiftBrmsWebsAppSize);
-            consumeEntityAndCheckResponse(CREATE_BRMS_WEBS_APP, cResponse);
+            consumeEntityAndCheckResponse(CREATE_BRMS_WEBS, cResponse);
             JsonNode rootNode = jsonMapper.readValue(body, JsonNode.class);
             String brmsWebsSSHUrl = rootNode.path("data").path("ssh_url").getTextValue();
             logBuilder.append("\n\tsshUrl = ");
@@ -467,12 +477,25 @@ public class ShifterProvisioner {
         
         if(props.getProperty(OPENSHIFT_BRMS_WEBS_APP_SIZE) != null)
             openshiftBrmsWebsAppSize = props.getProperty(OPENSHIFT_BRMS_WEBS_APP_SIZE);
+        
+        if(props.getProperty(REFRESH_DOMAIN) != null)
+        	refreshDomain = Boolean.parseBoolean(props.getProperty(REFRESH_DOMAIN));
+        if(props.getProperty(CREATE_PFP_CORE) != null)
+        	createPfpCore = Boolean.parseBoolean(props.getProperty(CREATE_PFP_CORE));
+        if(props.getProperty(CREATE_BRMS_WEBS) != null)
+        	createBrmsWebs = Boolean.parseBoolean(props.getProperty(CREATE_BRMS_WEBS));
+        if(props.getProperty(OPENSHIFT_PFP_CORE_SCALED_APP) != null)
+        	openshiftPfpCoreScaledApp = Boolean.parseBoolean(props.getProperty(OPENSHIFT_PFP_CORE_SCALED_APP));
 
         StringBuilder sBuilder = new StringBuilder("setProps() props = ");
         sBuilder.append("\n\topenshiftRestURI = "+openshiftRestURI);
         sBuilder.append("\n\tpenshiftAccountDetailsFile = "+openshiftAccountDetailsFile);
         sBuilder.append("\n\topenshiftAccountProvisioningLogDir = "+openshiftAccountProvisioningLogDir);
         sBuilder.append("\n\topenshift.brmsWebs.app.size = "+openshiftBrmsWebsAppSize);
+        sBuilder.append("\n\trefreshDomain = "+refreshDomain);
+        sBuilder.append("\n\tcreatePfpCore = "+createPfpCore);
+        sBuilder.append("\n\tcreateBrmsWebs = "+createBrmsWebs);
+        sBuilder.append("\n\topenshiftPfpCoreScaledApp = "+openshiftPfpCoreScaledApp);
         log.info(sBuilder.toString());
     }
 }

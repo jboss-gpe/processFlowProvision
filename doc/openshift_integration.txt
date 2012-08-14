@@ -38,24 +38,17 @@ the remainder of this document discusses details of each of these phases
     - iterate through accounts and spawn new thread for each account for parallel processing
     - for each account, invoke provisionOpenshiftAccount(String openShiftUserId, String openShiftPassword, String domainId)
         - NOTE:  the following functions can use the REST api provided by openshift
+        - TO-DO:  create bugzilla's for specific invocations that cause a 500
+        - TO_DO:  create bugzilla for XSD and JSon schemas for openshift REST responses
         - refreshDomain()
             - NOTE:  only one domain allowed per user account
-            - curl -k -X GET https://openshift.redhat.com/broker/rest/domains --user "<openShiftUserId>:<openShiftPassword>"
-                - parse for "id"
-            - curl -k -X DELETE https://openshift.redhat.com/broker/rest/domains/jbride --user "<openShiftUserId>:<openShiftPassword>" --data "force=true"
-                - Force delete domain.  i.e. delete any applications under this domain
-            - curl -k -X POST https://openshift.redhat.com/broker/rest/domains/ --user "<openShiftUserId>:<openShiftPassword>" --data "id=<openShiftUserId>"
         - createPfpCoreApp()
+            - TO_DO:  log git url included in app creation response
         - createBrmsWebsApp()
             - create medium size "brmsWebs" app
-                curl -k -X POST https://openshift.redhat.com/broker/rest/domains/<openShiftUserId>/applications --user "<openShiftUserId>:<openShiftPassword>" \
-                    --data "name=brmsWebs&cartridge=jbossas-7&scale=false&gear_profile=medium"
-            - parse response for:
-                git_url
+                - TO_DO:  log git url included in app creation response
             - write properties to a log file
             - add postgresql cartridge
-                curl -k -X POST https://openshift.redhat.com/broker/rest/domains/<openShiftUserId>/applications/brmsWebs/cartridges \
-                    --user "<openShiftUserId>:<openShiftPassword>" --data "cartridge=postgresql-8.4"
             - parse response for:  
                 connection_url
                 username

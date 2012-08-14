@@ -38,7 +38,6 @@
     </target>
     <target name="refresh.master" >
         <echo message="***** refresh.master :  will now call the following target :  local.stop.master, clone.jboss, and local.start.master" />
-        <antcall target="distro.clean" />
         <antcall target="local.stop.master"  />
         <antcall target="clone.jboss" />
         <antcall target="local.deploy.jboss.modules" />
@@ -374,7 +373,7 @@
             <param name="file.name" value="overall_activity.rptdesign"/>
             <param name="dest.dir" value="${org.jbpm.report.dir}"/>
         </antcall>
-        <unzip src="${install.home}/lib/birt-runtime-${birt.version}.zip" dest="${install.home}"/>
+        <unzip src="${install.home}/lib/birt-runtime-${birt.version}.zip" dest="${temp.brmsWebs.dir}"/>
         <delete >
             <fileset dir="${console.server.target}/WEB-INF/lib" >
                 <include name="report*.*" />
@@ -394,34 +393,43 @@
     <target name="local.bounce.jbpm.gwt.console" description="">
         <antcall target="explode.jbpm.gwt.console" />
         <antcall target="install.reporting.into.jboss7" />
-        <jar jarfile="${temp.dir}/${console.server.name}" basedir="${console.server.target}" />
+        <jar jarfile="${console.server.zipped}" basedir="${console.server.target}" />
         <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
             <arg value="--connect"/>
             <arg value="--controller=${ENV.HOSTNAME}:${management.port}"/>
-            <arg value="deploy ${temp.dir}/${console.server.name} --name=${console.server.name} --server-groups=brms-webs-group"/>
+            <arg value="deploy ${console.server.zipped} --name=${console.server.name} --server-groups=brms-webs-group"/>
         </exec>
-        <jar jarfile="${temp.dir}/${console.name}" basedir="${console.target}" />
+        <jar jarfile="${console.zipped}" basedir="${console.target}" />
         <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
             <arg value="--connect"/>
             <arg value="--controller=${ENV.HOSTNAME}:${management.port}"/>
-            <arg value="deploy ${temp.dir}/${console.name} --name=${console.name} --server-groups=brms-webs-group"/>
+            <arg value="deploy ${console.zipped} --name=${console.name} --server-groups=brms-webs-group"/>
         </exec>
     </target>
 
     <target name="local.bounce.guvnor.designer" description="" >
         <antcall target="explode.guvnor.and.designer" />
+        <jar jarfile="${guvnor.zipped}" basedir="${guvnor.target}" />
+        <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
+            <arg value="--connect"/>
+            <arg value="--controller=${ENV.HOSTNAME}:${management.port}"/>
+            <arg value="deploy ${guvnor.zipped} --name=${guvnor.name} --server-groups=brms-webs-group"/>
+        </exec>
+        <jar jarfile="${designer.zipped}" basedir="${designer.target}" />
+        <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
+            <arg value="--connect"/>
+            <arg value="--controller=${ENV.HOSTNAME}:${management.port}"/>
+            <arg value="deploy ${designer.zipped} --name=${designer.name} --server-groups=brms-webs-group"/>
+        </exec>
+    </target>
+
+    <target name="prepare.brms.webs" >
+        <antcall target="explode.guvnor.and.designer" />
         <jar jarfile="${temp.dir}/${guvnor.name}" basedir="${guvnor.target}" />
-        <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
-            <arg value="--connect"/>
-            <arg value="--controller=${ENV.HOSTNAME}:${management.port}"/>
-            <arg value="deploy ${temp.dir}/${guvnor.name} --name=${guvnor.name} --server-groups=brms-webs-group"/>
-        </exec>
         <jar jarfile="${temp.dir}/${designer.name}" basedir="${designer.target}" />
-        <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
-            <arg value="--connect"/>
-            <arg value="--controller=${ENV.HOSTNAME}:${management.port}"/>
-            <arg value="deploy ${temp.dir}/${designer.name} --name=${designer.name} --server-groups=brms-webs-group"/>
-        </exec>
+        <antcall target="explode.jbpm.gwt.console" />
+        <!--antcall target="install.reporting.into.jboss7" / -->
+        <jar jarfile="${temp.dir}/${console.name}" basedir="${console.target}" />
     </target>
 
 
@@ -449,15 +457,6 @@
     <delete dir="${eclipse.home}/drools-update-site"/>
   </target>
 
-    <target name="distro.clean" >
-        <delete dir="${temp.dir}" />
-        <delete dir="${guvnor.target}" />
-        <delete dir="${designer.target}" />
-        <delete dir="${console.server.target}" />
-        <delete dir="${console.target}" />
-        <delete dir="${birt.target}" />
-    </target>
-
     <target name="configure.jboss.modules" >
         <delete dir="${temp.jboss.dir}/modules" />
         <antcall target="filter">
@@ -471,8 +470,11 @@
                 <!-- openshift adds database driver as a jboss module when adding database cartridge.
                      this must not be an openshift enviroment ....so adding db drivers now
                 -->
-                <copy file="${postgresql.jdbc.lib.path}" todir="${temp.jboss.dir}/modules/org/postgresql/jdbc/main" />
-                <copy file="${mysql.jdbc.lib.path}" todir="${temp.jboss.dir}/modules/com/mysql/jdbc/main" />
+                <if>
+                    <equals arg1="${jdbc.module.name}" arg2="postgresql" />
+                    <then><copy file="${postgresql.jdbc.lib.path}" todir="${jboss.home}/modules/org/postgresql/jdbc/main" /></then>
+                    <else><copy file="${mysql.jdbc.lib.path}" todir="${jboss.home}/modules/com/mysql/jdbc/main" /></else>
+                </if>
             </then>
         </if>
 

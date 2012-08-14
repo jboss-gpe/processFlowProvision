@@ -57,7 +57,7 @@
 
         <zip destfile="${install.home}/${distro.name}.zip">
             <zipfileset dir="${temp.distro.dir}" prefix="${distro.name}" />
-            <zipfileset dir="bin" prefix="${distro.name}/bin" />
+            <zipfileset dir="bin" prefix="${distro.name}/bin" filemode="755"/>
             <zipfileset dir="privateServiceTaskRepo" prefix="${distro.name}/privateServiceTaskRepo" />
             <zipfileset dir="${temp.client.dir}" prefix="${distro.name}/clientLibs" />
             <zipfileset dir="conf" prefix="${distro.name}/conf"/>
