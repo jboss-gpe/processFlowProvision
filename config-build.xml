@@ -425,11 +425,12 @@
 
     <target name="prepare.brms.webs" >
         <antcall target="explode.guvnor.and.designer" />
-        <jar jarfile="${temp.dir}/${guvnor.name}" basedir="${guvnor.target}" />
-        <jar jarfile="${temp.dir}/${designer.name}" basedir="${designer.target}" />
+        <jar jarfile="${guvnor.zipped}" basedir="${guvnor.target}" />
+        <jar jarfile="${designer.zipped}" basedir="${designer.target}" />
         <antcall target="explode.jbpm.gwt.console" />
         <!--antcall target="install.reporting.into.jboss7" / -->
-        <jar jarfile="${temp.dir}/${console.name}" basedir="${console.target}" />
+        <jar jarfile="${console.server.zipped}" basedir="${console.server.target}" />
+        <jar jarfile="${console.zipped}" basedir="${console.target}" />
     </target>
 
 

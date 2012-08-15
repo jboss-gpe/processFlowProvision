@@ -1,6 +1,7 @@
 <project name="pfp-openshift" >
 
     <target name="openshift.provision.pfp.core" description="" >
+        <!-- pfp modules are needed to support subclassing of bpm integration layer to proxy to pfpCore -->
         <antcall target="openshift.deploy.jboss.modules" >
             <param name="app.location" value="${openshift.pfpCore.app.location}"/>
         </antcall>
@@ -32,16 +33,23 @@
         </antcall>
         <delete file="${openshift.brmsWebs.app.location}/pom.xml" />
         <antcall target="prepare.brms.webs" />
-        <copy todir="${openshift.brmsWebs.app.location}/deployments">
-            <fileset dir="${temp.brmsWebs.dir}" >
+        <!--copy todir="${openshift.brmsWebs.app.location}/deployments">
+            <fileset dir="${temp.brmsWebs.dir}/deployments" >
                 <include name="*.war" />
             </fileset>
-        </copy>
+        </copy -->
         <exec executable="bash" failonerror="true" dir="." >
            <arg value="bin/openshift.sh"/>
            <arg value="push"/>
            <arg value="-localAppLocation=${openshift.brmsWebs.app.location}"/>
            <arg value="-domainName=${openshift.domain.name}"/>
+        </exec> 
+        <exec executable="bash" failonerror="true" dir="." >
+           <arg value="bin/openshift.sh"/>
+           <arg value="openshiftRsync"/>
+           <arg value="-localDir=${temp.brmsWebs.dir}/deployments"/>
+           <arg value="-sshUrl=${openshift.brmsWebs.ssh.url}"/>
+           <arg value="-remoteDir=app-root/repo"/>
         </exec> 
     </target>
 

@@ -44,16 +44,12 @@ the remainder of this document discusses details of each of these phases
             - NOTE:  only one domain allowed per user account
         - createPfpCoreApp()
             - TO_DO:  log git url included in app creation response
+            - TO_DO:  automate creation of user / passwords to allow for remote EJB invcation
         - createBrmsWebsApp()
             - create medium size "brmsWebs" app
-                - TO_DO:  log git url included in app creation response
-            - write properties to a log file
-            - add postgresql cartridge
-            - parse response for:  
-                connection_url
-                username
-                password
-            - write properties to a log file
+                - experiencing "Disk quota exceeded" exception when deploying the 4 brms webs on a small gear
+            - TO_DO:  add postgresql cartridge once guvnor 5.5 works 
+            - TO_DO:  log git url included in app creation response
 
 
 4)  rsa key management for each account
@@ -77,6 +73,9 @@ the remainder of this document discusses details of each of these phases
     - each mechanism will have its strenght/weaknesses that may make it better suited for particular tasks
     - probably good to be familiar with all of them
 
+    - NOTE:  seems to take between 1-2 minutes for DNS propogation after app creation
+        - need to take this lag into account when automating
+
     - the current mechanism used to customize the jboss and postgresql runtimes in steps 5-7 is via git for the following reasons:
         1)  master branch of PFP uses jboss-cli.sh to populate a local eap 6.0 environment
             however, these scripts are "domain-mode" specific.
@@ -86,7 +85,7 @@ the remainder of this document discusses details of each of these phases
         2)  if none of the existing PFP batch scripts can be used, its easier in the short-term to just create a single standalone.xml
             although managing a standalone.xml file is not as maintanable as CLI batch scripts, standalone.xml is initially easier to write
 
-    - the use of git requires that a 'remote' reference to each accounts git repo be configured for both the pfpCore and brmsWebs applications
+    - the use of git requires that a 'remote' reference to each account's git repo be configured for both the pfpCore and brmsWebs applications
         - this step is entirely manual (although a future phase could conceivably automate this)
         
 6)  openshift.provision.pfp.core

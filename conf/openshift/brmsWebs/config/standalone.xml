@@ -65,7 +65,8 @@
 				</formatter>
 				<file relative-to="jboss.server.log.dir" path="server.log" />
 				<suffix value=".yyyy-MM-dd" />
-				<append value="true" />
+                                <!-- JA Bride :  switched to false -->
+				<append value="false" />
 			</periodic-rotating-file-handler>
 			<logger category="com.arjuna">
 				<level name="WARN" />

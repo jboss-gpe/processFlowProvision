@@ -7,8 +7,11 @@
             <!-- bpm-integration later is sub-classed with pfp functionality that proxies requests to pfp-core -->
             <module name="org.jboss.processFlow" />
 
-            <!-- following is needed for birt reporting -->
-            <module name="org.postgresql.jdbc" />
+            <!-- 
+                following is needed for birt reporting 
+                - will comment out until figure out a more configurable solution
+            -->
+            <!-- module name="org.postgresql.jdbc" / -->
         </dependencies>
     </deployment>
 

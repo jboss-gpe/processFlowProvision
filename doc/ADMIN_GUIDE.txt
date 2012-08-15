@@ -559,7 +559,7 @@ remote client examples
                         - cd $PFP_HOME
                         - ant test.standaloneTask
         2)  test.webTask
-                - contains an example of conducting a lookup of the PFP kSessionService and taskService from a remote server instance (ie:  web archive)
+                - contains an example of conducting a lookup of the PFP kSessionService and taskService from a web archive in the same domain
                 - implements the approach documented here:  https://docs.jboss.org/author/display/AS71/EJB+invocations+from+a+remote+server+instance#
                 - deployment
                     - pfp-core server hosts the PFP ksession, task and bam services
@@ -568,6 +568,10 @@ remote client examples
                 - procedure
                     - command terminal #1
                         - cd $JBOSS_HOME
+                        - create a new application user used for the following purposes :
+                            1)  web access to business-central
+                                    - the 'creditController' role is the group that the human task in simpleTask.bpmn is assigned to
+                            2)  
                         - ./bin/add-user.sh
                             - What type of user do you wish to add?             :   (b) Application User
                             - Username                                          :   pfp
