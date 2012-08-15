@@ -1,10 +1,25 @@
 #!/bin/sh
 
-export jbossDomainBaseDir=$2
-export domainConfig=$3
+#export jbossDomainBaseDir=$2
+#export domainConfig=$3
 
-export cliPort=$2
-export node=$3
+#export cliPort=$2
+#export node=$3
+
+for var in $@
+do
+    case $var in
+        -userId=*)
+            userId=`echo $var | cut -f2 -d\=` 
+            ;;
+        -password=*)
+            password=`echo $var | cut -f2 -d\=` 
+            ;;
+        -isAdmin=*)
+            isAdmin=`echo $var | cut -f2 -d\=` 
+            ;;
+    esac
+done
 
 start() {
     if [ "x$jbossDomainBaseDir" = "x" ]; then
@@ -41,11 +56,22 @@ restart() {
     start
 }
 
+executeAddUser() {
+    echo -en "executeAddUser() : isAdmin = $isAdmin : userId = $userId \n"
+    cd $JBOSS_HOME
+        ./bin/add-user.sh $userId $password  --silent=false
+    #if [$isAdmin -eq "true"]; then
+    #    ./bin/add-user.sh $userId $password 
+    #else
+    #    ./bin/add-user.sh $userId $password -a
+    #fi
+}
+
 case "$1" in
-    start|stop|restart)
+    start|stop|restart| executeAddUser)
         $1
         ;;
     *)
-    echo 1>&2 $"Usage: $0 {start|stop|restart}"
+    echo 1>&2 $"Usage: $0 {start|stop|restart|executeAddUser}"
     exit 1
 esac

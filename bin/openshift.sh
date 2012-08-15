@@ -49,11 +49,6 @@ do
     esac
 done
 
-#echo "localJbossHome = $localJbossHome";
-#echo "serverIpAddr = $serverIpAddr";
-#echo "port = $port";
-#echo "sshUrl = $sshUrl";
-
 stopJboss() {
     createTunnel
 

@@ -39,6 +39,7 @@
     <target name="refresh.master" >
         <echo message="***** refresh.master :  will now call the following target :  local.stop.master, clone.jboss, and local.start.master" />
         <antcall target="local.stop.master"  />
+        <!-- antcall target="configureJbossAdmin" / -->
         <antcall target="clone.jboss" />
         <antcall target="local.deploy.jboss.modules" />
         <antcall target="local.start.master"  />
@@ -169,7 +170,24 @@
 
 
 
- 
+    <!-- see:  <as7-source>/domain-management/src/main/java/org/jboss/as/domain/management/security/AddPropertiesUser.java -->
+    <!-- does not work in as7.1.2.Final due to :
+            Exception in thread "main" java.lang.IllegalStateException: JBAS015232: No java.io.Console available to interact with user.
+            at org.jboss.as.domain.management.security.AddPropertiesUser.<init>(AddPropertiesUser.java:108)
+            at org.jboss.as.domain.management.security.AddPropertiesUser.<init>(AddPropertiesUser.java:119)
+            at org.jboss.as.domain.management.security.AddPropertiesUser.main(AddPropertiesUser.java:167)
+
+        - appears this is fixed in 7.2.*
+    -->
+    <target name="configureJbossAdmin" >
+        <exec executable="bash" failonerror="true" dir=".">
+            <arg value="bin/jboss_eap.sh" />
+            <arg value="executeAddUser" />
+            <arg value="-isAdmin=true" />
+            <arg value="-userId=${jboss.admin.id}"/>
+            <arg value="-password=${jboss.admin.password}"/>
+        </exec>
+    </target>
 
 
 
