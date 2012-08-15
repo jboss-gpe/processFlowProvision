@@ -10,10 +10,9 @@ there are several phases to this automated provisioning :
         6.a)  customization of postgresql-8.4 rdbms in openshift to support pfpCore
         6.b)  customization of jbosseap-6.0 cartridge in openshift to support pfpCore
         6.c)  deployment of pfp services to openshift
-    7)  git push to 'pfpCore' application of each openshift account
-    8)  openshift.provision.brms.webs
+    7)  openshift.provision.brms.webs
         7.a)  deployment of brms web archives to openshift
-    9)  git push to 'brmsWebs' application of each openshift account
+    8)  management & application security
 
 the remainder of this document discusses details of each of these phases
 
@@ -106,17 +105,34 @@ the remainder of this document discusses details of each of these phases
       - standalone.xml needs to be pushed to each openshift account via git
 
     6.c)  deployment of pfp services to openshift
+        - currently using git
+
+    - TO_DO: "openshift.provision.pfp.core" target currently configures a single openshift account at a time based on values in $PFP_HOME/build.properties
+        - this could be automated by placing relevant properties in an XML file (similar to "openshift_account_details.xml")
+        - shell or ruby script could then :
+            1)  validate XML
+            2)  iterate through accounts and spawn new thread for each account for parallel processing
+            3)  for each account, execute 6a, 6b and 6c
 
 
 
-7)  git push to 'pfpCore' application of each openshift account
-        - this step is entirely manual (although a future phase could conceivably automate this)
-
-
-8)  openshift.provision.brms.webs
+7)  openshift.provision.brms.webs
         8.a)  deployment of brms web archives to openshift
 
 
-9)  git push to 'brmsWebs' application of each openshift account
-        - this step is entirely manual (although a future phase could conceivably automate this)
 
+8)  management & application security
+    - each openshift account is to be associted with two types of eap6 specific accounts :
+        1)  management account
+            - priveldged account known only by PFP administrator
+            - userId/password should be same across all openshift accounts
+            - configured specific to security realm assigned to jboss admin console
+        2)  application account
+            - specific to that openshift account
+            - known by both PFP admin and user of that openshift account
+            - will need typical user/role and password management
+            - configured specific to security realm assigned to all brms web archives and EJB remoting security realm
+    - eap6.0 and as7 cartridges do not include : $JBOSS_HOME/bin/add-user.sh script
+        - as per this forum discussion, appears recommendation is to use a different SecurityDomain :
+            - https://openshift.redhat.com/community/forums/openshift/how-to-create-jboss-userrole
+    - which SecurityDomain implemention is best ?

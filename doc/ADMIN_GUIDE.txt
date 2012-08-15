@@ -611,12 +611,7 @@ openshift provisioning
     - PFP uses account information provided in a xml file to provision each of those accounts
     - PFP does so using the REST API exposed by Openshift as documented here :  
             http://docs.redhat.com/docs/en-US/OpenShift/2.0/html-single/REST_API_Guide/#chap-API_Guide-Add_Domain
-    - PFP also customizes each EAP6 & postgresql application in each openshift account via ssh and rsync
-    - PFP does not use git to customize openshift accounts as described here :  
-            http://docs.redhat.com/docs/en-US/OpenShift/2.0/html-single/User_Guide/#sect-User_Guide-OpenShift_Web_Interface-Editing_and_Deploying_Applications
-    - the reason why PFP chooses to customize EAP6 & Postgresql applications via ssh and rsync to avoid having git clones of each app on the local filesystem
-    - for instance, if provisioning 30 openshift accounts each with 3 apps, there would need to be 90 git projects on the local filesystem
-        - what about maintaining 3 git repos on local filesystem, each with 30 git remote references ?
+    - PFP also customizes each EAP6 & postgresql application in each openshift account via ssh, rsync and git
 
   - pre-requisites : (applicable to both the public openshift as well as an internal Origin PaaS)
     1)  create one or more accounts with the following
