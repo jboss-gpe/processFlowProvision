@@ -604,7 +604,11 @@ remote client examples
                     - invoke pfpServicesTest.war and proxy requests to ksessionService on pfpCore through ejb-security-realm
                         - curl $HOSTNAME:8230/pfpServicesTest/all 
                             - should return:  Great Success!!
-                            - in terminal #1, you'll also see various logs regarding claiming and completing a task
+                            - in the brmsWebs log, you'll also see various logs regarding claiming and completing a task
+                            - look for the following indicating successful hand-shake between remote-outbound-connection from brmsWebs to JBoss Remoting on pfpCore:
+
+13:43:27,517 INFO  [org.jboss.ejb.client.remoting] (ejb-client-remote-connection-reconnect-4-thread-1) EJBCLIENT000013: Successful version handshake completed for receiver context EJBReceiverContext{clientContext=org.jboss.ejb.client.EJBClientContext@4a08e396, receiver=Remoting connection EJB receiver [connection=Remoting connection <73f8dfc4>,channel=jboss.ejb,nodename=master:pfp-core]} on channel Channel ID ee2b32a0 (outbound) of Remoting connection 3c21fd47 to ratwaterIBM/192.168.122.1:4697
+
 
 
 BIRT reporting
