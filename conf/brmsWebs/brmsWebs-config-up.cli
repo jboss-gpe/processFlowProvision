@@ -27,11 +27,13 @@ batch
 # start brms-webs server
 /host=master/server-config=brms-webs/:start(server=brms-webs,blocking=true)
 
-# provision database drivers using previously configured database "modules"
-/profile=default/subsystem=datasources/xa-data-source=guvnor-cp:add(jndi-name=java:/global/guvnor-cp,driver-name=${jdbc.module.name},user-name=${guvnor_db_user},password=${guvnor_db_password},max-pool-size=50,min-pool-size=10,xa-datasource-class=${guvnor.xa.datasource.class})
+# configure XA datasource for guvnor
+/profile=default/subsystem=datasources/xa-data-source=guvnor-cp:add(jndi-name=java:/global/guvnor-cp,driver-name=${jdbc.module.name},user-name=${guvnor_db_user},password=${guvnor_db_password},max-pool-size=5,min-pool-size=1,xa-datasource-class=${guvnor.xa.datasource.class})
 /profile=default/subsystem=datasources/xa-data-source=guvnor-cp/xa-datasource-properties=ServerName/:add(value=${guvnor_db_ip})
 /profile=default/subsystem=datasources/xa-data-source=guvnor-cp/xa-datasource-properties=DatabaseName/:add(value=guvnor)
 /profile=default/subsystem=datasources/xa-data-source=guvnor-cp:enable()
+
+# configure non-XA datasource for guvnor
 /profile=default/subsystem=datasources/data-source=jbpm-bam-cp:add(jndi-name=java:/global/jbpm-bam-cp,connection-url=${bam_connection_url},driver-class=${bam_driver_class},driver-name=${jdbc.module.name},user-name=${bam_db_user},password=${bam_db_password},pool-name=jbpm-bam_ds_pool,max-pool-size=5,min-pool-size=1)
 /profile=default/subsystem=datasources/data-source=jbpm-bam-cp:enable()
 

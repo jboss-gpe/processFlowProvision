@@ -579,7 +579,7 @@
                 <antcall target="refresh.master" />
             </then>
         </if>
-        <antcall target="process.brms.libs" />
+        <!-- antcall target="process.brms.libs" / -->
         <antcall target="hornetq-config" />
         <antcall target="execute.cli">
             <param name="cli.source.dir" value="conf/pfp"/>

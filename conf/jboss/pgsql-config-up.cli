@@ -1,1 +1,11 @@
+# define postgresql XA driver for use by any postgresql XA datasources
+
+batch
+
+# "default" profile is used by brmsWebs
 /profile=default/subsystem=datasources/jdbc-driver=postgresql/:add(driver-module-name=org.postgresql.jdbc,driver-xa-datasource-class-name=org.postgresql.xa.PGXADataSource,jdbc-compliant=false)
+
+# "full-ha" profile is used by pfpCore
+/profile=full-ha/subsystem=datasources/jdbc-driver=postgresql/:add(driver-module-name=org.postgresql.jdbc,driver-xa-datasource-class-name=org.postgresql.xa.PGXADataSource,jdbc-compliant=false)
+
+run-batch
