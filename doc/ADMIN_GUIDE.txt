@@ -566,25 +566,42 @@ remote client examples
                     - brms-webs server is used to host a test web archive called :  pfpServicesTest.war
                     - the GETful functions of pfpServicesTest.war will invoke PFP EJB services hosted in pfp-core server
                 - procedure
-                    - command terminal #1
+                    - create new application user
+                        - new application user used for the following purposes :
+                            1)  web access to business-central hosted in brmsWebs
+                                - the 'creditController' role is the group that the human task in simpleTask.bpmn is assigned to
+                            2)  access to the JBoss Remoting subsystem of pfpCore
                         - cd $JBOSS_HOME
-                        - create a new application user used for the following purposes :
-                            1)  web access to business-central
-                                    - the 'creditController' role is the group that the human task in simpleTask.bpmn is assigned to
-                            2)  
                         - ./bin/add-user.sh
                             - What type of user do you wish to add?             :   (b) Application User
                             - Username                                          :   pfp
                             - Password                                          :   brms
                             - What roles do you want this user to belong to?    :   creditController
-                        - tail -f domain-pfp/servers/brms-webs/log/server.log
-                    - command terminal #2
+
+                    - start brmsWebs server
                         - cd $PFP_HOME
                         - ant local.provision.brms.webs -Drefresh.master=true
+
+                    - monitor brmsWebs log file
+                        - tail -f domain-pfp/servers/brms-webs/log/server.log
+
+                    - deploy pfpServicesTest.war into brmsWebs
+                        - pfpServicesTest.war has a sample http GETful application that will invoke the ksession service running on pfpCore
+
+                        - open a different terminal window
+                        - cd $PFP_HOME
                         - ant test.webTask 
-                            - should now see the following log statement in terminal #1 :
-                                DEBUG [org.jboss.as.ee.structure.EJBClientDescriptorParsingProcessor] (MSC service thread 1-6) Successfully parsed jboss-ejb-client.xml for deployment unit deployment "pfpServicesTest.war"
+
+                    - review brmsWebs log files
+                        - should now see the following statement brmsWebs log file
+                            DEBUG [org.jboss.as.ee.structure.EJBClientDescriptorParsingProcessor] Successfully parsed jboss-ejb-client.xml for deployment unit deployment "pfpServicesTest.war"
+                        - should authentication problems occur, will see this error in terminal #1 :
+                            ERROR [org.jboss.remoting.remote.connection] (Remoting "master:brms-webs" read-1) JBREM000200: Remote connection failed: javax.security.sasl.SaslException: Authentication failed: all available authentication mechanisms failed
+
+                    - start pfpCore server (containing ksessionService) 
                         - ant local.provision.pfp.core
+
+                    - invoke pfpServicesTest.war and proxy requests to ksessionService on pfpCore through ejb-security-realm
                         - curl $HOSTNAME:8230/pfpServicesTest/all 
                             - should return:  Great Success!!
                             - in terminal #1, you'll also see various logs regarding claiming and completing a task

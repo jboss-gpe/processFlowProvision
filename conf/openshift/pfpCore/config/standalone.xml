@@ -58,6 +58,20 @@
         </system-properties>
 
 	<management>
+
+            <!-- JA Bride :  added 'ApplicationRealm' back to this config -->
+            <security-realms>
+                <security-realm name="ApplicationRealm">
+                    <authentication>
+                        <local default-user="$local" allowed-users="*"/>
+                        <properties path="application-users.properties" relative-to="jboss.server.config.dir"/>
+                    </authentication>
+                    <authorization>
+                        <properties path="application-roles.properties" relative-to="jboss.server.config.dir"/>
+                    </authorization>
+                </security-realm>
+            </security-realms>
+            
 		<management-interfaces>
             <native-interface>
                 <socket-binding native="management-native"/>
@@ -496,9 +510,13 @@
 			</capabilities>
 		</subsystem>
 		<subsystem xmlns="urn:jboss:domain:pojo:1.0" />
+
+
+                <!-- JA Bride :  need to add security-realm="ApplicationRealm"  ??   -->
 		<subsystem xmlns="urn:jboss:domain:remoting:1.1">
 			<connector name="remoting-connector" socket-binding="remoting" />
 		</subsystem>
+
 		<subsystem xmlns="urn:jboss:domain:resource-adapters:1.0" />
 		<subsystem xmlns="urn:jboss:domain:sar:1.0" />
 		<subsystem xmlns="urn:jboss:domain:security:1.2">

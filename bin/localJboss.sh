@@ -24,6 +24,12 @@ do
         -node=*)
             node=`echo $var | cut -f2 -d\=` 
             ;;
+        -jbossHome=*)
+            jbossHome=`echo $var | cut -f2 -d\=` 
+            ;;
+        -jbossDomainBaseDir=*)
+            jbossDomainBaseDir=`echo $var | cut -f2 -d\=` 
+            ;;
     esac
 done
 
@@ -73,8 +79,9 @@ executeAddUser() {
     #fi
 }
 
+
 case "$1" in
-    start|stop|restart| executeAddUser)
+    start|stop|restart|executeAddUser)
         $1
         ;;
     *)

@@ -1,4 +1,4 @@
-<project name="processFlowProvision-distro" xmlns:artifact="antlib:org.apache.maven.artifact.ant" default="local.provision.pfp.core" >
+<project name="processFlowProvision-distro" xmlns:artifact="antlib:org.apache.maven.artifact.ant" >
 
     <property environment="ENV"/>
     <property file="build.properties" />
@@ -22,7 +22,7 @@
             <then><property name="management.port" value="9999" /></then>
         </if>
         <exec executable="bash" failonerror="true" dir="." >
-           <arg value="bin/jboss_eap.sh"/>
+           <arg value="bin/localJboss.sh"/>
            <arg value="stop"/>
            <arg value="-port=${management.port}"/>
            <arg value="-node=master"/>
@@ -30,7 +30,7 @@
     </target>
     <target name="local.start.master" description="">
         <exec executable="bash" failonerror="true" dir="." >
-           <arg value="bin/jboss_eap.sh"/>
+           <arg value="bin/localJboss.sh"/>
            <arg value="start"/>
            <arg value="-jbossDomainBaseDir=${jboss.domain.base.dir}"/>
            <arg value="-domainConfig=${domain.config.file}"/>
@@ -196,7 +196,7 @@
     -->
     <target name="configureJbossAdmin" >
         <exec executable="bash" failonerror="true" dir=".">
-            <arg value="bin/jboss_eap.sh" />
+            <arg value="bin/localJboss.sh" />
             <arg value="executeAddUser" />
             <arg value="-isAdmin=true" />
             <arg value="-userId=${jboss.admin.id}"/>
@@ -228,24 +228,6 @@
         </antcall>
     </target>
 
-
-    <target name="process.brms.libs" >
-        <if>
-            <isset property="useCompiledJBPMLibs"/>
-            <then>
-                <antcall target="download.community.brms.webs" />
-            </then>
-            <else>
-                <antcall target="useBRMSLibs" />
-            </else>
-        </if>
-        <copy toDir="${temp.pfp.lib.dir}" overwrite="true" >
-            <fileset dir="lib" >
-                <include name="*.jar" />
-            </fileset>
-        </copy>
-    </target>
-
     <target name="useBRMSLibs" depends="" if="useBRMS">
         <echo message="inside useBRMSLibs" />
         <antcall target="download.brms.deployable" />
@@ -259,42 +241,6 @@
         <!-- contains: "business-central.war",  "designer.war", "gwt-console-server.war" &  "jbpm-human-task.war" -->
         <unzip src="${temp.dir}/jboss-jbpm-console.zip" dest="${temp.dir}" />
         <delete file="${temp.dir}/jboss-jbpm-console.zip" />
-
-        <copy toDir="${temp.pfp.lib.dir}" overwrite="true" >
-            <fileset dir="${temp.dir}/designer.war/WEB-INF/lib" >
-                <include name="jackson*.jar" />
-            </fileset>
-            <fileset dir="${temp.dir}/binaries" >
-                <include name="antlr-3.3.jar" />
-                <include name="antlr-runtime-3.3.jar" />
-                <include name="commons-io*.jar" />
-                <include name="drools-*.jar" />
-                <include name="freemarker*.jar" />
-                <include name="jbpm-*.jar" />
-                <include name="knowledge-*.jar" />
-                <include name="mvel*.jar" />
-                <include name="protobuf-*.jar" />
-                <include name="stringtemplate*.jar" />
-                <include name="trove*.jar" />
-                <exclude name="*test*.jar" />
-            </fileset>
-            <fileset dir="${temp.dir}/gwt-console-server.war/WEB-INF/lib" >
-                <include name="apache-mime4j-*.jar" />
-                <include name="gwt-console-*.jar" />
-                <include name="jaxrs-api-*.jar" />
-                <include name="jbpm-gwt-shared-*.jar" />
-                <include name="jbpm-bpmn2-emfextmodel*.jar" />
-                <include name="jbpm-gwt-*.jar" />
-                <include name="jcip-annotations-*.jar" />
-                <include name="jsr250-*.jar" />
-                <include name="mina-*.jar" />
-                <include name="resteasy-*.jar" />
-                <include name="scannotation-*.jar" />
-
-                <!-- cant use because of services/properties in these libraries that over-ride our processFlowProvision extensions -->
-                <exclude name="jbpm-gwt-core-*.jar" />
-            </fileset>
-        </copy>
     </target>
 
     <!-- re-create guvnor filesystem and copy over repository.xml -->
@@ -579,7 +525,6 @@
                 <antcall target="refresh.master" />
             </then>
         </if>
-        <!-- antcall target="process.brms.libs" / -->
         <antcall target="hornetq-config" />
         <antcall target="execute.cli">
             <param name="cli.source.dir" value="conf/pfp"/>

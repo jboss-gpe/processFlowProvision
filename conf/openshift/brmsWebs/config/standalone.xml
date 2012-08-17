@@ -37,13 +37,16 @@
 
 	<management>
 
-            <!-- JA Bride : added ejb-security-realm  for communication with pfp-->
             <security-realms>
+
+                <!-- JA Bride : added ejb-security-realm  for communication with pfpCore -->
                 <security-realm name="ejb-security-realm">
                     <server-identities>
                         <secret value="${pfp.core.remoting.base64.passcode}"/>
                     </server-identities>
                 </security-realm>
+
+                <!-- JA Bride :  added 'ApplicationRealm' back to this config -->
                 <security-realm name="ApplicationRealm">
                     <authentication>
                         <local default-user="$local" allowed-users="*"/>

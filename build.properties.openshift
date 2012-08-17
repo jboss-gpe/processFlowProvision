@@ -23,26 +23,19 @@ temp.jboss.dir=${install.home}/jboss
 #  absolute path to JBoss EAP 5.1.* or SOA-P 5.1.*
 jboss.home=${ENV.JBOSS_HOME}
 
-
-# administrator security credentials for jboss EAP
-jboss.admin.id=pfp
-jboss.admin.password=pfpBrms
-
-
 # config settings for JBoss server containing core BRMS process engine and human task services
 jboss.domain.base.dir=domain-${organization.name}
 domain.config.file=domain.xml
 management.port=9999
 base.remoting.port=4447
+
 #pfp.core.host.name=${ENV.HOSTNAME}
 pfp.core.host.name=${openshift.pfpCore.internal.ip}
+
 pfp.core.port.offset=250
 pfp.core.group=${organization.name}-core-group
 pfp.core.server=${organization.name}-core
 
-# base64 encodings generated here:  http://www.base64encode.org/
-pfp.core.remoting.base64.passcode=YnJtcw==
-pfp.core.remoting.user.name=pfp
 
 # deconflicts with default HOST AND PROCESS CONTROLLER debug values found in $JBOSS_HOME/bin/domain.conf
 pfp.core.group.debugger.port=8789
@@ -59,6 +52,18 @@ brms.webs.group.debugger.port=8790
 
 ###################################################################################################
 
+
+###############################         custom ejb-security-realm settings          ###############
+# pre-req:  read 'remote client examples' section of $PFP_HOME/doc/ADMIN_GUIDE.txt
+
+
+# where is this used ?
+pfp.core.remoting.user.name=pfp
+
+# base64 encodings generated here:  http://www.base64encode.org/
+# corresponds to:  brms
+pfp.core.remoting.base64.passcode=YnJtcw==
+####################################################################################################
 
 
 
@@ -467,3 +472,9 @@ openshift.brmsWebs.app.size=medium
 json.file.dir=/tmp
 json.file=test.json
 ##########################################################################################################
+
+
+# experimental :  administrator security credentials for jboss EAP
+jboss.admin.id=admin
+jboss.admin.password=brms
+
