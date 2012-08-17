@@ -1,0 +1,1 @@
+/profile=default/subsystem=datasources/jdbc-driver=mysql/:add(driver-module-name=com.mysql.jdbc,driver-xa-datasource-class-name=com.mysql.jdbc.jdbc2.optional.MysqlXADataSource,jdbc-compliant=false)

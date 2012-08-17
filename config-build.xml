@@ -47,6 +47,7 @@
                 <param name="cli.source.dir" value="conf/jboss/"/>
                 <param name="cli.to.filter.and.execute" value="jboss-config.cli"/>
         </antcall>
+        <antcall target="provision.jboss.with.jdbc" />
     </target>
     <target name="local.bounce.all.servers" description="">
         <if>
@@ -91,6 +92,20 @@
             <param name="dest.dir" value="${jboss.home}/${jboss.domain.base.dir}/configuration"/>
         </antcall>
     </target>
+
+    <target name="provision.jboss.with.jdbc" >
+        <if>
+            <equals arg1="${jdbc.module.name}" arg2="mysql" />
+            <then><property name="db.script" value="mysql-config-up.cli"/></then>
+            <else><property name="db.script" value="pgsql-config-up.cli"/></else>
+        </if>
+        <antcall target="execute.cli">
+            <param name="cli.source.dir" value="conf/jboss"/>
+            <param name="cli.to.filter.and.execute" value="${db.script}"/>
+            <param name="cli.fail.on.error" value="true"/>
+        </antcall>
+    </target>
+
 
     <!--
         purpose:  execute a cli batch script on a running EAP 6 server
@@ -595,7 +610,7 @@
             <param name="cli.fail.on.error" value="true"/>
         </antcall>
         <antcall target="local.bounce.guvnor.designer" />
-        <!--antcall target="local.bounce.jbpm.gwt.console" / -->
+        <antcall target="local.bounce.jbpm.gwt.console" />
     </target>
 
 
