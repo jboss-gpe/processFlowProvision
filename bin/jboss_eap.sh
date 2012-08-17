@@ -1,11 +1,5 @@
 #!/bin/sh
 
-#export jbossDomainBaseDir=$2
-#export domainConfig=$3
-
-#export cliPort=$2
-#export node=$3
-
 for var in $@
 do
     case $var in
@@ -17,6 +11,18 @@ do
             ;;
         -isAdmin=*)
             isAdmin=`echo $var | cut -f2 -d\=` 
+            ;;
+        -jbossDomainBaseDir=*)
+            jbossDomainBaseDir=`echo $var | cut -f2 -d\=` 
+            ;;
+        -domainConfig=*)
+            domainConfig=`echo $var | cut -f2 -d\=` 
+            ;;
+        -cliPort=*)
+            cliPort=`echo $var | cut -f2 -d\=` 
+            ;;
+        -node=*)
+            node=`echo $var | cut -f2 -d\=` 
             ;;
     esac
 done
@@ -33,7 +39,7 @@ start() {
     cd $JBOSS_HOME
     rm nohup.out
     nohup ./bin/domain.sh -b=$HOSTNAME -bmanagement=$HOSTNAME -Djboss.domain.base.dir=$jbossDomainBaseDir -Ddomain-config=$domainConfig &
-    sleep 10 
+    sleep 15 
 }
 
 stop() {

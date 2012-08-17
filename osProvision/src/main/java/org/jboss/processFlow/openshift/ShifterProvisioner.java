@@ -90,13 +90,13 @@ public class ShifterProvisioner {
     public static final String OPENSHIFT_ACCOUNT_PROVISIONING_LOG_DIR  = "openshift.account.provisioning.log.dir";
     public static final String OPENSHIFT_ACCOUNT_DETAILS_SCHEMA_FILE="/openshift_account_details.xsd";
     public static final String OPENSHIFT_BRMS_WEBS_APP_SIZE="openshift.brmsWebs.app.size";
-    public static final String OPENSHIFT_PFP_CORE_SCALED_APP="openshift.pfp.core.scaled.app";
+    public static final String OPENSHIFT_PFP_CORE_SCALED_APP="openshift.pfpCore.scaled.app";
     public static final String ACCOUNT_ID = "tns:accountId";
     public static final String PASSWORD = "tns:password";
     public static final String DOMAIN_ID = "tns:domainId";
-    public static final String REFRESH_DOMAIN ="openshift.refresh.domain";
-    public static final String CREATE_PFP_CORE="openshift.create.pfp.core";
-    public static final String CREATE_BRMS_WEBS="openshift.create.brms.webs";
+    public static final String REFRESH_DOMAIN ="openshift.account.refresh.domain";
+    public static final String CREATE_PFP_CORE="openshift.account.create.pfp.core";
+    public static final String CREATE_BRMS_WEBS="openshift.account.create.brms.webs";
     
     public static final String DATA = "data";
     public static final String LINKS = "links";

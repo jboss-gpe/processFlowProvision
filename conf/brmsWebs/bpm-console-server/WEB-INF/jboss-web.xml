@@ -8,6 +8,6 @@
 
   <security-domain>java:/jaas/other</security-domain>
 
-  <context-root>gwt-console-server</context-root>
+  <context-root>${console.sub.domain}-server</context-root>
 
 </jboss-web>

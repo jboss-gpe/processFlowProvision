@@ -24,16 +24,16 @@
         <exec executable="bash" failonerror="true" dir="." >
            <arg value="bin/jboss_eap.sh"/>
            <arg value="stop"/>
-           <arg value="${management.port}"/>
-           <arg value="master"/>
+           <arg value="-port=${management.port}"/>
+           <arg value="-node=master"/>
         </exec>
     </target>
     <target name="local.start.master" description="">
         <exec executable="bash" failonerror="true" dir="." >
            <arg value="bin/jboss_eap.sh"/>
            <arg value="start"/>
-           <arg value="${jboss.domain.base.dir}"/>
-           <arg value="${domain.config.file}"/>
+           <arg value="-jbossDomainBaseDir=${jboss.domain.base.dir}"/>
+           <arg value="-domainConfig=${domain.config.file}"/>
         </exec>
     </target>
     <target name="refresh.master" >
@@ -316,17 +316,16 @@
                 </copy>
             </then>
             <else>
-                <antcall target="download.community.brms.webs" />
+                <antcall target="download.community.guvnor.and.designer" />
                 <unzip src="${install.home}/lib/guvnor-distribution-wars-${drools.guvnor.version}-jboss-as-7.0.war" dest="${guvnor.target}" />
                 <unzip src="${install.home}/lib/jbpm-designer-${designer.version}.war" dest="${designer.target}" />
             </else>
         </if>
-        <!-- disable until database integration with guvnor 5.5. is fixed  -->
-        <!-- antcall target="filter">
+        <antcall target="filter">
             <param name="source.dir" value="conf/brmsWebs/drools-guvnor/WEB-INF"/>
             <param name="file.name" value="beans.xml"/>
             <param name="dest.dir" value="${guvnor.target}/WEB-INF"/>
-        </antcall -->
+        </antcall>
         <antcall target="filter">
             <param name="source.dir" value="conf/brmsWebs/drools-guvnor/WEB-INF/classes"/>
             <param name="file.name" value="preferences.properties"/>
@@ -338,8 +337,6 @@
             <param name="dest.dir" value="${guvnor.target}/WEB-INF"/>
         </antcall>
 
-        <antcall target="refreshGuvnor" />
-
         <antcall target="filter">
             <param name="source.dir" value="conf/brmsWebs/designer/profiles"/>
             <param name="file.name" value="jbpm.xml"/>
@@ -350,14 +347,6 @@
 
     <target name="explode.jbpm.gwt.console" >
         <if>
-            <isset property="useCompiledJBPMLibs"/>
-            <then>
-                <unzip src="${install.home}/lib/jbpm-${jBPM.version}-gwt-console.zip" dest="${temp.dir}" />
-                <unzip src="${temp.dir}/jbpm-gwt-console-${jBPM.version}.war" dest="${console.target}"/>
-                <unzip src="${temp.dir}/jbpm-gwt-console-server-${jBPM.version}.war" dest="${console.server.target}"/>
-            </then>
-        </if>
-        <if>
             <isset property="useBRMS"/>
             <then>
                 <copy todir="${console.target}" >
@@ -367,11 +356,21 @@
                     <fileset dir="${temp.dir}/gwt-console-server.war" />
                 </copy>
             </then>
+            <else>
+                <antcall target="download.community.jbpm.gwt.console" />
+                <unzip src="${install.home}/lib/jbpm-${jBPM.version}-gwt-console.zip" dest="${temp.dir}" />
+                <unzip src="${temp.dir}/jbpm-gwt-console-${jBPM.version}.war" dest="${console.target}"/>
+                <unzip src="${temp.dir}/jbpm-gwt-console-server-${jBPM.version}.war" dest="${console.server.target}"/>
+            </else>
         </if>
 
         <delete file="${console.server.target}/WEB-INF/classes/ChangeSet.xml" />
         <delete file="${console.server.target}/WEB-INF/classes/META-INF/persistence.xml" />
 
+        <antcall target="filter">
+            <param name="source.dir" value="conf/brmsWebs/bpm-console"/>
+            <param name="dest.dir" value="${console.target}"/>
+        </antcall>
         <antcall target="filter">
             <param name="source.dir" value="conf/brmsWebs/bpm-console-server/WEB-INF"/>
             <param name="dest.dir" value="${console.server.target}/WEB-INF"/>
@@ -426,6 +425,7 @@
     </target>
 
     <target name="local.bounce.guvnor.designer" description="" >
+        <antcall target="refreshGuvnor" />
         <antcall target="explode.guvnor.and.designer" />
         <jar jarfile="${guvnor.zipped}" basedir="${guvnor.target}" />
         <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
@@ -440,17 +440,6 @@
             <arg value="deploy ${designer.zipped} --name=${designer.name} --server-groups=brms-webs-group"/>
         </exec>
     </target>
-
-    <target name="prepare.brms.webs" >
-        <antcall target="explode.guvnor.and.designer" />
-        <jar jarfile="${guvnor.zipped}" basedir="${guvnor.target}" />
-        <jar jarfile="${designer.zipped}" basedir="${designer.target}" />
-        <antcall target="explode.jbpm.gwt.console" />
-        <!--antcall target="install.reporting.into.jboss7" / -->
-        <jar jarfile="${console.server.zipped}" basedir="${console.server.target}" />
-        <jar jarfile="${console.zipped}" basedir="${console.target}" />
-    </target>
-
 
     <target name="clean.jbpm.install" depends="">
         <!-- JA Bride :  now deleting anything that is not previously downloaded -->
@@ -606,7 +595,7 @@
             <param name="cli.fail.on.error" value="true"/>
         </antcall>
         <antcall target="local.bounce.guvnor.designer" />
-        <antcall target="local.bounce.jbpm.gwt.console" />
+        <!--antcall target="local.bounce.jbpm.gwt.console" / -->
     </target>
 
 

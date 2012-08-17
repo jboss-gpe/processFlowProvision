@@ -27,29 +27,30 @@
         <antcall target="openshift.deploy.jboss.modules" >
             <param name="app.location" value="${openshift.brmsWebs.app.location}"/>
         </antcall>
+        <property name="pfp.core.remoting.port" value="${base.remoting.port}" />
         <antcall target="filter">
             <param name="source.dir" value="conf/openshift/brmsWebs"/>
             <param name="dest.dir" value="${openshift.brmsWebs.app.location}/.openshift"/>
         </antcall>
         <delete file="${openshift.brmsWebs.app.location}/pom.xml" />
-        <antcall target="prepare.brms.webs" />
-        <!--copy todir="${openshift.brmsWebs.app.location}/deployments">
-            <fileset dir="${temp.brmsWebs.dir}/deployments" >
-                <include name="*.war" />
-            </fileset>
-        </copy -->
+        <antcall target="explode.guvnor.and.designer" />
+        <antcall target="explode.jbpm.gwt.console" />
+        <!-- rsync to exploded web archives to :  ${openshift.jboss.cartridge.type}/tmp/deployments
+            this directory will not get blown away when executing 'git push' on openshift app
+        -->
+        <exec executable="bash" failonerror="true" dir="." >
+           <arg value="bin/openshift.sh"/>
+           <arg value="openshiftRsync"/>
+           <arg value="-localDir=${temp.brmsWebs.dir}/*"/>
+           <arg value="-sshUrl=${openshift.brmsWebs.ssh.url}"/>
+           <arg value="-remoteDir=${openshift.jboss.cartridge.type}/tmp/deployments"/>
+        </exec> 
+        <!-- NOTE:  git push on openshift app will blow away exploded archives in app-root/repo/deployments -->
         <exec executable="bash" failonerror="true" dir="." >
            <arg value="bin/openshift.sh"/>
            <arg value="push"/>
            <arg value="-localAppLocation=${openshift.brmsWebs.app.location}"/>
            <arg value="-domainName=${openshift.domain.name}"/>
-        </exec> 
-        <exec executable="bash" failonerror="true" dir="." >
-           <arg value="bin/openshift.sh"/>
-           <arg value="openshiftRsync"/>
-           <arg value="-localDir=${temp.brmsWebs.dir}/deployments"/>
-           <arg value="-sshUrl=${openshift.brmsWebs.ssh.url}"/>
-           <arg value="-remoteDir=app-root/repo"/>
         </exec> 
     </target>
 

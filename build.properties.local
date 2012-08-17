@@ -2,34 +2,58 @@
 # name of organization using this processFlowProvision project
 organization.name=pfp
 
-pfp.ear.name=pfp.ear
 build.dir=target
-# location on local filesystem where drools guvnor, jbpm5 designer and gwt-console-service will be downloaded to
+
 install.home=${ENV.JBOSS_PROJECTS}/processFlowProvision/${build.dir}
 temp.dir=${install.home}/tmp
 temp.client.dir=${install.home}/clientLibs
-temp.pfp.services.dir=${install.home}/services
+temp.pfp.lib.dir=${install.home}/pfp/lib
+temp.pfp.services.dir=${install.home}/pfp/services
+temp.distro.dir=${install.home}/processFlowDistro
+temp.brmsWebs.dir=${install.home}/brmsWebs
+temp.jboss.dir=${install.home}/jboss
 ####################################################################################################
 
 
 
-##########################              JBoss EAP configurations      ############################
+
+
+##########################          JBoss EAP configurations       ############################
 
 #  absolute path to JBoss EAP 5.1.* or SOA-P 5.1.*
 jboss.home=${ENV.JBOSS_HOME}
 
+
+# administrator security credentials for jboss EAP
+jboss.admin.id=alex
+jboss.admin.password=pfpBrms
+
+
 # config settings for JBoss server containing core BRMS process engine and human task services
 jboss.domain.base.dir=domain-${organization.name}
-management.port=9999
-pfp.core.port.offset=250
 domain.config.file=domain.xml
+management.port=9999
+base.remoting.port=4447
+pfp.core.host.name=${ENV.HOSTNAME}
+pfp.core.port.offset=250
 pfp.core.group=${organization.name}-core-group
 pfp.core.server=${organization.name}-core
+
+# base64 encodings generated here:  http://www.base64encode.org/
+pfp.core.remoting.base64.passcode=YnJtcw==
+pfp.core.remoting.user.name=pfp
+
+# deconflicts with default HOST AND PROCESS CONTROLLER debug values found in $JBOSS_HOME/bin/domain.conf
+pfp.core.group.debugger.port=8789
+
 
 # port settings for JBoss server containing BRMS web applications:  guvnor, designer and jbpm-console
 brms.webs.management.port=10149
 brms.webs.port.offset=150
 brms.webs.http.port=8230
+
+# deconflicts with default HOST AND PROCESS CONTROLLER debug values found in $JBOSS_HOME/bin/domain.conf
+brms.webs.group.debugger.port=8790
 
 ###################################################################################################
 
@@ -47,11 +71,12 @@ hibernate.jdbc.batch_size=100
 hibernate.cache.use_second_level_cache=false
 hibernate.show_sql=false
 
-
 ######      PostgreSQL configs
 #  absolute path of JDBC library for use by guvnor and jbpm5 server
 #  postgresql-jdbc.jar should have been pulled down via yum repository as described in this project's README
-jdbc.lib.path=/usr/share/java/postgresql-jdbc.jar
+postgresql.jdbc.lib=postgresql-jdbc.jar
+postgresql.jdbc.lib.path=/usr/share/java/${postgresql.jdbc.lib}
+jdbc.module.name=postgresql
 
 # hibernate.dialect :   processFlowProvision has been tested using latest PostgreSQL on Fedora 14-16 and RHEL 5.6
 hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
@@ -67,8 +92,11 @@ jbpm_db_password=jbpm
 guvnor_db_ip=${ENV.HOSTNAME}
 guvnor_connection_url=jdbc:postgresql://${guvnor_db_ip}/guvnor
 guvnor_driver_class=org.postgresql.Driver
+guvnor.xa.datasource.class=org.postgresql.xa.PGXADataSource
 guvnor_db_user=guvnor
 guvnor_db_password=guvnor
+guvnor_persistence_manager_class=org.apache.jackrabbit.core.persistence.pool.PostgreSQLPersistenceManager
+guvnor_schema_type=postgresql
 
 #   JCA connection factory properties BAM database
 bam_db_ip=${ENV.HOSTNAME}
@@ -83,6 +111,10 @@ esb_connection_url=jdbc:postgresql://${esb_db_ip}/esb
 esb_driver_class=org.postgresql.Driver
 esb_db_user=esb
 esb_db_password=esb
+
+######      mysql configs 
+mysql.jdbc.lib=mysql-connector-java.jar
+mysql.jdbc.lib.path=/usr/share/java/${mysql.jdbc.lib}
 
 ######      HSQL configs
 # hibernate.dialect :   processFlowProvision has been tested using latest PostgreSQL on Fedora 14-16 and RHEL 5.6
@@ -138,7 +170,7 @@ QPID_EXCHANGE_NAME=com.pfp.direct
 journal.path.relative.to.user.home=../../tmp/hornetq/journal
 paging.path.relative.to.user.home=../../tmp/hornetq/paging
 large.messages.path.relative.to.user.home=../../tmp/hornetq/bindingsAndLargeMessages
-bindings.path.relative.to.user.home=../../tmp/hornetq/bindingsAndLargeMessages
+binding.path.relative.to.user.home=../../tmp/hornetq/bindingsAndLargeMessages
 
 hornetq.cluster.password=hornetq.${organization.name}
 ##################################################################################################
@@ -161,7 +193,7 @@ hornetq.cluster.password=hornetq.${organization.name}
 # URL to processFlowProvision service task demonstration
 # NOTE:  if executing serviceTasks test, then need to enable both 'service.repository' & 'service.repository.url' properties
 service.repository=${ENV.JBOSS_PROJECTS}/jboss/serviceRepository
-service.repository.url=file:///${ENV.JBOSS.PROJECTS}/jboss/serviceRepository
+service.repository.url=file:///${ENV.JBOSS_PROJECTS}/jboss/serviceRepository
 
 # space delimited list of configuration files declaring custom workItemHandlers
 # the value of this property ends up in ${jboss.server.conf.dir}/META-INF/drools.session.conf as the value for 'drools.worItemHandlers'
@@ -177,8 +209,8 @@ space.delimited.workItemHandler.configs=
 # please configure the following properties to communicate with yur mail server or mail relay service
 org.jbpm.workItemHandler.mail.address=${ENV.HOSTNAME}
 org.jbpm.workItemHandler.mail.port=25
-org.jbpm.workItemHandler.mail.userId=
-org.jbpm.workItemHandler.mail.password=
+org.jbpm.workItemHandler.mail.userId=""
+org.jbpm.workItemHandler.mail.password=""
 ###################################################################################################
 
 
@@ -187,6 +219,9 @@ org.jbpm.workItemHandler.mail.password=
 #  the following allows for configuration of a space delimited list of org.drools.event.process.ProcessEventListener implementations
 #  an instance of each of these ProcessEventListener implementations will be registered with a single StatefulKnowledgeSession
 space.delimited.process.event.listeners=org.jboss.processFlow.bam.AsyncBAMProducer
+
+#  if set, knowledgeSessionService will register corresponding task cleanup process event listener implementation
+task.clean.up.process.event.listener.impl=org.jbpm.task.admin.TaskCleanUpProcessEventListener
 ###################################################################################################
 
 
@@ -205,11 +240,24 @@ brms.download.url=http://jawa05.englab.brq.redhat.com/candidate/BRMS-${brms.majo
 jbpm.console.server.host=${ENV.HOSTNAME}
 jbpm.console.server.port=${brms.webs.http.port}
 
-console.server.version=5.4.0-SNAPSHOT
-console.server.target=${jboss.server.deploy.dir}/${organization.name}/gwt-console-server.war
+console.sub.domain=business-central
 
-console.name=business-central
-console.target=${install.home}/${console.name}.war
+console.server.version=5.4.0-SNAPSHOT
+console.server.name=${console.sub.domain}-server.war
+console.server.target=${temp.brmsWebs.dir}/${console.server.name}
+console.server.zipped=${temp.brmsWebs.dir}/deployments/${console.server.name}
+
+console.name=${console.sub.domain}.war
+console.target=${temp.brmsWebs.dir}/${console.name}
+console.zipped=${temp.brmsWebs.dir}/deployments/${console.name}
+
+
+birt.download.url.as7=http://mirrors.med.harvard.edu/eclipse/birt/downloads/drops/R-R1-3_7_0-201106151818/birt-runtime-3_7_0.zip
+birt.version=3_7_0
+birt.target=${temp.brmsWebs.dir}/birt-runtime-${birt.version}
+
+jboss.nexus.url=https://repository.jboss.org/nexus
+org.jbpm.report.dir=${ENV.JBOSS_PROJECTS}/jboss/birt
 ###################################################################################################
 
 
@@ -220,7 +268,9 @@ console.target=${install.home}/${console.name}.war
 guvnor_repo_location=${ENV.JBOSS_PROJECTS}/jboss/guvnor
 
 guvnor.name=jboss-brms.war
-guvnor.target=${install.home}/${guvnor.name}
+guvnor.target=${temp.brmsWebs.dir}/${guvnor.name}
+guvnor.zipped=${temp.brmsWebs.dir}/deployments/${guvnor.name}
+
 
 #JA Bride : provide processFlowProvision knowledgeSessionService with details of how/where to connect to guvnor and designer
 guvnor.host=${ENV.HOSTNAME}:${brms.webs.http.port}
@@ -234,11 +284,11 @@ guvnor.connect.timeout=15000
 guvnor.read.timeout=15000
 guvnor.snapshot.name=LATEST
 
+
 # the version of Drools Guvnor you want to use and the associated URL you want to get the dependencies from
 #drools.guvnor.version=5.3.1.Final
-drools.guvnor.version=5.4.0-SNAPSHOT
-drools.guvnor.url=https://repository.jboss.org/nexus/content/repositories/snapshots/org/drools/guvnor-distribution-wars/${drools.guvnor.version}/guvnor-distribution-wars-5.4.0-20120503.212427-528-jboss-as-7.0.war
-
+drools.guvnor.version=5.5.0-SNAPSHOT
+drools.guvnor.url=https://repository.jboss.org/nexus/content/repositories/snapshots/org/drools/guvnor-distribution-wars/5.5.0-SNAPSHOT/guvnor-distribution-wars-5.5.0-20120722.224235-209-jboss-as-7.0.war
 
 # guvnor is in need of the following system property to locate the wapama intallio designer
 oryx.external.port=${brms.webs.http.port}
@@ -268,24 +318,16 @@ org.jboss.processFlow.drools.resource.scanner.interval=30
 # NOTE:  Designer is a bpmn2 modeler web app embedded in guvnor
 
 # the version of the Designer you want to use and the associated URL you want to get it from
-designer.version=2.2-jboss7
-designer.url=http://people.redhat.com/tsurdilo/designer/master
-#designer.url=http://sourceforge.net/projects/jbpm/files/designer/designer-2.1
+designer.version=2.3.0.Final-jboss7
+#designer.url=http://people.redhat.com/tsurdilo/designer/master
+designer.url=http://sourceforge.net/projects/jbpm/files/designer/designer-2.3
+
 
 designer.name=designer.war
-designer.target=${install.home}/${designer.name}
+designer.target=${temp.brmsWebs.dir}/${designer.name}
+designer.zipped=${temp.brmsWebs.dir}/deployments/${designer.name}
 #######################################################################################################
 
-
-
-######################              Eclipse plugin configurations       ###############################
-# the home of your eclipse installation where the Eclipse plugin will be dropped into
-eclipse.home=/opt/eclipse
-
-# the version of Drools Eclipse plugin you want to use and the associated URL you want to get the dependencies from
-drools.eclipse.version=5.4.0.Beta2
-drools.eclipse.url=https://repository.jboss.org/nexus/content/repositories/releases/org/drools/org.drools.updatesite/${drools.eclipse.version}/org.drools.updatesite-${drools.eclipse.version}-assembly.zip
-########################################################################################################
 
 
 
@@ -295,6 +337,7 @@ drools.eclipse.url=https://repository.jboss.org/nexus/content/repositories/relea
 org.jboss.processFlow.statefulKnowledge.enableKnowledgeRuntimeLogger=false
 
 jbpm.usergroup.callback=org.jboss.processFlow.tasks.PFPUserGroupCallback
+
 
 # valid values = RESOURCE_LOCAL or local-JTA
 org.jboss.processFlow.task.transactionType=RESOURCE_LOCAL
@@ -309,7 +352,99 @@ org.jboss.processFlow.tasks.TaskEventListeners=org.jboss.processFlow.tasks.event
 org.jboss.processFlow.task.enableIntelligentMapping=true
 org.jboss.enableLog=true
 
-org.jboss.processFlow.KnowledgeSessionPool=org.jboss.processFlow.JpaKnowledgeSessionPool
+org.jboss.processFlow.KnowledgeSessionPool=org.jboss.processFlow.knowledgeService.JpaKnowledgeSessionPool
 
 org.jboss.processFlow.bam.queue=processFlow.asyncWorkingMemoryLogger
+##########################################################################################################
+
+######################              Eclipse plugin configurations       ###############################
+# the home of your eclipse installation where the Eclipse plugin will be dropped into
+eclipse.home=/opt/eclipse
+
+# the version of Drools Eclipse plugin you want to use and the associated URL you want to get the dependencies from
+drools.eclipse.version=5.4.0.Beta2
+drools.eclipse.url=https://repository.jboss.org/nexus/content/repositories/releases/org/drools/org.drools.updatesite/${drools.eclipse.version}/org.drools.updatesite-${drools.eclipse.version}-assembly.zip
+
+#location of bpmn2-modeler developed by Bob Brodt
+bpmn2.modeler.url=http://download.eclipse.org/bpmn2-modeler/site/
+########################################################################################################
+
+
+#######################          PFP DEVELOPMENT PROPERTIES         ######################################
+
+#specify whether processFlowProvision should be built from upstream jbpm5 source or BRMS
+#possible selections :  COMMUNITY_SOURCE, BRMS
+upstream.jbpm5.drools.libs.type=COMMUNITY_SOURCE
+
+droolsjbpm.source.dir=${ENV.JBOSS_PROJECTS}/droolsjbpm/community
+jbpm.source.dir=${droolsjbpm.source.dir}/jbpm
+jbpm.lib.path=${jbpm.source.dir}/jbpm-distribution/target/jbpm-${jBPM.version}-pre-bin
+deps.lib.path=${jbpm.source.dir}/jbpm-distribution/target/jbpm-${jBPM.version}-pre-bin/lib
+
+
+jBPM.version=5.4.0-SNAPSHOT
+version.protobuf=2.4.1
+version.antlr=3.3
+version.drools=5.5.0-SNAPSHOT
+version.ecj=3.5.1
+version.mvel=2.1.0
+version.stringtemplate=3.2.1
+
+
+junit.lib.path=/usr/share/java/junit4.jar
+arquillian.lib.path=${ENV.HOME}/.m2/repository/org/jboss
+
+org.jboss.processFlow.test.absolutePathToBpmn=${basedir}/pfpServicesTest/src/test/resources/simpleHumanTask.bpmn2
+
+
+org.jboss.processFlow.client.debuggerPort=8887
+##########################################################################################################
+
+
+#######################         openshift   provisioning        ##########################################
+# host name of public or private openshift
+openshift.rest.uri=https://openshift.redhat.com/broker/rest/
+#openshift.rest.uri=https://192.168.122.228/broker/rest/
+
+# absolute path of file that includes all openshift accountId/passwords
+# there is no limit (ok ... within reason :-) ) to how many openshift accounts can be provisioned at once
+# must validate in accordance with $PFP_HOME/conf/pfp/openshift/pfp_openshift_provision.xsd
+# after adding accounts to the file you've specified in this property, an easy way to test XSD schema validation is:
+#  xmllint --schema $PFP_HOME/conf/pfp/openshift/pfp_openshift_provision.xsd /path/to/your/openshift/account/details.xml
+openshift.account.details.file.location=${ENV.HOME}/redhat/openshift/openshift_account_details.xml
+
+# directory of log files generated from provisioning of each openshift account
+# note:  each log file name will be suffixed with mm-dd-yyyy 
+openshift.account.provisioning.log.dir=${ENV.HOME}/redhat/openshift/accountProvisioningLogs
+
+# domain name for an account that hosts both pfpCore and brmsWebs
+openshift.domain.name=jbride0
+
+openshift.refresh.domain=false
+openshift.create.pfp.core=false
+openshift.create.brms.webs=true
+
+#openshift.remote.jboss.home=jbossas-7/jbossas-7
+openshift.remote.jboss.home=jbosseap-6.0/jbosseap-6.0
+openshift.pfpCore.internal.ip=127.13.49.129
+openshift.pfpCore.management.port=9999
+openshift.pfpCore.ssh.url=f77fcf5bd1904986a9d781a5f77b2c74@pfpCore-jbride0.rhcloud.com
+
+openshift.pfpCore.app.location=/opt/jboss/openshift/pfpCore
+openshift.pfp.core.scaled.app=false
+
+
+
+openshift.brmsWebs.ssh.url=c1f5a6973bca4112b5588bb9575ba93f@brmsWebs-jbride0.rhcloud.com
+openshift.brmsWebs.app.location=/opt/jboss/openshift/brmsWebs
+
+# gear size of brmsWebs app
+# choose either 'small' (500MB heap) or 'medium' (1GB heap)
+# default is 'small'
+# in public openshift, account must be enabled to allow for medium sized gears (if 'medium' is specified)
+# in private Openshift Origin, origin doesn't yet allow for 'medium' size gears
+openshift.brmsWebs.app.size=medium
+
+json.file.dir=/tmp
+json.file=test.json
 ##########################################################################################################

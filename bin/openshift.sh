@@ -1,12 +1,14 @@
 #!/bin/sh
 
-command=$1
 socketIsOpen=2
 fileSize=0
 
 for var in $@
 do
     case $var in
+        -command=*)
+            command=`echo $var | cut -f2 -d\=`
+            ;;
         -domainName=*)
             domainName=`echo $var | cut -f2 -d\=`
             ;;
@@ -149,6 +151,11 @@ executePostgresqlScript() {
     "
 }
 
+remoteCommand() {
+    echo -en "remoteCommand() command = $command";
+    ssh $sshUrl "$command"
+}
+
 refreshGuvnor() {
     ssh $sshUrl "
         rm -rf $OPENSHIFT_DATA_DIR/guvnor;
@@ -169,10 +176,10 @@ push() {
 
 
 case "$1" in
-    startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel)
+    startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand)
         $1
         ;;
     *)
-    echo 1>&2 $"Usage: $0 {startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel}"
+    echo 1>&2 $"Usage: $0 {startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand}"
     exit 1
 esac

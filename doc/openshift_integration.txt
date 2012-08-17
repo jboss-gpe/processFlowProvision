@@ -119,6 +119,13 @@ the remainder of this document discusses details of each of these phases
 7)  openshift.provision.brms.webs
         8.a)  deployment of brms web archives to openshift
 
+        TO_DO:  during startup, brmsWebs app is exceeding the 1GB disk quota limit set even on a medium sized gear
+                use the following shell script to observe this during an app restart :  while true; do date; du -ksh *; sleep 1; done
+                may need to consider "Add On Storage" :  https://openshift.redhat.com/community/faq/what-is-add-on-storage
+
+                executing :  ant local.provision.brms.webs -Drefresh.master=true     
+                ... observed size of $JBOSS_HOME increase from 176MB to 1.6G
+
 
 
 8)  management & application security
