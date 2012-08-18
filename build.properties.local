@@ -24,11 +24,6 @@ temp.jboss.dir=${install.home}/jboss
 jboss.home=${ENV.JBOSS_HOME}
 
 
-# administrator security credentials for jboss EAP
-jboss.admin.id=alex
-jboss.admin.password=pfpBrms
-
-
 # config settings for JBoss server containing core BRMS process engine and human task services
 jboss.domain.base.dir=domain-${organization.name}
 domain.config.file=domain.xml
@@ -38,10 +33,6 @@ pfp.core.host.name=${ENV.HOSTNAME}
 pfp.core.port.offset=250
 pfp.core.group=${organization.name}-core-group
 pfp.core.server=${organization.name}-core
-
-# base64 encodings generated here:  http://www.base64encode.org/
-pfp.core.remoting.base64.passcode=YnJtcw==
-pfp.core.remoting.user.name=pfp
 
 # deconflicts with default HOST AND PROCESS CONTROLLER debug values found in $JBOSS_HOME/bin/domain.conf
 pfp.core.group.debugger.port=8789
@@ -60,6 +51,21 @@ brms.webs.group.debugger.port=8790
 
 
 
+###############################         custom ejb-security-realm settings          ###############
+# pre-req:  read 'remote client examples' section of $PFP_HOME/doc/ADMIN_GUIDE.txt
+
+
+# where is this used ?
+pfp.core.remoting.user.name=pfp
+
+# base64 encodings generated here:  http://www.base64encode.org/
+# corresponds to:  brms
+pfp.core.remoting.base64.passcode=YnJtcw==
+####################################################################################################
+
+
+
+
 ########################        database related configurations     ###############################
 
 # hibernate.hbm2ddl.auto  : valid values = 'create-drop', 'create', 'update', 'validate'
@@ -71,12 +77,15 @@ hibernate.jdbc.batch_size=100
 hibernate.cache.use_second_level_cache=false
 hibernate.show_sql=false
 
+# valid values:  postgresql  or mysql
+jdbc.module.name=postgresql
+
+
 ######      PostgreSQL configs
 #  absolute path of JDBC library for use by guvnor and jbpm5 server
 #  postgresql-jdbc.jar should have been pulled down via yum repository as described in this project's README
 postgresql.jdbc.lib=postgresql-jdbc.jar
 postgresql.jdbc.lib.path=/usr/share/java/${postgresql.jdbc.lib}
-jdbc.module.name=postgresql
 
 # hibernate.dialect :   processFlowProvision has been tested using latest PostgreSQL on Fedora 14-16 and RHEL 5.6
 hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
@@ -290,10 +299,6 @@ guvnor.snapshot.name=LATEST
 drools.guvnor.version=5.5.0-SNAPSHOT
 drools.guvnor.url=https://repository.jboss.org/nexus/content/repositories/snapshots/org/drools/guvnor-distribution-wars/5.5.0-SNAPSHOT/guvnor-distribution-wars-5.5.0-20120722.224235-209-jboss-as-7.0.war
 
-# guvnor is in need of the following system property to locate the wapama intallio designer
-oryx.external.port=${brms.webs.http.port}
-oryx.external.host=${ENV.HOSTNAME}
-
 
 # duration (seconds) that the KnowledgeAgent in the knowledgeSessionservice is configured to poll guvnor for process defintion updates
 # NOTE:  when a package (that the knowledgeSessionService has registered itself to monitor via the guvnor.packages property) is built,
@@ -370,6 +375,11 @@ bpmn2.modeler.url=http://download.eclipse.org/bpmn2-modeler/site/
 ########################################################################################################
 
 
+# experimental :  administrator security credentials for jboss EAP
+jboss.admin.id=pfp
+jboss.admin.password=pfpBrms
+
+
 #######################          PFP DEVELOPMENT PROPERTIES         ######################################
 
 #specify whether processFlowProvision should be built from upstream jbpm5 source or BRMS
@@ -398,53 +408,4 @@ org.jboss.processFlow.test.absolutePathToBpmn=${basedir}/pfpServicesTest/src/tes
 
 
 org.jboss.processFlow.client.debuggerPort=8887
-##########################################################################################################
-
-
-#######################         openshift   provisioning        ##########################################
-# host name of public or private openshift
-openshift.rest.uri=https://openshift.redhat.com/broker/rest/
-#openshift.rest.uri=https://192.168.122.228/broker/rest/
-
-# absolute path of file that includes all openshift accountId/passwords
-# there is no limit (ok ... within reason :-) ) to how many openshift accounts can be provisioned at once
-# must validate in accordance with $PFP_HOME/conf/pfp/openshift/pfp_openshift_provision.xsd
-# after adding accounts to the file you've specified in this property, an easy way to test XSD schema validation is:
-#  xmllint --schema $PFP_HOME/conf/pfp/openshift/pfp_openshift_provision.xsd /path/to/your/openshift/account/details.xml
-openshift.account.details.file.location=${ENV.HOME}/redhat/openshift/openshift_account_details.xml
-
-# directory of log files generated from provisioning of each openshift account
-# note:  each log file name will be suffixed with mm-dd-yyyy 
-openshift.account.provisioning.log.dir=${ENV.HOME}/redhat/openshift/accountProvisioningLogs
-
-# domain name for an account that hosts both pfpCore and brmsWebs
-openshift.domain.name=jbride0
-
-openshift.refresh.domain=false
-openshift.create.pfp.core=false
-openshift.create.brms.webs=true
-
-#openshift.remote.jboss.home=jbossas-7/jbossas-7
-openshift.remote.jboss.home=jbosseap-6.0/jbosseap-6.0
-openshift.pfpCore.internal.ip=127.13.49.129
-openshift.pfpCore.management.port=9999
-openshift.pfpCore.ssh.url=f77fcf5bd1904986a9d781a5f77b2c74@pfpCore-jbride0.rhcloud.com
-
-openshift.pfpCore.app.location=/opt/jboss/openshift/pfpCore
-openshift.pfp.core.scaled.app=false
-
-
-
-openshift.brmsWebs.ssh.url=c1f5a6973bca4112b5588bb9575ba93f@brmsWebs-jbride0.rhcloud.com
-openshift.brmsWebs.app.location=/opt/jboss/openshift/brmsWebs
-
-# gear size of brmsWebs app
-# choose either 'small' (500MB heap) or 'medium' (1GB heap)
-# default is 'small'
-# in public openshift, account must be enabled to allow for medium sized gears (if 'medium' is specified)
-# in private Openshift Origin, origin doesn't yet allow for 'medium' size gears
-openshift.brmsWebs.app.size=medium
-
-json.file.dir=/tmp
-json.file=test.json
 ##########################################################################################################

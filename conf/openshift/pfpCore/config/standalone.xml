@@ -512,9 +512,9 @@
 		<subsystem xmlns="urn:jboss:domain:pojo:1.0" />
 
 
-                <!-- JA Bride :  need to add security-realm="ApplicationRealm"  ??   -->
+                <!-- JA Bride :  added security-realm="ApplicationRealm"  -->
 		<subsystem xmlns="urn:jboss:domain:remoting:1.1">
-			<connector name="remoting-connector" socket-binding="remoting" />
+			<connector name="remoting-connector" socket-binding="remoting"  security-realm="ApplicationRealm" />
 		</subsystem>
 
 		<subsystem xmlns="urn:jboss:domain:resource-adapters:1.0" />

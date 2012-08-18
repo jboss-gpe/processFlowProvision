@@ -4,7 +4,7 @@
             <module name="org.apache.commons.collections" />
             <module name="org.apache.commons.io" />
 
-            <!-- bpm-integration later is sub-classed with pfp functionality that proxies requests to pfp-core -->
+            <!-- bpm-integration is sub-classed with pfp layer that proxies requests to pfp-core -->
             <module name="org.jboss.processFlow" />
 
             <!-- 

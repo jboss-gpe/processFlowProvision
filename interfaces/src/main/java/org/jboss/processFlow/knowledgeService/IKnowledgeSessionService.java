@@ -156,7 +156,7 @@ public interface IKnowledgeSessionService extends IBaseKnowledgeSessionService {
     public Process                  getProcessByName(String name) throws Exception;
     public void                     removeProcess(String processId);
     
-    public String                     printActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId);
+    public String                   printActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId);
     public Map<String, Object>      getActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId);
     public void                     setProcessInstanceVariables(Long processInstanceId, Map<String, Object> variables, Integer ksessionId );
 

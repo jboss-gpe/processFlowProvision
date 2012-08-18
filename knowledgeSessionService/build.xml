@@ -25,6 +25,11 @@
         <javadoc classpathref="classpath" sourcepath="${subproject.name}/src/main/java" destdir="${subproject.build}" />
         <jar jarfile="${subproject.build}/processFlow-${subproject.name}-javadoc.jar" basedir="${subproject.build}" includes="**/*.html, **/*.css, **/*.gif" />
         <copy file="${subproject.build}/processFlow-${subproject.name}-javadoc.jar" toDir="${temp.client.dir}" />
+
+        <antcall target="war" >
+            <param name="subproject.name" value="${subproject.name}" />
+            <param name="target.dir" value="${temp.pfp.services.dir}" />
+        </antcall>
     </target>
 
     <target name="knowledgeSessionServiceTest" depends="knowledgeSessionServiceClean,setClasspath" >

@@ -1,7 +1,6 @@
 package org.jboss.processFlow.knowledgeService;
 
 import static org.junit.Assert.assertEquals;
-import javax.ejb.EJB;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;

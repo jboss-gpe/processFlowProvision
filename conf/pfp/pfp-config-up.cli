@@ -47,11 +47,12 @@ batch
 
 /profile=full-ha/subsystem=datasources/data-source=jbpm-bam-cp:add(jndi-name=java:jboss/datasources/jbpm-bam-cp,connection-url=${bam_connection_url},driver-class=${bam_driver_class},driver-name=${jdbc.module.name},user-name=${bam_db_user},password=${bam_db_password},pool-name=jbpm-bam_ds_pool,max-pool-size=50,min-pool-size=10)
 /profile=full-ha/subsystem=datasources/data-source=jbpm-bam-cp:enable()
-run-batch
 
-batch
 deploy ${temp.pfp.services.dir}/processFlow-knowledgeSessionService.jar --name=processFlow-knowledgeSessionService.jar --server-groups=${pfp.core.group}
 deploy ${temp.pfp.services.dir}/processFlow-taskService.jar --name=processFlow-taskService.jar --server-groups=${pfp.core.group}
 deploy ${temp.pfp.services.dir}/processFlow-bamService.jar --name=processFlow-bamService.jar --server-groups=${pfp.core.group}
 run-batch
 
+batch
+deploy ${temp.pfp.services.dir}/processFlow-knowledgeSessionService-web.war --name=processFlow-knowledgeSessionService-web.war --server-groups=${pfp.core.group}
+run-batch

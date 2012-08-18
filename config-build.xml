@@ -558,5 +558,20 @@
         <antcall target="local.bounce.jbpm.gwt.console" />
     </target>
 
-
+    <target name="war" depends="setClasspath" >
+        <fail unless="subproject.name" message="filter:  need to pass 'subproject.name' property" />
+        <fail unless="target.dir" message="filter:  need to pass 'target.dir' property" />
+        <mkdir dir="${subproject.name}/${build.dir}/webapp/WEB-INF/classes" />
+        <antcall target="filter">
+            <param name="source.dir" value="${subproject.name}/src/main/webapp"/>
+            <param name="dest.dir" value="${subproject.name}/${build.dir}/webapp"/>
+        </antcall>
+        <javac debug="true" srcdir="${subproject.name}/src/main/webapp/WEB-INF/classes" destdir="${subproject.name}/${build.dir}/webapp/WEB-INF/classes" >
+            <classpath refid="classpath" />
+        </javac>
+        <!-- 3 May 2012:  wars and jars can't have the same name in EAP6.  will add '-war' to name to all web archives to avoid possible name confliction -->
+        <jar jarfile="${target.dir}/processFlow-${subproject.name}-web.war" >
+            <fileset dir="${subproject.name}/${build.dir}/webapp" />
+        </jar>
+    </target>
 </project>

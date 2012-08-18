@@ -12,6 +12,7 @@
         <copy todir="${openshift.pfpCore.app.location}/deployments">
             <fileset dir="${temp.pfp.services.dir}" >
                 <include name="*.jar" />
+                <include name="*.war" />
             </fileset>
         </copy>
         <delete file="${openshift.pfpCore.app.location}/pom.xml" />
