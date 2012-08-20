@@ -2,6 +2,7 @@
 
 <server xmlns="urn:jboss:domain:1.3">
 
+
 	<extensions>
 		<extension module="org.jboss.as.clustering.infinispan" />
 		<extension module="org.jboss.as.clustering.jgroups" />
@@ -93,8 +94,16 @@
 				</formatter>
 				<file relative-to="jboss.server.log.dir" path="server.log" />
 				<suffix value=".yyyy-MM-dd" />
-				<append value="true" />
+
+                                <!-- JA Bride :  switched to false and added TRACE -->
+				<append value="false" />
+                                <level name="TRACE"/>
 			</periodic-rotating-file-handler>
+
+                        <!-- JA Bride:  add trace level security logging -->
+                        <logger category="org.jboss.security" use-parent-handlers="true">
+                                <level name="TRACE" />
+                        </logger>
 			<logger category="com.arjuna">
 				<level name="WARN" />
 			</logger>
@@ -147,7 +156,7 @@
 				</datasource>
                                 <!-- JA Bride :  change jndi name and set pool settings -->
 				<datasource jndi-name="java:jboss/datasources/jbpm-core-cp"
-					enabled="${postgresql.enabled}" use-java-context="true" pool-name="jbpm-core-cp"
+					enabled="true" use-java-context="true" pool-name="jbpm-core-cp"
 					use-ccm="true">
 					<connection-url>jdbc:postgresql://${env.OPENSHIFT_DB_HOST}:${env.OPENSHIFT_DB_PORT}/jbpm
 					</connection-url>
@@ -166,7 +175,7 @@
 				</datasource>
                                 <!-- JA Bride :  add additional jbpm-bam datasource -->
 				<datasource jndi-name="java:jboss/datasources/jbpm-bam-cp"
-					enabled="${postgresql.enabled}" use-java-context="true" pool-name="jbpm-bam-cp"
+					enabled="true" use-java-context="true" pool-name="jbpm-bam-cp"
 					use-ccm="true">
 					<connection-url>jdbc:postgresql://${env.OPENSHIFT_DB_HOST}:${env.OPENSHIFT_DB_PORT}/jbpm_bam
 					</connection-url>

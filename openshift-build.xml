@@ -34,6 +34,7 @@
             <param name="dest.dir" value="${openshift.brmsWebs.app.location}/.openshift"/>
         </antcall>
         <delete file="${openshift.brmsWebs.app.location}/pom.xml" />
+        <delete dir="${temp.brmsWebs.dir}" />
         <antcall target="explode.guvnor.and.designer" />
         <antcall target="explode.jbpm.gwt.console" />
         <!-- rsync to exploded web archives to :  ${openshift.jboss.cartridge.type}/tmp/deployments

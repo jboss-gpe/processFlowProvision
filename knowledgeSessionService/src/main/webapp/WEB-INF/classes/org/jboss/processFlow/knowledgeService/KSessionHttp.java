@@ -14,14 +14,30 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.drools.runtime.process.ProcessInstance;
 
-@Stateless // this annotation is a convenient way to enable dependency injection. If missing, kProxy field won't be initialized by the container
+/* test interface for ksessionService via http
+ *
+ * addition of @Stateless annotation provides following advantages:
+ *
+ *   Injection capabilities: you can easily inject other EJBs, EntityManagers, JMS-resources, DataSources or JCA connectors
+ *   Transactions: all changes made in a REST-call will be automatically and transparently synchronized with the database
+ *   Single threading programming model -> the old EJB goodness.
+ *   Monitoring: an EJB is visible in JMX
+ *   Throttling: its easy to restrict the concurrency of an EJB using ThreadPools or bean pools
+ *   Vendor-independence: EJB 3 runs on multiple containers, without any modification (and without any XML in particular :-))
+*/
+@Stateless 
 @Path("/")
 public class KSessionHttp {
 
     @EJB(lookup="java:global/processFlow-knowledgeSessionService/prodKSessionProxy!org.jboss.processFlow.knowledgeService.IKnowledgeSessionService")
     IKnowledgeSessionService kProxy;
+
+    private Logger log = LoggerFactory.getLogger("KSessionHttp");
 
     /**
      * sample usage :
@@ -30,12 +46,50 @@ public class KSessionHttp {
     @GET
     @Path("/processInstances/count")
     @Produces({ "text/plain" })
-    public Response createPojo() {
+    public Response getActiveProcessInstancesCount() {
+        log.info("getActiveProcessInstancesCount() .. invoking ...");
         List<ProcessInstance> pInstances = kProxy.getActiveProcessInstances(null);
+        log.info("getActiveProcessInstancesCount() .. returned ...");
         int count = 0;
         if(pInstances != null)
             count = pInstances.size();
         ResponseBuilder builder = Response.ok(count);
+        return builder.build();
+    }
+
+    /**
+     * sample usage :
+     *  curl -X PUT -HAccept:text/plain $HOSTNAME:8330/knowledgeService/kbase/agent
+     */
+    @PUT
+    @Path("/kbase/agent")
+    public Response rebuildKnowledgeBaseViaKnowledgeAgent() {
+        kProxy.rebuildKnowledgeBaseViaKnowledgeAgent();
+        ResponseBuilder builder = Response.ok();
+        return builder.build();
+    }
+
+    /**
+     * sample usage :
+     *  curl -X GET -HAccept:text/plain $HOSTNAME:8330/knowledgeService/kbase/content
+     */
+    @GET
+    @Path("/kbase/content")
+    public Response printKnowledgeBaseContent() {
+        String kBaseContent = kProxy.printKnowledgeBaseContent();
+        ResponseBuilder builder = Response.ok(kBaseContent);
+        return builder.build();
+    }
+
+    /**
+     * sample usage :
+     *  curl -X GET -HAccept:text/plain $HOSTNAME:8330/knowledgeService/sanityCheck
+     */
+    @GET
+    @Path("/sanityCheck")
+    @Produces({ "text/plain" })
+    public Response sanityCheck() {
+        ResponseBuilder builder = Response.ok("good to go\n");
         return builder.build();
     }
 }

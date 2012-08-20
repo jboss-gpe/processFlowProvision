@@ -441,7 +441,13 @@
                 -->
                 <if>
                     <equals arg1="${jdbc.module.name}" arg2="postgresql" />
-                    <then><copy file="${postgresql.jdbc.lib.path}" todir="${jboss.home}/modules/org/postgresql/jdbc/main" /></then>
+                    <then>
+                        <antcall target="filter">
+                            <param name="source.dir" value="conf/postgresql/modules"/>
+                            <param name="dest.dir" value="${temp.jboss.dir}/modules"/>
+                        </antcall>
+                        <copy file="${postgresql.jdbc.lib.path}" todir="${jboss.home}/modules/org/postgresql/jdbc/main" />
+                    </then>
                     <else><copy file="${mysql.jdbc.lib.path}" todir="${jboss.home}/modules/com/mysql/jdbc/main" /></else>
                 </if>
             </then>

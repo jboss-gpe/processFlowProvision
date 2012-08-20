@@ -4,13 +4,13 @@ createSoftLinksToWebArchives() {
     echo -en "createSoftLinksToWebArchives() \n";
     cd $OPENSHIFT_RUNTIME_DIR/repo/deployments; 
     ln -s ~/$OPENSHIFT_GEAR_TYPE/tmp/deployments/${designer.name}
-    #touch ${designer.name}.dodeploy
+    touch ${designer.name}.dodeploy
     ln -s ~/$OPENSHIFT_GEAR_TYPE/tmp/deployments/${guvnor.name}
-    #touch ${guvnor.name}.dodeploy
+    touch ${guvnor.name}.dodeploy
     ln -s ~/$OPENSHIFT_GEAR_TYPE/tmp/deployments/${console.server.name}
-    touch ${console.server.name}.dodeploy
+    #touch ${console.server.name}.dodeploy
     ln -s ~/$OPENSHIFT_GEAR_TYPE/tmp/deployments/${console.name}
-    touch ${console.name}.dodeploy
+    #touch ${console.name}.dodeploy
 }
 
 createSoftLinksToWebArchives

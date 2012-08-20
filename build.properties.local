@@ -375,11 +375,6 @@ bpmn2.modeler.url=http://download.eclipse.org/bpmn2-modeler/site/
 ########################################################################################################
 
 
-# experimental :  administrator security credentials for jboss EAP
-jboss.admin.id=pfp
-jboss.admin.password=pfpBrms
-
-
 #######################          PFP DEVELOPMENT PROPERTIES         ######################################
 
 #specify whether processFlowProvision should be built from upstream jbpm5 source or BRMS
@@ -409,3 +404,58 @@ org.jboss.processFlow.test.absolutePathToBpmn=${basedir}/pfpServicesTest/src/tes
 
 org.jboss.processFlow.client.debuggerPort=8887
 ##########################################################################################################
+
+
+#######################         openshift   provisioning        ##########################################
+# host name of public or private openshift
+openshift.rest.uri=https://openshift.redhat.com/broker/rest/
+#openshift.rest.uri=https://192.168.122.228/broker/rest/
+
+# absolute path of file that includes all openshift accountId/passwords
+# there is no limit (ok ... within reason :-) ) to how many openshift accounts can be provisioned at once
+# must validate in accordance with $PFP_HOME/conf/pfp/openshift/pfp_openshift_provision.xsd
+# after adding accounts to the file you've specified in this property, an easy way to test XSD schema validation is:
+#  xmllint --schema $PFP_HOME/conf/pfp/openshift/pfp_openshift_provision.xsd /path/to/your/openshift/account/details.xml
+openshift.account.details.file.location=${ENV.HOME}/redhat/openshift/openshift_account_details.xml
+
+# directory of log files generated from provisioning of each openshift account
+# note:  each log file name will be suffixed with mm-dd-yyyy 
+openshift.account.provisioning.log.dir=${ENV.HOME}/redhat/openshift/accountProvisioningLogs
+
+# domain name for an account that hosts both pfpCore and brmsWebs
+openshift.domain.name=jbride0
+
+openshift.refresh.domain=false
+openshift.create.pfp.core=false
+openshift.create.brms.webs=true
+
+#openshift.remote.jboss.home=jbossas-7/jbossas-7
+openshift.remote.jboss.home=jbosseap-6.0/jbosseap-6.0
+openshift.pfpCore.internal.ip=127.10.163.1
+openshift.pfpCore.management.port=9999
+openshift.pfpCore.ssh.url=f77fcf5bd1904986a9d781a5f77b2c74@pfpCore-jbride0.rhcloud.com
+
+openshift.pfpCore.app.location=/opt/jboss/openshift/pfpCore
+openshift.pfp.core.scaled.app=false
+
+
+
+openshift.brmsWebs.ssh.url=c1f5a6973bca4112b5588bb9575ba93f@brmsWebs-jbride0.rhcloud.com
+openshift.brmsWebs.app.location=/opt/jboss/openshift/brmsWebs
+
+# gear size of brmsWebs app
+# choose either 'small' (500MB heap) or 'medium' (1GB heap)
+# default is 'small'
+# in public openshift, account must be enabled to allow for medium sized gears (if 'medium' is specified)
+# in private Openshift Origin, origin doesn't yet allow for 'medium' size gears
+openshift.brmsWebs.app.size=medium
+
+json.file.dir=/tmp
+json.file=test.json
+##########################################################################################################
+
+# experimental :  administrator security credentials for jboss EAP
+jboss.admin.id=pfp
+jboss.admin.password=pfpBrms
+
+
