@@ -286,12 +286,16 @@ guvnor.host=${ENV.HOSTNAME}:${brms.webs.http.port}
 guvnor.usr=admin
 guvnor.pwd=admin
 guvnor.protocol=http
-#NOTE:  this is a comma seperated list of guvnor packages
-guvnor.packages=defaultPackage,org.jboss.processFlow
 guvnor.subdomain=jboss-brms
 guvnor.connect.timeout=15000
 guvnor.read.timeout=15000
 guvnor.snapshot.name=LATEST
+
+# specify a comma seperated list of guvnor packages
+# knowledgeBase in kSessionService will only consist of artifacts from pacakges specified in this field
+# artifacts from other packages will be filtered
+# to prevent filtering, do not specify any packages as the value of this property
+guvnor.packages=defaultPackage,org.jboss.processFlow
 
 
 # the version of Drools Guvnor you want to use and the associated URL you want to get the dependencies from
