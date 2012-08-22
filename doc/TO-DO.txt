@@ -15,6 +15,9 @@ Pluggable strategies for task cleanup
 
     -- https://github.com/droolsjbpm/jbpm/pull/113
 
+automated snapshots of guvnor via REST API
+    -- see email from L. Ponce on 22 August, 2012 in sme-brms mailing list
+
 task audit trail
     - what task related data do we need to move to BAM
     - maybe use TaskEventHandler / TaskEventSupport framework ?
