@@ -80,8 +80,8 @@ INSTALL   :
                 -- logout of Red Hat Network
                 -- NOTE:  this can be done programmatically.  Example as follows :
                      yum install rhn-setup.noarch"  # to install rhn-channel
-                     rhn-channel -u SteveMarney -p <my passwd> -a jb-ewp-5-x86_64-server-5-rpm 
-                     rhn-channel -u SteveMarney -p <my passwd> -a rhel-x86_64-server-supplementary-5
+                     rhn-channel -u <my rhn login> -p <my passwd> -a jb-ewp-5-x86_64-server-5-rpm 
+                     rhn-channel -u <my rhn login> -p <my passwd> -a rhel-x86_64-server-supplementary-5
 
         -- enable RHN Plugin
                 -- it is possible that the access to the RHN repository is disabled.
