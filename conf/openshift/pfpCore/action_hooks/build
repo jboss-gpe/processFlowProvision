@@ -13,4 +13,4 @@ function checkRemotePort() {
     fi
 }
 
-checkRemotePort
+# checkRemotePort

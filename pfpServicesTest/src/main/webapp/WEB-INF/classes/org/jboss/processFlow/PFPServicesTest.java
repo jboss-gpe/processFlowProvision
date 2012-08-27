@@ -34,6 +34,7 @@ import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
 @Path("/")
 public class PFPServicesTest {
 
+    private static final String JBOSS_BIND_ADDRESS="jboss.bind.address";
     private static Logger log = LoggerFactory.getLogger("PFPServicesTest");
     private static ITaskService taskServiceProxy = null;
     private static IKnowledgeSessionService kSessionProxy = null;
@@ -73,7 +74,7 @@ public class PFPServicesTest {
         lookup();
         addProcessToKnowledgeBase();
         executeProcessInstanceLifecycle();
-        ResponseBuilder builder = Response.ok("Great Success!!\n");
+        ResponseBuilder builder = Response.ok("Great Success on nodeId = "+System.getProperty(JBOSS_BIND_ADDRESS)+" !!!\n");
         return builder.build();
     }
 

@@ -21,15 +21,20 @@ public interface OpenshiftClient {
     @Path("domains")
     @Produces("application/json")
     ClientResponse<String> getDomains();
+
+    // equivalent :  curl -k -X GET https://openshift.redhat.com/broker/rest/domains/<domainId>/applications/<appId> --user "<openShiftUserId>:<openShiftPassword>"    
+    @GET
+    @Path("domains/{domainId: /*}/applications/{appId: /*}")
+    @Produces("application/json")
+    ClientResponse<String> getApplication(@PathParam("domainId")String domainId, @PathParam("appId")String appId);
    
  
-    // curl -k -X POST https://openshift.redhat.com/broker/rest/domains/ --user "<openShiftUserId>:<openShiftPassword>" --data "id=<openShiftUserId>" 
+    // equivalent:  curl -k -X POST https://openshift.redhat.com/broker/rest/domains/ --user "<openShiftUserId>:<openShiftPassword>" --data "id=<openShiftUserId>" 
     @POST
     @Path("domains")
     @Consumes("text/plain")
     @Produces("application/json")
     ClientResponse<String> createDomain(@QueryParam("id") String id);
-
 
     /* 
         curl -k -X POST https://openshift.redhat.com/broker/rest/domains/<openShiftUserId>/applications --user "<openShiftUserId>:<openShiftPassword>" \
