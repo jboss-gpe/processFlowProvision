@@ -182,7 +182,7 @@ INSTALL   :
                                 service postgresql start
 
             --  start the postgresql service (RHEL 6 / Fedora 16)
-                (as postgres)   :   initdb -D /var/lib/pgsql/data
+                (as root)       :   postgresql-setup initdb
                 (as root)       :   systemctl start postgresql.service
 
             --  switch user to 'postgres' and create necessary databases
