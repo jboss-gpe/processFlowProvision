@@ -496,17 +496,16 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
         for(KnowledgePackage kPackage : kPackages){
             Collection<Process> processes = kPackage.getProcesses();
             if(processes.size() == 0){
-                sBuilder.append("\n");
-                sBuilder.append("printKnowledgeBaseContent() no processes definitions found in guvnor package = "+kPackage.getName());
+                sBuilder.append("\n\tpackage = "+kPackage.getName()+" : no process definitions found ");
             }else {
 
                 sBuilder.append("\nprintKnowledgeBaseContent()\n\t"); 
                 for (Process process : processes) {
-                    sBuilder.append("\n\t");
-                    sBuilder.append("package = "+kPackage.getName()+" process definition = " + process.getId());
+                    sBuilder.append("\n\tpackage = "+kPackage.getName()+" : process definition = " + process.getId());
                 }
             }
         }
+        sBuilder.append("\n");
         return sBuilder.toString();
     }
 
