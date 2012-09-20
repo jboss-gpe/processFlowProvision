@@ -39,6 +39,8 @@ batch
 /host=master/server-config=${pfp.core.server}/system-property=hibernate.dialect/:add(value=${hibernate.dialect},boot-time=true)
 /host=master/server-config=${pfp.core.server}/system-property=hibernate.show_sql/:add(value=${hibernate.show_sql},boot-time=true)
 
+/host=master/server-config=${pfp.core.server}/system-property=jbpm.conf.dir/:add(value=${jbpm.conf.dir},boot-time=true)
+
 
 
 ### non-XA datasource connection pools to jbpm and jbpm_bam databases
