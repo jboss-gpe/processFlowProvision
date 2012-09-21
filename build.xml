@@ -102,27 +102,6 @@
             <fileset dir="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-shared/target/" >
                 <include name="jbpm-gwt-shared-${jBPM.version}.jar" />
             </fileset>
-<!--
-            <fileset dir="${jbpm.source.dir}/jbpm-distribution/target/jbpm-${jBPM.version}-pre-bin/lib" >
-                <include name="stringtemplate*.jar" />
-                <exclude name="*test*.jar" />
-            </fileset>
-            <fileset dir="${jbpm.source.dir}/jbpm-bpmn2-emfextmodel/target/" >
-                <include name="jbpm-bpmn2-emfextmodel-${jBPM.version}.jar" />
-            </fileset>
-            <fileset dir="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-form/target/" >
-                <include name="jbpm-gwt-form-${jBPM.version}.jar" />
-            </fileset>
-            <fileset dir="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-graph/target/" >
-                <include name="jbpm-gwt-graph-${jBPM.version}.jar" />
-            </fileset>
-            <fileset dir="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-console-server/target/jbpm-gwt-console-server-${jBPM.version}/WEB-INF/lib" >
-                <include name="gwt-console*.jar" />
-                <include name="freemarker*.jar" />
-                <include name="commons-io-*.jar" />
-                <include name="commons-codec-*.jar" />
-            </fileset>
--->
         </copy>
     </target>
 

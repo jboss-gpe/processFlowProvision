@@ -42,6 +42,7 @@
         <!-- antcall target="configureJbossAdmin" / -->
         <antcall target="clone.jboss" />
         <antcall target="local.deploy.jboss.modules" />
+        <antcall target="addUserRoleConfigs" />
         <antcall target="local.start.master"  />
         <antcall target="execute.cli">
                 <param name="cli.source.dir" value="conf/jboss/"/>
@@ -252,11 +253,11 @@
                 <equals arg1="${hibernate.dialect}" arg2="org.hibernate.dialect.HSQLDialect" />
             </not>
             <then>
-                <antcall target="filter">
+                <!--antcall target="filter">
                     <param name="source.dir" value="conf/brmsWebs/drools-guvnor"/>
                     <param name="file.name" value="repository.xml"/>
                     <param name="dest.dir" value="${guvnor_repo_location}"/>
-                </antcall>
+                </antcall -->
             </then>
         </if>
 
@@ -282,11 +283,11 @@
                 <unzip src="${install.home}/lib/jbpm-designer-${designer.version}.war" dest="${designer.target}" />
             </else>
         </if>
-        <!--antcall target="filter">
+        <antcall target="filter">
             <param name="source.dir" value="conf/brmsWebs/drools-guvnor/WEB-INF"/>
             <param name="file.name" value="beans.xml"/>
             <param name="dest.dir" value="${guvnor.target}/WEB-INF"/>
-        </antcall -->
+        </antcall>
         <antcall target="filter">
             <param name="source.dir" value="conf/brmsWebs/drools-guvnor/WEB-INF/classes"/>
             <param name="file.name" value="preferences.properties"/>
@@ -341,6 +342,12 @@
         -->
         <copy file="${temp.pfp.lib.dir}/processFlow-adminConsole.jar" toDir="${console.server.target}/WEB-INF/lib" overwrite="true" />
         <delete file="${console.server.target}/WEB-INF/classes/jbpm.console.properties" />
+    </target>
+
+    <target name="addUserRoleConfigs" >
+        <copy file="conf/jboss/application-roles.properties" todir="${jboss.home}/${jboss.domain.base.dir}/configuration" verbose="true" overwrite="true" />
+        <copy file="conf/jboss/application-users.properties" todir="${jboss.home}/${jboss.domain.base.dir}/configuration" verbose="true" overwrite="true" />
+        <copy file="conf/jboss/mgmt-users.properties" todir="${jboss.home}/${jboss.domain.base.dir}/configuration" verbose="true" overwrite="true" />
     </target>
 
     <target name="install.reporting.into.jboss7" >
