@@ -88,10 +88,6 @@
     </target>
 
 
-    <target name="download.community.jbpm.gwt.console" if="useCompiledJBPMLibs">
-        <antcall target="download.jBPM.gwt-console" />
-        <antcall target="download.birt.as7" />
-    </target>
     <target name="download.community.guvnor.and.designer" if="useCompiledJBPMLibs">
         <antcall target="download.drools.guvnor" />
         <antcall target="download.designer" />

@@ -320,10 +320,8 @@
                 </copy>
             </then>
             <else>
-                <antcall target="download.community.jbpm.gwt.console" />
-                <unzip src="${install.home}/lib/jbpm-${jBPM.version}-gwt-console.zip" dest="${temp.dir}" />
-                <unzip src="${temp.dir}/jbpm-gwt-console-${jBPM.version}.war" dest="${console.target}"/>
-                <unzip src="${temp.dir}/jbpm-gwt-console-server-${jBPM.version}.war" dest="${console.server.target}"/>
+                <unzip src="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-console/target/jbpm-gwt-console-${jBPM.version}.war" dest="${console.target}"/>
+                <unzip src="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-console-server/target/jbpm-gwt-console-server-${jBPM.version}-EE6.war" dest="${console.server.target}"/>
             </else>
         </if>
 
@@ -352,6 +350,7 @@
     </target>
 
     <target name="install.reporting.into.jboss7" >
+        <antcall target="download.birt.as7" />
         <delete dir="${org.jbpm.report.dir}" />
         <mkdir dir="${org.jbpm.report.dir}/ReportEngine" />
         <antcall target="filter">
