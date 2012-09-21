@@ -435,6 +435,10 @@
 
     <target name="configure.jboss.modules" >
         <delete dir="${temp.jboss.dir}/modules" />
+        <if>
+            <not><available file="${temp.pfp.lib.dir}" type="dir" /></not>
+            <then><antcall target="pfp.compile" /></then>
+        </if>
         <antcall target="filter">
             <param name="source.dir" value="conf/jboss/modules"/>
             <param name="dest.dir" value="${temp.jboss.dir}/modules"/>

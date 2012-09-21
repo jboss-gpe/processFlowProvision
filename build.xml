@@ -108,6 +108,7 @@
     <target name="mkPfpDirs">
         <mkdir dir="${temp.pfp.lib.dir}" />
         <mkdir dir="${temp.pfp.services.dir}" />
+        <mkdir dir="${install.home}/lib" />
     </target>
 
     <target name="pfp.compile" description="" >
@@ -122,7 +123,6 @@
 
     <target name="all" >
         <antcall target="pfp.clean" />
-        <mkdir dir="${install.home}/lib" />
         <antcall target="pfp.compile" />
         <antcall target="local.provision.brms.webs">
             <param name="refresh.master" value="true"/>
