@@ -5,7 +5,7 @@
             <module name="org.apache.commons.io" />
 
             <!-- bpm-integration is sub-classed with pfp layer that proxies requests to pfp-core -->
-            <module name="org.jboss.processFlow" />
+            <!-- module name="org.jboss.processFlow" / -->
 
             <!-- 
                 following is needed for birt reporting 

@@ -40,6 +40,7 @@
         <echo message="***** refresh.master :  will now call the following target :  local.stop.master, clone.jboss, and local.start.master" />
         <antcall target="local.stop.master"  />
         <!-- antcall target="configureJbossAdmin" / -->
+        <antcall target="pfp.clean" />
         <antcall target="clone.jboss" />
         <antcall target="local.deploy.jboss.modules" />
         <antcall target="addUserRoleConfigs" />
