@@ -254,7 +254,7 @@
                 <equals arg1="${hibernate.dialect}" arg2="org.hibernate.dialect.HSQLDialect" />
             </not>
             <then>
-                <!--antcall target="filter">
+                <!-- antcall target="filter">
                     <param name="source.dir" value="conf/brmsWebs/drools-guvnor"/>
                     <param name="file.name" value="repository.xml"/>
                     <param name="dest.dir" value="${guvnor_repo_location}"/>
@@ -284,11 +284,11 @@
                 <unzip src="${install.home}/lib/jbpm-designer-${designer.version}.war" dest="${designer.target}" />
             </else>
         </if>
-        <antcall target="filter">
+        <!--antcall target="filter">
             <param name="source.dir" value="conf/brmsWebs/drools-guvnor/WEB-INF"/>
             <param name="file.name" value="beans.xml"/>
             <param name="dest.dir" value="${guvnor.target}/WEB-INF"/>
-        </antcall>
+        </antcall -->
         <antcall target="filter">
             <param name="source.dir" value="conf/brmsWebs/drools-guvnor/WEB-INF/classes"/>
             <param name="file.name" value="preferences.properties"/>
@@ -340,6 +340,7 @@
             ${jbpm.source}/jbpm/jbpm-gwt/jbpm-gwt-console-server/target/war/work/org.jboss.bpm/gwt-console-server-jbpm/WEB-INF/
         -->
         <copy file="${temp.pfp.lib.dir}/processFlow-adminConsole.jar" toDir="${console.server.target}/WEB-INF/lib" overwrite="true" />
+        <copy file="${temp.pfp.lib.dir}/processFlow-interfaces.jar" toDir="${console.server.target}/WEB-INF/lib" overwrite="true" />
         <delete file="${console.server.target}/WEB-INF/classes/jbpm.console.properties" />
     </target>
 
@@ -375,7 +376,7 @@
         </copy>
     </target>
 
-    <target name="local.bounce.jbpm.gwt.console" description="">
+    <target name="local.deploy.jbpm.gwt.console" >
         <antcall target="explode.jbpm.gwt.console" />
         <antcall target="install.reporting.into.jboss7" />
         <jar jarfile="${console.server.zipped}" basedir="${console.server.target}" />
@@ -392,7 +393,7 @@
         </exec>
     </target>
 
-    <target name="local.bounce.guvnor.designer" description="" >
+    <target name="local.deploy.guvnor.designer" >
         <antcall target="refreshGuvnor" />
         <antcall target="explode.guvnor.and.designer" />
         <jar jarfile="${guvnor.zipped}" basedir="${guvnor.target}" />
@@ -407,16 +408,6 @@
             <arg value="--controller=${ENV.HOSTNAME}:${management.port}"/>
             <arg value="deploy ${designer.zipped} --name=${designer.name} --server-groups=brms-webs-group"/>
         </exec>
-    </target>
-
-    <target name="clean.jbpm.install" depends="">
-        <!-- JA Bride :  now deleting anything that is not previously downloaded -->
-        <delete >
-            <fileset dir="${install.home}/lib" >
-                <include name="jbpm*.*" />
-                <exclude name="jbpm*.zip" />
-            </fileset>
-        </delete>
     </target>
 
   <!-- Install Eclipse plugins -->
@@ -571,8 +562,8 @@
             <param name="cli.to.filter.and.execute" value="brmsWebs-config-up.cli"/>
             <param name="cli.fail.on.error" value="true"/>
         </antcall>
-        <antcall target="local.bounce.guvnor.designer" />
-        <antcall target="local.bounce.jbpm.gwt.console" />
+        <antcall target="local.deploy.guvnor.designer" />
+        <antcall target="local.deploy.jbpm.gwt.console" />
     </target>
 
     <target name="war" depends="setClasspath" >

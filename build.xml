@@ -127,6 +127,5 @@
             <param name="refresh.master" value="false"/>
         </antcall>
         <antcall target="create.temp.client.dir" />
-        <antcall target="clean.jbpm.install" />
     </target>
 </project>

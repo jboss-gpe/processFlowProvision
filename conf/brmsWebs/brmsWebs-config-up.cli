@@ -56,3 +56,6 @@ batch
 # add system property to birt reporting
 /host=master/server-config=brms-webs/system-property=org.jbpm.report.engine.dir/:add(value=${org.jbpm.report.dir},boot-time=true)
 run-batch
+
+# add system property such that jbpm5 bpm-console TaskFormDispatcher can find brms-webs
+/host=master/server-config=brms-webs/system-property=jbpm.conf.dir/:add(value=${jbpm.conf.dir},boot-time=true)
