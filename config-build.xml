@@ -460,6 +460,9 @@
         <copy file="${deps.lib.path}/protobuf-java-${version.protobuf}.jar" todir="${temp.jboss.dir}/modules/com/google/protobuf/main" />
         <copy file="${deps.lib.path}/antlr-runtime-${version.antlr}.jar" todir="${temp.jboss.dir}/modules/org/antlr/antlr-runtime/main" />
         <copy file="${deps.lib.path}/ecj-${version.ecj}.jar" todir="${temp.jboss.dir}/modules/org/eclipse/jdt/core/compiler/ecj/main" />
+        <copy file="${deps.lib.path}/xstream-${version.xstream}.jar" todir="${temp.jboss.dir}/modules/com/thoughtworks/xstream/main" />
+        <copy file="${deps.lib.path}/xpp3_min-${version.xpp3_min}.jar" todir="${temp.jboss.dir}/modules/com/thoughtworks/xstream/main" />
+        <copy file="${deps.lib.path}/xmlpull-${version.xmlpull}.jar" todir="${temp.jboss.dir}/modules/com/thoughtworks/xstream/main" />
         <copy tofile="${temp.jboss.dir}/modules/org/drools/main/drools-compiler-${version.drools}.jar" >
             <fileset dir="${deps.lib.path}" ><include name="drools-compiler-*.jar" /></fileset>
         </copy>

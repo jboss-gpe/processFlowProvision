@@ -60,7 +60,7 @@ stop() {
     cd $JBOSS_HOME
     ./bin/jboss-cli.sh --connect --controller=$HOSTNAME:$cliPort --command=/host=$node:shutdown
     echo
-    sleep 2
+    sleep 3
 }
 
 restart() {

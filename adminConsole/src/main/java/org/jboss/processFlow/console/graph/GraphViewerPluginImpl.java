@@ -100,8 +100,7 @@ public class GraphViewerPluginImpl extends org.jbpm.integration.console.graph.Gr
         if (processInstance == null) 
             throw new IllegalArgumentException("Could not find process instance with id = " + processInstanceId);
 
-        Map<String, NodeInstanceLog> nodeInstances = null;
-        nodeInstances = new HashMap<String, NodeInstanceLog>();
+        Map<String, NodeInstanceLog> nodeInstances = new HashMap<String, NodeInstanceLog>();
         for (NodeInstanceLog nodeInstance: bamProxy.findNodeInstances(Long.valueOf(processInstanceId))) {
             if (nodeInstance.getType() == NodeInstanceLog.TYPE_ENTER) {
                 nodeInstances.put(nodeInstance.getNodeInstanceId(), nodeInstance);
@@ -114,23 +113,21 @@ public class GraphViewerPluginImpl extends org.jbpm.integration.console.graph.Gr
             List<ActiveNodeInfo> result = new ArrayList<ActiveNodeInfo>();
             for (NodeInstanceLog nodeInstance: nodeInstances.values()) {
                 String nodeId = nodeInstance.getNodeId();
-                if (nodeId.charAt(0) == '_')
-                    nodeId = nodeId.substring(1);   // need to trim the leading underscore to get the real node id
                 boolean found = false;
                 DiagramInfo diagramInfo = getDiagramInfo(processInstance.getProcessId());
                 if(diagramInfo != null) {
                     for (DiagramNodeInfo nodeInfo: diagramInfo.getNodeList()) {
-                        if (nodeInfo.getName().equals("id=" + nodeId)) {
+                        if (nodeInfo.getName().equals(nodeId)) {
                             result.add(new ActiveNodeInfo(diagramInfo.getWidth(), diagramInfo.getHeight(), nodeInfo));
                             found = true;
                             break;
                         }
                     }
-                    if (!found) {
-                        throw new IllegalArgumentException("Could not find info for node "+ nodeInstance.getNodeId() + " of process " + processInstance.getProcessId());
-                    }
                 }else {
                     throw new IllegalArgumentException("Could not find diagramInfo for "+processInstance.getProcessId());
+                }
+                if (!found) {
+                	throw new IllegalArgumentException("Could not find diagram info for: "+ nodeInstance.getNodeName() + " nodeId = "+nodeId+" : process " + processInstance.getProcessId());
                 }
             }
             return result;
@@ -158,8 +155,13 @@ public class GraphViewerPluginImpl extends org.jbpm.integration.console.graph.Gr
     
     private void addNodesInfo(List<DiagramNodeInfo> nodeInfos, Node[] nodes, String prefix) {
         for (Node node: nodes) {
+        	
+        	// JA Bride:  AsyncBAMProducer has been modified from stock jbpm5 to persist the "uniqueNodeId" in the jbpm_bam database
+        	//  (as opposed to persisting just the simplistic nodeId)
+        	//  will need to invoke same functionality here to calculate 'uniqueNodeId' 
+        	String uniqueId = org.jbpm.bpmn2.xml.XmlBPMNProcessDumper.getUniqueNodeId(node);
             nodeInfos.add(new DiagramNodeInfo(
-                prefix + node.getId(),
+                uniqueId,
                 (Integer) node.getMetaData().get("x"),
                 (Integer) node.getMetaData().get("y"),
                 (Integer) node.getMetaData().get("width"),

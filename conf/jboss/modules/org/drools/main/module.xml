@@ -35,6 +35,7 @@
         <module name="org.javassist" export="true" />
         <module name="javax.xml.stream.api" export="true" />
         <module name="org.hibernate" export="true" />
+        <module name="com.thoughtworks.xstream" export="true" />
 
         <!-- jbpm needs access to javax.persistence.* -->
         <module name="javaee.api" export="true" />

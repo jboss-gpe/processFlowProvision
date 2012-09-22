@@ -901,6 +901,7 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
 
        
         // 5)  register any other process event listeners specified via configuration
+        // TO_DO:  refactor using mvel. ie:  jbpm-gwt/jbpm-gwt-console-server/src/main/resources/default.session.template
         AsyncBAMProducer bamProducer= null;
         if(processEventListeners != null) {
             for(String peString : processEventListeners) {
