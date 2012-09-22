@@ -32,7 +32,6 @@ import javax.jms.JMSException;
 import javax.jms.Session;
 
 import org.drools.audit.event.LogEvent;
-import org.drools.event.KnowledgeRuntimeEventManager;
 import org.drools.event.process.DefaultProcessEventListener;
 import org.drools.event.process.ProcessCompletedEvent;
 import org.drools.event.process.ProcessNodeLeftEvent;

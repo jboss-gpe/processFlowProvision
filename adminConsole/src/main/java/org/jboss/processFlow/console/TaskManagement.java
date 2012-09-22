@@ -40,6 +40,7 @@ import org.jboss.processFlow.console.binding.DataBinderManager;
 import org.jboss.processFlow.console.binding.IDataBinder;
 import org.jboss.processFlow.tasks.ITaskService;
 import org.jbpm.task.Status;
+import org.jbpm.task.User;
 import org.jbpm.task.query.TaskSummary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,7 +97,8 @@ public class TaskManagement implements org.jboss.bpm.console.server.integration.
         if (idRef == null) {
             taskServiceProxy.releaseTask(taskId, userId);
         } else if (idRef.equals(userId)) {
-            taskServiceProxy.claimTask(taskId, idRef, idRef, null);
+        	List<String> callerRoles = getCallerRoles();
+            taskServiceProxy.claimTask(taskId, idRef, idRef, callerRoles);
         } else {
             taskServiceProxy.delegateTask(taskId, userId, idRef);
         }
@@ -154,8 +156,16 @@ public class TaskManagement implements org.jboss.bpm.console.server.integration.
             List<String> callerRoles = getCallerRoles();
             List<Status> onlyReady = Collections.singletonList(Status.Ready);
             
-            tasks = taskServiceProxy.getTasksAssignedAsPotentialOwner(userId, callerRoles, "en-UK", 0, 10);
+            tasks = taskServiceProxy.getTasksAssignedAsPotentialOwnerByStatusByGroup(userId, callerRoles, onlyReady, "en-UK", 0, 10);
+            User emptyUser = new User();
             for (TaskSummary task: tasks) {
+            	
+            	/* JA Bride : 21 Sept 2012  : as per
+            		1)  org.jboss.bpm.console.client.task.OpenTasksView.renderUpdate(...)
+            		2)  org.jboss.bpm.console.client.model.TaskRef.initOrUpdateState(...)
+           			actualOwner needs to be either null or empty value 
+           		*/
+            	task.setActualOwner(emptyUser);
                 result.add(Transform.task(task));
             }
             return result;

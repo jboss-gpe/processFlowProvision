@@ -27,10 +27,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -56,7 +54,6 @@ import org.drools.SystemEventListener;
 import org.drools.SystemEventListenerFactory;
 import org.jbpm.task.*;
 import org.jbpm.task.identity.UserGroupCallbackManager;
-import org.jbpm.task.admin.TasksAdmin;
 import org.jbpm.task.event.TaskEventListener;
 import org.jbpm.task.event.TaskEventSupport;
 import org.jbpm.task.query.TaskSummary;
@@ -416,20 +413,31 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
     }
 
     public TaskSummary getTask(Long taskId){
-        EntityManager eManager = null;
+        
+        TaskServiceSession taskSession = null;
         try {
-            eManager = humanTaskEMF.createEntityManager();
-/*
-            Query qObj = eManager.createNamedQuery(TASK_BY_TASK_ID);
-            qObj.setParameter("taskId", taskId);
-            return (TaskSummary)qObj.getSingleResult();
-*/
-            return null;
+        	taskSession = taskService.createSession();
+        	Task taskObj = taskSession.getTask(taskId);
+        	TaskSummary tSummary = new TaskSummary();
+        	tSummary.setActivationTime(taskObj.getTaskData().getExpirationTime());
+        	tSummary.setActualOwner(taskObj.getTaskData().getActualOwner());
+        	tSummary.setCreatedBy(taskObj.getTaskData().getCreatedBy());
+        	tSummary.setCreatedOn(taskObj.getTaskData().getCreatedOn());
+        	tSummary.setDescription(taskObj.getDescriptions().get(0).getText());
+        	tSummary.setExpirationTime(taskObj.getTaskData().getExpirationTime());
+        	tSummary.setId(taskObj.getId());
+        	tSummary.setName(taskObj.getNames().get(0).getText());
+        	tSummary.setPriority(taskObj.getPriority());
+        	tSummary.setProcessId(taskObj.getTaskData().getProcessId());
+        	tSummary.setProcessInstanceId(taskObj.getTaskData().getProcessInstanceId());
+        	tSummary.setStatus(taskObj.getTaskData().getStatus());
+        	tSummary.setSubject(taskObj.getSubjects().get(0).getText());
+            return tSummary;
         }catch(RuntimeException x) {
             throw x;
         }finally {
-            if(eManager != null)
-                eManager.close();
+            if(taskSession != null)
+                taskSession.dispose();
         }
     }
     
@@ -483,23 +491,22 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
         log.info(sBuilder.toString());
     }
 
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public String getTaskName(Long taskId, String language) {
-        StringBuilder qBuilder = new StringBuilder();
-        qBuilder.append("select i18ntext.text from i18ntext, task where i18ntext.task_names_id = task.id and i18ntext.language = '");
-        qBuilder.append(language); 
-        qBuilder.append("' and task.id = "); 
-        qBuilder.append(taskId); 
-        EntityManager eManager = null;
+    	TaskServiceSession taskSession  = null;
         try {
-            eManager = humanTaskEMF.createEntityManager();
-            Query qObj = eManager.createNativeQuery(qBuilder.toString());
-            return (String)qObj.getSingleResult();
-        } catch(Exception x) {
-            throw new RuntimeException(x);
-        } finally {
-            if(eManager != null)
-                eManager.close();
+        	taskSession = taskService.createSession();
+        	Task taskObj = taskSession.getTask(taskId);
+        	
+            Iterator iTasks = taskObj.getNames().iterator();
+            while(iTasks.hasNext()){
+            	I18NText iObj = (I18NText)iTasks.next();
+            	if(iObj.getLanguage().equals(language))
+            		return iObj.getText();
+            }
+            throw new RuntimeException("getTaskName() can not find taskName for taskId = "+taskId+" : language = "+language);
+        }finally {
+            if(taskSession != null)
+                taskSession.dispose();
         }
     }
 
@@ -642,7 +649,6 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
     	TaskServiceSession taskSession = null;
         try {
             taskSession = taskService.createSession();
-            taskSession.getTasksAssignedAsPotentialOwnerByStatus(userId, statuses, language);
             return taskSession.getTasksAssignedAsPotentialOwnerByStatusByGroup(userId, groupIds, statuses, language);
             
         }catch(Exception x) {
