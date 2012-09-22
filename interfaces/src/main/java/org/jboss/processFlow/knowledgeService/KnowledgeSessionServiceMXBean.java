@@ -22,6 +22,7 @@
 
 package org.jboss.processFlow.knowledgeService;
 
+import java.net.ConnectException;
 import java.util.Map;
 import java.util.List;
 
@@ -46,7 +47,7 @@ public interface KnowledgeSessionServiceMXBean {
      * refreshKnowledgeBase and knowledgeAgent managed by PFP knowledgeSessionService
      * use in conjunction with various guvnor.* system properties in $JBOSS_HOME/server/<server.config>/deploy/properties-service.xml 
      */
-    public void rebuildKnowledgeBaseViaKnowledgeAgent();
+    public void rebuildKnowledgeBaseViaKnowledgeAgent() throws ConnectException;
     public void rebuildKnowledgeBaseViaKnowledgeBuilder();
     /**
      *return a snapshot of all process definitions that the KnowledgeBase is currently aware of

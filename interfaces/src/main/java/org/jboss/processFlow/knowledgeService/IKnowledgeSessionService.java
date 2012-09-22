@@ -23,6 +23,7 @@
 package org.jboss.processFlow.knowledgeService;
 
 import java.io.File;
+import java.net.ConnectException;
 
 import java.util.Map;
 import java.util.List;
@@ -30,7 +31,6 @@ import java.util.List;
 import org.drools.definition.process.Process;
 import org.drools.io.Resource;
 import org.drools.runtime.process.ProcessInstance;
-import org.jbpm.process.audit.ProcessInstanceLog;
 
 /**
  *
@@ -111,8 +111,9 @@ public interface IKnowledgeSessionService extends IBaseKnowledgeSessionService {
      *
      * should see a similar log statement from guvnor as follows:
      *      INFO  [PackageAssembler] Following assets have been included in package build: simpleHumanTask, defaultemailicon, defaultlogicon, WorkDefinitions, pfpFailTask, pfpSkipTask, task_skip_by_signalIntermediateEvent, simpleTask-taskform, nominateAndAwardBonusTask-taskform, simpleTask-image, pInstance_terminate_by_signalIntermediateEvent
+     * @throws ConnectException 
      */
-    public void rebuildKnowledgeBaseViaKnowledgeAgent();
+    public void rebuildKnowledgeBaseViaKnowledgeAgent() throws ConnectException;
 
     /**
      * rebuild KnowledgeBase via instantiation of a KnowledgeBuilder
@@ -122,6 +123,13 @@ public interface IKnowledgeSessionService extends IBaseKnowledgeSessionService {
      *      INFO  [PackageAssembler] Following assets have been included in package build: simpleHumanTask, defaultemailicon, defaultlogicon, WorkDefinitions, pfpFailTask, pfpSkipTask, task_skip_by_signalIntermediateEvent, simpleTask-taskform, nominateAndAwardBonusTask-taskform, simpleTask-image, pInstance_terminate_by_signalIntermediateEvent
      */
     public void rebuildKnowledgeBaseViaKnowledgeBuilder();
+    
+    
+    /**
+     * initial attempt is to create kbase via guvnor through a knowledgeAgent
+     * if that fails, then fall back is to create kbase via knowledgeBuilder
+     */
+    public void createKnowledgeBaseViaKnowledgeAgentOrBuilder();
     /**
      *return a snapshot of all process definitions that the KnowledgeBase is currently aware of
      */

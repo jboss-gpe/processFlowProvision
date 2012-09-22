@@ -28,6 +28,7 @@ import java.io.StringReader;
 import java.io.BufferedReader;
 import java.lang.reflect.Constructor;
 import java.lang.management.ManagementFactory;
+import java.net.ConnectException;
 import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -356,16 +357,26 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
         return env;
     }
     
-    public void rebuildKnowledgeBaseViaKnowledgeAgent() {
+    public void createKnowledgeBaseViaKnowledgeAgentOrBuilder() {
+    	try {
+    		this.createKnowledgeBaseViaKnowledgeAgent();
+    	}catch(ConnectException x){
+    		log.warn("createKnowledgeBaseViaKnowledgeAgentOrBuilder() can not create a kbase via a kagent due to a connection problem with guvnor ... will now create kbase via knowledgeBuilder");
+    		rebuildKnowledgeBaseViaKnowledgeBuilder();
+    	}
+    }
+    
+    public void rebuildKnowledgeBaseViaKnowledgeAgent() throws ConnectException{
         this.createKnowledgeBaseViaKnowledgeAgent(true);
     }
-    private void createKnowledgeBaseViaKnowledgeAgent(){
+    private void createKnowledgeBaseViaKnowledgeAgent() throws ConnectException{
         this.createKnowledgeBaseViaKnowledgeAgent(false);
     }
 
-    // only one knowledgeBase object needed and shared amongst all StatefulKnowledgeSessions
-    // needs to be invoked AFTER guvnor is available
-    private synchronized void createKnowledgeBaseViaKnowledgeAgent(boolean force) {
+    // only one knowledgeBase object is needed and is shared amongst all StatefulKnowledgeSessions
+    // needs to be invoked AFTER guvnor is available (obviously)
+    // setting 'force' parameter to true re-creates an existing kbase
+    private synchronized void createKnowledgeBaseViaKnowledgeAgent(boolean force) throws ConnectException{
         if(kbase != null && !force)
             return;
 
@@ -380,7 +391,7 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
             sBuilder.append("/");
             sBuilder.append(guvnorUtils.getGuvnorSubdomain());
             sBuilder.append("/rest/packages/");
-            throw new RuntimeException("createKnowledgeBase() cannot connect to guvnor at URL : "+sBuilder.toString()); 
+            throw new ConnectException("createKnowledgeBase() cannot connect to guvnor at URL : "+sBuilder.toString()); 
         }
 
         // for polling of guvnor to occur, the polling and notifier services must be started
@@ -476,6 +487,10 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
     public String getAllProcessesInPackage(String pkgName){
         List<String> processes = guvnorUtils.getAllProcessesInPackage(pkgName);
         StringBuilder sBuilder = new StringBuilder("getAllProcessesInPackage() pkgName = "+pkgName);
+        if(processes.isEmpty()){
+        	sBuilder.append("\n\n\t :  not processes found");
+        	return sBuilder.toString();
+        }
         for(String pDef : processes){
             sBuilder.append("\n\t");
             sBuilder.append(pDef);
@@ -734,8 +749,8 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
 
 
     private StatefulKnowledgeSession makeStatefulKnowledgeSession() {
-        // 1) instantiate a KnowledgeBase via query to guvnor
-        createKnowledgeBaseViaKnowledgeAgent();
+        // 1) instantiate a KnowledgeBase via query to guvnor or kbuilder
+        createKnowledgeBaseViaKnowledgeAgentOrBuilder();
 
         // 2) very important that a unique 'Environment' is created per StatefulKnowledgeSession
         Environment ksEnv = createKnowledgeSessionEnvironment();
@@ -764,8 +779,9 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
         }
         
         //0) initialise knowledge base if it hasn't already been done so
-        if(kbase == null)
-            createKnowledgeBaseViaKnowledgeAgent();
+        if(kbase == null){
+        	createKnowledgeBaseViaKnowledgeAgentOrBuilder();
+        }
 
         //1) very important that a unique 'Environment' is created per StatefulKnowledgeSession
         Environment ksEnv = createKnowledgeSessionEnvironment();
@@ -787,8 +803,14 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public void disposeStatefulKnowledgeSessionAndExtras(Integer sessionId) {
         try {
-            ((KnowledgeSessionWrapper)kWrapperHash.get(sessionId)).dispose();
+            KnowledgeSessionWrapper kWrapper = ((KnowledgeSessionWrapper)kWrapperHash.get(sessionId));
+            if(kWrapper == null)
+            	throw new RuntimeException("disposeStatefulKnowledgeSessionAndExtras() no ksessionWrapper found with sessionId = "+sessionId);
+            
+            kWrapper.dispose();
             kWrapperHash.remove(sessionId);
+        } catch(RuntimeException x) {
+        	throw x;
         } catch(Exception x){
             throw new RuntimeException(x);
         }
@@ -969,7 +991,7 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
 
     public Process getProcess(String processId) {
         if(kbase == null)
-            createKnowledgeBaseViaKnowledgeAgent();
+            createKnowledgeBaseViaKnowledgeAgentOrBuilder();
         return kbase.getProcess(processId);
     }
 
@@ -1058,7 +1080,6 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
      *- subsequently, it's expected that a client will invoke 'disposeStatefulKnowledgeSessionAndExtras' after this JTA trnx has been committed
      *</pre>
      */
-    @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public void completeWorkItem(Integer ksessionId, Long workItemId, Map<String, Object> pInstanceVariables) {
         StatefulKnowledgeSession ksession = null;
         try {
@@ -1189,7 +1210,8 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
         } catch(Exception x) {
             throw new RuntimeException(x);
         } finally {
-            disposeStatefulKnowledgeSessionAndExtras(ksessionId);
+        	if(ksession != null)
+        		disposeStatefulKnowledgeSessionAndExtras(ksessionId);
         }
     }
 
@@ -1213,7 +1235,8 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
                 throw new IllegalArgumentException("Could not find process instance " + processInstanceId);
             }
         } finally {
-            disposeStatefulKnowledgeSessionAndExtras(ksessionId);
+        	if(ksession != null)
+        		disposeStatefulKnowledgeSessionAndExtras(ksessionId);
         }
     }
     

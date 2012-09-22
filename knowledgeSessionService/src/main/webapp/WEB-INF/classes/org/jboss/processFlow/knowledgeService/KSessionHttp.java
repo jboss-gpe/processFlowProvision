@@ -1,5 +1,6 @@
 package org.jboss.processFlow.knowledgeService;
 
+import java.net.ConnectException;
 import java.util.List;
 
 import javax.ejb.EJB;
@@ -13,6 +14,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.Response.Status;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,8 +66,12 @@ public class KSessionHttp {
     @PUT
     @Path("/kbase/agent")
     public Response rebuildKnowledgeBaseViaKnowledgeAgent() {
-        kProxy.rebuildKnowledgeBaseViaKnowledgeAgent();
-        ResponseBuilder builder = Response.ok();
+    	ResponseBuilder builder = Response.ok();
+    	try {
+    		kProxy.rebuildKnowledgeBaseViaKnowledgeAgent();
+    	}catch(ConnectException x){
+    		builder = Response.status(Status.SERVICE_UNAVAILABLE);
+    	}
         return builder.build();
     }
 
