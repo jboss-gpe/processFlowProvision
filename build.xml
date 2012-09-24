@@ -88,7 +88,7 @@
     </target>
 
 
-    <target name="download.community.guvnor.and.designer" if="useCompiledJBPMLibs">
+    <target name="download.community.guvnor.and.designer">
         <antcall target="download.drools.guvnor" />
         <antcall target="download.designer" />
     </target>
@@ -108,6 +108,7 @@
     </target>
 
     <target name="pfp.compile" description="" >
+        
         <antcall target="setClasspath" />
         <antcall target="interfaces" />
         <antcall target="common" />
@@ -119,7 +120,10 @@
 
     <target name="all" >
         <antcall target="pfp.clean" />
-        <antcall target="pfp.compile" />
+        <if>
+            <equals arg1="${upstream.jbpm5.drools.libs.type}" arg2="BRMS" />
+            <then><antcall target="unzip.brms.deployable" /></then>
+        </if>
         <antcall target="local.provision.brms.webs">
             <param name="refresh.master" value="true"/>
         </antcall>

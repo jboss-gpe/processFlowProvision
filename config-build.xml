@@ -239,8 +239,10 @@
                 <delete file="${temp.brms.unzip.dir}/modeshape.zip" />
                 <unzip src="${temp.brms.unzip.dir}/jboss-brms-engine.zip" dest="${temp.brms.unzip.dir}" />
                 <delete file="${temp.brms.unzip.dir}/jboss-brms-engine.zip" />
+                <unzip src="${temp.brms.unzip.dir}/jboss-jbpm-engine.zip" dest="${temp.brms.unzip.dir}" />
+                <delete file="${temp.brms.unzip.dir}/jboss-jbpm-engine.zip" />
                 <unzip src="${temp.brms.unzip.dir}/jboss-brms-manager-ee6.zip" dest="${temp.brms.unzip.dir}" />
-                <delete file="${temp.brms.unzip.dir}/jboss-brms-manager.zip" />
+                <delete file="${temp.brms.unzip.dir}/jboss-brms-manager-ee6.zip" />
 
                 <!-- contains: "business-central.war",  "designer.war", "gwt-console-server.war" &  "jbpm-human-task.war" -->
                 <unzip src="${temp.brms.unzip.dir}/jboss-jbpm-console-ee6.zip" dest="${temp.brms.unzip.dir}" />
@@ -497,7 +499,7 @@
             </fileset>
         </copy>
         <if>
-            <isset property="useCompiledJBPMLibs"/>
+            <equals arg1="${upstream.jbpm5.drools.libs.type}" arg2="COMMUNITY_SOURCE" />
             <then><antcall target="local.copy.community.jbpm.deps.to.modules" /></then>
         </if>
         <copy todir="${temp.jboss.dir}/modules/org/jboss/processFlow/main" >

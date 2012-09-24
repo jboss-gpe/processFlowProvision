@@ -1,27 +1,20 @@
 <project name="setClasspath" >
 
     <path id="base.classpath" >
-        <fileset dir="${jboss.home}/modules" >
-            <include name="**/*.jar" />
-        </fileset>
         <fileset dir="${ENV.PFP_HOME}/lib" />
         <fileset dir="${temp.pfp.lib.dir}" />
         <fileset dir="${temp.pfp.services.dir}" >
             <include name="processFlow*.jar" />
         </fileset>
+        <fileset dir="${jboss.home}/modules" >
+            <include name="**/*.jar" />
+        </fileset>
     </path>
-
-    <condition property="useCompiledJBPMLibs">
-        <equals arg1="${upstream.jbpm5.drools.libs.type}" arg2="COMMUNITY_SOURCE" />
-    </condition>
-    <condition property="useBRMS">
-        <equals arg1="${upstream.jbpm5.drools.libs.type}" arg2="BRMS" />
-    </condition>
 
     <target name="setClasspath">
         <antcall target="mkPfpDirs" />
         <if>
-            <isset property="useCompiledJBPMLibs"/>
+            <equals arg1="${upstream.jbpm5.drools.libs.type}" arg2="COMMUNITY_SOURCE" />
                 <then>
                     <available file="${jbpm.source.dir}/jbpm-distribution/target/jbpm-${jBPM.version}-pre-bin/lib" property="jbpm5CommunitySourceExists" />
                     <fail unless="jbpm5CommunitySourceExists" message="no compiled jbpm5/drools libraries at: ${jbpm.source.dir}/jbpm-distribution/target/jbpm-${jBPM.version}-pre-bin/lib.  Please review ${ENV.PFP_HOME}/doc/DEVELOPER_GUIDE.txt" />
@@ -45,12 +38,12 @@
                 </then>
         </if>
         <if>
-            <isset property="useBRMS"/>
+            <equals arg1="${upstream.jbpm5.drools.libs.type}" arg2="BRMS" />
                 <then>
                     <path id="classpath">
                         <path refid="base.classpath" />
-                        <fileset dir="${ENV.PFP_HOME}/target/tmp/binaries" />
-                        <fileset dir="${ENV.PFP_HOME}/target/tmp/gwt-console-server.war/WEB-INF/lib/" >
+                        <fileset dir="${temp.brms.unzip.dir}/" />
+                        <fileset dir="${temp.brms.unzip.dir}/${console.sub.domain}-server.war/WEB-INF/lib/" >
                             <include name="jbpm-gwt-*.jar" />
                             <include name="gwt-console-*.jar" />
                         </fileset>
