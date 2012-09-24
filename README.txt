@@ -25,10 +25,44 @@ OVERVIEW
   - purpose of PFP :
     - provide an example of one possible production BRMS environment using 
       BRMS deployable libraries
-  - PFP github branches :
-    - master      :  PFP/BRMS targeted for "domain" managed JBoss EAP6
-    - 5.3.0.GA    :  PFP/BRMS 5.3.0.GA targeted for non-clustered JBoss EAP 5.*
-    - switchyard  :  automates provisioning of switchyard BPM component
+
+
+PFP github branches :
+    - master
+        - targeted for "domain" managed JBoss EAP6 environment in 'local' mode
+        - targeted for 'standalone'EAP 6 in 'openshift' mode
+        - tracks master branch of jbpm5 community project from github
+        - configurable to use either mysql or postgres
+        - leverages embedded hornetq provided by EAP 6
+        - pfp services implemented using EJB 3.1 and JPA 2.1
+        - provisions additional droolsjbpm web archives such as :
+            1)  guvnor
+            2)  designer
+            3)  gwt-console-server
+            4)  gwt-console
+            5)  BIRT reporting
+        - provisioning scripts work only in a *nix variant (read: no windows)
+
+    - switchyard
+        - targeted for "standalone" JBoss AS7 runtime modified with SY modules
+        - tracks master branch of SY community project from github
+        - configurable to use either mysql or postgres
+        - leverages embedded hornetq provided by EAP 6
+        - does not include any pfp services
+        - configurable to use either mysql or postgres
+        - provisions additional droolsjbpm web archives such as :
+            1)  guvnor
+            2)  designer
+        - provisioning scripts work only in a *nix variant (read: no windows)
+
+
+    - 5.3.0.GA    
+        - targeted for non-clustered JBoss EAP 5.*
+        - tracks BRMS 5.3.* releases
+        - pfp services implemented using EJB 3.0 and JPA 1.0 & MBeans
+        - postgresql is the only database supported
+        - provisioning scripts work on any operating system
+        - requires separate 'standalone' hornetq 2.2.14 provider
 
 
 

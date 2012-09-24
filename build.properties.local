@@ -1,15 +1,22 @@
 ########################                processFlowProvision pre-reqs       ########################
+jboss.projects=${ENV.JBOSS_PROJECTS}
+jboss.home=${ENV.JBOSS_HOME}
+os.hostname=${ENV.HOSTNAME}
+os.home.path=${ENV.HOME}
+
 # name of organization using this processFlowProvision project
 organization.name=pfp
 
 build.dir=target
 
-install.home=${ENV.JBOSS_PROJECTS}/processFlowProvision/${build.dir}
+install.home=${jboss.projects}/processFlowProvision/${build.dir}
+development.base=${jboss.projects}/processFlowProvision
 temp.dir=${install.home}/tmp
 temp.client.dir=${install.home}/clientLibs
 temp.pfp.lib.dir=${install.home}/pfp/lib
 temp.pfp.services.dir=${install.home}/pfp/services
 temp.distro.dir=${install.home}/processFlowDistro
+temp.brms.unzip.dir=${install.home}/lib/brmsUnzip
 temp.brmsWebs.dir=${install.home}/brmsWebs
 temp.jboss.dir=${install.home}/jboss
 ####################################################################################################
@@ -20,16 +27,13 @@ temp.jboss.dir=${install.home}/jboss
 
 ##########################          JBoss EAP configurations       ############################
 
-#  absolute path to JBoss EAP 5.1.* or SOA-P 5.1.*
-jboss.home=${ENV.JBOSS_HOME}
-
 
 # config settings for JBoss server containing core BRMS process engine and human task services
 jboss.domain.base.dir=domain-${organization.name}
 domain.config.file=domain.xml
 management.port=9999
 base.remoting.port=4447
-pfp.core.host.name=${ENV.HOSTNAME}
+pfp.core.host.name=${os.hostname}
 pfp.core.port.offset=250
 pfp.core.group=${organization.name}-core-group
 pfp.core.server=${organization.name}-core
@@ -51,16 +55,19 @@ brms.webs.group.debugger.port=8790
 
 
 
-###############################         custom ejb-security-realm settings          ###############
+###############################         security-realm settings          ###############
+# application user security credentials
 # pre-req:  read 'remote client examples' section of $PFP_HOME/doc/ADMIN_GUIDE.txt
-
-
-# where is this used ?
 pfp.core.remoting.user.name=pfp
 
 # base64 encodings generated here:  http://www.base64encode.org/
 # corresponds to:  brms
 pfp.core.remoting.base64.passcode=YnJtcw==
+
+
+# administrator security credentials for jboss EAP
+jboss.admin.id=admin
+jboss.admin.password=brms
 ####################################################################################################
 
 
@@ -92,14 +99,14 @@ postgresql.jdbc.lib.path=/usr/share/java/${postgresql.jdbc.lib}
 hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
 
 #   JCA connection factory properties to jbpm database
-jbpm_db_ip=${ENV.HOSTNAME}
+jbpm_db_ip=${os.hostname}
 jbpm_connection_url=jdbc:postgresql://${jbpm_db_ip}/jbpm
 jbpm_driver_class=org.postgresql.Driver
 jbpm_db_user=jbpm
 jbpm_db_password=jbpm
 
 #   JCA connection factory properties to guvnor database
-guvnor_db_ip=${ENV.HOSTNAME}
+guvnor_db_ip=${os.hostname}
 guvnor_connection_url=jdbc:postgresql://${guvnor_db_ip}/guvnor
 guvnor_driver_class=org.postgresql.Driver
 guvnor.xa.datasource.class=org.postgresql.xa.PGXADataSource
@@ -109,14 +116,14 @@ guvnor_persistence_manager_class=org.apache.jackrabbit.core.persistence.pool.Pos
 guvnor_schema_type=postgresql
 
 #   JCA connection factory properties BAM database
-bam_db_ip=${ENV.HOSTNAME}
+bam_db_ip=${os.hostname}
 bam_connection_url=jdbc:postgresql://${bam_db_ip}/jbpm_bam
 bam_driver_class=org.postgresql.Driver
 bam_db_user=jbpm_bam
 bam_db_password=jbpm_bam
 
 #   JCA connection factory properties to esb database (only necessary if using SOA-P )
-esb_db_ip=${ENV.HOSTNAME}
+esb_db_ip=${os.hostname}
 esb_connection_url=jdbc:postgresql://${esb_db_ip}/esb
 esb_driver_class=org.postgresql.Driver
 esb_db_user=esb
@@ -169,8 +176,8 @@ org.jboss.processFlow.messagingProvider=HORNETQ
 org.jboss.processFlow.messaging.connectionFactory=ConnectionFactory
 
 # Qpid related properties
-jboss.qpid.source.dir=${ENV.JBOSS_PROJECTS}/jboss_qpid
-AMQP_BROKER_1=${ENV.HOSTNAME}
+jboss.qpid.source.dir=${jboss.projects}/jboss_qpid
+AMQP_BROKER_1=${os.hostname}
 QPID_SSL_ENABLED=false
 QPID_EXCHANGE_NAME=com.pfp.direct
 
@@ -202,8 +209,8 @@ hornetq.cluster.password=hornetq.${organization.name}
 
 # URL to processFlowProvision service task demonstration
 # NOTE:  if executing serviceTasks test, then need to enable both 'service.repository' & 'service.repository.url' properties
-service.repository=${ENV.JBOSS_PROJECTS}/jboss/serviceRepository
-service.repository.url=file:///${ENV.JBOSS_PROJECTS}/jboss/serviceRepository
+service.repository=${jboss.projects}/jboss/serviceRepository
+service.repository.url=file:///${jboss.projects}/jboss/serviceRepository
 
 # space delimited list of configuration files declaring custom workItemHandlers
 # the value of this property ends up in ${jboss.server.conf.dir}/META-INF/drools.session.conf as the value for 'drools.worItemHandlers'
@@ -217,7 +224,7 @@ space.delimited.workItemHandler.configs=
 
 # knowledgeSessionService now automatically registerers jbpm5 base product email handler with jbpm5 workItemManager
 # please configure the following properties to communicate with yur mail server or mail relay service
-org.jbpm.workItemHandler.mail.address=${ENV.HOSTNAME}
+org.jbpm.workItemHandler.mail.address=${os.hostname}
 org.jbpm.workItemHandler.mail.port=25
 org.jbpm.workItemHandler.mail.userId=""
 org.jbpm.workItemHandler.mail.password=""
@@ -237,9 +244,9 @@ task.clean.up.process.event.listener.impl=org.jbpm.task.admin.TaskCleanUpProcess
 
 
 ########################                BRMS configurations         ###############################
-brms.major.version=5.3.0
-brms.minor.version=ER6
-brms.deployable.suffix=brms-p-${brms.major.version}.BRMS-${brms.minor.version}-deployable.zip
+brms.major.version=5.3.1
+brms.minor.version=ER1
+brms.deployable.suffix=brms-p-${brms.major.version}.${brms.minor.version}-deployable-ee6.zip
 #brms.download.url=ftp://partners.redhat.com/c56d5dbf7f9cfdd0333aa19b0bf73f50/BRMS-${brms.major.version}-${brms.minor.version}/${brms.deployable.suffix}
 brms.download.url=http://jawa05.englab.brq.redhat.com/candidate/BRMS-${brms.major.version}-${brms.minor.version}/${brms.deployable.suffix}
 ###################################################################################################
@@ -247,10 +254,13 @@ brms.download.url=http://jawa05.englab.brq.redhat.com/candidate/BRMS-${brms.majo
 
 ########################        gwt-console-server configurations     #########################################
 # used by jbpm5 implementation of gwt-console form interface for providing URL of that gwt-console-server
-jbpm.console.server.host=${ENV.HOSTNAME}
+jbpm.console.server.host=${os.hostname}
 jbpm.console.server.port=${brms.webs.http.port}
 
-console.sub.domain=business-central
+# need to research why gwt portion of bpm-console seems to harcode subcontext to "gwt-console-server" when querying for process/task forms
+# will keep this to gwt-console for now
+#console.sub.domain=business-central
+console.sub.domain=gwt-console
 
 console.server.version=5.4.0-SNAPSHOT
 console.server.name=${console.sub.domain}-server.war
@@ -267,15 +277,21 @@ birt.version=3_7_0
 birt.target=${temp.brmsWebs.dir}/birt-runtime-${birt.version}
 
 jboss.nexus.url=https://repository.jboss.org/nexus
-org.jbpm.report.dir=${ENV.JBOSS_PROJECTS}/jboss/birt
+org.jbpm.report.dir=${jboss.projects}/jboss/birt
 ###################################################################################################
 
 
 
 ########################        guvnor configurations     #########################################
+# location where jbpm.console.properties resides
+# where and how jbpm.console.properties is located by jbpm5 GuvnorConnectionUtils has changed several times
+# to accomodate previous functionality, jbpm.console.properties was included as a module ... this no longer works
+# will keep jbpm.console.properties in same location, but in addition will now introduce this system property that GuvnorConnectionUtils is cognizant of
+jbpm.conf.dir=${jboss.home}/modules/org/jbpm/configuration/main
+
 # location on filesystem that guvnor creates its filesystem based repository
-#   NOTE:  production environment most likely will be on a shared SAN drive :  ${ENV.JBOSS_PROJECTS}/jboss/guvnor
-guvnor_repo_location=${ENV.JBOSS_PROJECTS}/jboss/guvnor
+#   NOTE:  production environment most likely will be on a shared SAN drive :  ${jboss.projects}/jboss/guvnor
+guvnor_repo_location=${jboss.projects}/jboss/guvnor
 
 guvnor.name=jboss-brms.war
 guvnor.target=${temp.brmsWebs.dir}/${guvnor.name}
@@ -283,7 +299,7 @@ guvnor.zipped=${temp.brmsWebs.dir}/deployments/${guvnor.name}
 
 
 #JA Bride : provide processFlowProvision knowledgeSessionService with details of how/where to connect to guvnor and designer
-guvnor.host=${ENV.HOSTNAME}:${brms.webs.http.port}
+guvnor.host=${os.hostname}:${brms.webs.http.port}
 
 
 #  assist designer locate co-located guvnor
@@ -307,7 +323,7 @@ guvnor.packages=defaultPackage,org.jboss.processFlow
 # the version of Drools Guvnor you want to use and the associated URL you want to get the dependencies from
 #drools.guvnor.version=5.3.1.Final
 drools.guvnor.version=5.5.0-SNAPSHOT
-drools.guvnor.url=https://repository.jboss.org/nexus/content/repositories/snapshots/org/drools/guvnor-distribution-wars/5.5.0-SNAPSHOT/guvnor-distribution-wars-5.5.0-20120722.224235-209-jboss-as-7.0.war
+drools.guvnor.url=https://repository.jboss.org/nexus/content/repositories/snapshots/org/drools/guvnor-distribution-wars/5.5.0-SNAPSHOT/guvnor-distribution-wars-5.5.0-20120921.000035-322-jboss-as-7.0.war
 
 
 # duration (seconds) that the KnowledgeAgent in the knowledgeSessionservice is configured to poll guvnor for process defintion updates
@@ -335,7 +351,8 @@ org.jboss.processFlow.drools.resource.scanner.interval=30
 # the version of the Designer you want to use and the associated URL you want to get it from
 designer.version=2.3.0.Final-jboss7
 #designer.url=http://people.redhat.com/tsurdilo/designer/master
-designer.url=http://sourceforge.net/projects/jbpm/files/designer/designer-2.3
+#designer.url=http://sourceforge.net/projects/jbpm/files/designer/designer-2.3
+designer.url=http://iweb.dl.sourceforge.net/project/jbpm/designer/designer-2.3
 
 
 designer.name=designer.war
@@ -391,7 +408,7 @@ bpmn2.modeler.url=http://download.eclipse.org/bpmn2-modeler/site/
 #possible selections :  COMMUNITY_SOURCE, BRMS
 upstream.jbpm5.drools.libs.type=COMMUNITY_SOURCE
 
-droolsjbpm.source.dir=${ENV.JBOSS_PROJECTS}/droolsjbpm/community
+droolsjbpm.source.dir=${jboss.projects}/droolsjbpm/community
 jbpm.source.dir=${droolsjbpm.source.dir}/jbpm
 jbpm.lib.path=${jbpm.source.dir}/jbpm-distribution/target/jbpm-${jBPM.version}-pre-bin
 deps.lib.path=${jbpm.source.dir}/jbpm-distribution/target/jbpm-${jBPM.version}-pre-bin/lib
@@ -404,10 +421,13 @@ version.drools=5.5.0-SNAPSHOT
 version.ecj=3.5.1
 version.mvel=2.1.0
 version.stringtemplate=3.2.1
+version.xstream=1.4.1
+version.xpp3_min=1.1.4c
+version.xmlpull=1.1.3.1
 
 
 junit.lib.path=/usr/share/java/junit4.jar
-arquillian.lib.path=${ENV.HOME}/.m2/repository/org/jboss
+arquillian.lib.path=${os.home.path}/.m2/repository/org/jboss
 
 org.jboss.processFlow.test.absolutePathToBpmn=${basedir}/pfpServicesTest/src/test/resources/simpleHumanTask.bpmn2
 
@@ -416,7 +436,8 @@ org.jboss.processFlow.client.debuggerPort=8887
 ##########################################################################################################
 
 
-#######################         openshift   provisioning        ##########################################
+
+#######################         openshift   account provisioning        ##########################################
 # host name of public or private openshift
 openshift.rest.uri=https://openshift.redhat.com/broker/rest/
 #openshift.rest.uri=https://192.168.122.228/broker/rest/
@@ -432,25 +453,33 @@ openshift.account.details.file.location=${ENV.HOME}/redhat/openshift/openshift_a
 # note:  each log file name will be suffixed with mm-dd-yyyy 
 openshift.account.provisioning.log.dir=${ENV.HOME}/redhat/openshift/accountProvisioningLogs
 
+openshift.account.refresh.domain=false
+openshift.account.create.pfp.core=true
+openshift.account.create.brms.webs=false
+####################################################################################################
+
+
+#######################         openshift   app configuration        ##########################################
 # domain name for an account that hosts both pfpCore and brmsWebs
 openshift.domain.name=jbride0
 
-openshift.refresh.domain=false
-openshift.create.pfp.core=false
-openshift.create.brms.webs=true
+#openshift.jboss.cartridge.type=jbossas-7
+openshift.jboss.cartridge.type=jbosseap-6.0
+openshift.remote.jboss.home=${openshift.jboss.cartridge.type}/${openshift.jboss.cartridge.type}
 
-#openshift.remote.jboss.home=jbossas-7/jbossas-7
-openshift.remote.jboss.home=jbosseap-6.0/jbosseap-6.0
 openshift.pfpCore.internal.ip=127.10.163.1
+openshift.pfpCore.user.hash=084a490f1f134df0ba90b0b1605ac245
 openshift.pfpCore.management.port=9999
-openshift.pfpCore.ssh.url=f77fcf5bd1904986a9d781a5f77b2c74@pfpCore-jbride0.rhcloud.com
-
+openshift.pfpCore.uri=pfpCore-${openshift.domain.name}.rhcloud.com
+openshift.pfpCore.ssh.url=${openshift.pfpCore.user.hash}@${openshift.pfpCore.uri}
 openshift.pfpCore.app.location=/opt/jboss/openshift/pfpCore
-openshift.pfp.core.scaled.app=false
+openshift.pfpCore.scaled.app=false
 
-
-
-openshift.brmsWebs.ssh.url=c1f5a6973bca4112b5588bb9575ba93f@brmsWebs-jbride0.rhcloud.com
+openshift.brmsWebs.internal.ip=127.12.124.129
+openshift.brmsWebs.internal.http.port=8080
+openshift.brmsWebs.user.hash=9dcab150f9174995aeb56941b795ca3d
+openshift.brmsWebs.uri=brmsWebs-${openshift.domain.name}.rhcloud.com
+openshift.brmsWebs.ssh.url=${openshift.brmsWebs.user.hash}@${openshift.brmsWebs.uri}
 openshift.brmsWebs.app.location=/opt/jboss/openshift/brmsWebs
 
 # gear size of brmsWebs app
@@ -463,9 +492,3 @@ openshift.brmsWebs.app.size=medium
 json.file.dir=/tmp
 json.file=test.json
 ##########################################################################################################
-
-# experimental :  administrator security credentials for jboss EAP
-jboss.admin.id=pfp
-jboss.admin.password=pfpBrms
-
-
