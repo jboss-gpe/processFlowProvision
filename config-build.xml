@@ -41,6 +41,7 @@
         <antcall target="local.stop.master"  />
         <!-- antcall target="configureJbossAdmin" / -->
         <antcall target="pfp.clean" />
+        <mkdir dir="${install.home}/lib" />
         <antcall target="clone.jboss" />
         <antcall target="local.deploy.jboss.modules" />
         <antcall target="addUserRoleConfigs" />
@@ -208,11 +209,10 @@
 
 
 
-  <target name="download.brms.deployable">
-    <echo message="Getting BRMS ..." />
-    <mkdir dir="${install.home}/lib"/>
-    <get src="${brms.download.url}" dest="${install.home}/lib/${brms.deployable.suffix}"  skipexisting="true" />
-  </target>
+    <target name="download.brms.deployable">
+        <echo message="Getting BRMS ..." />
+        <get src="${brms.download.url}" dest="${install.home}/lib/${brms.deployable.suffix}"  skipexisting="true" />
+    </target>
 
     <condition property="useHornetQ" >
         <equals arg1="${org.jboss.processFlow.messagingProvider}" arg2="HORNETQ" />
@@ -230,19 +230,26 @@
         </antcall>
     </target>
 
-    <target name="useBRMSLibs" depends="" if="useBRMS">
-        <echo message="inside useBRMSLibs" />
+    <target name="unzip.brms.deployable">
         <antcall target="download.brms.deployable" />
-        <unzip src="${install.home}/lib/${brms.deployable.suffix}" dest="${temp.dir}" />
-        <delete file="${temp.dir}/modeshape.zip" />
-        <unzip src="${temp.dir}/jboss-brms-engine.zip" dest="${temp.dir}" />
-        <delete file="${temp.dir}/jboss-brms-engine.zip" />
-        <unzip src="${temp.dir}/jboss-brms-manager.zip" dest="${temp.dir}" />
-        <delete file="${temp.dir}/jboss-brms-manager.zip" />
+        <if>
+            <not><available file="${temp.brms.unzip.dir}/${guvnor.name}" type="dir" /></not> 
+            <then>
+                <unzip src="${install.home}/lib/${brms.deployable.suffix}" dest="${temp.brms.unzip.dir}" />
+                <delete file="${temp.brms.unzip.dir}/modeshape.zip" />
+                <unzip src="${temp.brms.unzip.dir}/jboss-brms-engine.zip" dest="${temp.brms.unzip.dir}" />
+                <delete file="${temp.brms.unzip.dir}/jboss-brms-engine.zip" />
+                <unzip src="${temp.brms.unzip.dir}/jboss-brms-manager-ee6.zip" dest="${temp.brms.unzip.dir}" />
+                <delete file="${temp.brms.unzip.dir}/jboss-brms-manager.zip" />
 
-        <!-- contains: "business-central.war",  "designer.war", "gwt-console-server.war" &  "jbpm-human-task.war" -->
-        <unzip src="${temp.dir}/jboss-jbpm-console.zip" dest="${temp.dir}" />
-        <delete file="${temp.dir}/jboss-jbpm-console.zip" />
+                <!-- contains: "business-central.war",  "designer.war", "gwt-console-server.war" &  "jbpm-human-task.war" -->
+                <unzip src="${temp.brms.unzip.dir}/jboss-jbpm-console-ee6.zip" dest="${temp.brms.unzip.dir}" />
+                <delete file="${temp.brms.unzip.dir}/jboss-jbpm-console-ee6.zip" />
+            </then>
+            <else>
+                <echo message="${temp.brms.unzip.dir}/${guvnor.name} already located .... no need to unzip brms again" />
+            </else>
+        </if>
     </target>
 
     <!-- re-create guvnor filesystem and copy over repository.xml -->
@@ -266,16 +273,14 @@
 
     <target name="explode.guvnor.and.designer" >
         <if>
-            <isset property="useBRMS"/>
+            <equals arg1="${upstream.jbpm5.drools.libs.type}" arg2="BRMS" />
             <then>
-                <copy todir="${console.target}" >
-                    <fileset dir="${temp.dir}/${console.name}.war" />
-                </copy>
+                <antcall target="unzip.brms.deployable" />
                 <copy todir="${guvnor.target}" >
-                    <fileset dir="${temp.dir}/jboss-brms.war" />
+                    <fileset dir="${temp.brms.unzip.dir}/jboss-brms.war" />
                 </copy>
                 <copy todir="${designer.target}" >
-                    <fileset dir="${temp.dir}/designer.war" />
+                    <fileset dir="${temp.brms.unzip.dir}/designer.war" />
                 </copy>
             </then>
             <else>
@@ -310,13 +315,14 @@
 
     <target name="explode.jbpm.gwt.console" >
         <if>
-            <isset property="useBRMS"/>
+            <equals arg1="${upstream.jbpm5.drools.libs.type}" arg2="BRMS" />
             <then>
+                <antcall target="unzip.brms.deployable" />
                 <copy todir="${console.target}" >
-                    <fileset dir="${temp.dir}/${console.name}.war" />
+                    <fileset dir="${temp.brms.unzip.dir}/${console.name}.war" />
                 </copy>
                 <copy todir="${console.server.target}">
-                    <fileset dir="${temp.dir}/gwt-console-server.war" />
+                    <fileset dir="${temp.brms.unzip.dir}/gwt-console-server.war" />
                 </copy>
             </then>
             <else>
@@ -527,9 +533,6 @@
         1) refresh.master (optional)
     -->
     <target name="local.provision.pfp.core" description="if domain is not already running and/or needs to be refreshed :  -Drefresh.master=true ">
-        <condition property="useBRMS">
-            <not><isset property="upstream.jbpm5.drools.libs.type" /></not>
-        </condition>
         <if>
             <equals arg1="${refresh.master}" arg2="true" />
             <then>
@@ -555,10 +558,6 @@
             <equals arg1="${refresh.master}" arg2="true" />
             <then><antcall target="refresh.master" /></then>
         </if>
-        <mkdir dir="${install.home}/lib" />
-        <condition property="useBRMS">
-            <not><isset property="upstream.jbpm5.drools.libs.type" /></not>
-        </condition>
         <math result="pfp.core.remoting.port" operand1="${base.remoting.port}" operation="+" operand2="${pfp.core.port.offset}" datatype="int" />
         <antcall target="execute.cli">
             <param name="cli.source.dir" value="conf/brmsWebs"/>
