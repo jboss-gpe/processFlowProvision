@@ -59,3 +59,5 @@ run-batch
 
 # add system property such that jbpm5 bpm-console TaskFormDispatcher can find brms-webs
 /host=master/server-config=brms-webs/system-property=jbpm.conf.dir/:add(value=${jbpm.conf.dir},boot-time=true)
+
+/host=master/server-config=brms-webs/system-property=org.jboss.processFlow.colocated.pfp.services/:add(value=false,boot-time=true)

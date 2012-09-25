@@ -6,7 +6,7 @@
 
 <jboss-web>
 
-  <security-domain>java:/jaas/other</security-domain>
+  <security-domain>other</security-domain>
 
   <context-root>${console.sub.domain}-server</context-root>
 

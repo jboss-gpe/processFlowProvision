@@ -351,6 +351,7 @@
         -->
         <copy file="${temp.pfp.lib.dir}/processFlow-adminConsole.jar" toDir="${console.server.target}/WEB-INF/lib" overwrite="true" />
         <copy file="${temp.pfp.lib.dir}/processFlow-interfaces.jar" toDir="${console.server.target}/WEB-INF/lib" overwrite="true" />
+        <copy file="${temp.pfp.lib.dir}/processFlow-common.jar" toDir="${console.server.target}/WEB-INF/lib" overwrite="true" />
         <delete file="${console.server.target}/WEB-INF/classes/jbpm.console.properties" />
     </target>
 
