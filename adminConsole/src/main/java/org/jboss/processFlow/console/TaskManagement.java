@@ -39,6 +39,7 @@ import org.jboss.bpm.console.client.model.TaskRef;
 import org.jboss.processFlow.console.binding.DataBinderManager;
 import org.jboss.processFlow.console.binding.IDataBinder;
 import org.jboss.processFlow.tasks.ITaskService;
+import org.jboss.processFlow.util.PFPServicesLookupUtil;
 import org.jbpm.task.Status;
 import org.jbpm.task.User;
 import org.jbpm.task.query.TaskSummary;
@@ -60,28 +61,9 @@ public class TaskManagement implements org.jboss.bpm.console.server.integration.
     private static ITaskService taskServiceProxy = null;
     private DataBinderManager dataBinderManager;
 
-    static {
-        javax.naming.Context jndiContext = null;
-        try {
-            Properties jndiProps = new Properties();
-            jndiProps.put(javax.naming.Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
-            jndiContext = new InitialContext(jndiProps);
-            taskServiceProxy = (ITaskService)jndiContext.lookup(ITaskService.TASK_SERVICE_JNDI);
-
-        } catch (Exception t) {
-            throw new RuntimeException(t);
-        } finally {
-            try {
-                if(jndiContext != null)
-                    jndiContext.close();
-            } catch(Exception x) {
-                x.printStackTrace();
-            }
-        }
-    }
-
     public TaskManagement() {
         dataBinderManager = new DataBinderManager();
+        taskServiceProxy = PFPServicesLookupUtil.getTaskProxy();
     }
 
     public TaskRef getTaskById(long taskId) {

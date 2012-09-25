@@ -34,6 +34,7 @@ import org.drools.definition.process.Process;
 import org.jboss.processFlow.bam.IBAMService;
 import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
 import org.jbpm.process.audit.ProcessInstanceLog;
+import org.jboss.processFlow.util.PFPServicesLookupUtil;
 
 
 /**
@@ -46,29 +47,8 @@ public class CommandDelegate {
     private IBAMService bamProxy = null;
 
     public CommandDelegate() {
-        Context ksessionContext = null;
-        Context bamContext = null;
-        try {
-            Properties jndiProps = new Properties();
-            jndiProps.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
-
-            ksessionContext = new InitialContext(jndiProps);
-            ksessionProxy = (IKnowledgeSessionService)ksessionContext.lookup(IKnowledgeSessionService.KNOWLEDGE_SESSION_SERVICE_JNDI);
-
-            bamContext = new InitialContext(jndiProps);
-            bamProxy = (IBAMService)bamContext.lookup(IBAMService.BAM_SERVICE_JNDI);
-        } catch(Exception x) {
-            throw new RuntimeException(x);
-        } finally {
-            try {
-                if(ksessionContext != null)
-                    ksessionContext.close();
-                if(bamContext != null)
-                    bamContext.close();
-            } catch(Exception y){
-                throw new RuntimeException(y);
-            }
-        }
+        ksessionProxy = PFPServicesLookupUtil.getKSessionProxy();
+        bamProxy = PFPServicesLookupUtil.getBamProxy();
     }
     
     public List<Process> getProcesses() {
