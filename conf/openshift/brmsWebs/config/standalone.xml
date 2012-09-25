@@ -85,10 +85,10 @@
                                 <level name="TRACE"/>
 			</periodic-rotating-file-handler>
                     
-                        <!-- JA Bride:  add trace level security logging -->
+                        <!-- JA Bride:  add trace level security logging >
 			<logger category="org.jboss.security" use-parent-handlers="true">
 				<level name="TRACE" />
-			</logger>
+			</logger -->
 
 			<logger category="com.arjuna">
 				<level name="WARN" />

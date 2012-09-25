@@ -83,6 +83,9 @@ function getRemoteFileSize() {
 #rsync with recursion, verbosity & compression flags
 function openshiftRsync() {
     echo -en "rsync() :  rsync -avz $localDir $sshUrl:$remoteDir\n"
+    ssh $sshUrl "
+        mkdir -p $remoteDir;
+    "
     rsync -avz $localDir $sshUrl:$remoteDir
 }
 

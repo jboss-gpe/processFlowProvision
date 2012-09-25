@@ -16,6 +16,27 @@
             </fileset>
         </copy>
         <delete file="${openshift.pfpCore.app.location}/pom.xml" />
+        <antcall target="addUserRoleConfigs" >
+            <param name="config.path" value="${openshift.pfpCore.app.location}/.openshift/config"/>
+        </antcall>
+        <antcall target="explode.jbpm.gwt.console" />
+        <!-- rsync to exploded web archives to :  ${openshift.jboss.cartridge.type}/tmp/deployments
+            this directory will not get blown away when executing 'git push' on openshift app
+        -->
+        <exec executable="bash" failonerror="true" dir="." >
+           <arg value="bin/openshift.sh"/>
+           <arg value="openshiftRsync"/>
+           <arg value="-localDir=${temp.brmsWebs.dir}/${console.server.name}/*"/>
+           <arg value="-sshUrl=${openshift.pfpCore.ssh.url}"/>
+           <arg value="-remoteDir=${openshift.jboss.cartridge.type}/tmp/deployments/${console.server.name}"/>
+        </exec> 
+        <exec executable="bash" failonerror="true" dir="." >
+           <arg value="bin/openshift.sh"/>
+           <arg value="openshiftRsync"/>
+           <arg value="-localDir=${temp.brmsWebs.dir}/${console.name}/*"/>
+           <arg value="-sshUrl=${openshift.pfpCore.ssh.url}"/>
+           <arg value="-remoteDir=${openshift.jboss.cartridge.type}/tmp/deployments/${console.name}"/>
+        </exec> 
         <exec executable="bash" failonerror="true" dir="." >
            <arg value="bin/openshift.sh"/>
            <arg value="push"/>
@@ -36,16 +57,22 @@
         <delete file="${openshift.brmsWebs.app.location}/pom.xml" />
         <delete dir="${temp.brmsWebs.dir}" />
         <antcall target="explode.guvnor.and.designer" />
-        <antcall target="explode.jbpm.gwt.console" />
         <!-- rsync to exploded web archives to :  ${openshift.jboss.cartridge.type}/tmp/deployments
             this directory will not get blown away when executing 'git push' on openshift app
         -->
         <exec executable="bash" failonerror="true" dir="." >
            <arg value="bin/openshift.sh"/>
            <arg value="openshiftRsync"/>
-           <arg value="-localDir=${temp.brmsWebs.dir}/*"/>
+           <arg value="-localDir=${temp.brmsWebs.dir}/${guvnor.name}/*"/>
            <arg value="-sshUrl=${openshift.brmsWebs.ssh.url}"/>
-           <arg value="-remoteDir=${openshift.jboss.cartridge.type}/tmp/deployments"/>
+           <arg value="-remoteDir=${openshift.jboss.cartridge.type}/tmp/deployments/${guvnor.name}"/>
+        </exec> 
+        <exec executable="bash" failonerror="true" dir="." >
+           <arg value="bin/openshift.sh"/>
+           <arg value="openshiftRsync"/>
+           <arg value="-localDir=${temp.brmsWebs.dir}/${designer.name}/*"/>
+           <arg value="-sshUrl=${openshift.brmsWebs.ssh.url}"/>
+           <arg value="-remoteDir=${openshift.jboss.cartridge.type}/tmp/deployments/${designer.name}"/>
         </exec> 
         <!-- NOTE:  git push on openshift app will blow away exploded archives in app-root/repo/deployments -->
         <exec executable="bash" failonerror="true" dir="." >

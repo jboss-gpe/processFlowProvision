@@ -62,6 +62,7 @@ public class KSessionHttp {
     /**
      * sample usage :
      *  curl -X PUT -HAccept:text/plain $HOSTNAME:8330/knowledgeService/kbase/agent
+     *  curl -X PUT -HAccept:text/plain https://pfpcore-jbride0.rhcloud.com/knowledgeService/kbase/agent
      */
     @PUT
     @Path("/kbase/agent")
@@ -78,6 +79,7 @@ public class KSessionHttp {
     /**
      * sample usage :
      *  curl -X GET -HAccept:text/plain $HOSTNAME:8330/knowledgeService/kbase/content
+     *  curl -X GET -HAccept:text/plain https://pfpcore-jbride0.rhcloud.com/knowledgeService/kbase/content
      */
     @GET
     @Path("/kbase/content")

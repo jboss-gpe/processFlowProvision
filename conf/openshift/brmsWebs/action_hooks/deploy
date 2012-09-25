@@ -7,10 +7,6 @@ createSoftLinksToWebArchives() {
     touch ${designer.name}.dodeploy
     ln -s ~/$OPENSHIFT_GEAR_TYPE/tmp/deployments/${guvnor.name}
     touch ${guvnor.name}.dodeploy
-    ln -s ~/$OPENSHIFT_GEAR_TYPE/tmp/deployments/${console.server.name}
-    #touch ${console.server.name}.dodeploy
-    ln -s ~/$OPENSHIFT_GEAR_TYPE/tmp/deployments/${console.name}
-    #touch ${console.name}.dodeploy
 }
 
 createSoftLinksToWebArchives

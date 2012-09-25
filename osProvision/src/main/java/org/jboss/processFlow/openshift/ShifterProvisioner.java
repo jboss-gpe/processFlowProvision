@@ -90,6 +90,7 @@ public class ShifterProvisioner {
     public static final String OPENSHIFT_ACCOUNT_PROVISIONING_LOG_DIR  = "openshift.account.provisioning.log.dir";
     public static final String OPENSHIFT_ACCOUNT_DETAILS_SCHEMA_FILE="/openshift_account_details.xsd";
     public static final String OPENSHIFT_BRMS_WEBS_APP_SIZE="openshift.brmsWebs.app.size";
+    public static final String OPENSHIFT_PFP_CORE_APP_SIZE="openshift.pfpCore.app.size";
     public static final String OPENSHIFT_PFP_CORE_SCALED_APP="openshift.pfpCore.scaled.app";
     public static final String ACCOUNT_ID = "tns:accountId";
     public static final String PASSWORD = "tns:password";
@@ -127,6 +128,7 @@ public class ShifterProvisioner {
     private static String openshiftAccountDetailsFile;
     private static String openshiftAccountProvisioningLogDir;
     private static String openshiftBrmsWebsAppSize = SMALL;
+    private static String openshiftPfpCoreAppSize = SMALL;
     private static DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     private static DocumentBuilder builder;
     private static File accountLogDir;
@@ -241,7 +243,7 @@ public class ShifterProvisioner {
         
         private void createPfpCore() throws Exception {
             log.info(CREATE_PFP_CORE);
-            ClientResponse<?> cResponse = osClient.createApp(domainId, PFP_CORE, EAP6, Boolean.toString(openshiftPfpCoreScaledApp), SMALL);
+            ClientResponse<?> cResponse = osClient.createApp(domainId, PFP_CORE, EAP6, Boolean.toString(openshiftPfpCoreScaledApp), openshiftPfpCoreAppSize);
             consumeEntityAndCheckResponse(CREATE_PFP_CORE, cResponse);
             JsonNode rootNode = jsonMapper.readValue(body, JsonNode.class);
             String pfpCoreSSHUrl = rootNode.path("data").path("ssh_url").getTextValue();
@@ -477,6 +479,8 @@ public class ShifterProvisioner {
         
         if(props.getProperty(OPENSHIFT_BRMS_WEBS_APP_SIZE) != null)
             openshiftBrmsWebsAppSize = props.getProperty(OPENSHIFT_BRMS_WEBS_APP_SIZE);
+        if(props.getProperty(OPENSHIFT_PFP_CORE_APP_SIZE) != null)
+            openshiftPfpCoreAppSize = props.getProperty(OPENSHIFT_PFP_CORE_APP_SIZE);
         
         if(props.getProperty(REFRESH_DOMAIN) != null)
         	refreshDomain = Boolean.parseBoolean(props.getProperty(REFRESH_DOMAIN));
@@ -492,6 +496,7 @@ public class ShifterProvisioner {
         sBuilder.append("\n\tpenshiftAccountDetailsFile = "+openshiftAccountDetailsFile);
         sBuilder.append("\n\topenshiftAccountProvisioningLogDir = "+openshiftAccountProvisioningLogDir);
         sBuilder.append("\n\topenshift.brmsWebs.app.size = "+openshiftBrmsWebsAppSize);
+        sBuilder.append("\n\topenshift.pfpCore.app.size = "+openshiftPfpCoreAppSize);
         sBuilder.append("\n\trefreshDomain = "+refreshDomain);
         sBuilder.append("\n\tcreatePfpCore = "+createPfpCore);
         sBuilder.append("\n\tcreateBrmsWebs = "+createBrmsWebs);
