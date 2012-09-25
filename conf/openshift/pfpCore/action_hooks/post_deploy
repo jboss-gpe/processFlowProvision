@@ -6,15 +6,15 @@ socketIsOpen=2
 function checkRemotePort() {
     (echo >/dev/tcp/$OPENSHIFT_DB_HOST/$OPENSHIFT_DB_PORT) &>/dev/null
     if [ $? -eq 0 ]; then
-        echo -en "\ndeploy.checkRemotePort() : $OPENSHIFT_DB_HOST:$OPENSHIFT_DB_PORT is open.\n\n"
+        echo -en "\npost_deploy.checkRemotePort() : $OPENSHIFT_DB_HOST:$OPENSHIFT_DB_PORT is open.\n\n"
     else
-        echo -en "\ndeploy.checkRemotePort() : $OPENSHIFT_DB_HOST:$OPENSHIFT_DB_PORT is closed. ... will now exit\n\n"
+        echo -en "\npost_deploy.checkRemotePort() : $OPENSHIFT_DB_HOST:$OPENSHIFT_DB_PORT is closed. ... will now exit\n\n"
         exit 1
     fi
 }
 
 dbModifications() {
-    echo -en "deploy.dbModifications() ... start\n"
+    echo -en "post_deploy.dbModifications() ... start\n"
     PGPASSWORD=$OPENSHIFT_DB_PASSWORD psql -h $OPENSHIFT_DB_HOST -U admin -d $OPENSHIFT_APP_NAME -c "drop database if exists jbpm;"
     PGPASSWORD=$OPENSHIFT_DB_PASSWORD psql -h $OPENSHIFT_DB_HOST -U admin -d $OPENSHIFT_APP_NAME -c "drop user if exists jbpm;"
     PGPASSWORD=$OPENSHIFT_DB_PASSWORD psql -h $OPENSHIFT_DB_HOST -U admin -d $OPENSHIFT_APP_NAME -c "create user jbpm with password 'jbpm';"
@@ -24,7 +24,7 @@ dbModifications() {
     PGPASSWORD=$OPENSHIFT_DB_PASSWORD psql -h $OPENSHIFT_DB_HOST -U admin -d $OPENSHIFT_APP_NAME -c "drop user if exists jbpm_bam;"
     PGPASSWORD=$OPENSHIFT_DB_PASSWORD psql -h $OPENSHIFT_DB_HOST -U admin -d $OPENSHIFT_APP_NAME -c "create user jbpm_bam with password 'jbpm_bam';"
     PGPASSWORD=$OPENSHIFT_DB_PASSWORD psql -h $OPENSHIFT_DB_HOST -U admin -d $OPENSHIFT_APP_NAME -c "create database jbpm_bam with owner=jbpm_bam;"
-    echo -en "deploy.dbModifications()  ... completed.\n\n"
+    echo -en "post_deploy.dbModifications()  ... completed.\n\n"
 }
 
 checkRemotePort

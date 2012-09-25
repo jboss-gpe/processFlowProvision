@@ -56,6 +56,7 @@
             <property name="hibernate.cache.use_second_level_cache" value="${hibernate.cache.use_second_level_cache}"/>
             <property name="hibernate.dialect" value="${hibernate.dialect}"/>
             <property name="hibernate.show_sql" value="${hibernate.show_sql}"/>
+            <property name="jbpm.conf.dir" value="${jbpm.conf.dir}"/>
         </system-properties>
 
 	<management>
