@@ -68,6 +68,9 @@ pfp.core.remoting.base64.passcode=YnJtcw==
 # administrator security credentials for jboss EAP
 jboss.admin.id=admin
 jboss.admin.password=brms
+
+# admin console is colocated with pfp services in openshift ... keep this blank
+org.jboss.processFlow.remoting.ejb.receiver=
 ####################################################################################################
 
 
