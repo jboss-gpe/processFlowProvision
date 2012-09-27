@@ -79,12 +79,24 @@ executeAddUser() {
     #fi
 }
 
+executeCli() {
+    echo -en "executeCliScript() "
+    chmod 755 $jbossHome/bin/*.sh
+
+    export JAVA_OPTS=-Xmx$jbossCliXmx
+
+    if [ "x$cliCommand" !=  "x" ]; then
+        $jbossHome/bin/jboss-cli.sh --connect --controller=$hostName:$cliPort --command=$cliCommand
+    else
+        $jbossHome/bin/jboss-cli.sh --connect --controller=$hostName:$cliPort -c --file=$cliFile
+    fi
+}
 
 case "$1" in
-    start|stop|restart|executeAddUser)
+    start|stop|restart|executeCli)
         $1
         ;;
     *)
-    echo 1>&2 $"Usage: $0 {start|stop|restart|executeAddUser}"
+    echo 1>&2 $"Usage: $0 {start|stop|restart|executeAddUser|executeCli}"
     exit 1
 esac
