@@ -323,10 +323,10 @@
             <then>
                 <antcall target="unzip.brms.deployable" />
                 <copy todir="${console.target}" >
-                    <fileset dir="${temp.brms.unzip.dir}/${console.name}.war" />
+                    <fileset dir="${temp.brms.unzip.dir}/${console.name}" />
                 </copy>
                 <copy todir="${console.server.target}">
-                    <fileset dir="${temp.brms.unzip.dir}/gwt-console-server.war" />
+                    <fileset dir="${temp.brms.unzip.dir}/${console.server.name}" />
                 </copy>
             </then>
             <else>
@@ -346,9 +346,6 @@
             <param name="source.dir" value="conf/brmsWebs/bpm-console-server/WEB-INF"/>
             <param name="dest.dir" value="${console.server.target}/WEB-INF"/>
         </antcall>
-        <!-- TO-DO:  add this as a as7 module.  gwt-console-* dependencies can be found here :
-            ${jbpm.source}/jbpm/jbpm-gwt/jbpm-gwt-console-server/target/war/work/org.jboss.bpm/gwt-console-server-jbpm/WEB-INF/
-        -->
         <copy file="${temp.pfp.lib.dir}/processFlow-adminConsole.jar" toDir="${console.server.target}/WEB-INF/lib" overwrite="true" />
         <copy file="${temp.pfp.lib.dir}/processFlow-interfaces.jar" toDir="${console.server.target}/WEB-INF/lib" overwrite="true" />
         <copy file="${temp.pfp.lib.dir}/processFlow-common.jar" toDir="${console.server.target}/WEB-INF/lib" overwrite="true" />

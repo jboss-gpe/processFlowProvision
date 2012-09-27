@@ -462,8 +462,8 @@ openshift.account.details.file.location=${ENV.HOME}/redhat/openshift/openshift_a
 openshift.account.provisioning.log.dir=${ENV.HOME}/redhat/openshift/accountProvisioningLogs
 
 openshift.account.refresh.domain=false
-openshift.account.create.pfp.core=true
-openshift.account.create.brms.webs=false
+openshift.account.create.pfp.core=false
+openshift.account.create.brms.webs=true
 ####################################################################################################
 
 
@@ -484,8 +484,7 @@ openshift.pfpCore.app.location=/opt/jboss/openshift/pfpCore
 openshift.pfpCore.scaled.app=false
 
 # gear size of brmsWebs app
-# choose either 'small' (500MB heap) or 'medium' (1GB heap)
-# default is 'small'
+# details of sizes can be found here :  jbosseap-6.0/jbosseap-6.0/bin/standalone.conf
 # in public openshift, account must be enabled to allow for medium sized gears (if 'medium' is specified)
 # in private Openshift Origin, origin doesn't yet allow for 'medium' size gears
 openshift.pfpCore.app.size=medium
@@ -498,11 +497,10 @@ openshift.brmsWebs.ssh.url=${openshift.brmsWebs.user.hash}@${openshift.brmsWebs.
 openshift.brmsWebs.app.location=/opt/jboss/openshift/brmsWebs
 
 # gear size of brmsWebs app
-# choose either 'small' (500MB heap) or 'medium' (1GB heap)
-# default is 'small'
+# details of sizes can be found here :  jbosseap-6.0/jbosseap-6.0/bin/standalone.conf
 # in public openshift, account must be enabled to allow for medium sized gears (if 'medium' is specified)
 # in private Openshift Origin, origin doesn't yet allow for 'medium' size gears
-openshift.brmsWebs.app.size=medium
+openshift.brmsWebs.app.size=large
 
 json.file.dir=/tmp
 json.file=test.json

@@ -1,5 +1,10 @@
 #!/bin/bash
 
+cleanRuntime() {
+    echo -en "cleanRuntime() \n";
+    rm $HOME/$OPENSHIFT_GEAR_TYPE/$OPENSHIFT_GEAR_TYPE/standalone/log/server.log
+}
+
 createSoftLinksToWebArchives() {
     echo -en "createSoftLinksToWebArchives() \n";
     cd $OPENSHIFT_RUNTIME_DIR/repo/deployments;
@@ -10,4 +15,5 @@ createSoftLinksToWebArchives() {
     touch ${console.name}.dodeploy
 }
 
+cleanRuntime
 createSoftLinksToWebArchives

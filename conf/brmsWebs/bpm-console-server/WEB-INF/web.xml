@@ -4,6 +4,11 @@
 
 <web-app>
   <display-name>GWT Console Server</display-name>
+    <context-param>
+        <param-name>resteasy.document.expand.entity.references</param-name>
+        <param-value>false</param-value>
+    </context-param>
+
 
   <context-param>
     <param-name>javax.ws.rs.core.Application</param-name>
@@ -50,12 +55,13 @@
   <security-constraint>
     <web-resource-collection>
       <web-resource-name>Resteasy</web-resource-name>      
-      <!-- <url-pattern>/rs/process/*</url-pattern> -->
+      <url-pattern>/rs/process/*</url-pattern>
       <url-pattern>/rs/task/*</url-pattern>
       <url-pattern>/rs/form/*</url-pattern>
       <url-pattern>/rs/tasks/*</url-pattern>
       <url-pattern>/rs/identity/user/*</url-pattern>
       <url-pattern>/rs/identity/secure/*</url-pattern>
+      <url-pattern>/rs/history/*</url-pattern>
     </web-resource-collection>
     <auth-constraint>
         <!-- JA Bride :  for now, allow user with any role to login to gwt-console-server -->
@@ -63,8 +69,7 @@
     </auth-constraint>
   </security-constraint>
 
-  <!-- JA Bride :  switching to BASIC auth for now
-  <login-config>
+  <!--login-config>
     <auth-method>BASIC</auth-method>
     <realm-name>GWT Console Server</realm-name>
   </login-config -->

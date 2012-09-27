@@ -112,6 +112,7 @@ public class ShifterProvisioner {
     public static final String CREATE_DOMAIN = "CREATE_DOMAIN";
     public static final String BRMS_WEBS = "brmsWebs";
     public static final String PFP_CORE = "pfpCore";
+    public static final String LARGE = "large";
     public static final String MEDIUM = "medium";
     public static final String SMALL = "small";
     public static final String JBOSSAS7 = "jbossas-7";

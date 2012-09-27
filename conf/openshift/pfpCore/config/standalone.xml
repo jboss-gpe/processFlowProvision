@@ -125,7 +125,8 @@
 		<subsystem xmlns="urn:jboss:domain:configadmin:1.0" />
 		<subsystem xmlns="urn:jboss:domain:datasources:1.1">
 			<datasources>
-				<datasource jndi-name="java:jboss/datasources/ExampleDS"
+                                <!-- JA Bride :  changed name of H2 datasource to support experimental jbpm5  -->
+				<datasource jndi-name="java:jboss/datasources/jbpmDS"
 					enabled="true" use-java-context="true" pool-name="H2DS">
 					<connection-url>jdbc:h2:${jboss.server.data.dir}/test;DB_CLOSE_DELAY=-1
 					</connection-url>
@@ -539,16 +540,6 @@
 		<subsystem xmlns="urn:jboss:domain:sar:1.0" />
 		<subsystem xmlns="urn:jboss:domain:security:1.2">
             <security-domains>
-                <!-- JA Bride :  brmsWebs security domain -->
-                <security-domain name="brmsWebs"> 
-                    <authentication> 
-                        <login-module code="UsersRoles" flag="required"> 
-                        <module-option name="usersProperties" value="${jboss.server.config.dir}/application-users.properties"/> 
-                        <module-option name="rolesProperties" value="${jboss.server.config.dir}/application-roles.properties"/> 
-                        </login-module> 
-                    </authentication> 
-                </security-domain>
-
                 <security-domain name="other" cache-type="default">
                     <authentication>
                         <login-module code="Remoting" flag="optional">

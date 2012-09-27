@@ -5,15 +5,5 @@
   "http://www.jboss.org/j2ee/dtd/jboss-web_4_0.dtd">
 
 <jboss-web>
-
-   <!--security-domain>java:/jaas/jbpm-console</security-domain-->
-
    <context-root>${console.sub.domain}</context-root>
-
-   <!--resource-ref>
-     <res-ref-name>jdbc/JbpmDataSource</res-ref-name>
-     <jndi-name>java:/JbpmDS</jndi-name>
-   </resource-ref>
-   -->
-
 </jboss-web>
