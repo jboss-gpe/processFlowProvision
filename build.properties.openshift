@@ -68,9 +68,6 @@ pfp.core.remoting.base64.passcode=YnJtcw==
 # administrator security credentials for jboss EAP
 jboss.admin.id=admin
 jboss.admin.password=brms
-
-# admin console is colocated with pfp services in openshift ... keep this blank
-org.jboss.processFlow.remoting.ejb.receiver=
 ####################################################################################################
 
 
@@ -257,10 +254,8 @@ brms.download.url=http://jawa05.englab.brq.redhat.com/candidate/BRMS-${brms.majo
 
 ########################        gwt-console-server configurations     #########################################
 # used by jbpm5 implementation of gwt-console form interface for providing URL of that gwt-console-server
-#jbpm.console.server.host=${os.hostname}
-#jbpm.console.server.port=${brms.webs.http.port}
-jbpm.console.server.host=${openshift.pfpCore.uri}
-jbpm.console.server.port=80
+jbpm.console.server.host=${os.hostname}
+jbpm.console.server.port=${brms.webs.http.port}
 
 # need to research why gwt portion of bpm-console seems to harcode subcontext to "gwt-console-server" when querying for process/task forms
 # will keep this to gwt-console for now
@@ -292,8 +287,7 @@ org.jbpm.report.dir=${jboss.projects}/jboss/birt
 # where and how jbpm.console.properties is located by jbpm5 GuvnorConnectionUtils has changed several times
 # to accomodate previous functionality, jbpm.console.properties was included as a module ... this no longer works
 # will keep jbpm.console.properties in same location, but in addition will now introduce this system property that GuvnorConnectionUtils is cognizant of
-#jbpm.conf.dir=${jboss.home}/modules/org/jbpm/configuration/main
-jbpm.conf.dir=/var/lib/stickshift/${openshift.pfpCore.user.hash}/pfpCore/${openshift.jboss.cartridge.type}/standalone/configuration/modules/org/jbpm/configuration/main/
+jbpm.conf.dir=${jboss.home}/modules/org/jbpm/configuration/main
 
 # location on filesystem that guvnor creates its filesystem based repository
 #   NOTE:  production environment most likely will be on a shared SAN drive :  ${jboss.projects}/jboss/guvnor
@@ -305,13 +299,11 @@ guvnor.zipped=${temp.brmsWebs.dir}/deployments/${guvnor.name}
 
 
 #JA Bride : provide processFlowProvision knowledgeSessionService with details of how/where to connect to guvnor and designer
-#guvnor.host=${os.hostname}:${brms.webs.http.port}
-guvnor.host=${openshift.brmsWebs.uri}:80
+guvnor.host=${os.hostname}:${brms.webs.http.port}
 
 
 #  assist designer locate co-located guvnor
-#guvnor.internal.host=${guvnor.host}
-guvnor.internal.host=${openshift.brmsWebs.internal.ip}:${openshift.brmsWebs.internal.http.port}
+guvnor.internal.host=${guvnor.host}
 
 guvnor.usr=admin
 guvnor.pwd=admin
@@ -462,8 +454,8 @@ openshift.account.details.file.location=${ENV.HOME}/redhat/openshift/openshift_a
 openshift.account.provisioning.log.dir=${ENV.HOME}/redhat/openshift/accountProvisioningLogs
 
 openshift.account.refresh.domain=false
-openshift.account.create.pfp.core=false
-openshift.account.create.brms.webs=true
+openshift.account.create.pfp.core=true
+openshift.account.create.brms.webs=false
 ####################################################################################################
 
 
@@ -475,32 +467,27 @@ openshift.domain.name=jbride0
 openshift.jboss.cartridge.type=jbosseap-6.0
 openshift.remote.jboss.home=${openshift.jboss.cartridge.type}/${openshift.jboss.cartridge.type}
 
-openshift.pfpCore.internal.ip=127.2.47.1
-openshift.pfpCore.user.hash=1328c909cbfc4b6aa9708f8b37a377a0
+openshift.pfpCore.internal.ip=127.10.163.1
+openshift.pfpCore.user.hash=084a490f1f134df0ba90b0b1605ac245
 openshift.pfpCore.management.port=9999
 openshift.pfpCore.uri=pfpCore-${openshift.domain.name}.rhcloud.com
 openshift.pfpCore.ssh.url=${openshift.pfpCore.user.hash}@${openshift.pfpCore.uri}
 openshift.pfpCore.app.location=/opt/jboss/openshift/pfpCore
 openshift.pfpCore.scaled.app=false
 
-# gear size of brmsWebs app
-# details of sizes can be found here :  jbosseap-6.0/jbosseap-6.0/bin/standalone.conf
-# in public openshift, account must be enabled to allow for medium sized gears (if 'medium' is specified)
-# in private Openshift Origin, origin doesn't yet allow for 'medium' size gears
-openshift.pfpCore.app.size=medium
-
-openshift.brmsWebs.internal.ip=127.2.34.129
-openshift.brmsWebs.user.hash=9f6af952fa7f4d1e9443c6cdb6d251a8
+openshift.brmsWebs.internal.ip=127.12.124.129
 openshift.brmsWebs.internal.http.port=8080
+openshift.brmsWebs.user.hash=9dcab150f9174995aeb56941b795ca3d
 openshift.brmsWebs.uri=brmsWebs-${openshift.domain.name}.rhcloud.com
 openshift.brmsWebs.ssh.url=${openshift.brmsWebs.user.hash}@${openshift.brmsWebs.uri}
 openshift.brmsWebs.app.location=/opt/jboss/openshift/brmsWebs
 
 # gear size of brmsWebs app
-# details of sizes can be found here :  jbosseap-6.0/jbosseap-6.0/bin/standalone.conf
+# choose either 'small' (500MB heap) or 'medium' (1GB heap)
+# default is 'small'
 # in public openshift, account must be enabled to allow for medium sized gears (if 'medium' is specified)
 # in private Openshift Origin, origin doesn't yet allow for 'medium' size gears
-openshift.brmsWebs.app.size=large
+openshift.brmsWebs.app.size=medium
 
 json.file.dir=/tmp
 json.file=test.json

@@ -86,6 +86,7 @@ the remainder of this document discusses details of each of these phases
 
     - the use of git requires that a 'remote' reference to each account's git repo be configured for both the pfpCore and brmsWebs applications
         - this step is entirely manual (although a future phase could conceivably automate this)
+        - git clone -o <accountId> <gitUrl>
         
 6)  openshift.provision.pfp.core
     6.a)  customization of postgresql-8.4 rdbms in openshift to support pfpCore
