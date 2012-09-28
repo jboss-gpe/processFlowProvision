@@ -24,12 +24,9 @@
         <delete dir="privateServiceTaskRepo/${build.dir}" />
         <delete dir="pfpServicesTest/${build.dir}" />
         <delete dir="osProvision/${build.dir}" />
-        <delete dir="${install.home}/tmp" />
-        <delete dir="${install.home}/pfp" />
-        <delete dir="${temp.client.dir}" />
-        <delete dir="${temp.distro.dir}" />
-        <delete dir="${temp.brmsWebs.dir}" />
-        <delete dir="${temp.jboss.dir}" />
+        <delete verbose="true" includeemptydirs="true">
+            <fileset dir="target" excludes="lib/**/*" />
+        </delete>
         <delete dir="${distro.clean}" />
     </target>
 

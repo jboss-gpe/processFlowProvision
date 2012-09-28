@@ -254,8 +254,9 @@ brms.download.url=http://jawa05.englab.brq.redhat.com/candidate/BRMS-${brms.majo
 
 ########################        gwt-console-server configurations     #########################################
 # used by jbpm5 implementation of gwt-console form interface for providing URL of that gwt-console-server
-jbpm.console.server.host=${os.hostname}
-jbpm.console.server.port=${brms.webs.http.port}
+# openshift change
+jbpm.console.server.host=${openshift.pfpCore.uri}
+jbpm.console.server.port=80
 
 # need to research why gwt portion of bpm-console seems to harcode subcontext to "gwt-console-server" when querying for process/task forms
 # will keep this to gwt-console for now
@@ -299,11 +300,12 @@ guvnor.zipped=${temp.brmsWebs.dir}/deployments/${guvnor.name}
 
 
 #JA Bride : provide processFlowProvision knowledgeSessionService with details of how/where to connect to guvnor and designer
-guvnor.host=${os.hostname}:${brms.webs.http.port}
+guvnor.host=${openshift.brmsWebs.uri}:80
 
 
 #  assist designer locate co-located guvnor
-guvnor.internal.host=${guvnor.host}
+#guvnor.internal.host=${guvnor.host}
+guvnor.internal.host=${openshift.brmsWebs.internal.ip}:${openshift.brmsWebs.internal.http.port}
 
 guvnor.usr=admin
 guvnor.pwd=admin
@@ -475,9 +477,9 @@ openshift.pfpCore.ssh.url=${openshift.pfpCore.user.hash}@${openshift.pfpCore.uri
 openshift.pfpCore.app.location=/opt/jboss/openshift/pfpCore
 openshift.pfpCore.scaled.app=false
 
-openshift.brmsWebs.internal.ip=127.12.124.129
+openshift.brmsWebs.internal.ip=127.2.171.129
 openshift.brmsWebs.internal.http.port=8080
-openshift.brmsWebs.user.hash=9dcab150f9174995aeb56941b795ca3d
+openshift.brmsWebs.user.hash=91de925cae1246569b4d896188b7e41c
 openshift.brmsWebs.uri=brmsWebs-${openshift.domain.name}.rhcloud.com
 openshift.brmsWebs.ssh.url=${openshift.brmsWebs.user.hash}@${openshift.brmsWebs.uri}
 openshift.brmsWebs.app.location=/opt/jboss/openshift/brmsWebs
