@@ -24,7 +24,7 @@
         <delete dir="privateServiceTaskRepo/${build.dir}" />
         <delete dir="pfpServicesTest/${build.dir}" />
         <delete dir="osProvision/${build.dir}" />
-        <delete verbose="true" includeemptydirs="true">
+        <delete includeemptydirs="true">
             <fileset dir="target" excludes="lib/**/*" />
         </delete>
         <delete dir="${distro.clean}" />

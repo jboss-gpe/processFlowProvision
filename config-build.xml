@@ -28,7 +28,7 @@
            <arg value="-node=master"/>
         </exec>
     </target>
-    <target name="local.start.master" description="">
+    <target name="local.start.master">
         <exec executable="bash" failonerror="true" dir="." >
            <arg value="bin/localJboss.sh"/>
            <arg value="start"/>
@@ -389,13 +389,13 @@
         <antcall target="explode.jbpm.gwt.console" />
         <antcall target="install.reporting.into.jboss7" />
         <jar jarfile="${console.server.zipped}" basedir="${console.server.target}" />
-        <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
+        <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="true">
             <arg value="--connect"/>
             <arg value="--controller=${ENV.HOSTNAME}:${management.port}"/>
             <arg value="deploy ${console.server.zipped} --name=${console.server.name} --server-groups=brms-webs-group"/>
         </exec>
         <jar jarfile="${console.zipped}" basedir="${console.target}" />
-        <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
+        <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="true">
             <arg value="--connect"/>
             <arg value="--controller=${ENV.HOSTNAME}:${management.port}"/>
             <arg value="deploy ${console.zipped} --name=${console.name} --server-groups=brms-webs-group"/>
