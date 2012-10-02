@@ -53,6 +53,12 @@ brms.webs.group.debugger.port=8790
 ###################################################################################################
 
 
+########################                switchyard configs         ###############################
+switchyard.as.target.name=switchyard-as7
+switchyard.as.download.url=http://hudson.jboss.org/hudson/view/All/job/SwitchYard-Release/lastSuccessfulBuild/artifact/jboss-as7/standalone/dist/target/${switchyard.as.target.name}.zip
+switchyard.release=0.6
+jboss.home=${jboss.projects}/${switchyard.as.target.name}-${switchyard.release}
+####################################################################################################
 
 
 ###############################         security-realm settings          ###############
