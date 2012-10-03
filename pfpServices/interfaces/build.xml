@@ -1,15 +1,20 @@
-<project name="adminConsole" default="all" basedir=".">
+<project name="interfaces" default="all" basedir=".">
 
     <property environment="ENV"/>
-    <property file="../build.properties" />
+    <property file="../../build.properties" />
     <import file="${development.base}/base-build.xml"/>
 
-    <target name="all" depends="clean,setClasspath" >
+    <target name="all" depends="clean" >
         <antcall target="jar" >
             <param name="jar.name" value="processFlow-${ant.project.name}" />
+            <param name="generate.java.doc" value="true" />
         </antcall>
+
         <copy file="${build.dir}/processFlow-${ant.project.name}.jar" toDir="${temp.pfp.lib.dir}" />
+        <copy file="${build.dir}/processFlow-${ant.project.name}.jar" toDir="${temp.client.dir}" />
+        <copy file="${build.dir}/processFlow-${ant.project.name}-javadoc.jar" toDir="${temp.client.dir}" />
     </target>
 
     <target name="clean"><delete dir="${build.dir}" /></target>
+
 </project>

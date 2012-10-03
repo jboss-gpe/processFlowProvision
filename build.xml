@@ -5,7 +5,6 @@
 
     <import file="base-build.xml"/>
     <import file="openshift-build.xml" />
-    <import file="pfpServicesTest/build.xml"/>
     <import file="osProvision/build.xml"/>
     <import file="privateServiceTaskRepo/build.xml"/>
 
@@ -553,12 +552,12 @@
         <attribute name="target"/>
         <sequential>
             <subant target="@{target}">
-                <fileset dir="interfaces" includes="build.xml"/>
-                <fileset dir="common" includes="build.xml"/>
-                <fileset dir="bam" includes="build.xml"/>
-                <fileset dir="knowledgeSessionService" includes="build.xml"/>
-                <fileset dir="taskService" includes="build.xml"/>
-                <fileset dir="adminConsole" includes="build.xml"/>
+                <fileset dir="pfpServices/interfaces" includes="build.xml"/>
+                <fileset dir="pfpServices/common" includes="build.xml"/>
+                <fileset dir="pfpServices/bam" includes="build.xml"/>
+                <fileset dir="pfpServices/knowledgeSessionService" includes="build.xml"/>
+                <fileset dir="pfpServices/taskService" includes="build.xml"/>
+                <fileset dir="pfpServices/adminConsole" includes="build.xml"/>
             </subant>
         </sequential>
     </macrodef>

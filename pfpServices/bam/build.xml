@@ -1,7 +1,7 @@
 <project name="bam" default="all" basedir=".">
 
     <property environment="ENV"/>
-    <property file="../build.properties" />
+    <property file="../../build.properties" />
     <import file="${development.base}/base-build.xml"/>
 
     <target name="all" depends="clean,setClasspath" >
