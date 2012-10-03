@@ -1,23 +1,10 @@
-<project name="privateServiceTaskRepo" default="privateServiceTaskRepoDeploy" basedir="./privateServiceTaskRepo">
+<project name="privateServiceTaskRepo" >
 
-    <target name="privateServiceTaskRepoDeploy" depends="check.service.repository.property,privateServiceTaskRepoClean">
+    <target name="privateServiceTaskRepo" >
+        <fail unless="service.repository" message="need to set service.repository property" />
         <copy toDir="${service.repository}" overwrite="true" verbose="true" >
-            <fileset dir="${subproject.name}/src/main/resources" />
+            <fileset dir="privateServiceTaskRepo/src/main/resources" />
         </copy>
     </target>
 
-    <target name="check.service.repository.property">
-        <fail unless="service.repository" message="need to set service.repository property" />
-    </target>
-
-
-    <target name="privateServiceTaskRepoClean" depends="privateServiceTaskRepoInit" >
-        <delete dir="${subproject.build}" />
-        <delete dir="${service.repository}" />
-    </target>
-
-    <target name="privateServiceTaskRepoInit" >
-        <var name="subproject.name" value="privateServiceTaskRepo" />
-        <var name="subproject.build" value="${subproject.name}/${build.dir}" />
-    </target>
 </project>

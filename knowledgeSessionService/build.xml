@@ -1,51 +1,31 @@
-<project name="knowledgeSessionService" default="knowledgeSessionService" basedir="./knowledgeSessionService">
+<project name="knowledgeSessionService" default="all" basedir=".">
 
+    <property environment="ENV"/>
+    <property file="../build.properties" />
+    <import file="${development.base}/base-build.xml"/>
 
+    <target name="all" depends="clean" >
+        <antcall target="jar" >
+            <param name="jar.name" value="processFlow-${ant.project.name}" />
+            <param name="generate.java.doc" value="true" />
+        </antcall>
+        <copy file="${build.dir}/processFlow-${ant.project.name}-javadoc.jar" toDir="${temp.client.dir}" />
+        <copy file="${build.dir}/processFlow-${ant.project.name}.jar" toDir="${temp.pfp.services.dir}" />
 
-    <!-- builds KnowledgeSession Service as a service MBean and deploys to JBoss -->
-    <target name="knowledgeSessionService" depends="knowledgeSessionServiceClean,setClasspath" >
-        <echo message="subproject.name = ${subproject.name}" />
+        <antcall target="war" >
+            <param name="war.name" value="processFlow-${ant.project.name}-web" />
+        </antcall>
+        <copy file="${build.dir}/processFlow-${ant.project.name}-web.war" toDir="${temp.pfp.services.dir}" />
+    </target>
+
+    <target name="test" depends="clean,setClasspath" >
         <mkdir dir="${subproject.build}" />
-        <javac debug="true" srcdir="${subproject.name}/src/main/java" destdir="${subproject.build}" >
+        <javac debug="true" srcdir="src/test/java" destdir="${build.dir}" optimize="${javac.optimize}" >
             <classpath refid="classpath" />
         </javac>
-
-        <antcall target="filter">
-            <param name="source.dir" value="${subproject.name}/src/main/resources"/>
-            <param name="dest.dir" value="${subproject.build}"/>
-        </antcall>
-        <jar jarfile="${temp.pfp.services.dir}/processFlow-${subproject.name}.jar" basedir="${subproject.build}" >
-             <manifest>
-                <attribute name="Built-By" value="${ENV.USERNAME}"/>
-                <attribute name="Implementation-Vendor" value="Red Hat, Inc"/>
-                <attribute name="Implementation-Title" value="Red Hat JBPM 5 KnowledgeSessionService"/>
-                <attribute name="Implementation-Version" value="1.0.0beta2"/>
-            </manifest>
-        </jar>
-        <javadoc classpathref="classpath" sourcepath="${subproject.name}/src/main/java" destdir="${subproject.build}" />
-        <jar jarfile="${subproject.build}/processFlow-${subproject.name}-javadoc.jar" basedir="${subproject.build}" includes="**/*.html, **/*.css, **/*.gif" />
-        <copy file="${subproject.build}/processFlow-${subproject.name}-javadoc.jar" toDir="${temp.client.dir}" />
-
-        <antcall target="tempwar" >
-            <param name="subproject.name" value="${subproject.name}" />
-            <param name="target.dir" value="${temp.pfp.services.dir}" />
-        </antcall>
+        <jar jarfile="${jboss.server.deploy.dir}/${organization.name}/processFlow-${ant.project.name}-test.jar" basedir="${build.dir}" />
     </target>
 
-    <target name="knowledgeSessionServiceTest" depends="knowledgeSessionServiceClean,setClasspath" >
-        <mkdir dir="${subproject.build}" />
-        <javac debug="true" srcdir="${subproject.name}/src/test/java" destdir="${subproject.build}" optimize="${javac.optimize}" >
-            <classpath refid="classpath" />
-        </javac>
-        <jar jarfile="${jboss.server.deploy.dir}/${organization.name}/${subproject.name}-test.jar" basedir="${subproject.build}" />
-    </target>
+    <target name="clean"><delete dir="${build.dir}" /></target>
 
-    <target name="knowledgeSessionServiceClean" depends="knowledgeSessionServiceInit" >
-        <delete dir="${subproject.build}" />
-    </target>
-
-    <target name="knowledgeSessionServiceInit" >
-        <var name="subproject.name" value="knowledgeSessionService" />
-        <var name="subproject.build" value="${subproject.name}/${build.dir}" />
-    </target>
 </project>

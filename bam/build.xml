@@ -1,32 +1,27 @@
-<project name="bam" default="bam" basedir="./bam">
+<project name="bam" default="all" basedir=".">
 
-    <target name="bam" depends="bamClean,setClasspath" >
-        <echo message="subproject.name = ${subproject.name}" />
-        <mkdir dir="${subproject.build}" />
+    <property environment="ENV"/>
+    <property file="../build.properties" />
+    <import file="${development.base}/base-build.xml"/>
 
-        <javac debug="true" srcdir="${subproject.name}/src/main/java" destdir="${subproject.build}" >
+    <target name="all" depends="clean,setClasspath" >
+        <mkdir dir="${build.dir}" />
+
+        <javac debug="true" srcdir="src/main/java" destdir="${build.dir}" >
             <classpath refid="classpath" />
         </javac>
-        <copy toDir="${subproject.build}/META-INF/" overwrite="true" verbose="true" >
-            <fileset dir="${subproject.name}/src/main/resources/META-INF" />
+        <copy toDir="${build.dir}/META-INF/" overwrite="true" verbose="true" >
+            <fileset dir="src/main/resources/META-INF" />
         </copy>
-        <jar jarfile="${temp.pfp.services.dir}/processFlow-${subproject.name}Service.jar" 
-            basedir="${subproject.build}" 
+        <jar jarfile="${temp.pfp.services.dir}/processFlow-${ant.project.name}Service.jar" 
+            basedir="${build.dir}" 
             includes="**/*BAMService*.class,META-INF/*"
         />
-        <jar jarfile="${temp.pfp.lib.dir}/processFlow-${subproject.name}-libs.jar" 
-            basedir="${subproject.build}" 
+        <jar jarfile="${temp.pfp.lib.dir}/processFlow-${ant.project.name}-libs.jar" 
+            basedir="${build.dir}" 
             excludes="**/*BAMService*.class,META-INF/*"
         />
     </target>
 
-    <target name="bamClean" depends="bamInit" >
-        <delete dir="${subproject.build}" />
-    </target>
-
-    <target name="bamInit" >
-        <var name="subproject.name" value="bam" />
-        <var name="subproject.build" value="${subproject.name}/${build.dir}" />
-    </target>
-
+    <target name="clean"><delete dir="${build.dir}" /></target>
 </project>

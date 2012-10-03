@@ -1,30 +1,20 @@
-<project name="interfaces" default="interfaces" basedir="./interfaces">
+<project name="interfaces" default="all" basedir=".">
 
-    <target name="interfaces" depends="interfacesClean,setClasspath" >
-        <echo message="subproject.name = ${subproject.name}" />
-        <mkdir dir="${subproject.build}" />
+    <property environment="ENV"/>
+    <property file="../build.properties" />
+    <import file="${development.base}/base-build.xml"/>
 
-        <javac debug="true" srcdir="${subproject.name}/src/main/java" destdir="${subproject.build}" >
-            <classpath refid="classpath" />
-        </javac>
-        <jar jarfile="${subproject.build}/processFlow-${subproject.name}.jar" 
-            basedir="${subproject.build}" 
-        />
-        <copy file="${subproject.build}/processFlow-${subproject.name}.jar" toDir="${temp.pfp.lib.dir}" />
-        <copy file="${subproject.build}/processFlow-${subproject.name}.jar" toDir="${temp.client.dir}" />
+    <target name="all" depends="clean" >
+        <antcall target="jar" >
+            <param name="jar.name" value="processFlow-${ant.project.name}" />
+            <param name="generate.java.doc" value="true" />
+        </antcall>
 
-        <javadoc sourcepath="${subproject.name}/src/main/java" destdir="${subproject.build}" />
-        <jar jarfile="${subproject.build}/processFlow-${subproject.name}-javadoc.jar" basedir="${subproject.build}" includes="**/*.html, **/*.css, **/*.gif" />
-        <copy file="${subproject.build}/processFlow-${subproject.name}-javadoc.jar" toDir="${temp.client.dir}" />
+        <copy file="${build.dir}/processFlow-${ant.project.name}.jar" toDir="${temp.pfp.lib.dir}" />
+        <copy file="${build.dir}/processFlow-${ant.project.name}.jar" toDir="${temp.client.dir}" />
+        <copy file="${build.dir}/processFlow-${ant.project.name}-javadoc.jar" toDir="${temp.client.dir}" />
     </target>
 
-    <target name="interfacesClean" depends="interfacesInit" >
-        <delete dir="${subproject.build}" />
-    </target>
-
-    <target name="interfacesInit" >
-        <var name="subproject.name" value="interfaces" />
-        <var name="subproject.build" value="${subproject.name}/${build.dir}" />
-    </target>
+    <target name="clean"><delete dir="${build.dir}" /></target>
 
 </project>

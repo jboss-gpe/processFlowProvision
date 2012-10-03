@@ -1,18 +1,17 @@
-<project name="taskService" default="taskService" basedir="./taskService">
+<project name="taskService" default="all" basedir=".">
 
-    <target name="taskService" depends="taskServiceClean,setClasspath">
-        <mkdir dir="${subproject.build}" />
-        <javac debug="true" srcdir="${subproject.name}/src/main/java" destdir="${subproject.build}" >
-            <classpath refid="classpath" />
-        </javac>
-        <antcall target="filter" >
-            <param name="source.dir" value="${subproject.name}/src/main/resources"/>
-            <param name="dest.dir" value="${subproject.build}"/>
+    <property environment="ENV"/>
+    <property file="../build.properties" />
+    <import file="${development.base}/base-build.xml"/>
+
+    <target name="all" depends="clean">
+        <antcall target="jar" >
+            <param name="jar.name" value="processFlow-${ant.project.name}" />
         </antcall>
-        <jar jarfile="${temp.pfp.services.dir}/processFlow-taskService.jar" basedir="${subproject.build}" />
+        <copy file="${build.dir}/processFlow-${ant.project.name}.jar" toDir="${temp.pfp.services.dir}" />
     </target>
 
-    <target name="taskServiceTest" depends="taskServiceClean,setTestClasspath" >
+    <target name="taskServiceTest" depends="clean,setTestClasspath" >
         <mkdir dir="${subproject.build}" />
         <javac debug="true" srcdir="${subproject.name}/src/test/java" destdir="${subproject.build}" optimize="${javac.optimize}" >
             <classpath refid="taskService.classpath" />
@@ -33,18 +32,6 @@
         </junit>
     </target>
 
-    <target name="taskServiceClean" depends="taskServiceInit" >
-        <delete dir="${subproject.build}" />
-    </target>
-
-    <target name="taskServiceInit" >
-        <var name="subproject.name" value="taskService" />
-        <var name="subproject.build" value="${subproject.name}/${build.dir}" />
-        <path id="taskService.classpath">
-            <path refid="test.classpath" />
-            <pathelement location="${junit.lib.path}" />
-            <pathelement location="${subproject.build}" />
-        </path>
-    </target>
+    <target name="clean"><delete dir="${build.dir}" /></target>
 
 </project>

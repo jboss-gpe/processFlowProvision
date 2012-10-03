@@ -4,6 +4,9 @@
     <property file="build.properties" />
 
     <import file="base-build.xml"/>
+    <import file="openshift-build.xml" />
+    <import file="pfpServicesTest/build.xml"/>
+    <import file="osProvision/build.xml"/>
     <import file="privateServiceTaskRepo/build.xml"/>
 
     <target name="local.stop.master" description="default behavior is to shutdown all jboss servers via management port of 9999" >
@@ -509,7 +512,7 @@
                     <param name="cli.to.filter.and.execute" value="pfp-config-up.cli"/>
                     <param name="cli.fail.on.error" value="true"/>
                 </antcall>
-                <antcall target="privateServiceTaskRepoDeploy" />
+                <antcall target="privateServiceTaskRepo" />
                 <antcall target="refreshGuvnor" />
             </then>
             <else>
@@ -546,43 +549,25 @@
         </if>
     </target>
 
-    <target name="tempwar" depends="setClasspath" >
-        <fail unless="subproject.name" message="filter:  need to pass 'subproject.name' property" />
-        <fail unless="target.dir" message="filter:  need to pass 'target.dir' property" />
-        <mkdir dir="${subproject.name}/${build.dir}/webapp/WEB-INF/classes" />
-        <antcall target="filter">
-            <param name="source.dir" value="${subproject.name}/src/main/webapp"/>
-            <param name="dest.dir" value="${subproject.name}/${build.dir}/webapp"/>
-        </antcall>
-        <javac debug="true" srcdir="${subproject.name}/src/main/webapp/WEB-INF/classes" destdir="${subproject.name}/${build.dir}/webapp/WEB-INF/classes" >
-            <classpath refid="classpath" />
-        </javac>
-        <!-- 3 May 2012:  wars and jars can't have the same name in EAP6.  will add '-war' to name to all web archives to avoid possible name confliction -->
-        <jar jarfile="${target.dir}/processFlow-${subproject.name}-web.war" >
-            <fileset dir="${subproject.name}/${build.dir}/webapp" />
-        </jar>
-    </target>
+    <macrodef name="iterate">
+        <attribute name="target"/>
+        <sequential>
+            <subant target="@{target}">
+                <fileset dir="interfaces" includes="build.xml"/>
+                <fileset dir="common" includes="build.xml"/>
+                <fileset dir="bam" includes="build.xml"/>
+                <fileset dir="knowledgeSessionService" includes="build.xml"/>
+                <fileset dir="taskService" includes="build.xml"/>
+                <fileset dir="adminConsole" includes="build.xml"/>
+            </subant>
+        </sequential>
+    </macrodef>
 
-    <import file="openshift-build.xml" />
-    <import file="classpath-build.xml" />
-    <import file="interfaces/build.xml"/>
-    <import file="common/build.xml"/>
-    <import file="taskService/build.xml"/>
-    <import file="knowledgeSessionService/build.xml"/>
-    <import file="adminConsole/build.xml"/>
-    <import file="bam/build.xml"/>
-    <import file="privateServiceTaskRepo/build.xml"/>
-    <import file="pfpServicesTest/build.xml"/>
-    <import file="osProvision/build.xml"/>
-    
+
     <target name="pfp.clean" description="" >
+        <iterate target="clean"/> 
         <delete dir="${guvnor_repo_location}" />
-        <delete dir="interfaces/${build.dir}" />
-        <delete dir="common/${build.dir}" />
-        <delete dir="taskService/${build.dir}" />
-        <delete dir="knowledgeSessionService/${build.dir}" />
-        <delete dir="adminConsole/${build.dir}" />
-        <delete dir="bam/${build.dir}" />
+        <delete dir="${distro.clean}" />
         <delete dir="privateServiceTaskRepo/${build.dir}" />
         <delete dir="pfpServicesTest/${build.dir}" />
         <delete dir="osProvision/${build.dir}" />
@@ -594,7 +579,6 @@
                 </delete>
             </then>
         </if>
-        <delete dir="${distro.clean}" />
     </target>
 
     <target name="create.temp.client.dir" >
@@ -611,27 +595,6 @@
         </copy>
     </target>
 
-    <target name="pfp.distro" depends="all" description="" >
-
-        <property name="distro.name" value="processFlow-bin-${brms.major.version}-${brms.minor.version}" />
-
-        <copy file="build.xml" todir="${temp.distro.dir}" />
-        <copy file="conf/pfp/build.properties" todir="${temp.distro.dir}" />
-        <copy file="LICENSE.txt" todir="${temp.distro.dir}" />
-
-        <zip destfile="${install.home}/${distro.name}.zip">
-            <zipfileset dir="${temp.distro.dir}" prefix="${distro.name}" />
-            <zipfileset dir="bin" prefix="${distro.name}/bin" filemode="755"/>
-            <zipfileset dir="privateServiceTaskRepo" prefix="${distro.name}/privateServiceTaskRepo" />
-            <zipfileset dir="${temp.client.dir}" prefix="${distro.name}/clientLibs" />
-            <zipfileset dir="conf" prefix="${distro.name}/conf"/>
-            <zipfileset dir="lib" prefix="${distro.name}/lib"/>
-            <zipfileset dir="doc" prefix="${distro.name}/doc">
-                <include name="ADMIN_GUIDE.txt" />
-                <include name="release_notes.txt" />
-            </zipfileset>
-        </zip>
-    </target>
 
     <target name="download.drools.guvnor">
         <echo message="Getting Drools Guvnor ..." />
@@ -650,8 +613,6 @@
         <get src="${jboss.nexus.url}/content/repositories/releases/org/jboss/bpm/report-core/1.3.0/report-core-1.3.0.jar" dest="${install.home}/lib/reporting" skipexisting="true" />
         <get src="${jboss.nexus.url}/content/repositories/releases/org/jboss/bpm/report-shared/1.3.0/report-shared-1.3.0.jar" dest="${install.home}/lib/reporting" skipexisting="true" />
     </target>
-
-
     <target name="download.community.guvnor.and.designer">
         <antcall target="download.drools.guvnor" />
         <antcall target="download.designer" />
@@ -672,17 +633,11 @@
     </target>
 
     <target name="pfp.compile" description="" >
-        
-        <antcall target="interfaces" />
-        <antcall target="common" />
-        <antcall target="bam" />
-        <antcall target="knowledgeSessionService" />
-        <antcall target="taskService" />
-        <antcall target="adminConsole" />
+        <antcall target="mkPfpDirs" />
+        <iterate target="all"/> 
     </target>
 
     <target name="all" >
-        <antcall target="pfp.clean" />
         <if>
             <equals arg1="${upstream.jbpm5.drools.libs.type}" arg2="BRMS" />
             <then><antcall target="unzip.brms.deployable" /></then>
@@ -695,5 +650,25 @@
             <param name="refresh.master" value="false"/>
         </antcall>
         <antcall target="create.temp.client.dir" />
+    </target>
+    <target name="pfp.distro" depends="all" description="" >
+        <property name="distro.name" value="processFlow-bin-${brms.major.version}-${brms.minor.version}" />
+
+        <copy file="build.xml" todir="${temp.distro.dir}" />
+        <copy file="conf/pfp/build.properties" todir="${temp.distro.dir}" />
+        <copy file="LICENSE.txt" todir="${temp.distro.dir}" />
+
+        <zip destfile="${install.home}/${distro.name}.zip">
+            <zipfileset dir="${temp.distro.dir}" prefix="${distro.name}" />
+            <zipfileset dir="bin" prefix="${distro.name}/bin" filemode="755"/>
+            <zipfileset dir="privateServiceTaskRepo" prefix="${distro.name}/privateServiceTaskRepo" />
+            <zipfileset dir="${temp.client.dir}" prefix="${distro.name}/clientLibs" />
+            <zipfileset dir="conf" prefix="${distro.name}/conf"/>
+            <zipfileset dir="lib" prefix="${distro.name}/lib"/>
+            <zipfileset dir="doc" prefix="${distro.name}/doc">
+                <include name="ADMIN_GUIDE.txt" />
+                <include name="release_notes.txt" />
+            </zipfileset>
+        </zip>
     </target>
 </project>

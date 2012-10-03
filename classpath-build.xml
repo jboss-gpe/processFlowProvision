@@ -20,7 +20,7 @@
                     <fail unless="jbpm5CommunitySourceExists" message="no compiled jbpm5/drools libraries at: ${jbpm.source.dir}/jbpm-distribution/target/jbpm-${jBPM.version}-pre-bin/lib.  Please review ${ENV.PFP_HOME}/doc/DEVELOPER_GUIDE.txt" />
 
                     <path id="classpath">
-                    <path refid="base.classpath" />
+                    <path refid="initial.classpath" />
                         <fileset dir="${jbpm.source.dir}/jbpm-bam/target" ><include name="*.jar" /></fileset>
                         <fileset dir="${jbpm.source.dir}/jbpm-human-task/jbpm-human-task-core/target" ><include name="*.jar" /></fileset>
                         <fileset dir="${jbpm.source.dir}/jbpm-flow/target" ><include name="*.jar" /></fileset>
@@ -41,7 +41,7 @@
             <equals arg1="${upstream.jbpm5.drools.libs.type}" arg2="BRMS" />
                 <then>
                     <path id="classpath">
-                        <path refid="base.classpath" />
+                        <path refid="initial.classpath" />
                         <fileset dir="${temp.brms.unzip.dir}/" />
                         <fileset dir="${temp.brms.unzip.dir}/${console.sub.domain}-server.war/WEB-INF/lib/" >
                             <include name="jbpm-gwt-*.jar" />
