@@ -26,7 +26,7 @@
         <jar jarfile="${subproject.build}/processFlow-${subproject.name}-javadoc.jar" basedir="${subproject.build}" includes="**/*.html, **/*.css, **/*.gif" />
         <copy file="${subproject.build}/processFlow-${subproject.name}-javadoc.jar" toDir="${temp.client.dir}" />
 
-        <antcall target="war" >
+        <antcall target="tempwar" >
             <param name="subproject.name" value="${subproject.name}" />
             <param name="target.dir" value="${temp.pfp.services.dir}" />
         </antcall>

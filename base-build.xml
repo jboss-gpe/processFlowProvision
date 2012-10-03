@@ -175,13 +175,37 @@
         </exec>
     </target>
 
+    <target name="resolve.local.or.openshift.properties" >
+        <if>
+            <equals arg1="${is.deployment.local}" arg2="true" />
+            <then>
+                <property name="jbpm.console.server.host" value="${os.hostname}"/>
+                <property name="jbpm.console.server.port" value="${brms.webs.http.port}"/>
+                <property name="jbpm.conf.dir" value="${jboss.home}/modules/org/jbpm/configuration/main"/>
+                <property name="guvnor.host" value="${os.hostname}:${brms.webs.http.port}"/>
+                <property name="guvnor.internal.host" value="${guvnor.host}"/>
+            </then>
+            <else>
+                <property name="jbpm.console.server.host" value="${openshift.pfpCore.uri}"/>
+                <property name="jbpm.console.server.port" value="80"/>
+                <property name="jbpm.conf.dir" value="/var/lib/stickshift/${openshift.pfpCore.user.hash}/pfpCore/${openshift.jboss.cartridge.type}/standalone/configuration/modules/org/jbpm/configuration/main"/>
+                <property name="guvnor.host" value="${openshift.brmsWebs.uri}:80"/>
+                <property name="guvnor.internal.host" value="${openshift.brmsWebs.internal.ip}:${openshift.brmsWebs.internal.http.port}"/>
+            </else>
+        </if>
+    </target>
+
     <!--
         pass following parameters to this target :
         1) source.dir
         2) file.name (optional)
         3) dest.dir
     -->
-    <target name="filter">
+    <!--
+        - using depends because with antcall :  The called target(s) are run in a new project; 
+        - be aware that this means properties, references, etc. set by called targets will not persist back to the calling project.
+    -->
+    <target name="filter" depends="resolve.local.or.openshift.properties" >
         <fail unless="source.dir" message="filter:  need to pass 'source.dir' property" />
         <fail unless="dest.dir" message="filter:  need to pass 'dest.dir' property" />
         <echo message="filter:  source.dir = ${source.dir} :  dest.dir = ${dest.dir}" />
