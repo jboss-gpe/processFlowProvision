@@ -494,7 +494,7 @@
 
     <!--
       pass following parameters to this target :
-        1) org.jboss.processFlow.provision.pfpCore=true
+        1) org.jboss.processFlow.provision.pfpCore
         2) refresh.master (optional)
     -->
     <target name="local.provision.pfp.core" description="if domain is not already running and/or needs to be refreshed :  -Drefresh.master=true ">
@@ -519,6 +519,32 @@
             </else>
         </if>
     </target>
+
+    <!--
+      pass following parameters to this target :
+        1) org.jboss.processFlow.provision.switchyard
+        2) refresh.master (optional)
+    -->
+    <target name="local.provision.switchyard" description="if domain is not already running and/or needs to be refreshed :  -Drefresh.master=true ">
+        <if>
+            <equals arg1="${org.jboss.processFlow.provision.switchyard}" arg2="true" />
+            <then>
+                <if>
+                    <equals arg1="${refresh.master}" arg2="true" />
+                    <then><antcall target="refresh.master" /></then>
+                </if>
+                <antcall target="execute.cli">
+                    <param name="cli.source.dir" value="conf/switchyard"/>
+                    <param name="cli.to.filter.and.execute" value="sy-config-up.cli"/>
+                    <param name="cli.fail.on.error" value="true"/>
+                </antcall>
+            </then>
+            <else>
+                <echo message="local.provision.switchyard:  org.jboss.processFlow.provision.switchyard = ${org.jboss.processFlow.provision.switchyard}" />
+            </else>
+        </if>
+    </target>
+
 
     <!--
       pass following parameters to this target :
@@ -646,6 +672,9 @@
             <param name="refresh.master" value="false"/>
         </antcall>
         <antcall target="local.provision.pfp.core">
+            <param name="refresh.master" value="false"/>
+        </antcall>
+        <antcall target="local.provision.switchyard">
             <param name="refresh.master" value="false"/>
         </antcall>
         <antcall target="create.temp.client.dir" />
