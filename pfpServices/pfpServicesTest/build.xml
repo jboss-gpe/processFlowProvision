@@ -1,60 +1,46 @@
-<project name="pfpServicesTest" default="test.standaloneTask" >
+<project name="pfpServicesTest" default="test.standaloneTask" basedir="." >
 
+    <property environment="ENV"/>
+    <property file="../../build.properties" />
+    <import file="${development.base}/base-build.xml"/>
 
-    <target name="test.webTask" depends="pfpServicesTestClean" description="" >
-        <mkdir dir="${subproject.build}/webapp/WEB-INF/classes" />
+    <target name="test.webTask" depends="setClasspath,clean" description="" >
+        <mkdir dir="${build.dir}/webapp/WEB-INF/classes" />
         <antcall target="filter">
-            <param name="source.dir" value="${subproject.name}/src/main/webapp"/>
-            <param name="dest.dir" value="${subproject.build}/webapp"/>
+            <param name="source.dir" value="src/main/webapp"/>
+            <param name="dest.dir" value="${build.dir}/webapp"/>
         </antcall>
-        <javac debug="true" srcdir="${subproject.name}/src/main/webapp/WEB-INF/classes" destdir="${subproject.build}/webapp/WEB-INF/classes" >
+        <javac debug="true" srcdir="src/main/webapp/WEB-INF/classes" destdir="${build.dir}/webapp/WEB-INF/classes" >
             <classpath refid="classpath" />
         </javac>
 
-        <jar jarfile="${subproject.build}/${subproject.name}.war" >
-            <fileset dir="${subproject.build}/webapp" />
+        <jar jarfile="${build.dir}/${ant.project.name}.war" >
+            <fileset dir="${build.dir}/webapp" />
             <manifest>
-                <attribute name="Built-By" value="${ENV.USER}"/>
                 <attribute name="Dependencies" value="org.slf4j,org.jboss.processFlow"/>
             </manifest>
         </jar>
         <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
             <arg value="--connect"/>
             <arg value="--controller=${ENV.HOSTNAME}:${management.port}"/>
-            <arg value="deploy ${subproject.build}/${subproject.name}.war --server-groups=brms-webs-group" />
+            <arg value="deploy ${build.dir}/${ant.project.name}.war --server-groups=brms-webs-group" />
         </exec>
     </target>
 
 
-    <target name="test.standaloneTask" depends="standaloneSetup" description="optional :  -Dtest.openshift=true">
+    <target name="test.standaloneTask" depends="setClasspath,standaloneSetup" description="optional :  -Dtest.openshift=true">
         <java fork="yes" classname="org.jboss.processFlow.test.SimpleTaskClient" failonerror="true">
             <jvmarg value="-Xms16m" />
             <jvmarg value="-Xmx64m" />
-            <jvmarg value="-Xss128k" />
-            <jvmarg value="-Dorg.jboss.processFlow.test.absolutePathToBpmn=${org.jboss.processFlow.test.absolutePathToBpmn}" />
-            <sysproperty key="log4j.configuration" value="file:conf/test/log4j.xml" />
-            <classpath refid="sub.classpath"/>
+            <jvmarg value="-Dorg.jboss.processFlow.test.absolutePathToBpmn=src/test/resources/simpleHumanTask.bpmn2" />
+            <sysproperty key="log4j.configuration" value="file:${development.base}/conf/test/log4j.xml" />
+            <classpath refid="classpath"/>
         </java>
     </target>
 
-    <target name="testPrep" depends="setTestClasspath" >
-        <var name="subproject.name" value="pfpServicesTest" />
-        <var name="subproject.build" value="${subproject.name}/target" />
-        <path id="sub.classpath" >
-            <path refid="test.classpath" />
-            <pathelement location="${subproject.build}"/>
-        </path>
-
-        <!-- review classpath
-        <property name="subproject.cp" refid="sub.classpath" />
-        <echo message="sub.classpath = ${subproject.cp}" /> 
-        -->
-    </target>
-    <target name="pfpServicesTestClean" depends="testPrep" >
-        <delete dir="${subproject.build}" />
-    </target>
-    <target name="standaloneSetup" depends="pfpServicesTestClean" >
-        <mkdir dir="${subproject.build}" />
+    <target name="clean"><delete dir="${build.dir}" /></target>
+    <target name="standaloneSetup" depends="clean" >
+        <mkdir dir="${build.dir}" />
         <if>
             <isset property="test.openshift"/>
             <then>
@@ -74,12 +60,12 @@
             </else>
         </if>
         <antcall target="filter" >
-            <param name="source.dir" value="${subproject.name}/src/test/resources"/>
+            <param name="source.dir" value="src/test/resources"/>
             <param name="file.name" value="jboss-ejb-client.properties"/>
-            <param name="dest.dir" value="${subproject.build}"/>
+            <param name="dest.dir" value="${build.dir}"/>
         </antcall>
-        <javac debug="true" srcdir="${subproject.name}/src/test/java" destdir="${subproject.build}" optimize="true" >
-            <classpath refid="test.classpath" />
+        <javac debug="true" srcdir="src/test/java" destdir="${build.dir}" optimize="true" >
+            <classpath refid="classpath" />
         </javac>
     </target>
 

@@ -74,9 +74,10 @@ public class SimpleTaskClient {
         parameters.put("pInstanceVar2", "Red Hat");
 
         // 1)  start new process instance
-        Map<String, Object> returnMap = kSessionProxy.startProcessAndReturnId("org.jboss.processFlow.simpleTask", parameters);
+        Map<String, Object> returnMap = kSessionProxy.startProcessAndReturnId("simpleTask", parameters);
         long processInstanceId = (Long)returnMap.get(IKnowledgeSessionService.PROCESS_INSTANCE_ID);
-        Map<String, Object> pVariables = kSessionProxy.getActiveProcessInstanceVariables(processInstanceId, null);
+        int ksessionId = (Integer)returnMap.get(IKnowledgeSessionService.KSESSION_ID);
+        Map<String, Object> pVariables = kSessionProxy.getActiveProcessInstanceVariables(processInstanceId, ksessionId);
         log.info("executeProcessInstanceLifecycle() created pInstance w/ id = "+processInstanceId+ " : # of pInstance variables = "+pVariables.size());
 
         
