@@ -52,11 +52,8 @@ do
 done
 
 stopJboss() {
-    createTunnel
-
-    echo -en $"\nstopping jboss daemon using script at: $localJbossHome/bin/jboss-cli.sh \n"
-    cd $localJbossHome
-    ./bin/jboss-cli.sh --connect --controller=$serverIpAddr:$port --command=:shutdown
+    echo -en $"\nstopping openshift jboss \n"
+    ssh $sshUrl "stop_app.sh"
     sleep 2
 }
 
@@ -126,14 +123,8 @@ function createTunnel() {
 startJboss() {
     echo -en "\nattempting to start jboss using sshUrl = $sshUrl"
     ssh $sshUrl "
-        cd $remoteJbossHome;
-        rm standalone/log/server.log;
-        ./bin/standalone.sh 1>standalone/log/stdio.log 2>&1 &
-    "
-    sleep 25;
-    ssh $sshUrl "
-        cd $remoteJbossHome;
-        cat standalone/log/server.log
+        cd git/$OPENSHIFT_APP_NAME.git;
+        post_receive_app.sh
     "
 }
 
