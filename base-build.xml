@@ -141,7 +141,7 @@
           - places those filtered copies into root directory of war archive
         usage
           parameters to pass to this target:
-            1) jar.name
+            1) war.name
     -->
     <!-- 3 May 2012:  wars and jars can't have the same name in EAP6.  will add '-war' to name to all web archives to avoid possible name confliction -->
     <target name="war" depends="setClasspath">
