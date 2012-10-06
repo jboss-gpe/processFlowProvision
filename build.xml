@@ -14,7 +14,7 @@
             <then><property name="management.port" value="9999" /></then>
         </if>
         <exec executable="bash" failonerror="true" dir="." >
-           <arg value="bin/localJboss.sh"/>
+           <arg value="bin/local.jboss.domain.sh"/>
            <arg value="stop"/>
            <arg value="-port=${management.port}"/>
            <arg value="-node=master"/>
@@ -22,7 +22,7 @@
     </target>
     <target name="local.start.master">
         <exec executable="bash" failonerror="true" dir="." >
-           <arg value="bin/localJboss.sh"/>
+           <arg value="bin/local.jboss.domain.sh"/>
            <arg value="start"/>
            <arg value="-jbossDomainBaseDir=${jboss.domain.base.dir}"/>
            <arg value="-domainConfig=${domain.config.file}"/>
@@ -162,7 +162,7 @@
     -->
     <target name="configureJbossAdmin" >
         <exec executable="bash" failonerror="true" dir=".">
-            <arg value="bin/localJboss.sh" />
+            <arg value="bin/local.jboss.domain.sh" />
             <arg value="executeAddUser" />
             <arg value="-isAdmin=true" />
             <arg value="-userId=${jboss.admin.id}"/>
