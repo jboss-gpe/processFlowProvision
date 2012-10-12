@@ -120,8 +120,8 @@ public class TaskManagement implements org.jboss.bpm.console.server.integration.
     public List<TaskRef> getAssignedTasks(String idRef) {
         List<TaskRef> result = new ArrayList<TaskRef>();
         try {
-            List<Status> onlyReserved = Collections.singletonList(Status.Reserved);    
-            List<TaskSummary> tasks = taskServiceProxy.getAssignedTasks(idRef, "en-UK");
+            List<Status> onlyReserved = Collections.singletonList(Status.Reserved);
+            List<TaskSummary> tasks = taskServiceProxy.getAssignedTasks(idRef, onlyReserved, "en-UK");
             for (TaskSummary task: tasks) {
                 result.add(Transform.task(task));
             }

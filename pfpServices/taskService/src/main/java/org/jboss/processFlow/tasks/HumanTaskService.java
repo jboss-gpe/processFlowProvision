@@ -673,26 +673,13 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
         }
     }
 
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public List<TaskSummary> getTasksOwned(final String userId, final String language) {
-        TaskServiceSession taskSession = null;
-        try {
-            taskSession = taskService.createSession();
-            return taskSession.getTasksOwned(userId, language);
-        }catch(Exception x) {
-            throw new RuntimeException(x.getLocalizedMessage());
-        }finally {
-            if(taskSession != null)
-                taskSession.dispose();
-        }
-    }
     
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public List<TaskSummary> getAssignedTasks(String idRef, String language) {
+    public List<TaskSummary> getAssignedTasks(String userId, List<Status> statuses, String language) {
         TaskServiceSession taskSession = null;
         try {
             taskSession = taskService.createSession();
-            return taskSession.getTasksOwned(idRef, language);
+            return taskSession.getTasksOwned(userId, statuses, language);
         }catch(Exception x) {
             throw new RuntimeException(x);
         }finally {

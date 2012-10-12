@@ -254,8 +254,7 @@ public interface ITaskService {
     public String printTaskContent(Long taskId, Boolean inbound);
 
     public String getTaskName(Long taskId, String language);
-    public List<TaskSummary> getTasksOwned(final String userId, final String language);
-    public List<TaskSummary> getAssignedTasks(String userId, String language);
+    public List<TaskSummary> getAssignedTasks(String userId, List<Status> statuses, String language);
     public List query(String qlString, Integer size, Integer offset);
     public Content getContent(Long contentId);
     public Map populateHashWithTaskContent(Long contentId, String keyName);

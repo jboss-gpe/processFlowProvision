@@ -14,6 +14,12 @@
 	<classpathentry kind="src" path="pfpServicesTest/src/test/java"/>
 	<classpathentry kind="src" path="taskService/src/main/java"/>
 	<classpathentry kind="src" path="taskService/src/test/java"/>
+	<classpathentry kind="src" path="pfpServices/adminConsole/src/main/java"/>
+	<classpathentry kind="src" path="pfpServices/bam/src/main/java"/>
+	<classpathentry kind="src" path="pfpServices/common/src/main/java"/>
+	<classpathentry kind="src" path="pfpServices/interfaces/src/main/java"/>
+	<classpathentry kind="src" path="pfpServices/knowledgeSessionService/src/main/java"/>
+	<classpathentry kind="src" path="pfpServices/taskService/src/main/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="/jbpm-human-task-core"/>
 	<classpathentry kind="var" path="JBOSS_HOME/modules/org/drools/main/drools-compiler-5.5.0-SNAPSHOT.jar"/>
