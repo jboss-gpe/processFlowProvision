@@ -12,11 +12,15 @@
 
     <persistence-unit name="org.jbpm.persistence.jpa" transaction-type="JTA">
         <jta-data-source>java:jboss/datasources/jbpm-core-cp</jta-data-source>
-        <mapping-file>META-INF/JBPMorm-JPA2.xml</mapping-file> <!-- found in jbpm-persistence-jpa-*.jar -->
+        <mapping-file>META-INF/JBPMorm-JPA2.xml</mapping-file>
+        <mapping-file>META-INF/ProcessInstanceInfoMapping-JPA2.xml</mapping-file>
 
         <class>org.jbpm.persistence.processinstance.ProcessInstanceInfo</class>
         <class>org.drools.persistence.info.SessionInfo</class>
         <class>org.drools.persistence.info.WorkItemInfo</class>
+
+        <!-- what does this do ???
+        <class>org.drools.marshalling.util.MarshalledData</class -->
 
         <class>org.jboss.processFlow.knowledgeService.SessionProcessXref</class>
 
