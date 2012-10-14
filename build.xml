@@ -21,12 +21,17 @@
         </exec>
     </target>
     <target name="local.start.master">
+        <var name="jbossModulePath" value="${jboss.home}/modules:${pfp.module.path}" />
+        <if>
+            <equals arg1="${org.jboss.processFlow.provision.switchyard}" arg2="true" />
+            <then><var name="jbossModulePath" value="${jbossModulePath}:${sy.module.path}"/></then>
+        </if>
         <exec executable="bash" failonerror="true" dir="." >
            <arg value="bin/local.jboss.domain.sh"/>
            <arg value="start"/>
            <arg value="-jbossDomainBaseDir=${jboss.domain.base.dir}"/>
            <arg value="-domainConfig=${domain.config.file}"/>
-           <arg value="-jbossModulePath=${jboss.home}/modules:${pfp.module.path}"/>
+           <arg value="-jbossModulePath=${jbossModulePath}"/>
         </exec>
     </target>
     <target name="refresh.master" >
@@ -395,6 +400,23 @@
         <delete dir="${eclipse.home}/drools-update-site"/>
     </target>
 
+    <!--    TO-DO:  probably need to filter out from sy.deployer.zip due to their pre-existence in as7.1.3 :
+            org/picketlink/main/module.xml
+            org/jboss/weld/core/main/module.xml
+    -->
+    <target name="configure.sy.modules" >
+        <delete dir="${sy.module.path}" />
+        <if>
+            <equals arg1="${org.jboss.processFlow.provision.switchyard}" arg2="true" />
+            <then>
+                <antcall target="download.and.unzip.sy.deployer" />
+                <move todir="${sy.module.path}" >
+                    <fileset dir="${temp.sy.dir}/modules" />
+                </move>
+            </then>
+        </if>
+    </target>
+
     <target name="configure.jboss.modules" >
         <delete dir="${temp.jboss.dir}/modules" />
         <if>
@@ -478,6 +500,9 @@
         <copy todir="${pfp.module.path}" overwrite="true" >
             <fileset dir="${temp.jboss.dir}/modules" />
         </copy>
+        <antcall target="configure.sy.modules" >
+            <param name="non.openshift.environment" value="true"/>
+        </antcall>
     </target>
 
     <target name="resolve.droolsjbpm.dependencies" >
@@ -624,8 +649,11 @@
     </target>
 
 
+    <target name="download.and.unzip.sy.deployer">
+        <get src="${switchyard.deployer.download.url}" dest="${install.home}/lib/"  skipexisting="true" />
+        <unzip src="${install.home}/lib/switchyard.deployer.zip" dest="${temp.sy.dir}" />
+    </target>
     <target name="download.drools.guvnor">
-        <echo message="Getting Drools Guvnor ..." />
         <get src="${drools.guvnor.url}" dest="${install.home}/lib/guvnor-distribution-wars-${drools.guvnor.version}-jboss-as-7.0.war"  skipexisting="true" />
     </target>
     <target name="download.designer" >
