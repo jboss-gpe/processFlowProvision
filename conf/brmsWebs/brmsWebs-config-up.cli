@@ -4,7 +4,7 @@ batch
 # pfpServicesTest:  useful for demonstrating a container managed client invoking PFP core ejb services
 # NOTE:  the following 'ejb-security-realm' will be found in $JBOSS_HOME/default-pfp/configuration/host.xml
 /host=master/core-service=management/security-realm=ejb-security-realm:add()
-/host=master/core-service=management/security-realm=ejb-security-realm/server-identity=secret:add(value=${pfp.core.remoting.base64.passcode})
+/host=master/core-service=management/security-realm=ejb-security-realm/server-identity=secret:add(value="${pfp.core.remoting.base64.passcode}")
 
 # define an ejb outbound socket binding (called "remote-ejb") to point to pfpCore server
 /socket-binding-group=standard-sockets/remote-destination-outbound-socket-binding=remote-ejb/:add(port=${pfp.core.remoting.port},host=${pfp.core.host.name},fixed-source-port=false)

@@ -30,6 +30,9 @@ do
         -jbossDomainBaseDir=*)
             jbossDomainBaseDir=`echo $var | cut -f2 -d\=` 
             ;;
+        -jbossModulePath=*)
+            jbossModulePath=`echo $var | cut -f2 -d\=` 
+            ;;
     esac
 done
 
@@ -39,6 +42,9 @@ start() {
     fi
     if [ "x$domainConfig" = "x" ]; then
         domainConfig=domain.xml
+    fi
+    if [ "x$jbossModulePath" != "x" ]; then
+        export JBOSS_MODULEPATH=$jbossModulePath
     fi
     echo -en $"Starting jboss daemon w/ following command line args: \n\tjboss.bind.address = $HOSTNAME\n\t-bmanagement = $HOSTNAME\n\tjboss.domain.base.dir= $jbossDomainBaseDir\n\tdomainConfig=$domainConfig\n"
     sleep 1 

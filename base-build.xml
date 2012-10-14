@@ -24,6 +24,9 @@
         <fileset dir="${jboss.home}/modules" >
             <include name="**/*.jar" />
         </fileset>
+        <fileset dir="${pfp.module.path}" >
+            <include name="**/*.jar" />
+        </fileset>
         <pathelement location="${build.dir}" />
         <fileset dir="${development.base}/lib" />
     </path>
@@ -246,7 +249,7 @@
             <then>
                 <property name="jbpm.console.server.host" value="${os.hostname}"/>
                 <property name="jbpm.console.server.port" value="${brms.webs.http.port}"/>
-                <property name="jbpm.conf.dir" value="${jboss.home}/modules/org/jbpm/configuration/main"/>
+                <property name="jbpm.conf.dir" value="${pfp.module.path}/org/jbpm/configuration/main"/>
                 <property name="guvnor.host" value="${os.hostname}:${brms.webs.http.port}"/>
                 <property name="guvnor.internal.host" value="${guvnor.host}"/>
             </then>

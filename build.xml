@@ -26,6 +26,7 @@
            <arg value="start"/>
            <arg value="-jbossDomainBaseDir=${jboss.domain.base.dir}"/>
            <arg value="-domainConfig=${domain.config.file}"/>
+           <arg value="-jbossModulePath=${jboss.home}/modules:${pfp.module.path}"/>
         </exec>
     </target>
     <target name="refresh.master" >
@@ -411,6 +412,7 @@
                 <!-- openshift adds database driver as a jboss module when adding database cartridge.
                      this must not be an openshift enviroment ....so adding db drivers now
                 -->
+                <echo message="deploying following db modules locally:  ${jdbc.module.name}" />
                 <if>
                     <equals arg1="${jdbc.module.name}" arg2="postgresql" />
                     <then>
@@ -418,11 +420,12 @@
                             <param name="source.dir" value="conf/postgresql/modules"/>
                             <param name="dest.dir" value="${temp.jboss.dir}/modules"/>
                         </antcall>
-                        <copy file="${postgresql.jdbc.lib.path}" todir="${jboss.home}/modules/org/postgresql/jdbc/main" />
+                        <copy overwrite="true" verbose="true" file="${postgresql.jdbc.lib.path}" todir="${pfp.module.path}/org/postgresql/jdbc/main" />
                     </then>
-                    <else><copy file="${mysql.jdbc.lib.path}" todir="${jboss.home}/modules/com/mysql/jdbc/main" /></else>
+                    <else><copy overwrite="true" verbose="true" file="${mysql.jdbc.lib.path}" todir="${pfp.module.path}/com/mysql/jdbc/main" /></else>
                 </if>
             </then>
+            <else><echo message="deploying to openshift:  postgresql/mysql modules already pre-configured" /></else>
         </if>
 
         <copy file="lib/commons/commons-codec-1.5.jar" todir="${temp.jboss.dir}/modules/org/apache/commons/codec/5" /> <!-- GuvnorConnectionUtils needs this version -->
@@ -472,7 +475,7 @@
         <antcall target="configure.jboss.modules" >
             <param name="non.openshift.environment" value="true"/>
         </antcall>
-        <copy todir="${jboss.home}/modules" overwrite="true" >
+        <copy todir="${pfp.module.path}" overwrite="true" >
             <fileset dir="${temp.jboss.dir}/modules" />
         </copy>
     </target>
