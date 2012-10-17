@@ -36,7 +36,19 @@ do
     esac
 done
 
+checkHostName() {
+    if ping -c 1 $HOSTNAME > /dev/null 2>&1
+    then
+        echo "we are online!" && break
+    else
+        echo -en "\n unable to ping $HOSTNAME.  check your network settings"
+        exit 1
+    fi
+}
+
 start() {
+    checkHostName
+
     if [ "x$jbossDomainBaseDir" = "x" ]; then
         jbossDomainBaseDir=domain
     fi
