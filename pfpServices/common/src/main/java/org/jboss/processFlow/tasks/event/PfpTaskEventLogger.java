@@ -1,7 +1,9 @@
 package org.jboss.processFlow.tasks.event;
 
-import org.jbpm.task.event.entity.*;
-import org.jbpm.task.event.TaskEventListener;
+import org.jbpm.task.event.TaskClaimedEvent;
+import org.jbpm.task.event.TaskCompletedEvent;
+import org.jbpm.task.event.TaskFailedEvent;
+import org.jbpm.task.event.TaskSkippedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,44 +14,48 @@ import org.slf4j.LoggerFactory;
  * @date May 12, 2012
  * @since
  */
-public class PfpTaskEventLogger implements TaskEventListener {
+public class PfpTaskEventLogger implements PfpTaskEventListener {
 
     private static final Logger logger = LoggerFactory.getLogger(PfpTaskEventLogger.class);
 
-    public void taskClaimed(TaskUserEvent event) {
+    @Override
+    public void taskClaimed(TaskClaimedEvent event) {
         logger.info("task {} claimed by {}", event.getTaskId(), event.getUserId());
     }
 
-    public void taskCompleted(TaskUserEvent event) {
+    @Override
+    public void taskCompleted(TaskCompletedEvent event) {
         logger.info("task {} completed by {}", event.getTaskId(), event.getUserId());
     }
 
-    public void taskFailed(TaskUserEvent event) {
+    @Override
+    public void taskFailed(TaskFailedEvent event) {
         logger.info("task {} failed by {}", event.getTaskId(), event.getUserId());
     }
 
-    public void taskSkipped(TaskUserEvent event) {
+    @Override
+    public void taskSkipped(TaskSkippedEvent event) {
         logger.info("task {} skipped by {}", event.getTaskId(), event.getUserId());
     }
 
-    public void taskCreated(TaskUserEvent event) {
-        logger.info("task {} created", event.getTaskId());
+    @Override
+    public void taskDelegated(TaskDelegatedEvent event) {
+        logger.info("task {} delegated by {}", event.getTaskId(), event.getUserId());
     }
 
-    public void taskReleased(TaskUserEvent event) {
+    @Override
+    public void taskAdded(TaskAddedEvent event) {
+        logger.info("task {} added", event.getTaskId());
+    }
+
+    @Override
+    public void taskReleased(TaskReleasedEvent event) {
         logger.info("task {} released by {}", event.getTaskId(), event.getUserId());
     }
 
-    public void taskStarted(TaskUserEvent event) {
+    @Override
+    public void taskStarted(TaskStartedEvent event) {
         logger.info("task {} started by {}", event.getTaskId(), event.getUserId());
-    }
-
-    public void taskForwarded(TaskUserEvent event) {
-        logger.info("task {} forwarded by {}", event.getTaskId(), event.getUserId());
-    }
-
-    public void taskStopped(TaskUserEvent event) {
-        logger.info("task {} stopped by {}", event.getTaskId(), event.getUserId());
     }
 
 }

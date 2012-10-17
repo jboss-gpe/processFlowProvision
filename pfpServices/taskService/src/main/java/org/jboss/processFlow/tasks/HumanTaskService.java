@@ -53,7 +53,7 @@ import org.apache.log4j.Logger;
 import org.drools.SystemEventListener;
 import org.drools.SystemEventListenerFactory;
 import org.jbpm.task.*;
-import org.jbpm.task.identity.UserGroupCallbackManager;
+import org.jbpm.task.service.UserGroupCallbackManager;
 import org.jbpm.task.event.TaskEventListener;
 import org.jbpm.task.event.TaskEventSupport;
 import org.jbpm.task.query.TaskSummary;
@@ -69,6 +69,7 @@ import org.jbpm.task.service.TaskServiceSession;
 
 import org.jboss.processFlow.knowledgeService.IBaseKnowledgeSessionService;
 import org.jboss.processFlow.PFPBaseService;
+import org.jboss.processFlow.tasks.event.PfpTaskEventSupport;
 
 /**  
  *  JA Bride
@@ -101,7 +102,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
     @EJB(name="kSessionProxy", lookup="java:global/processFlow-knowledgeSessionService/prodKSessionProxy!org.jboss.processFlow.knowledgeService.IBaseKnowledgeSessionService")
     private IBaseKnowledgeSessionService kSessionProxy;
 
-    private TaskEventSupport eventSupport;
+    private PfpTaskEventSupport eventSupport;
     private TaskService taskService;
 
 
@@ -120,7 +121,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
             taskSession = taskService.createSession();
             taskSession.addTask(taskObj, cData);
             int sessionId = taskObj.getTaskData().getProcessSessionId();
-            eventSupport.fireTaskCreated(taskObj.getId(), taskObj.getTaskData().getActualOwner().getId(), sessionId);
+            eventSupport.fireTaskAdded(taskObj, cData);
             return taskObj.getId();
         }finally {
             if(taskSession != null)
@@ -144,7 +145,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
             taskSession.taskOperation(Operation.Claim, taskId, userId, null, null, roles);
             Task taskObj = taskSession.getTask(taskId);
             int sessionId = taskObj.getTaskData().getProcessSessionId();
-            eventSupport.fireTaskClaimed(taskId, userId, sessionId);
+            eventSupport.fireTaskClaimed(taskId, userId);
         } catch(javax.persistence.RollbackException x) {
             Throwable firstCause = x.getCause();
             Throwable secondCause = null;
@@ -195,7 +196,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
             if(taskObj.getTaskData().getStatus() != Status.InProgress) {
                 log.warn("completeTask() task with following id will be changed to status of InProgress: "+taskId);
                 taskSession.taskOperation(Operation.Start, taskId, userId, null, null, null);
-                eventSupport.fireTaskStarted(taskId, userId, sessionId);
+                eventSupport.fireTaskStarted(taskId, userId);
             }
    
             if(outboundTaskVars == null)
@@ -222,7 +223,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
 
             ContentData contentData = this.convertTaskVarsToContentData(newOutboundTaskVarMap, null);
             taskSession.taskOperation(Operation.Complete, taskId, userId, null, contentData, null);
-            eventSupport.fireTaskCompleted(taskId, userId, sessionId);
+            eventSupport.fireTaskCompleted(taskId, userId);
 
             StringBuilder sBuilder = new StringBuilder("completeTask()");
             this.dumpTaskDetails(taskObj, sBuilder);
@@ -297,7 +298,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
             }
             FaultData contentData = (FaultData)this.convertTaskVarsToContentData(outboundTaskVars, faultName);
             taskSession.taskOperation(Operation.Fail, taskId, userId, null, contentData, null);
-            eventSupport.fireTaskFailed(taskId, userId, sessionId);
+            eventSupport.fireTaskFailed(taskId, userId);
 
             StringBuilder sBuilder = new StringBuilder("failTask()");
             this.dumpTaskDetails(taskObj, sBuilder);
@@ -326,7 +327,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
             Task taskObj = taskSession.getTask(taskId);
             int sessionId = taskObj.getTaskData().getProcessSessionId();
             taskSession.taskOperation(Operation.Release, taskId, userId, null, null, null);
-            eventSupport.fireTaskReleased(taskId, userId, sessionId);
+            eventSupport.fireTaskReleased(taskId, userId);
         } catch(Exception x) {
             throw new RuntimeException(x);
         } finally {
@@ -352,7 +353,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
             Task taskObj = taskSession.getTask(taskId);
             int sessionId = taskObj.getTaskData().getProcessSessionId();
             taskSession.taskOperation(Operation.Skip, taskId, userId, null, null, null);
-            eventSupport.fireTaskSkipped(taskId, userId, sessionId);
+            eventSupport.fireTaskSkipped(taskId, userId);
 
             StringBuilder sBuilder = new StringBuilder("skipTask()");
             this.dumpTaskDetails(taskObj, sBuilder);
@@ -386,7 +387,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
 
             String userId = ITaskService.ADMINISTRATOR;
             taskSession.taskOperation(Operation.Skip, taskObj.getId(), userId, null, null, null);
-            eventSupport.fireTaskSkipped(taskObj.getId(), userId, sessionId);
+            eventSupport.fireTaskSkipped(taskObj.getId(), userId);
         }catch(RuntimeException x) {
             throw x;
         }finally {
@@ -410,7 +411,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
             int sessionId = taskObj.getTaskData().getProcessSessionId();
     
             taskSession.taskOperation(Operation.Start, taskId, userId, null, null, null);
-            eventSupport.fireTaskStarted(taskId, userId, sessionId);
+            eventSupport.fireTaskStarted(taskId, userId);
         }catch(Exception x) {
             throw new RuntimeException("startTask", x);
         }finally {
@@ -686,7 +687,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
         TaskServiceSession taskSession = null;
         try {
             taskSession = taskService.createSession();
-            return taskSession.getTasksOwned(userId, statuses, language);
+            return taskSession.getTasksOwned(userId, language);
         }catch(Exception x) {
             throw new RuntimeException(x);
         }finally {
@@ -735,7 +736,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
         
         // 3) instantiate TaskEventListeners
         log.info("TaskEventListeners: " + System.getProperty("org.jboss.processFlow.tasks.TaskEventListeners"));
-        eventSupport = new TaskEventSupport();
+        eventSupport = new PfpTaskEventSupport();
         if (System.getProperty("org.jboss.processFlow.tasks.TaskEventListeners") != null) {
             String[] listenerClasses = System.getProperty("org.jboss.processFlow.tasks.TaskEventListeners").split("\\s");
             for (String lcn : listenerClasses) {

@@ -23,7 +23,8 @@
         <resource-root path="drools-core-${version.drools}.jar"/>
         <resource-root path="drools-persistence-jpa-${version.drools}.jar"/>
         <resource-root path="knowledge-api-${version.drools}.jar"/>
-        <resource-root path="knowledge-internal-api-${version.drools}.jar"/>
+        <!-- not available in BRMS 5.3.1 
+        <resource-root path="knowledge-internal-api-${version.drools}.jar"/ -->
     </resources>
     <dependencies>
         <module name="com.google.protobuf" export="true" />

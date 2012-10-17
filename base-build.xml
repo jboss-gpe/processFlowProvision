@@ -61,7 +61,10 @@
                 <then>
                     <path id="classpath">
                         <path refid="initial.classpath" />
-                        <fileset dir="${temp.brms.unzip.dir}/" />
+                        <fileset dir="${temp.brms.unzip.dir}/binaries" />
+                        <fileset dir="${temp.brms.unzip.dir}" >
+                            <include name="*.jar" />
+                        </fileset>
                         <fileset dir="${temp.brms.unzip.dir}/${console.sub.domain}-server.war/WEB-INF/lib/" >
                             <include name="jbpm-gwt-*.jar" />
                             <include name="gwt-console-*.jar" />
@@ -88,7 +91,7 @@
 
 
 
-    <target name="print.classpath" description="" >
+    <target name="print.classpath" description="" depends="setClasspath" >
         <pathconvert pathsep="${line.separator}|   |-- "
              property="echo.classpath"
              refid="classpath">

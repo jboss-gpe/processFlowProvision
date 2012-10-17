@@ -354,7 +354,7 @@
 
     <target name="local.deploy.jbpm.gwt.console" >
         <antcall target="explode.jbpm.gwt.console" />
-        <antcall target="install.reporting.into.jboss7" />
+        <!-- antcall target="install.reporting.into.jboss7" / -->
         <jar jarfile="${console.server.zipped}" basedir="${console.server.target}" />
         <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="true">
             <arg value="--connect"/>
@@ -470,9 +470,10 @@
         <copy tofile="${temp.jboss.dir}/modules/org/drools/main/knowledge-api-${version.drools}.jar" >
             <fileset dir="${deps.lib.path}" ><include name="knowledge-api-*.jar" /></fileset>
         </copy>
+        <!-- doesn't seem to exist in BRMS 5.3.1
         <copy tofile="${temp.jboss.dir}/modules/org/drools/main/knowledge-internal-api-${version.drools}.jar" >
             <fileset dir="${deps.lib.path}" ><include name="knowledge-internal-api-*.jar" /></fileset>
-        </copy>
+        </copy -->
         <copy tofile="${temp.jboss.dir}/modules/org/mvel/mvel2/main/mvel2-${version.mvel}.jar" >
             <fileset dir="${deps.lib.path}" ><include name="mvel2-*.jar" /></fileset>
         </copy>
@@ -487,7 +488,20 @@
         </copy>
         <if>
             <equals arg1="${upstream.jbpm5.drools.libs.type}" arg2="COMMUNITY_SOURCE" />
-            <then><antcall target="local.copy.community.jbpm.deps.to.modules" /></then>
+            <then>
+                <copy toDir="${temp.jboss.dir}/modules/org/jbpm/main" overwrite="true" >
+                    <fileset dir="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-shared/target/" >
+                        <include name="jbpm-gwt-shared-${jBPM.version}.jar" />
+                    </fileset>
+                </copy>
+            </then>
+            <else>
+                <copy toDir="${temp.jboss.dir}/modules/org/jbpm/main" overwrite="true" >
+                    <fileset dir="${temp.brms.unzip.dir}/${console.sub.domain}-server.war/WEB-INF/lib" >
+                        <include name="jbpm-gwt-shared-${jBPM.version}.jar" />
+                    </fileset>
+                </copy>
+            </else>
         </if>
         <copy todir="${temp.jboss.dir}/modules/org/jboss/processFlow/main" >
             <fileset dir="${temp.pfp.lib.dir}" />
@@ -672,14 +686,6 @@
     <target name="download.community.guvnor.and.designer">
         <antcall target="download.drools.guvnor" />
         <antcall target="download.designer" />
-    </target>
-
-    <target name="local.copy.community.jbpm.deps.to.modules" >
-        <copy toDir="${temp.jboss.dir}/modules/org/jbpm/main" overwrite="true" >
-            <fileset dir="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-shared/target/" >
-                <include name="jbpm-gwt-shared-${jBPM.version}.jar" />
-            </fileset>
-        </copy>
     </target>
 
     <target name="mkPfpDirs">

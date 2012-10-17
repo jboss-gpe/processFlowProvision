@@ -157,7 +157,7 @@ public class PFPAddHumanTaskHandler extends BasePFPTaskHandler implements WorkIt
         task.setPeopleAssignments(assignments);
        
         // not specifying Environment property :  "jbpm.business.calendar" 
-        task.setDeadlines(HumanTaskHandlerHelper.setDeadlines(workItem, businessAdministrators, null));
+        task.setDeadlines(HumanTaskHandlerHelper.setDeadlines(workItem, businessAdministrators));
         
         task.setTaskData(taskData);
 
