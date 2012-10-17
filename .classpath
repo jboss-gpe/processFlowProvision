@@ -72,5 +72,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-persistence-jpa"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-test"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-workitems"/>
+	<classpathentry kind="var" path="JBOSS_HOME/modules/org/apache/commons/lang/main/commons-lang-2.6-redhat-1.jar"/>
 	<classpathentry kind="output" path="taskService/target"/>
 </classpath>

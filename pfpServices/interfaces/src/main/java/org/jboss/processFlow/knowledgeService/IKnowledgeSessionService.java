@@ -69,6 +69,9 @@ public interface IKnowledgeSessionService extends IBaseKnowledgeSessionService {
     public static final String PROCESS_INSTANCE_ID = "processInstanceId";
     public static final String KSESSION_ID = "ksessionId";
     public static final String EMAIL = "Email";
+    public static final String OPERATION_TYPE="operationType";
+	public static final String COMPLETE_WORK_ITEM = "completeWorkItem";
+	public static final String START_PROCESS_AND_RETURN_ID="startProcessAndReturnId";
 
     /**
      * printWorkItemHandlers

@@ -686,6 +686,7 @@
         <mkdir dir="${temp.pfp.lib.dir}" />
         <mkdir dir="${temp.pfp.services.dir}" />
         <mkdir dir="${install.home}/lib" />
+        <mkdir dir="${pfp.module.path}" />
     </target>
 
     <target name="pfp.compile" description="" >
