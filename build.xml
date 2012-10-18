@@ -178,7 +178,7 @@
 
 
 
-    <target name="download.brms.deployable">
+    <target name="download.brms.deployable" depends="mkPfpDirs" >
         <echo message="Getting BRMS ..." />
         <get src="${brms.download.url}" dest="${install.home}/lib/${brms.deployable.suffix}"  skipexisting="true" />
     </target>
@@ -642,20 +642,25 @@
 
 
     <target name="pfp.clean" description="" >
-        <iterate target="clean"/> 
+        <if>
+            <available file="pfpServices" type="dir" />
+            <then>
+                <iterate target="clean" />
+                <if>
+                    <available file="${build.dir}" type="dir" />
+                    <then>
+                        <delete includeemptydirs="true">
+                            <fileset dir="${build.dir}" excludes="lib/**/*" />
+                        </delete>
+                    </then>
+                </if>
+            </then>
+        </if>
         <delete dir="${guvnor_repo_location}" />
         <delete dir="${distro.clean}" />
         <delete dir="privateServiceTaskRepo/${build.dir}" />
         <delete dir="pfpServicesTest/${build.dir}" />
         <delete dir="osProvision/${build.dir}" />
-        <if>
-            <available file="${build.dir}" type="dir" />
-            <then>
-                <delete includeemptydirs="true">
-                    <fileset dir="${build.dir}" excludes="lib/**/*" />
-                </delete>
-            </then>
-        </if>
     </target>
 
     <target name="create.temp.client.dir" >
@@ -705,9 +710,11 @@
         <mkdir dir="${pfp.module.path}" />
     </target>
 
-    <target name="pfp.compile" description="" >
-        <antcall target="mkPfpDirs" />
-        <iterate target="all"/> 
+    <target name="pfp.compile" depends="mkPfpDirs" description="" >
+        <if>
+            <available file="pfpServices" type="dir" />
+            <then><iterate target="all" /></then>
+        </if>
     </target>
 
     <target name="all" >
@@ -727,24 +734,34 @@
         </antcall>
         <antcall target="create.temp.client.dir" />
     </target>
-    <target name="pfp.distro" depends="all" description="" >
+    <target name="pfp.distro" depends="" description="" >
         <property name="distro.name" value="processFlow-bin-${brms.major.version}-${brms.minor.version}" />
+        <property name="base.name" value="processFlowProvision" />
 
+        <copy file="base-build.xml" todir="${temp.distro.dir}" />
         <copy file="build.xml" todir="${temp.distro.dir}" />
-        <copy file="conf/pfp/build.properties" todir="${temp.distro.dir}" />
+        <copy file="openshift-build.xml" todir="${temp.distro.dir}" />
+        <copy file="build.properties" todir="${temp.distro.dir}" />
         <copy file="LICENSE.txt" todir="${temp.distro.dir}" />
+        <copy file="README.txt" todir="${temp.distro.dir}" />
+
+        <mkdir dir="${temp.pfp.lib.dir}" />
+        <mkdir dir="${temp.pfp.services.dir}" />
 
         <zip destfile="${install.home}/${distro.name}.zip">
-            <zipfileset dir="${temp.distro.dir}" prefix="${distro.name}" />
-            <zipfileset dir="bin" prefix="${distro.name}/bin" filemode="755"/>
-            <zipfileset dir="privateServiceTaskRepo" prefix="${distro.name}/privateServiceTaskRepo" />
-            <zipfileset dir="${temp.client.dir}" prefix="${distro.name}/clientLibs" />
-            <zipfileset dir="conf" prefix="${distro.name}/conf"/>
-            <zipfileset dir="lib" prefix="${distro.name}/lib"/>
-            <zipfileset dir="doc" prefix="${distro.name}/doc">
+            <zipfileset dir="${temp.distro.dir}" prefix="${base.name}" />
+            <zipfileset dir="bin" prefix="${base.name}/bin" filemode="755"/>
+            <zipfileset dir="privateServiceTaskRepo" prefix="${base.name}/privateServiceTaskRepo" />
+            <zipfileset dir="${temp.client.dir}" prefix="${base.name}/clientLibs" />
+            <zipfileset dir="conf" prefix="${base.name}/conf"/>
+            <zipfileset dir="lib" prefix="${base.name}/lib"/>
+            <zipfileset dir="osProvision" prefix="${base.name}/osProvision"/>
+            <zipfileset dir="doc" prefix="${base.name}/doc">
                 <include name="ADMIN_GUIDE.txt" />
                 <include name="release_notes.txt" />
             </zipfileset>
+            <zipfileset dir="${temp.pfp.lib.dir}" prefix="${base.name}/${build.dir}/pfp/lib" />
+            <zipfileset dir="${temp.pfp.services.dir}" prefix="${base.name}/${build.dir}/pfp/services" />
         </zip>
     </target>
 </project>
