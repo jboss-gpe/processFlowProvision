@@ -698,6 +698,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
         TaskServiceSession taskSession = null;
         try {
             taskSession = taskService.createSession();
+            //return taskSession.getTasksOwned(userId, statuses, language);
             return taskSession.getTasksOwned(userId, language);
         }catch(Exception x) {
             throw new RuntimeException(x);
