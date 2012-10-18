@@ -5,12 +5,10 @@
     <import file="${development.base}/base-build.xml"/>
 
     <target name="all" depends="clean" >
-        <!-- copy file="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-console-server/src/main/assembly/resources/JBPMorm-JPA2.xml" todir="src/main/resources/META-INF" / -->
         <antcall target="jar" >
             <param name="jar.name" value="processFlow-${ant.project.name}" />
             <param name="generate.java.doc" value="true" />
         </antcall>
-        <delete file="src/main/resources/META-INF/JBPMorm-JPA2.xml" />
         <copy file="${build.dir}/processFlow-${ant.project.name}-javadoc.jar" toDir="${temp.client.dir}" />
         <copy file="${build.dir}/processFlow-${ant.project.name}.jar" toDir="${temp.pfp.services.dir}" />
 

@@ -420,11 +420,16 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
         }
     }
 
+    /*
+     *  NOTE:  use with caution
+     *      in particular, this implementation uses a JTA enabled entity manager factory 
+     *      the reason is that in postgresql, using a RESOURCE_LOCAL EMF throws a "Large Object exception" (google it)
+     *      so try to avoid taxing the transaction manager with an abusive amount of calls to this function
+     */
     public TaskSummary getTask(Long taskId){
-        
         TaskServiceSession taskSession = null;
         try {
-        	taskSession = taskService.createSession();
+        	taskSession = jtaTaskService.createSession();
         	Task taskObj = taskSession.getTask(taskId);
         	TaskSummary tSummary = new TaskSummary();
         	tSummary.setActivationTime(taskObj.getTaskData().getExpirationTime());
