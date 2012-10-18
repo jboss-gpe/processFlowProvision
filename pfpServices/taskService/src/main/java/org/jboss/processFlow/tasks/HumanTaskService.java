@@ -429,22 +429,22 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
     public TaskSummary getTask(Long taskId){
         TaskServiceSession taskSession = null;
         try {
-        	taskSession = jtaTaskService.createSession();
-        	Task taskObj = taskSession.getTask(taskId);
-        	TaskSummary tSummary = new TaskSummary();
-        	tSummary.setActivationTime(taskObj.getTaskData().getExpirationTime());
-        	tSummary.setActualOwner(taskObj.getTaskData().getActualOwner());
-        	tSummary.setCreatedBy(taskObj.getTaskData().getCreatedBy());
-        	tSummary.setCreatedOn(taskObj.getTaskData().getCreatedOn());
-        	tSummary.setDescription(taskObj.getDescriptions().get(0).getText());
-        	tSummary.setExpirationTime(taskObj.getTaskData().getExpirationTime());
-        	tSummary.setId(taskObj.getId());
-        	tSummary.setName(taskObj.getNames().get(0).getText());
-        	tSummary.setPriority(taskObj.getPriority());
-        	tSummary.setProcessId(taskObj.getTaskData().getProcessId());
-        	tSummary.setProcessInstanceId(taskObj.getTaskData().getProcessInstanceId());
-        	tSummary.setStatus(taskObj.getTaskData().getStatus());
-        	tSummary.setSubject(taskObj.getSubjects().get(0).getText());
+            taskSession = jtaTaskService.createSession();
+            Task taskObj = taskSession.getTask(taskId);
+            TaskSummary tSummary = new TaskSummary();
+            tSummary.setActivationTime(taskObj.getTaskData().getExpirationTime());
+            tSummary.setActualOwner(taskObj.getTaskData().getActualOwner());
+            tSummary.setCreatedBy(taskObj.getTaskData().getCreatedBy());
+            tSummary.setCreatedOn(taskObj.getTaskData().getCreatedOn());
+            tSummary.setDescription(taskObj.getDescriptions().get(0).getText());
+            tSummary.setExpirationTime(taskObj.getTaskData().getExpirationTime());
+            tSummary.setId(taskObj.getId());
+            tSummary.setName(taskObj.getNames().get(0).getText());
+            tSummary.setPriority(taskObj.getPriority());
+            tSummary.setProcessId(taskObj.getTaskData().getProcessId());
+            tSummary.setProcessInstanceId(taskObj.getTaskData().getProcessInstanceId());
+            tSummary.setStatus(taskObj.getTaskData().getStatus());
+            tSummary.setSubject(taskObj.getSubjects().get(0).getText());
             return tSummary;
         }catch(RuntimeException x) {
             throw x;
@@ -504,17 +504,23 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
         log.info(sBuilder.toString());
     }
 
+    /*
+     *  NOTE:  use with caution
+     *      in particular, this implementation uses a JTA enabled entity manager factory 
+     *      the reason is that in postgresql, using a RESOURCE_LOCAL EMF throws a "Large Object exception" (google it)
+     *      so try to avoid taxing the transaction manager with an abusive amount of calls to this function
+     */
     public String getTaskName(Long taskId, String language) {
-    	TaskServiceSession taskSession  = null;
+        TaskServiceSession taskSession  = null;
         try {
-        	taskSession = taskService.createSession();
-        	Task taskObj = taskSession.getTask(taskId);
-        	
+            taskSession = jtaTaskService.createSession();
+            Task taskObj = taskSession.getTask(taskId);
+            
             Iterator iTasks = taskObj.getNames().iterator();
             while(iTasks.hasNext()){
-            	I18NText iObj = (I18NText)iTasks.next();
-            	if(iObj.getLanguage().equals(language))
-            		return iObj.getText();
+                I18NText iObj = (I18NText)iTasks.next();
+                if(iObj.getLanguage().equals(language))
+                    return iObj.getText();
             }
             throw new RuntimeException("getTaskName() can not find taskName for taskId = "+taskId+" : language = "+language);
         }finally {
@@ -659,7 +665,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
     
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public List<TaskSummary> getTasksAssignedAsPotentialOwnerByStatusByGroup(String userId, List<String> groupIds, List<Status> statuses, String language, Integer firstResult, Integer maxResults){
-    	TaskServiceSession taskSession = null;
+        TaskServiceSession taskSession = null;
         try {
             taskSession = taskService.createSession();
             return taskSession.getTasksAssignedAsPotentialOwnerByStatusByGroup(userId, groupIds, statuses, language);
@@ -673,7 +679,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
     }
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public List<TaskSummary> getTasksAssignedAsPotentialOwnerByStatus(String userId, List<Status> statuses, String language, Integer firstResult, Integer maxResults){
-    	TaskServiceSession taskSession = null;
+        TaskServiceSession taskSession = null;
         try {
             taskSession = taskService.createSession();
             return taskSession.getTasksAssignedAsPotentialOwnerByStatus(userId, statuses, language);

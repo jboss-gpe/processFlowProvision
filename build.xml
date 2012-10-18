@@ -232,11 +232,11 @@
                 <equals arg1="${hibernate.dialect}" arg2="org.hibernate.dialect.HSQLDialect" />
             </not>
             <then>
-                <!-- antcall target="filter">
+                <antcall target="filter">
                     <param name="source.dir" value="conf/brmsWebs/drools-guvnor"/>
                     <param name="file.name" value="repository.xml"/>
                     <param name="dest.dir" value="${guvnor_repo_location}"/>
-                </antcall -->
+                </antcall>
             </then>
         </if>
 
@@ -260,11 +260,13 @@
                 <unzip src="${install.home}/lib/jbpm-designer-${designer.version}.war" dest="${designer.target}" />
             </else>
         </if>
-        <!--antcall target="filter">
+        <antcall target="filter">
             <param name="source.dir" value="conf/brmsWebs/drools-guvnor/WEB-INF"/>
-            <param name="file.name" value="beans.xml"/>
+            <!-- BRMS 5.3.1 does not use beans.xml
+            <param name="file.name" value="beans.xml"/ -->
+            <param name="file.name" value="components.xml"/>
             <param name="dest.dir" value="${guvnor.target}/WEB-INF"/>
-        </antcall -->
+        </antcall>
         <antcall target="filter">
             <param name="source.dir" value="conf/brmsWebs/drools-guvnor/WEB-INF/classes"/>
             <param name="file.name" value="preferences.properties"/>
@@ -316,7 +318,15 @@
         <copy file="${temp.pfp.lib.dir}/processFlow-adminConsole.jar" toDir="${console.server.target}/WEB-INF/lib" overwrite="true" />
         <copy file="${temp.pfp.lib.dir}/processFlow-interfaces.jar" toDir="${console.server.target}/WEB-INF/lib" overwrite="true" />
         <copy file="${temp.pfp.lib.dir}/processFlow-common.jar" toDir="${console.server.target}/WEB-INF/lib" overwrite="true" />
-        <delete file="${console.server.target}/WEB-INF/classes/jbpm.console.properties" />
+
+        <!-- bpm-console integration in BRMS 5.3.1 uses GuvnorConnectionUtils directly
+             - expects a valid jbpm.console.properties in root of classpath
+        -->
+        <antcall target="filter">
+            <param name="source.dir" value="conf/jboss/modules/org/jbpm/configuration/main"/>
+            <param name="file.name" value="jbpm.console.properties"/>
+            <param name="dest.dir" value="${console.server.target}/WEB-INF/classes"/>
+        </antcall>
     </target>
 
     <target name="addUserRoleConfigs" >

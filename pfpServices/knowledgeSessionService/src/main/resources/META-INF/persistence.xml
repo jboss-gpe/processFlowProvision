@@ -13,9 +13,7 @@
     <persistence-unit name="org.jbpm.persistence.jpa" transaction-type="JTA">
         <jta-data-source>java:jboss/datasources/jbpm-core-cp</jta-data-source>
         <mapping-file>META-INF/JBPMorm-JPA2.xml</mapping-file>
-
-        <!-- not in BRMS 5.3.1
-        <mapping-file>META-INF/ProcessInstanceInfoMapping-JPA2.xml</mapping-file -->
+        <!--mapping-file>META-INF/ProcessInstanceInfoMapping-JPA2.xml</mapping-file -->
 
         <class>org.jbpm.persistence.processinstance.ProcessInstanceInfo</class>
         <class>org.drools.persistence.info.SessionInfo</class>
