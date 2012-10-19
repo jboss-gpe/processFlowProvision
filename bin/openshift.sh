@@ -121,11 +121,11 @@ function createTunnel() {
 }
 
 startJboss() {
-    echo -en "\nattempting to start jboss using sshUrl = $sshUrl"
-    ssh $sshUrl "
+    echo -en "\nattempting to start jboss using sshUrl = $sshUrl\n"
+    ssh $sshUrl '
         cd git/$OPENSHIFT_APP_NAME.git;
         post_receive_app.sh
-    "
+    '
 }
 
 executeMysqlScript() {

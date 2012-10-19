@@ -148,7 +148,7 @@ import org.jboss.processFlow.PFPBaseService;
  *      2)  defining configurable work item handlers
  *        -- jbpm5 allows for more than one META-INF/drools.session.conf in the runtime classpath
  *          -- subsequently, there is the potential for mulitple locations that define custom work item handlers
- *         -- the abiity to have multiple META-INF/drools.session.conf files on the runtime classpath most likely will lead to
+ *         -- the ability to have multiple META-INF/drools.session.conf files on the runtime classpath most likely will lead to
  *               increased difficulty isolating problems encountered with defining and registering custom work item handlers
  *        -- processFlowProvision/build.properties includes the following property:  space.delimited.workItemHandler.configs
  *         -- rather than allowing for multiple locations to define custom work item handlers,

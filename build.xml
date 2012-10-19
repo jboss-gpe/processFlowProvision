@@ -14,7 +14,7 @@
             <then><property name="management.port" value="9999" /></then>
         </if>
         <exec executable="bash" failonerror="true" dir="." >
-           <arg value="bin/local.jboss.domain.sh"/>
+           <arg value="${development.base}/bin/local.jboss.domain.sh"/>
            <arg value="stop"/>
            <arg value="-port=${management.port}"/>
            <arg value="-node=master"/>
@@ -27,7 +27,7 @@
             <then><var name="jbossModulePath" value="${jbossModulePath}:${sy.module.path}"/></then>
         </if>
         <exec executable="bash" failonerror="true" dir="." >
-           <arg value="bin/local.jboss.domain.sh"/>
+           <arg value="${development.base}/bin/local.jboss.domain.sh"/>
            <arg value="start"/>
            <arg value="-jbossDomainBaseDir=${jboss.domain.base.dir}"/>
            <arg value="-domainConfig=${domain.config.file}"/>

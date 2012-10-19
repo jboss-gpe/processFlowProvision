@@ -50,5 +50,7 @@
         <module name="org.jboss.marshalling" export="true" />
         <module name="org.jboss.marshalling.river" export="true" />
 
+        <module name="org.jboss.processFlow.workItemHandlers" export="true" />
+
     </dependencies>
 </module>
