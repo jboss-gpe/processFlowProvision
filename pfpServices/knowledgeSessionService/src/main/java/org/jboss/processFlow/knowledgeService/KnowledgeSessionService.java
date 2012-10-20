@@ -23,13 +23,17 @@
 package org.jboss.processFlow.knowledgeService;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.io.StringReader;
 import java.io.BufferedReader;
 import java.lang.reflect.Constructor;
 import java.lang.management.ManagementFactory;
 import java.net.ConnectException;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -45,6 +49,7 @@ import javax.persistence.*;
 
 import org.apache.log4j.Logger;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
 import org.drools.SessionConfiguration;
 import org.drools.SystemEventListenerFactory;
@@ -111,6 +116,9 @@ import org.jboss.processFlow.tasks.ITaskService;
 import org.jboss.processFlow.workItem.WorkItemHandlerLifecycle;
 import org.jboss.processFlow.util.LogSystemEventListener;
 import org.jboss.processFlow.PFPBaseService;
+import org.mvel2.MVEL;
+import org.mvel2.ParserConfiguration;
+import org.mvel2.ParserContext;
 
 /**
  *<pre>
@@ -221,6 +229,7 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
 
     private static final String EMF_NAME = "org.jbpm.persistence.jpa";
     public static final String DROOLS_SESSION_CONF_PATH="/META-INF/drools.session.conf";
+    public static final String DROOLS_SESSION_TEMPLATE_PATH="drools.session.template.path";
     private static final String DROOLS_WORK_ITEM_HANDLERS = "drools.workItemHandlers";
     
     private ConcurrentMap<Integer, KnowledgeSessionWrapper> kWrapperHash = new ConcurrentHashMap<Integer, KnowledgeSessionWrapper>();
@@ -243,6 +252,9 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
     private MBeanServer platformMBeanServer;
     private Properties guvnorProps;
     private String taskCleanUpImpl;
+    private String templateString;
+    private boolean sessionTemplateInstantiationAlreadyBombed = false;
+    
 
     private @PersistenceUnit(unitName=EMF_NAME)  EntityManagerFactory jbpmCoreEMF;
     private @javax.annotation.Resource UserTransaction uTrnx;
@@ -523,6 +535,47 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
         sBuilder.append("\n");
         return sBuilder.toString();
     }
+    
+    private SessionTemplate newSessionTemplate() {
+    	if(sessionTemplateInstantiationAlreadyBombed)
+    		return null;
+    	
+    	if(templateString == null){
+    		String droolsSessionTemplatePath = System.getProperty(DROOLS_SESSION_TEMPLATE_PATH);
+    		if(StringUtils.isNotEmpty(droolsSessionTemplatePath)){
+    			File droolsSessionTemplate = new File(droolsSessionTemplatePath);
+    			if(!droolsSessionTemplate.exists()) {
+    				throw new RuntimeException("newSessionTemplate() drools session template not found at : "+droolsSessionTemplatePath);
+    			}else {
+    				FileInputStream fStream = null;
+    				try {
+    					fStream = new FileInputStream(droolsSessionTemplate);
+    					templateString = IOUtils.toString(fStream);
+
+    				}catch(IOException x){
+    					x.printStackTrace();
+    				}finally {
+    					if(fStream != null) {
+    						try {fStream.close(); }catch(Exception x){x.printStackTrace();}
+    					}
+    				}
+    			}
+    		}else {
+    			throw new RuntimeException("newSessionTemplate() following property must be defined : "+DROOLS_SESSION_TEMPLATE_PATH);
+    		}
+    	}
+    	ParserConfiguration pconf = new ParserConfiguration();
+    	pconf.addImport("SessionTemplate", SessionTemplate.class);
+    	ParserContext context = new ParserContext(pconf);
+    	Serializable s = MVEL.compileExpression(templateString.trim(), context);
+    	try {
+    		return (SessionTemplate)MVEL.executeExpression(s);
+    	}catch(Throwable x){
+    		sessionTemplateInstantiationAlreadyBombed = true;
+    		log.error("newSessionTemplate() following exception thrown \n\t"+x.getLocalizedMessage()+"\n : with session template string = \n\n"+templateString);
+    		return null;
+    	}
+    }
 
     
     
@@ -539,26 +592,39 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
            sBuilder.append(" : "); 
            sBuilder.append(programmaticallyLoadedWorkItemHandlers.get(name)); 
         }
+        sBuilder.append("\nWork Item Handlers loaded from drools session template:");
+        SessionTemplate sTemplate = newSessionTemplate();
+        if(sTemplate != null){
+        	for(Map.Entry<?, ?> entry : sTemplate.getWorkItemHandlers().entrySet()){
+        		Class wiClass = entry.getValue().getClass();
+        		sBuilder.append("\n\t"); 
+        		sBuilder.append(entry.getKey()); 
+        		sBuilder.append(" : "); 
+        		sBuilder.append(wiClass.getClass());
+        	}
+        }else {
+        	sBuilder.append("\n\tsessionTemplate not instantiated ... check previous exceptions");
+        }
         sBuilder.append("\nConfiguration Loaded Work Item Handlers :");
         SessionConfiguration ksConfig = (SessionConfiguration)KnowledgeBaseFactory.newKnowledgeSessionConfiguration(ksconfigProperties);
         try {
             Map<String, WorkItemHandler> wiHandlers = ksConfig.getWorkItemHandlers();
-                if(wiHandlers.size() == 0) {
-                    sBuilder.append("\n\t no work item handlers defined");
-                    Properties badProps = createPropsFromDroolsSessionConf();
-                    if(badProps == null)
-                        sBuilder.append("\n\tunable to locate "+DROOLS_SESSION_CONF_PATH);
-                    else
-                        sBuilder.append("\n\tlocated"+DROOLS_SESSION_CONF_PATH);
-                } else {
-                    for(String name : wiHandlers.keySet()){
-                        sBuilder.append("\n\t"); 
-                        sBuilder.append(name); 
-                        sBuilder.append(" : "); 
-                        Class wiClass = wiHandlers.get(name).getClass();
-                        sBuilder.append(wiClass); 
-                    }
+            if(wiHandlers.size() == 0) {
+                sBuilder.append("\n\t no work item handlers defined");
+                Properties badProps = createPropsFromDroolsSessionConf();
+                if(badProps == null)
+                    sBuilder.append("\n\tunable to locate "+DROOLS_SESSION_CONF_PATH);
+                else
+                    sBuilder.append("\n\tlocated"+DROOLS_SESSION_CONF_PATH);
+            } else {
+                for(String name : wiHandlers.keySet()){
+                    sBuilder.append("\n\t"); 
+                    sBuilder.append(name); 
+                    sBuilder.append(" : "); 
+                    Class wiClass = wiHandlers.get(name).getClass();
+                    sBuilder.append(wiClass); 
                 }
+            }
         }catch(NullPointerException x){
             sBuilder.append("\n\tError intializing at least one of the configured work item handlers via drools.session.conf.\n\tEnsure all space delimited work item handlers listed in drools.session.conf exist on the classpath");
             Properties badProps = createPropsFromDroolsSessionConf();
@@ -593,6 +659,7 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
             sBuilder.append("\n\t however, following ClassNotFoundException encountered when instantiating defined work item handlers : \n\t\t");
             sBuilder.append(x.getLocalizedMessage());
         }
+        sBuilder.append("\n"); 
         return sBuilder.toString();
     }
     
@@ -625,7 +692,7 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
             throw x;
         }
     }
-
+    
     private void registerAddHumanTaskWorkItemHandler(StatefulKnowledgeSession ksession) {
         try {
             // 1.  instantiate an object and register with this session workItemManager 
@@ -823,6 +890,20 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
         this.registerSkipHumanTaskWorkItemHandler(ksession);
         this.registerFailHumanTaskWorkItemHandler(ksession);
         this.registerEmailWorkItemHandler(ksession);
+        
+        //1.5 register any addition workItemHandlers defined in drools.session.template
+        SessionTemplate sTemplate = newSessionTemplate();
+        if(sTemplate != null){
+        	for(Map.Entry<String, ?> entry : sTemplate.getWorkItemHandlers().entrySet()){
+        		try {
+        			WorkItemHandler wHandler = (WorkItemHandler)entry.getValue();
+        			ksession.getWorkItemManager().registerWorkItemHandler(entry.getKey(), wHandler);
+        		} catch(Exception x){
+        			throw new RuntimeException("addExtrasToStatefulKnowledgeSession() following exception occurred when registering workItemId = "+entry.getKey()+" : "+x.getLocalizedMessage());
+        		}
+        	}
+        }
+        
             
         // 2)  add agendaEventListener to knowledge session to notify knowledge session of various rules events
         addAgendaEventListener(ksession);

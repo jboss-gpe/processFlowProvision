@@ -29,5 +29,6 @@
     </resources>
 
     <dependencies>
+        <module name="org.jboss.processFlow.workItemHandlers" export="true" />
     </dependencies>
 </module>

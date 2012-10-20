@@ -1,19 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="adminConsole/src/main/java"/>
-	<classpathentry kind="src" path="adminConsole/src/test/java"/>
-	<classpathentry kind="src" path="bam/src/main/java"/>
-	<classpathentry kind="src" path="common/src/main/java"/>
-	<classpathentry kind="src" path="interfaces/src/main/java"/>
-	<classpathentry kind="src" path="knowledgeSessionService/src/main/java"/>
-	<classpathentry kind="src" path="knowledgeSessionService/src/main/webapp/WEB-INF/classes"/>
-	<classpathentry kind="src" path="knowledgeSessionService/src/test/java"/>
-	<classpathentry kind="src" path="knowledgeSessionService/target/webapp/WEB-INF/classes"/>
 	<classpathentry kind="src" path="osProvision/src/main/java"/>
 	<classpathentry kind="src" path="pfpServicesTest/src/main/webapp/WEB-INF/classes"/>
 	<classpathentry kind="src" path="pfpServicesTest/src/test/java"/>
-	<classpathentry kind="src" path="taskService/src/main/java"/>
-	<classpathentry kind="src" path="taskService/src/test/java"/>
 	<classpathentry kind="src" path="pfpServices/adminConsole/src/main/java"/>
 	<classpathentry kind="src" path="pfpServices/bam/src/main/java"/>
 	<classpathentry kind="src" path="pfpServices/common/src/main/java"/>
@@ -73,5 +62,13 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-test"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-workitems"/>
 	<classpathentry kind="var" path="JBOSS_HOME/modules/org/apache/commons/lang/main/commons-lang-2.6-redhat-1.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/pfpModules/org/drools/main/drools-core-5.3.1.BRMS-ER3.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/pfpModules/org/drools/main/knowledge-api-5.3.1.BRMS-ER3.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/pfpModules/org/drools/main/drools-persistence-jpa-5.3.1.BRMS-ER3.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/pfpModules/org/drools/main/drools-compiler-5.3.1.BRMS-ER3.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/pfpModules/org/jbpm/main/jbpm-flow-5.3.1.BRMS-ER3.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/pfpModules/org/jbpm/main/jbpm-human-task-5.3.1.BRMS-ER3.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/pfpModules/org/jbpm/main/jbpm-bam-5.3.1.BRMS-ER3.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/pfpModules/org/mvel/mvel2/main/mvel2-2-2.1.3.jar"/>
 	<classpathentry kind="output" path="taskService/target"/>
 </classpath>

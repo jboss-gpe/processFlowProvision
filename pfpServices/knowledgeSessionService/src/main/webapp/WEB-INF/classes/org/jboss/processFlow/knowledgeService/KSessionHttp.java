@@ -91,6 +91,19 @@ public class KSessionHttp {
 
     /**
      * sample usage :
+     *  curl -X GET -HAccept:text/plain $HOSTNAME:8330/knowledgeService/workItemHandlers
+     *  curl -X GET -HAccept:text/plain https://pfpcore-jbride0.rhcloud.com/knowledgeService/workItemHandlers
+     */
+    @GET
+    @Path("/workItemHandlers")
+    public Response printWorkItemHandlers() {
+        String kBaseContent = kProxy.printWorkItemHandlers();
+        ResponseBuilder builder = Response.ok(kBaseContent);
+        return builder.build();
+    }
+
+    /**
+     * sample usage :
      *  curl -X GET -HAccept:text/plain $HOSTNAME:8330/knowledgeService/sanityCheck
      */
     @GET

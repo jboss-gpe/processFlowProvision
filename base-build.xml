@@ -106,7 +106,8 @@
         usage
           parameters to pass to this target:
             1) jar.name
-            2) generate.java.doc (optional)
+            2) generate.java.doc (optional: defaults to false)
+            3) include.resources (optional: defaults to true)
     -->
     <target name="jar" depends="setClasspath">
         <fail unless="jar.name" message="jar:  need to pass 'jar.name' property" />
@@ -117,10 +118,15 @@
         <if>
             <available file="src/main/resources" />
             <then>
-                <antcall target="filter">
-                    <param name="source.dir" value="src/main/resources"/>
-                    <param name="dest.dir" value="${build.dir}"/>
-                </antcall>
+                <if>
+                    <not><equals arg1="${include.resources}" arg2="false" /></not>
+                    <then>
+                        <antcall target="filter">
+                            <param name="source.dir" value="src/main/resources"/>
+                            <param name="dest.dir" value="${build.dir}"/>
+                        </antcall>
+                    </then>
+                </if>
             </then>
         </if>
         <jar jarfile="${build.dir}/${jar.name}.jar" >

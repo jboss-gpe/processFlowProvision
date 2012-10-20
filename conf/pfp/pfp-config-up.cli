@@ -40,6 +40,7 @@ batch
 /host=master/server-config=${pfp.core.server}/system-property=hibernate.show_sql/:add(value=${hibernate.show_sql},boot-time=true)
 
 /host=master/server-config=${pfp.core.server}/system-property=jbpm.conf.dir/:add(value=${jbpm.conf.dir},boot-time=true)
+/host=master/server-config=${pfp.core.server}/system-property=drools.session.template.path/:add(value=${drools.session.template.path},boot-time=true)
 
 
 

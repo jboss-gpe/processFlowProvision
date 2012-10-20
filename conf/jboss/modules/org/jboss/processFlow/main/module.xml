@@ -35,6 +35,7 @@
 
         <module name="org.apache.commons.io" export="true" />
         <module name="org.apache.commons.pool" export="true" />
+        <module name="org.apache.commons.lang" export="true" />
         <module name="org.apache.log4j" export="true" />
 
         <module name="org.drools" export="true" />
@@ -49,8 +50,6 @@
         <!-- needed by bamService, knowledgeSessionService and various org.jboss.processFlow static libraries -->
         <module name="org.jboss.marshalling" export="true" />
         <module name="org.jboss.marshalling.river" export="true" />
-
-        <module name="org.jboss.processFlow.workItemHandlers" export="true" />
 
     </dependencies>
 </module>
