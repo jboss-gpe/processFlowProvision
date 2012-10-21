@@ -107,11 +107,7 @@
     </target>
 
     <target name="provision.jboss.with.jdbc" >
-        <if>
-            <equals arg1="${jdbc.module.name}" arg2="mysql" />
-            <then><property name="db.script" value="mysql-config-up.cli"/></then>
-            <else><property name="db.script" value="pgsql-config-up.cli"/></else>
-        </if>
+        <property name="db.script" value="${jdbc.module.name}-config-up.cli" />
         <antcall target="execute.cli">
             <param name="cli.source.dir" value="conf/jboss"/>
             <param name="cli.to.filter.and.execute" value="${db.script}"/>
@@ -455,19 +451,20 @@
                      this must not be an openshift enviroment ....so adding db drivers now
                 -->
                 <echo message="deploying following db modules locally:  ${jdbc.module.name}" />
-                <if>
-                    <equals arg1="${jdbc.module.name}" arg2="postgresql" />
-                    <then>
-                        <antcall target="filter">
-                            <param name="source.dir" value="conf/postgresql/modules"/>
-                            <param name="dest.dir" value="${temp.jboss.dir}/modules"/>
-                        </antcall>
-                        <copy overwrite="true" verbose="true" file="${postgresql.jdbc.lib.path}" todir="${pfp.module.path}/org/postgresql/jdbc/main" />
-                    </then>
-                    <else><copy overwrite="true" verbose="true" file="${mysql.jdbc.lib.path}" todir="${pfp.module.path}/com/mysql/jdbc/main" /></else>
-                </if>
+                <antcall target="filter">
+                    <param name="source.dir" value="conf/${jdbc.module.name}/modules"/>
+                    <param name="dest.dir" value="${temp.jboss.dir}/modules"/>
+                </antcall>
+                <if><equals arg1="${jdbc.module.name}" arg2="postgresql" />
+                    <then><copy overwrite="true" verbose="true" file="${postgresql.jdbc.lib.path}" todir="${pfp.module.path}/org/postgresql/jdbc/main" /></then></if>
+                <if><equals arg1="${jdbc.module.name}" arg2="mysql" />
+                    <then><copy overwrite="true" verbose="true" file="${mysql.jdbc.lib.path}" todir="${pfp.module.path}/com/mysql/jdbc/main" /></then></if>
+                <if><equals arg1="${jdbc.module.name}" arg2="oracle" />
+                    <then><copy overwrite="true" verbose="true" file="${oracle.jdbc.lib.path}" todir="${pfp.module.path}/com/oracle/jdbc/main" /></then></if>
+                <if><equals arg1="${jdbc.module.name}" arg2="h2" />
+                    <then><echo message="configure.jboss.modules() h2 driver already in eap6.*" /></then></if>
             </then>
-            <else><echo message="deploying to openshift:  postgresql/mysql modules already pre-configured" /></else>
+            <else><echo message="deploying to openshift:  postgresql/mysql/h2 modules already pre-configured" /></else>
         </if>
 
         <copy file="lib/commons/commons-codec-1.5.jar" todir="${temp.jboss.dir}/modules/org/apache/commons/codec/5" /> <!-- GuvnorConnectionUtils needs this version -->
