@@ -260,14 +260,14 @@
                 <property name="jbpm.console.server.port" value="${brms.webs.http.port}"/>
                 <property name="jbpm.conf.dir" value="${pfp.module.path}/org/jbpm/configuration/main"/>
                 <property name="guvnor.host" value="${os.hostname}:${brms.webs.http.port}"/>
-                <property name="guvnor.internal.host" value="${guvnor.host}"/>
+                <property name="guvnor.external.host" value="${guvnor.host}"/>
             </then>
             <else>
                 <property name="jbpm.console.server.host" value="${openshift.pfpCore.uri}"/>
                 <property name="jbpm.console.server.port" value="80"/>
                 <property name="jbpm.conf.dir" value="/var/lib/stickshift/${openshift.pfpCore.user.hash}/pfpCore/${openshift.jboss.cartridge.type}/standalone/configuration/modules/org/jbpm/configuration/main"/>
                 <property name="guvnor.host" value="${openshift.brmsWebs.uri}:80"/>
-                <property name="guvnor.internal.host" value="${openshift.brmsWebs.internal.ip}:${openshift.brmsWebs.internal.http.port}"/>
+                <property name="guvnor.external.host" value="${openshift.brmsWebs.uri}"/>
             </else>
         </if>
     </target>

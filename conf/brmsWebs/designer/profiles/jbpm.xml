@@ -43,6 +43,6 @@
     <plugin name="ORYX.Plugins.TaskPropertiesUpdater"/>
     <plugin name="ORYX.Plugins.VoiceCommand"/>
 
-    <externalloadurl protocol="${guvnor.protocol}" host="${guvnor.internal.host}" subdomain="${guvnor.subdomain}/org.drools.guvnor.Guvnor/oryxeditor" usr="${guvnor.usr}" pwd="${guvnor.pwd}"/>
+    <externalloadurl protocol="${guvnor.protocol}" host="${guvnor.external.host}" subdomain="${guvnor.subdomain}/org.drools.guvnor.Guvnor/oryxeditor" usr="${guvnor.usr}" pwd="${guvnor.pwd}"/>
   </profile>
 </profiles>
