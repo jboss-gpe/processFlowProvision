@@ -1,4 +1,4 @@
-# define postgresql XA driver for use by any postgresql XA datasources
+# define postgresql XA jdbc driver for use by any postgresql datasources in both default and full-ha profiles
 
 batch
 

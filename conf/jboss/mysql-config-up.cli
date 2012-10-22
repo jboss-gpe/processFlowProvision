@@ -1,4 +1,4 @@
-# define mysql XA driver for use by any mysql XA datasources 
+# define mysql XA driver for use by any mysql XA datasources in both default and full-ha profiles
 
 batch
 
