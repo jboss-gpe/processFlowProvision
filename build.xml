@@ -230,7 +230,7 @@
     </target>
 
     <!-- re-create guvnor filesystem and copy over repository.xml -->
-    <target name="refreshGuvnor" >
+    <target name="local.refresh.guvnor" description="" >
         <delete dir="${guvnor_repo_location}" />
         <mkdir dir="${guvnor_repo_location}" />
         <if>
@@ -386,7 +386,7 @@
     </target>
 
     <target name="local.deploy.guvnor.designer" >
-        <antcall target="refreshGuvnor" />
+        <!--antcall target="local.refresh.guvnor" / -->
         <antcall target="explode.guvnor.and.designer" />
         <jar jarfile="${guvnor.zipped}" basedir="${guvnor.target}" />
         <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
@@ -572,7 +572,7 @@
                     <param name="cli.fail.on.error" value="true"/>
                 </antcall>
                 <antcall target="privateServiceTaskRepo" />
-                <antcall target="refreshGuvnor" />
+                <!--antcall target="local.refresh.guvnor" / -->
             </then>
             <else>
                 <echo message="local.provision.pfp.core:  org.jboss.processFlow.provision.pfpCore = ${org.jboss.processFlow.provision.pfpCore}" />

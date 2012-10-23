@@ -58,19 +58,20 @@
         </if>
         <if>
             <equals arg1="${upstream.jbpm5.drools.libs.type}" arg2="BRMS" />
-                <then>
-                    <path id="classpath">
-                        <path refid="initial.classpath" />
-                        <fileset dir="${temp.brms.unzip.dir}/binaries" />
-                        <fileset dir="${temp.brms.unzip.dir}" >
-                            <include name="*.jar" />
-                        </fileset>
-                        <fileset dir="${temp.brms.unzip.dir}/${console.sub.domain}-server.war/WEB-INF/lib/" >
-                            <include name="jbpm-gwt-*.jar" />
-                            <include name="gwt-console-*.jar" />
-                        </fileset>
-                    </path>
-                </then>
+            <then>
+                <path id="classpath">
+                    <path refid="initial.classpath" />
+                    <!--path refid="project.classpath" / -->
+                    <fileset dir="${temp.brms.unzip.dir}/binaries" />
+                    <fileset dir="${temp.brms.unzip.dir}" >
+                        <include name="*.jar" />
+                    </fileset>
+                    <fileset dir="${temp.brms.unzip.dir}/${console.sub.domain}-server.war/WEB-INF/lib/" >
+                        <include name="jbpm-gwt-*.jar" />
+                        <include name="gwt-console-*.jar" />
+                   </fileset>
+                </path>
+            </then>
         </if>
     </target>
 

@@ -27,5 +27,6 @@ dbModifications() {
     echo -en "post_deploy.dbModifications()  ... completed.\n\n"
 }
 
+sleep 2
 checkRemotePort
 dbModifications
