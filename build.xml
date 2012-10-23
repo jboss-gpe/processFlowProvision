@@ -64,7 +64,7 @@
             <then>
                 <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
                     <arg value="--connect"/>
-                    <arg value="--controller=${ENV.HOSTNAME}:${management.port}"/>
+                    <arg value="--controller=${os.hostname}:${management.port}"/>
                     <arg value="/host=master/server-config=${pfp.core.server}/:start(server=${pfp.core.server},blocking=true)"/>
                 </exec>
             </then>
@@ -74,7 +74,7 @@
             <then>
                 <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
                     <arg value="--connect"/>
-                    <arg value="--controller=${ENV.HOSTNAME}:${management.port}"/>
+                    <arg value="--controller=${os.hostname}:${management.port}"/>
                     <arg value="/host=master/server-config=brms-webs/:start(server=brms-webs,blocking=true)"/>
                 </exec>
             </then>
@@ -327,13 +327,13 @@
         <jar jarfile="${console.server.zipped}" basedir="${console.server.target}" />
         <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="true">
             <arg value="--connect"/>
-            <arg value="--controller=${ENV.HOSTNAME}:${management.port}"/>
+            <arg value="--controller=${os.hostname}:${management.port}"/>
             <arg value="deploy ${console.server.zipped} --name=${console.server.name} --server-groups=brms-webs-group"/>
         </exec>
         <jar jarfile="${console.zipped}" basedir="${console.target}" />
         <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="true">
             <arg value="--connect"/>
-            <arg value="--controller=${ENV.HOSTNAME}:${management.port}"/>
+            <arg value="--controller=${os.hostname}:${management.port}"/>
             <arg value="deploy ${console.zipped} --name=${console.name} --server-groups=brms-webs-group"/>
         </exec>
     </target>
@@ -344,13 +344,13 @@
         <jar jarfile="${guvnor.zipped}" basedir="${guvnor.target}" />
         <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
             <arg value="--connect"/>
-            <arg value="--controller=${ENV.HOSTNAME}:${management.port}"/>
+            <arg value="--controller=${os.hostname}:${management.port}"/>
             <arg value="deploy ${guvnor.zipped} --name=${guvnor.name} --server-groups=brms-webs-group"/>
         </exec>
         <jar jarfile="${designer.zipped}" basedir="${designer.target}" />
         <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
             <arg value="--connect"/>
-            <arg value="--controller=${ENV.HOSTNAME}:${management.port}"/>
+            <arg value="--controller=${os.hostname}:${management.port}"/>
             <arg value="deploy ${designer.zipped} --name=${designer.name} --server-groups=brms-webs-group"/>
         </exec>
     </target>

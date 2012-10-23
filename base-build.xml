@@ -36,7 +36,7 @@
             <equals arg1="${upstream.jbpm5.drools.libs.type}" arg2="COMMUNITY_SOURCE" />
                 <then>
                     <available file="${jbpm.source.dir}/jbpm-distribution/target/jbpm-${jBPM.version}-pre-bin/lib" property="jbpm5CommunitySourceExists" />
-                    <fail unless="jbpm5CommunitySourceExists" message="no compiled jbpm5/drools libraries at: ${jbpm.source.dir}/jbpm-distribution/target/jbpm-${jBPM.version}-pre-bin/lib.  Please review ${ENV.PFP_HOME}/doc/DEVELOPER_GUIDE.txt" />
+                    <fail unless="jbpm5CommunitySourceExists" message="no compiled jbpm5/drools libraries at: ${jbpm.source.dir}/jbpm-distribution/target/jbpm-${jBPM.version}-pre-bin/lib.  Please review ${development.base}/doc/DEVELOPER_GUIDE.txt" />
 
                     <path id="classpath">
                     <path refid="initial.classpath" />
@@ -133,7 +133,7 @@
         <jar jarfile="${build.dir}/${jar.name}.jar" >
             <fileset dir="${build.dir}" />
             <manifest>
-                <attribute name="Built-By" value="${ENV.USER}"/>
+                <attribute name="Built-By" value="${os.user}"/>
                 <attribute name="Implementation-Vendor" value="${vendor.name}"/>
             </manifest>
         </jar>
@@ -170,7 +170,7 @@
         <jar jarfile="${build.dir}/${war.name}.war" >
             <fileset dir="${build.dir}/webapp" />
             <manifest>
-                <attribute name="Built-By" value="${ENV.USER}"/>
+                <attribute name="Built-By" value="${os.user}"/>
                 <attribute name="Implementation-Vendor" value="${vendor.name}"/>
             </manifest>
         </jar>
@@ -245,7 +245,7 @@
     </target>
 
     <target name="local.print.eap.cli" depends="" description="">
-        <echo message="cli command = ${jboss.home}/bin/jboss-cli.sh --connect --controller=${ENV.HOSTNAME}:${management.port}" />
+        <echo message="cli command = ${jboss.home}/bin/jboss-cli.sh --connect --controller=${os.hostname}:${management.port}" />
     </target>
 
 
