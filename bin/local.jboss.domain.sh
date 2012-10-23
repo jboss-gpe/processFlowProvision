@@ -33,6 +33,15 @@ do
         -jbossModulePath=*)
             jbossModulePath=`echo $var | cut -f2 -d\=` 
             ;;
+        -jbossCliXmx=*)
+            jbossCliXmx=`echo $var | cut -f2 -d\=` 
+            ;;
+        -cliFile=*)
+            cliFile=`echo $var | cut -f2 -d\=` 
+            ;;
+        -hostName=*)
+            hostName=`echo $var | cut -f2 -d\=` 
+            ;;
     esac
 done
 
@@ -98,7 +107,7 @@ executeAddUser() {
 }
 
 executeCli() {
-    echo -en "executeCliScript() "
+    echo -en "executeCli() "
     chmod 755 $jbossHome/bin/*.sh
 
     export JAVA_OPTS=-Xmx$jbossCliXmx

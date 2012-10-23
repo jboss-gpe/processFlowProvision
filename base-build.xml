@@ -213,6 +213,7 @@
             2)  cli.to.filter.and.execute       :   mandatory
             3)  management.port                 :   optional; default = 9999
             4)  cli.fail.on.error               :   optional; default = true
+            5)  dest.dir                        :   optional; default = ${temp.dir}
     -->
     <target name="cli.batch" depends="" >
         <fail unless="cli.source.dir" message="cli.batch:  need to pass 'cli.source.dir' property" />
@@ -225,10 +226,12 @@
         <then><property name="cli.fail.on.error" value="true" /></then></if>
         <if><not><isset property="jbossCliXmx"/></not>
         <then><property name="jbossCliXmx" value="128m" /></then></if>
+        <if><not><isset property="dest.dir"/></not>
+        <then><property name="dest.dir" value="${temp.dir}" /></then></if>
         <antcall target="filter">
             <param name="source.dir" value="${cli.source.dir}"/>
             <param name="file.name" value="${cli.to.filter.and.execute}"/>
-            <param name="dest.dir" value="${build.dir}"/>
+            <param name="dest.dir" value="${dest.dir}"/>
         </antcall>
         <echo message="***** cli.batch :  about to execute following batch script = ${build.dir}/${cli.to.filter.and.execute} : cli.fail.on.error = ${cli.fail.on.error} : jbossCliXmx = ${jbossCliXmx}"/>
         <exec executable="bin/local.jboss.domain.sh" failonerror="${cli.fail.on.error}" >
@@ -237,11 +240,16 @@
             <arg value="-hostName=${server.ip.address}" />
             <arg value="-jbossCliXmx=${jbossCliXmx}" />
             <arg value="-cliPort=${management.port}"/>
-            <arg value="-cliFile=${build.dir}/${cli.to.filter.and.execute}"/>
+            <arg value="-cliFile=${dest.dir}/${cli.to.filter.and.execute}"/>
         </exec>
     </target>
 
-    <target name="eap.cli.gui" depends="" description="">
+    <target name="local.print.eap.cli" depends="" description="">
+        <echo message="cli command = ${jboss.home}/bin/jboss-cli.sh --connect --controller=${ENV.HOSTNAME}:${management.port}" />
+    </target>
+
+
+    <target name="local.eap.cli.gui" depends="" description="">
         <if><not><isset property="server.ip.address"/></not>
         <then><property name="server.ip.address" value="${os.hostname}" /></then></if>
         <if><not><isset property="management.port"/></not>

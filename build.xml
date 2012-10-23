@@ -46,7 +46,7 @@
             <param name="config.path" value="${jboss.home}/${jboss.domain.base.dir}/configuration" />
         </antcall>
         <antcall target="local.start.master"  />
-        <antcall target="execute.cli">
+        <antcall target="cli.batch">
                 <param name="cli.source.dir" value="conf/jboss/"/>
                 <param name="cli.to.filter.and.execute" value="jboss-config.cli"/>
         </antcall>
@@ -108,60 +108,13 @@
 
     <target name="provision.jboss.with.jdbc" >
         <property name="db.script" value="${jdbc.module.name}-config-up.cli" />
-        <antcall target="execute.cli">
+        <antcall target="cli.batch">
             <param name="cli.source.dir" value="conf/jboss"/>
             <param name="cli.to.filter.and.execute" value="${db.script}"/>
             <param name="cli.fail.on.error" value="true"/>
         </antcall>
     </target>
 
-
-    <!--
-        purpose:  execute a cli batch script on a running EAP 6 server
-        pass following parameters to this target :
-            1)  cli.source.dir
-            2)  cli.to.filter.and.execute
-            3)  management.port (optional: default = 9999)
-            4)  cli.fail.on.error  (optional; default = true)
-    -->
-    <target name="execute.cli" depends="" >
-        <fail unless="cli.source.dir" message="execute.cli:  need to pass 'cli.source.dir' property" />
-        <fail unless="cli.to.filter.and.execute" message="execute.cli:  need to pass 'cli.to.filter.and.execute' property" />
-        <antcall target="filter">
-            <param name="source.dir" value="${cli.source.dir}"/>
-            <param name="file.name" value="${cli.to.filter.and.execute}"/>
-            <param name="dest.dir" value="${temp.dir}"/>
-        </antcall>
-        <if>
-            <not><isset property="management.port"/></not>
-            <then><property name="management.port" value="9999" /></then>
-        </if>
-        <if>
-            <not><isset property="cli.fail.on.error"/></not>
-            <then><property name="cli.fail.on.error" value="true" /></then>
-        </if>
-        <echo message="***** execute.cli :  about to execute following batch script = ${temp.dir}/${cli.to.filter.and.execute} : cli.fail.on.error = ${cli.fail.on.error}" />
-        <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
-            <arg value="--connect"/>
-            <arg value="--controller=${ENV.HOSTNAME}:${management.port}"/>
-            <arg value="-c"/>
-            <arg value="--file=${temp.dir}/${cli.to.filter.and.execute}"/>
-        </exec>
-    </target>
-    <target name="local.eap.cli.gui" depends="" description="">
-        <if>
-            <not><isset property="management.port"/></not>
-            <then><property name="management.port" value="9999" /></then>
-        </if>
-        <exec spawn="true" executable="${jboss.home}/bin/jboss-cli.sh">
-            <arg value="--connect"/>
-            <arg value="--controller=${ENV.HOSTNAME}:${management.port}"/>
-            <arg value="--gui"/>
-        </exec>
-    </target>
-    <target name="local.print.eap.cli" depends="" description="">
-        <echo message="cli command = ${jboss.home}/bin/jboss-cli.sh --connect --controller=${ENV.HOSTNAME}:${management.port}" />
-    </target>
 
     <!-- see:  <as7-source>/domain-management/src/main/java/org/jboss/as/domain/management/security/AddPropertiesUser.java -->
     <!-- does not work in as7.1.2.Final due to :
@@ -193,12 +146,12 @@
         <equals arg1="${org.jboss.processFlow.messagingProvider}" arg2="HORNETQ" />
     </condition>
     <target name="hornetq-config" if="useHornetQ" >
-        <antcall target="execute.cli">
+        <antcall target="cli.batch">
             <param name="cli.source.dir" value="conf/hornetq/"/>
             <param name="cli.to.filter.and.execute" value="hornetq-config-down.cli"/>
             <param name="cli.fail.on.error" value="false"/>
         </antcall>
-        <antcall target="execute.cli">
+        <antcall target="cli.batch">
             <param name="cli.source.dir" value="conf/hornetq/"/>
             <param name="cli.to.filter.and.execute" value="hornetq-config-up.cli"/>
             <param name="cli.fail.on.error" value="true"/>
@@ -566,7 +519,7 @@
                 </if>
                 <copy file="conf/pfp/default.session.template" tofile="${drools.session.template.path}" overwrite="true" />
                 <antcall target="hornetq-config" />
-                <antcall target="execute.cli">
+                <antcall target="cli.batch">
                     <param name="cli.source.dir" value="conf/pfp"/>
                     <param name="cli.to.filter.and.execute" value="pfp-config-up.cli"/>
                     <param name="cli.fail.on.error" value="true"/>
@@ -593,7 +546,7 @@
                     <equals arg1="${refresh.master}" arg2="true" />
                     <then><antcall target="refresh.master" /></then>
                 </if>
-                <antcall target="execute.cli">
+                <antcall target="cli.batch">
                     <param name="cli.source.dir" value="conf/switchyard"/>
                     <param name="cli.to.filter.and.execute" value="sy-config-up.cli"/>
                     <param name="cli.fail.on.error" value="true"/>
@@ -620,7 +573,7 @@
                     <then><antcall target="refresh.master" /></then>
                 </if>
                 <math result="pfp.core.remoting.port" operand1="${base.remoting.port}" operation="+" operand2="${pfp.core.port.offset}" datatype="int" />
-                <antcall target="execute.cli">
+                <antcall target="cli.batch">
                     <param name="cli.source.dir" value="conf/brmsWebs"/>
                     <param name="cli.to.filter.and.execute" value="brmsWebs-config-up.cli"/>
                     <param name="cli.fail.on.error" value="true"/>
