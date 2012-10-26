@@ -210,7 +210,7 @@ public class ShifterProvisioner {
             jsonMapper = new ObjectMapper();
         }
         public void run() {
-            logBuilder.append(START+" :  now provisioning openshift accountId = "+accountId);
+            logBuilder.append("\n\n"+START+" :  now provisioning openshift accountId = "+accountId);
             try {
                 prepConnection();
                 prepRESTeasy();
