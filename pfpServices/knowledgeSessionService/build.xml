@@ -4,14 +4,27 @@
     <property file="../../build.properties" />
     <import file="${development.base}/base-build.xml"/>
 
-    <target name="all" depends="clean" >
+    <target name="all" depends="clean,setClasspath" >
+        <!-- need to manually create jar because persistence.xml must not go through ant filter/substition -->
+        <mkdir dir="${build.dir}" />
+        <javac debug="true" srcdir="src/main/java" destdir="${build.dir}" >
+            <classpath refid="classpath" />
+        </javac>
+        <copy toDir="${build.dir}/META-INF/" overwrite="true" verbose="true" >
+            <fileset dir="src/main/resources/META-INF" />
+        </copy>
+        <jar jarfile="${build.dir}/processFlow-${ant.project.name}.jar" basedir="${build.dir}" />
+        <copy file="${build.dir}/processFlow-${ant.project.name}.jar" toDir="${temp.pfp.services.dir}" />
+
+        <!-- now re-create so as to generate java doc -->
+        <antcall target="clean" />
         <antcall target="jar" >
             <param name="jar.name" value="processFlow-${ant.project.name}" />
             <param name="generate.java.doc" value="true" />
         </antcall>
         <copy file="${build.dir}/processFlow-${ant.project.name}-javadoc.jar" toDir="${temp.client.dir}" />
-        <copy file="${build.dir}/processFlow-${ant.project.name}.jar" toDir="${temp.pfp.services.dir}" />
 
+        <!-- now create ksessionService war -->
         <antcall target="war" >
             <param name="war.name" value="processFlow-${ant.project.name}-web" />
         </antcall>
