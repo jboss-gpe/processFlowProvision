@@ -11,7 +11,6 @@
         </java>
     </target>
     <target name="openshift.json.parser" depends="openshiftCompile" description="">
-        <copy file="${json.file.dir}/${json.file}" todir="${subproject.build}" />
         <java fork="yes" classname="org.jboss.processFlow.openshift.JsonParser" failonerror="true">
             <sysproperty key="log4j.configuration" value="file:conf/test/log4j.xml" />
             <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${org.jboss.processFlow.client.debuggerPort},server=y,suspend=n" />

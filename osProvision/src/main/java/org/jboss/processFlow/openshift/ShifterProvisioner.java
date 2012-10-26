@@ -98,6 +98,8 @@ public class ShifterProvisioner {
     public static final String REFRESH_DOMAIN ="openshift.account.refresh.domain";
     public static final String CREATE_PFP_CORE="openshift.account.create.pfp.core";
     public static final String CREATE_BRMS_WEBS="openshift.account.create.brms.webs";
+    public static final String DUMP_RESPONSE_TO_FILE="openshift.dump.response.to.file";
+    public static final String OPENSHIFT_DUMP_DIR="openshift.dump.dir";
     
     public static final String DATA = "data";
     public static final String LINKS = "links";
@@ -121,6 +123,7 @@ public class ShifterProvisioner {
     public static final String ADD_DATABASE_CARTRIDGE = "ADD_DATABASE_CARTRIDGE";
     public static final String POSTGRESQL_8_4 = "postgresql-8.4";
     public static final String TEXT = "text";
+    
 
 
 
@@ -137,6 +140,9 @@ public class ShifterProvisioner {
     private static boolean createPfpCore=true;
     private static boolean createBrmsWebs=true;
     private static boolean openshiftPfpCoreScaledApp=false;
+    private static boolean dumpResponseToFile=false;
+    private static String openshiftDumpDir;
+    private static boolean dumpDirCreated = false;
 
     public static void main(String args[] ) throws Exception{
         RegisterBuiltin.register(ResteasyProviderFactory.getInstance());
@@ -246,14 +252,14 @@ public class ShifterProvisioner {
             log.info(CREATE_PFP_CORE);
             ClientResponse<?> cResponse = osClient.createApp(domainId, PFP_CORE, EAP6, Boolean.toString(openshiftPfpCoreScaledApp), openshiftPfpCoreAppSize);
             consumeEntityAndCheckResponse(CREATE_PFP_CORE, cResponse);
+            dumpResponseToFile(CREATE_PFP_CORE);
             JsonNode rootNode = jsonMapper.readValue(body, JsonNode.class);
-            String pfpCoreSSHUrl = rootNode.path("data").path("ssh_url").getTextValue();
-            logBuilder.append("\n\tsshUrl = ");
-            logBuilder.append(pfpCoreSSHUrl);
+            logAppDetails(rootNode);
             
             log.info(ADD_DATABASE_CARTRIDGE);
             cResponse = osClient.addCartridge(domainId, PFP_CORE, POSTGRESQL_8_4);
             consumeEntityAndCheckResponse(ADD_DATABASE_CARTRIDGE, cResponse);
+            dumpResponseToFile(ADD_DATABASE_CARTRIDGE);
             rootNode = jsonMapper.readValue(body, JsonNode.class);
             String dbAddResponseText = rootNode.path(MESSAGES).path(1).path(TEXT).getTextValue();
             logBuilder.append("\n\t");
@@ -264,10 +270,18 @@ public class ShifterProvisioner {
             log.info(CREATE_BRMS_WEBS);
             ClientResponse<?> cResponse = osClient.createApp(domainId, BRMS_WEBS, EAP6, "false", openshiftBrmsWebsAppSize);
             consumeEntityAndCheckResponse(CREATE_BRMS_WEBS, cResponse);
+            dumpResponseToFile(CREATE_BRMS_WEBS);
             JsonNode rootNode = jsonMapper.readValue(body, JsonNode.class);
-            String brmsWebsSSHUrl = rootNode.path("data").path("ssh_url").getTextValue();
-            logBuilder.append("\n\tsshUrl = ");
-            logBuilder.append(brmsWebsSSHUrl);
+            logAppDetails(rootNode);
+            
+            log.info(ADD_DATABASE_CARTRIDGE);
+            cResponse = osClient.addCartridge(domainId, BRMS_WEBS, POSTGRESQL_8_4);
+            consumeEntityAndCheckResponse(ADD_DATABASE_CARTRIDGE, cResponse);
+            dumpResponseToFile(ADD_DATABASE_CARTRIDGE);
+            rootNode = jsonMapper.readValue(body, JsonNode.class);
+            String dbAddResponseText = rootNode.path(MESSAGES).path(1).path(TEXT).getTextValue();
+            logBuilder.append("\n\t");
+            logBuilder.append(dbAddResponseText);
         }
         private void refreshDomain() throws Exception {
             log.info(GET_DOMAIN);
@@ -292,6 +306,38 @@ public class ShifterProvisioner {
             log.info(CREATE_DOMAIN);
             cResponse = osClient.createDomain(domainId);
             consumeEntityAndCheckResponse(CREATE_DOMAIN, cResponse);
+        }
+        private void logAppDetails(JsonNode rootNode) {
+        	logBuilder.append("\n\tdomain_id= "+rootNode.path(DATA).path("domain_id").getTextValue());
+        	logBuilder.append("\n\tcurrent_ip (external) = "+rootNode.path("messages").path(1).path("text").getTextValue());
+        	logBuilder.append("\n\tinternal_ip = TO_DO:  openshift API does not provide in response");
+        	logBuilder.append("\n\tsshUrl = "+rootNode.path(DATA).path("ssh_url").getTextValue().substring(6));
+        	logBuilder.append("\n\tuuid= "+rootNode.path(DATA).path("uuid").getTextValue());
+        	logBuilder.append("\n\tgit_url = "+rootNode.path(DATA).path("git_url").getTextValue());
+        	logBuilder.append("\n\tapp_url= "+rootNode.path(DATA).path("app_url").getTextValue());
+        	logBuilder.append("\n\tgear_count= "+rootNode.path(DATA).path("gear_count") );
+        	logBuilder.append("\n\tgear_profile= "+rootNode.path(DATA).path("gear_profile").getTextValue() );
+        }
+        private void dumpResponseToFile(String fileName) throws Exception {
+        	if(!dumpResponseToFile)
+        		return;
+        	
+        	FileOutputStream fStream = null;
+        	try{
+        		if(!dumpDirCreated){
+        			File dirObj = new File(openshiftDumpDir);
+        			if(!dirObj.exists()){
+        				dirObj.mkdirs(); 
+        			}
+        			dumpDirCreated = true;
+        		}
+        		File fileObj = new File(openshiftDumpDir+fileName+".dump");
+        		fStream = new FileOutputStream(fileObj, false);
+        		fStream.write(body.getBytes());
+        	}finally {
+        		if(fStream != null)
+        			fStream.close();
+        	}
         }
         private void checkResponse(String eventName, HttpResponse response) throws Exception {
             int status = response.getStatusLine().getStatusCode();
@@ -483,6 +529,8 @@ public class ShifterProvisioner {
         if(props.getProperty(OPENSHIFT_PFP_CORE_APP_SIZE) != null)
             openshiftPfpCoreAppSize = props.getProperty(OPENSHIFT_PFP_CORE_APP_SIZE);
         
+        openshiftDumpDir = props.getProperty(OPENSHIFT_DUMP_DIR, "/tmp/openshift/dump/");
+        
         if(props.getProperty(REFRESH_DOMAIN) != null)
         	refreshDomain = Boolean.parseBoolean(props.getProperty(REFRESH_DOMAIN));
         if(props.getProperty(CREATE_PFP_CORE) != null)
@@ -491,6 +539,8 @@ public class ShifterProvisioner {
         	createBrmsWebs = Boolean.parseBoolean(props.getProperty(CREATE_BRMS_WEBS));
         if(props.getProperty(OPENSHIFT_PFP_CORE_SCALED_APP) != null)
         	openshiftPfpCoreScaledApp = Boolean.parseBoolean(props.getProperty(OPENSHIFT_PFP_CORE_SCALED_APP));
+        if(props.getProperty(DUMP_RESPONSE_TO_FILE) != null)
+        	dumpResponseToFile = Boolean.parseBoolean(props.getProperty(DUMP_RESPONSE_TO_FILE));
 
         StringBuilder sBuilder = new StringBuilder("setProps() props = ");
         sBuilder.append("\n\topenshiftRestURI = "+openshiftRestURI);
@@ -502,6 +552,8 @@ public class ShifterProvisioner {
         sBuilder.append("\n\tcreatePfpCore = "+createPfpCore);
         sBuilder.append("\n\tcreateBrmsWebs = "+createBrmsWebs);
         sBuilder.append("\n\topenshiftPfpCoreScaledApp = "+openshiftPfpCoreScaledApp);
+        sBuilder.append("\n\tdumpResponseToFile = "+dumpResponseToFile);
+        sBuilder.append("\n\topenshift.dump.dir = "+openshiftDumpDir);
         log.info(sBuilder.toString());
     }
 }
