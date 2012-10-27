@@ -123,6 +123,7 @@ public class ShifterProvisioner {
     public static final String ADD_DATABASE_CARTRIDGE = "ADD_DATABASE_CARTRIDGE";
     public static final String POSTGRESQL_8_4 = "postgresql-8.4";
     public static final String TEXT = "text";
+    public static final String YES = "y";
     
 
 
@@ -148,6 +149,16 @@ public class ShifterProvisioner {
         RegisterBuiltin.register(ResteasyProviderFactory.getInstance());
         
         getSystemProperties();
+        if(refreshDomain) {
+        	StringBuffer warningBuf = new StringBuffer("\n\nDANGER:  you have requested to re-provision(aka: annihilate) your Openshift account(s).");
+        	warningBuf.append("\n\tdo you seriously want to do that?");
+        	warningBuf.append("\n\twhat's the chances you've invoked the wrong command ?  (i do it all the time)");
+        	warningBuf.append("\n\tif you want to proceed, type in the character 'y' and press return");
+        	log.info(warningBuf);
+        	if(!YES.equals(readEntry())){
+        		return;
+        	}
+        }
         validateAccountDetailsXmlFile();
         provisionAccounts();
     }
@@ -494,6 +505,21 @@ public class ShifterProvisioner {
         } finally {
             if(fileReader != null)
                 fileReader.close();
+        }
+    }
+    
+ // Utility function to read a line from standard input
+    private static String readEntry() {
+        try {
+            StringBuffer buffer = new StringBuffer();
+            int c = System.in.read();
+            while (c != '\n' && c != -1) {
+                buffer.append((char) c);
+                c = System.in.read();
+            }
+            return buffer.toString().trim();
+        } catch (IOException e) {
+            return "";
         }
     }
 

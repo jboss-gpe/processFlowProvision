@@ -1,6 +1,16 @@
 <project name="pfp-openshift" >
 
     <target name="openshift.provision.pfp.core" description="" >
+        <delete dir="${openshift.pfpCore.app.location}" />
+        <mkdir dir="${openshift.app.dir}" />
+        <exec executable="git" failonerror="true" >
+           <arg value="clone"/>
+           <arg value="-o"/>
+           <arg value="${openshift.domain.name}"/>
+           <arg value="${openshift.pfpCore.git.url}"/>
+           <arg value="${openshift.pfpCore.app.location}"/>
+        </exec>
+
         <!-- pfp modules are needed to support subclassing of bpm integration layer to proxy to pfpCore -->
         <antcall target="openshift.deploy.jboss.modules" >
             <param name="app.location" value="${openshift.pfpCore.app.location}"/>
@@ -37,6 +47,7 @@
            <arg value="-sshUrl=${openshift.pfpCore.ssh.url}"/>
            <arg value="-remoteDir=${openshift.jboss.cartridge.type}/tmp/deployments/${console.name}"/>
         </exec> 
+
         <exec executable="bash" failonerror="true" dir="." >
            <arg value="${development.base}/bin/openshift.sh"/>
            <arg value="push"/>
@@ -46,6 +57,15 @@
     </target>
 
     <target name="openshift.provision.brms.webs" description="" >
+        <delete dir="${openshift.brmsWebs.app.location}" />
+        <mkdir dir="${openshift.app.dir}" />
+        <exec executable="git" failonerror="true" >
+           <arg value="clone"/>
+           <arg value="-o"/>
+           <arg value="${openshift.domain.name}"/>
+           <arg value="${openshift.brmsWebs.git.url}"/>
+           <arg value="${openshift.brmsWebs.app.location}"/>
+        </exec>
         <antcall target="openshift.deploy.jboss.modules" >
             <param name="app.location" value="${openshift.brmsWebs.app.location}"/>
         </antcall>
@@ -75,6 +95,7 @@
            <arg value="-sshUrl=${openshift.brmsWebs.ssh.url}"/>
            <arg value="-remoteDir=${openshift.jboss.cartridge.type}/tmp/deployments/${designer.name}"/>
         </exec> 
+
         <!-- NOTE:  git push on openshift app will blow away exploded archives in app-root/repo/deployments -->
         <exec executable="bash" failonerror="true" dir="." >
            <arg value="${development.base}/bin/openshift.sh"/>
