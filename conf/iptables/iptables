@@ -8,7 +8,7 @@
 -A INPUT -p icmp -j ACCEPT
 -A INPUT -i lo -j ACCEPT
 
-# JA Bride  :   settings for HornetQ
+# HornetQ : TO-DO .... modify for domain mode
 -A INPUT -m state --state NEW -m tcp -p tcp --dport 1597 -j ACCEPT
 -A INPUT -m state --state NEW -m tcp -p tcp --dport 1598 -j ACCEPT
 -A INPUT -m state --state NEW -m tcp -p tcp --dport 1599 -j ACCEPT
@@ -16,11 +16,21 @@
 -A INPUT -m state --state NEW -m tcp -p tcp --dport 5555 -j ACCEPT
 -A INPUT -m state --state NEW -m udp -p udp --dport 9876 -j ACCEPT
 
-#JA Bride   :   settings for Tomcat
--A INPUT -m state --state NEW -m tcp -p tcp --dport 8080 -j ACCEPT
+#EAP6.0 management
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 9999 -j ACCEPT
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 9990 -j ACCEPT
 
-#JA Bride   :   allow for remote debugging of JBoss
--A INPUT -m state --state NEW -m tcp -p tcp --dport 8787 -j ACCEPT
+#brmsWebs - http.port   :   8080 + 150 = 8230
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 8230 -j ACCEPT
+
+#pfpCore - remoting:   4447 + 250 = 4697
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 4697 -j ACCEPT
+
+#pfpCore - remote debugging
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 8789 -j ACCEPT
+
+#pfpCore - http port :  8080 + 250 = 
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 8330 -j ACCEPT
 
 #Martin Swales  :   allow for remote postgresql administration
 -A INPUT -m state --state NEW -m tcp -p tcp --dport 5432 -j ACCEPT
