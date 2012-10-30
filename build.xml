@@ -700,7 +700,6 @@
     </target>
 
     <target name="all" >
-        <echo message="The first five letters of the alphabet are:"/>
         <if>
             <equals arg1="${upstream.jbpm5.drools.libs.type}" arg2="BRMS" />
             <then><antcall target="unzip.brms.deployable" /></then>
