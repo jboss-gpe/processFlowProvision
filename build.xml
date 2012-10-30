@@ -104,6 +104,7 @@
             <param name="file.name" value="domain.xml"/>
             <param name="dest.dir" value="${jboss.home}/${jboss.domain.base.dir}/configuration"/>
         </antcall>
+        <move file="${jboss.home}/${jboss.domain.base.dir}/configuration/host-master.xml" tofile="${jboss.home}/${jboss.domain.base.dir}/configuration/host.xml" />
     </target>
 
     <target name="provision.jboss.with.jdbc" >

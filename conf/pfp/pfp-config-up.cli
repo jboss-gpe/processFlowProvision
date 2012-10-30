@@ -1,48 +1,4 @@
-# create pfpCore server group and start
 batch
-/server-group=${pfp.core.group}/:add(profile=full-ha,socket-binding-group=full-sockets,socket-binding-port-offset=${pfp.core.port.offset})
-/server-group=${pfp.core.group}/jvm=pfp-core/:add(max-heap-size=512m,env-classpath-ignored=false,permgen-size=128m,max-permgen-size=512m,heap-size=256m)
-/server-group=${pfp.core.group}/jvm=pfp-core/:write-attribute(name=jvm-options,value=["-Xrunjdwp:transport=dt_socket,address=${pfp.core.group.debugger.port},server=y,suspend=n"])
-/host=master/server-config=${pfp.core.server}:add(auto-start=true,group=${pfp.core.group})
-/host=master/server-config=${pfp.core.server}/:start(server=${pfp.core.server},blocking=true)
-run-batch
-
-
-batch
-###  system properties
-/host=master/server-config=${pfp.core.server}/system-property=organization.name/:add(value=${organization.name},boot-time=true)
-/host=master/server-config=${pfp.core.server}/system-property=org.jboss.enableLog/:add(value=${org.jboss.enableLog},boot-time=true)
-
-/host=master/server-config=${pfp.core.server}/system-property=org.jboss.processFlow.task.transactionType/:add(value=${org.jboss.processFlow.task.transactionType},boot-time=true)
-/host=master/server-config=${pfp.core.server}/system-property=org.jboss.processFlow.tasks.DeadlineHandler/:add(value=${org.jboss.processFlow.tasks.DeadlineHandler},boot-time=true)
-/host=master/server-config=${pfp.core.server}/system-property=org.jboss.processFlow.tasks.TaskEventListeners/:add(value=${org.jboss.processFlow.tasks.TaskEventListeners},boot-time=true)
-/host=master/server-config=${pfp.core.server}/system-property=org.jboss.processFlow.task.enableIntelligentMapping/:add(value=${org.jboss.processFlow.task.enableIntelligentMapping},boot-time=true)
-
-/host=master/server-config=${pfp.core.server}/system-property=org.jboss.processFlow.KnowledgeSessionPool/:add(value=${org.jboss.processFlow.KnowledgeSessionPool},boot-time=true)
-/host=master/server-config=${pfp.core.server}/system-property=org.jboss.processFlow.statefulKnowledge.enableKnowledgeRuntimeLogger/:add(value=${org.jboss.processFlow.statefulKnowledge.enableKnowledgeRuntimeLogger},boot-time=true)
-/host=master/server-config=${pfp.core.server}/system-property=space.delimited.process.event.listeners/:add(value=${space.delimited.process.event.listeners},boot-time=true)
-/host=master/server-config=${pfp.core.server}/system-property=task.clean.up.process.event.listener.impl/:add(value=${task.clean.up.process.event.listener.impl},boot-time=true)
-/host=master/server-config=${pfp.core.server}/system-property=org.jboss.processFlow.drools.resource.scanner.interval/:add(value=${org.jboss.processFlow.drools.resource.scanner.interval},boot-time=true)
-/host=master/server-config=${pfp.core.server}/system-property=org.jbpm.workItemHandler.mail.address/:add(value=${org.jbpm.workItemHandler.mail.address},boot-time=true)
-/host=master/server-config=${pfp.core.server}/system-property=org.jbpm.workItemHandler.mail.port/:add(value=${org.jbpm.workItemHandler.mail.port},boot-time=true)
-/host=master/server-config=${pfp.core.server}/system-property=org.jbpm.workItemHandler.mail.userId/:add(value=${org.jbpm.workItemHandler.mail.userId},boot-time=true)
-/host=master/server-config=${pfp.core.server}/system-property=org.jbpm.workItemHandler.mail.password/:add(value=${org.jbpm.workItemHandler.mail.password},boot-time=true)
-
-
-/host=master/server-config=${pfp.core.server}/system-property=org.jboss.processFlow.bam.queue/:add(value=${org.jboss.processFlow.bam.queue},boot-time=true)
-/host=master/server-config=${pfp.core.server}/system-property=org.jboss.processFlow.messagingProvider/:add(value=${org.jboss.processFlow.messagingProvider},boot-time=true)
-/host=master/server-config=${pfp.core.server}/system-property=org.jboss.processFlow.messaging.connectionFactory/:add(value=${org.jboss.processFlow.messaging.connectionFactory},boot-time=true)
-
-/host=master/server-config=${pfp.core.server}/system-property=hibernate.hbm2ddl.auto/:add(value=${hibernate.hbm2ddl.auto},boot-time=true)
-/host=master/server-config=${pfp.core.server}/system-property=hibernate.jdbc.batch_size/:add(value=${hibernate.jdbc.batch_size},boot-time=true)
-/host=master/server-config=${pfp.core.server}/system-property=hibernate.cache.use_second_level_cache/:add(value=${hibernate.cache.use_second_level_cache},boot-time=true)
-/host=master/server-config=${pfp.core.server}/system-property=hibernate.dialect/:add(value=${hibernate.dialect},boot-time=true)
-/host=master/server-config=${pfp.core.server}/system-property=hibernate.show_sql/:add(value=${hibernate.show_sql},boot-time=true)
-
-/host=master/server-config=${pfp.core.server}/system-property=jbpm.conf.dir/:add(value=${jbpm.conf.dir},boot-time=true)
-/host=master/server-config=${pfp.core.server}/system-property=drools.session.template.path/:add(value=${drools.session.template.path},boot-time=true)
-
-
 
 ### non-XA datasource connection pools to jbpm and jbpm_bam databases
 /profile=full-ha/subsystem=datasources/data-source=jbpm-core-cp:add(jndi-name=java:jboss/datasources/jbpm-core-cp,connection-url=${jbpm_connection_url},driver-class=${jbpm_driver_class},driver-name=${jdbc.module.name},user-name=${jbpm_db_user},password=${jbpm_db_password},pool-name=jbpm-core_ds_pool,max-pool-size=50,min-pool-size=10)
@@ -50,11 +6,67 @@ batch
 
 /profile=full-ha/subsystem=datasources/data-source=jbpm-bam-cp:add(jndi-name=java:jboss/datasources/jbpm-bam-cp,connection-url=${bam_connection_url},driver-class=${bam_driver_class},driver-name=${jdbc.module.name},user-name=${bam_db_user},password=${bam_db_password},pool-name=jbpm-bam_ds_pool,max-pool-size=50,min-pool-size=10)
 /profile=full-ha/subsystem=datasources/data-source=jbpm-bam-cp:enable()
-run-batch
 
-batch
+
+# create pfpCore server group and start
+/server-group=${pfp.core.group}/:add(profile=full-ha,socket-binding-group=full-ha-sockets)
+
+
+###  pfp-core-group system properties
+/server-group=${pfp.core.group}/system-property=organization.name/:add(value=${organization.name},boot-time=true)
+/server-group=${pfp.core.group}/system-property=org.jboss.enableLog/:add(value=${org.jboss.enableLog},boot-time=true)
+
+/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.task.transactionType/:add(value=${org.jboss.processFlow.task.transactionType},boot-time=true)
+/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.tasks.DeadlineHandler/:add(value=${org.jboss.processFlow.tasks.DeadlineHandler},boot-time=true)
+/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.tasks.TaskEventListeners/:add(value=${org.jboss.processFlow.tasks.TaskEventListeners},boot-time=true)
+/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.task.enableIntelligentMapping/:add(value=${org.jboss.processFlow.task.enableIntelligentMapping},boot-time=true)
+
+/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.KnowledgeSessionPool/:add(value=${org.jboss.processFlow.KnowledgeSessionPool},boot-time=true)
+/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.statefulKnowledge.enableKnowledgeRuntimeLogger/:add(value=${org.jboss.processFlow.statefulKnowledge.enableKnowledgeRuntimeLogger},boot-time=true)
+/server-group=${pfp.core.group}/system-property=space.delimited.process.event.listeners/:add(value=${space.delimited.process.event.listeners},boot-time=true)
+/server-group=${pfp.core.group}/system-property=task.clean.up.process.event.listener.impl/:add(value=${task.clean.up.process.event.listener.impl},boot-time=true)
+/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.drools.resource.scanner.interval/:add(value=${org.jboss.processFlow.drools.resource.scanner.interval},boot-time=true)
+/server-group=${pfp.core.group}/system-property=org.jbpm.workItemHandler.mail.address/:add(value=${org.jbpm.workItemHandler.mail.address},boot-time=true)
+/server-group=${pfp.core.group}/system-property=org.jbpm.workItemHandler.mail.port/:add(value=${org.jbpm.workItemHandler.mail.port},boot-time=true)
+/server-group=${pfp.core.group}/system-property=org.jbpm.workItemHandler.mail.userId/:add(value=${org.jbpm.workItemHandler.mail.userId},boot-time=true)
+/server-group=${pfp.core.group}/system-property=org.jbpm.workItemHandler.mail.password/:add(value=${org.jbpm.workItemHandler.mail.password},boot-time=true)
+
+
+/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.bam.queue/:add(value=${org.jboss.processFlow.bam.queue},boot-time=true)
+/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.messagingProvider/:add(value=${org.jboss.processFlow.messagingProvider},boot-time=true)
+/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.messaging.connectionFactory/:add(value=${org.jboss.processFlow.messaging.connectionFactory},boot-time=true)
+
+/server-group=${pfp.core.group}/system-property=hibernate.hbm2ddl.auto/:add(value=${hibernate.hbm2ddl.auto},boot-time=true)
+/server-group=${pfp.core.group}/system-property=hibernate.jdbc.batch_size/:add(value=${hibernate.jdbc.batch_size},boot-time=true)
+/server-group=${pfp.core.group}/system-property=hibernate.cache.use_second_level_cache/:add(value=${hibernate.cache.use_second_level_cache},boot-time=true)
+/server-group=${pfp.core.group}/system-property=hibernate.dialect/:add(value=${hibernate.dialect},boot-time=true)
+/server-group=${pfp.core.group}/system-property=hibernate.show_sql/:add(value=${hibernate.show_sql},boot-time=true)
+
+/server-group=${pfp.core.group}/system-property=jbpm.conf.dir/:add(value=${jbpm.conf.dir},boot-time=true)
+/server-group=${pfp.core.group}/system-property=drools.session.template.path/:add(value=${drools.session.template.path},boot-time=true)
+
 deploy ${temp.pfp.services.dir}/processFlow-knowledgeSessionService.jar --name=processFlow-knowledgeSessionService.jar --server-groups=${pfp.core.group}
 deploy ${temp.pfp.services.dir}/processFlow-taskService.jar --name=processFlow-taskService.jar --server-groups=${pfp.core.group}
 deploy ${temp.pfp.services.dir}/processFlow-bamService.jar --name=processFlow-bamService.jar --server-groups=${pfp.core.group}
 deploy ${temp.pfp.services.dir}/processFlow-knowledgeSessionService-web.war --name=processFlow-knowledgeSessionService-web.war --server-groups=${pfp.core.group}
+run-batch
+
+
+#/server-group=${pfp.core.group}/jvm=pfp-core/:add(max-heap-size=512m,env-classpath-ignored=false,permgen-size=128m,max-permgen-size=512m,heap-size=256m)
+#/server-group=${pfp.core.group}/jvm=pfp-core/:write-attribute(name=jvm-options,value=["-Xrunjdwp:transport=dt_socket,address=${pfp.core.group.debugger.port},server=y,suspend=n"])
+
+batch
+/host=master/server-config=${pfp.core.server}:add(auto-start=true,group=${pfp.core.group})
+/host=master/server-config=${pfp.core.server}/jvm=${pfp.core.server}/:add(env-classpath-ignored=false,heap-size=128m,max-heap-size=512m,permgen-size=64m,max-permgen-size=256m)
+/host=master/server-config=${pfp.core.server}/jvm=${pfp.core.server}/:write-attribute(name=jvm-options,value=["-Xrunjdwp:transport=dt_socket,address=${pfp.core.debugger.port},server=y,suspend=n"])
+/host=master/server-config=${pfp.core.server}/:write-attribute(name=socket-binding-port-offset,value=${pfp.core.port.offset})
+/host=master/server-config=${pfp.core.server}/:start(server=${pfp.core.server},blocking=true)
+
+
+
+/host=master/server-config=${pfp.core.server1}:add(auto-start=true,group=${pfp.core.group})
+/host=master/server-config=${pfp.core.server1}/jvm=${pfp.core.server1}/:add(env-classpath-ignored=false,heap-size=128m,max-heap-size=512m,permgen-size=64m,max-permgen-size=256m)
+/host=master/server-config=${pfp.core.server1}/jvm=${pfp.core.server1}/:write-attribute(name=jvm-options,value=["-Xrunjdwp:transport=dt_socket,address=${pfp.core.server1.debugger.port},server=y,suspend=n"])
+/host=master/server-config=${pfp.core.server1}/:write-attribute(name=socket-binding-port-offset,value=${pfp.core.server1.port.offset})
+/host=master/server-config=${pfp.core.server1}/:start(server=${pfp.core.server1},blocking=true)
 run-batch
