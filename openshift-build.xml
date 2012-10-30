@@ -76,6 +76,9 @@
         </antcall>
         <delete file="${openshift.brmsWebs.app.location}/pom.xml" />
         <delete file="${openshift.brmsWebs.app.location}/.openshift/markers/java7" />
+        <antcall target="addUserRoleConfigs" >
+            <param name="config.path" value="${openshift.brmsWebs.app.location}/.openshift/config"/>
+        </antcall>
         <delete dir="${temp.brmsWebs.dir}" />
         <antcall target="explode.guvnor.and.designer" />
         <!-- rsync to exploded web archives to :  ${openshift.jboss.cartridge.type}/tmp/deployments

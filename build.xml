@@ -185,8 +185,8 @@
 
     <!-- re-create guvnor filesystem and copy over repository.xml -->
     <target name="local.refresh.guvnor" description="" >
-        <delete dir="${guvnor_repo_location}" />
-        <mkdir dir="${guvnor_repo_location}" />
+        <delete dir="${local.guvnor.repo.location}" />
+        <mkdir dir="${local.guvnor.repo.location}" />
         <if>
             <not>
                 <equals arg1="${hibernate.dialect}" arg2="org.hibernate.dialect.HSQLDialect" />
@@ -195,7 +195,7 @@
                 <antcall target="filter">
                     <param name="source.dir" value="conf/brmsWebs/drools-guvnor"/>
                     <param name="file.name" value="repository.xml"/>
-                    <param name="dest.dir" value="${guvnor_repo_location}"/>
+                    <param name="dest.dir" value="${local.guvnor.repo.location}"/>
                 </antcall>
             </then>
         </if>
@@ -219,6 +219,11 @@
                 <unzip src="${install.home}/lib/guvnor-distribution-wars-${drools.guvnor.version}-jboss-as-7.0.war" dest="${guvnor.target}" />
                 <unzip src="${install.home}/lib/jbpm-designer-${designer.version}.war" dest="${designer.target}" />
             </else>
+        </if>
+        <if>
+            <isset property="non.openshift.environment"/>
+            <then><property name="guvnor.repo.location" value="${local.guvnor.repo.location}" /></then>
+            <else><property name="guvnor.repo.location" value="${openshift.guvnor.repo.location}" /></else>
         </if>
         <antcall target="filter">
             <param name="source.dir" value="conf/brmsWebs/drools-guvnor/WEB-INF"/>
@@ -340,8 +345,9 @@
     </target>
 
     <target name="local.deploy.guvnor.designer" >
-        <!--antcall target="local.refresh.guvnor" / -->
-        <antcall target="explode.guvnor.and.designer" />
+        <antcall target="explode.guvnor.and.designer" >
+            <param name="non.openshift.environment" value="true"/>
+        </antcall>
         <jar jarfile="${guvnor.zipped}" basedir="${guvnor.target}" />
         <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
             <arg value="--connect"/>
@@ -586,12 +592,13 @@
                     <equals arg1="${refresh.master}" arg2="true" />
                     <then><antcall target="refresh.master" /></then>
                 </if>
-                <math result="pfp.core.remoting.port" operand1="${base.remoting.port}" operation="+" operand2="${pfp.core.port.offset}" datatype="int" />
+                <!-- in clustered environment, needs to change to HA EJB ?  -->
+                <math result="pfp.core.remoting.port" operand1="${base.remoting.port}" operation="+" operand2="${pfp.core.base.port.offset}" datatype="int" />
                 <antcall target="cli.batch">
                     <param name="cli.source.dir" value="conf/brmsWebs"/>
                     <param name="cli.to.filter.and.execute" value="brmsWebs-config-up.cli"/>
                     <param name="cli.fail.on.error" value="true"/>
-                </antcall>
+                </antcall> 
                 <antcall target="local.deploy.guvnor.designer" />
                 <antcall target="local.deploy.jbpm.gwt.console" />
             </then>
@@ -631,7 +638,7 @@
                 </if>
             </then>
         </if>
-        <delete dir="${guvnor_repo_location}" />
+        <delete dir="${local.guvnor.repo.location}" />
         <delete dir="${distro.clean}" />
         <delete dir="privateServiceTaskRepo/${build.dir}" />
         <delete dir="pfpServicesTest/${build.dir}" />
