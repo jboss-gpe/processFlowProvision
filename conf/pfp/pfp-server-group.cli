@@ -50,23 +50,3 @@ deploy ${temp.pfp.services.dir}/processFlow-taskService.jar --name=processFlow-t
 deploy ${temp.pfp.services.dir}/processFlow-bamService.jar --name=processFlow-bamService.jar --server-groups=${pfp.core.group}
 deploy ${temp.pfp.services.dir}/processFlow-knowledgeSessionService-web.war --name=processFlow-knowledgeSessionService-web.war --server-groups=${pfp.core.group}
 run-batch
-
-
-#/server-group=${pfp.core.group}/jvm=pfp-core/:add(max-heap-size=512m,env-classpath-ignored=false,permgen-size=128m,max-permgen-size=512m,heap-size=256m)
-#/server-group=${pfp.core.group}/jvm=pfp-core/:write-attribute(name=jvm-options,value=["-Xrunjdwp:transport=dt_socket,address=${pfp.core.group.debugger.port},server=y,suspend=n"])
-
-batch
-/host=master/server-config=${pfp.core.server}:add(auto-start=true,group=${pfp.core.group})
-/host=master/server-config=${pfp.core.server}/jvm=${pfp.core.server}/:add(env-classpath-ignored=false,heap-size=128m,max-heap-size=512m,permgen-size=64m,max-permgen-size=256m)
-/host=master/server-config=${pfp.core.server}/jvm=${pfp.core.server}/:write-attribute(name=jvm-options,value=["-Xrunjdwp:transport=dt_socket,address=${pfp.core.debugger.port},server=y,suspend=n"])
-/host=master/server-config=${pfp.core.server}/:write-attribute(name=socket-binding-port-offset,value=${pfp.core.port.offset})
-/host=master/server-config=${pfp.core.server}/:start(server=${pfp.core.server},blocking=true)
-
-
-
-/host=master/server-config=${pfp.core.server1}:add(auto-start=true,group=${pfp.core.group})
-/host=master/server-config=${pfp.core.server1}/jvm=${pfp.core.server1}/:add(env-classpath-ignored=false,heap-size=128m,max-heap-size=512m,permgen-size=64m,max-permgen-size=256m)
-/host=master/server-config=${pfp.core.server1}/jvm=${pfp.core.server1}/:write-attribute(name=jvm-options,value=["-Xrunjdwp:transport=dt_socket,address=${pfp.core.server1.debugger.port},server=y,suspend=n"])
-/host=master/server-config=${pfp.core.server1}/:write-attribute(name=socket-binding-port-offset,value=${pfp.core.server1.port.offset})
-/host=master/server-config=${pfp.core.server1}/:start(server=${pfp.core.server1},blocking=true)
-run-batch

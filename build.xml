@@ -522,11 +522,24 @@
                 <antcall target="hornetq-config" />
                 <antcall target="cli.batch">
                     <param name="cli.source.dir" value="conf/pfp"/>
-                    <param name="cli.to.filter.and.execute" value="pfp-config-up.cli"/>
+                    <param name="cli.to.filter.and.execute" value="pfp-server-group.cli"/>
                     <param name="cli.fail.on.error" value="true"/>
                 </antcall>
+                <for list="${pfp.core.server.number.list}" param="serverNum">
+                    <sequential>
+                        <var name="pfp.core.server.id" value="pfp-core-@{serverNum}" />
+                        <math result="pfp.core.port.increment" operand1="100" operation="*" operand2="@{serverNum}" datatype="int" />
+                        <math result="pfp.core.port.offset" operand1="${pfp.core.base.port.offset}" operation="+" operand2="${pfp.core.port.increment}" datatype="int" />
+                        <math result="pfp.core.debugger.port" operand1="${pfp.core.base.debugger.port}" operation="+" operand2="${pfp.core.port.increment}" datatype="int" />
+                        <echo message="pfp.core.server.id=${pfp.core.server.id} : pfp.core.port.offset=${pfp.core.port.offset} : pfp.core.debugger.port = ${pfp.core.debugger.port}" />
+                        <antcall target="cli.batch">
+                            <param name="cli.source.dir" value="conf/pfp"/>
+                            <param name="cli.to.filter.and.execute" value="pfp-server-up.cli"/>
+                            <param name="cli.fail.on.error" value="true"/>
+                        </antcall>
+                    </sequential>
+                </for>
                 <antcall target="privateServiceTaskRepo" />
-                <!--antcall target="local.refresh.guvnor" / -->
             </then>
             <else>
                 <echo message="local.provision.pfp.core:  org.jboss.processFlow.provision.pfpCore = ${org.jboss.processFlow.provision.pfpCore}" />
@@ -680,6 +693,7 @@
     </target>
 
     <target name="all" >
+        <echo message="The first five letters of the alphabet are:"/>
         <if>
             <equals arg1="${upstream.jbpm5.drools.libs.type}" arg2="BRMS" />
             <then><antcall target="unzip.brms.deployable" /></then>
