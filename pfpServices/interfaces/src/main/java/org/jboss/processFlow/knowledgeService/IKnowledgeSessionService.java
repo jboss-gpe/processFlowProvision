@@ -68,10 +68,16 @@ public interface IKnowledgeSessionService extends IBaseKnowledgeSessionService {
     public static final String PROCESS_ID = "processid";
     public static final String PROCESS_INSTANCE_ID = "processInstanceId";
     public static final String KSESSION_ID = "ksessionId";
+    public static final String WORK_ITEM_ID = "workItemId";
     public static final String EMAIL = "Email";
     public static final String OPERATION_TYPE="operationType";
-	public static final String COMPLETE_WORK_ITEM = "completeWorkItem";
-	public static final String START_PROCESS_AND_RETURN_ID="startProcessAndReturnId";
+    public static final String ADD_PROCESS_TO_KNOWLEDGE_BASE="addProcessToKnowledgeBase";
+    public static final String COMPLETE_WORK_ITEM = "completeWorkItem";
+    public static final String START_PROCESS_AND_RETURN_ID="startProcessAndReturnId";
+    public static final String SIGNAL_EVENT="signalEvent";
+    public static final String SIGNAL_TYPE="signalType";
+    public static final String BPMN_FILE="bpmnFile";
+    public static final String NODE_ID="nodeId";
 
     /**
      * printWorkItemHandlers

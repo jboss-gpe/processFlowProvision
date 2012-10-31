@@ -242,6 +242,10 @@ INSTALL   :
     -- messaging
         - hornetq 2.2.14 is provided out-of-the-box with jboss-eap-6.0.0
 
+        -- route HornetQ broadcast traffic to a specific network interface card (if Hornetq is bound to a NIC that is not the default for the OS)
+            -- (as root) : route add -net 231.0.0.0 netmask 255.0.0.0 eth0
+
+
     -- BRMS 5.3 Early Adapter libraries
         - not available for jboss-as-7*  ... will need to build from source
         - please see "PFP using community drools/jbpm5" section of $PFP_HOME/docs/DEVELOPERS_GUIDE.txt
