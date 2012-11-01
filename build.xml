@@ -96,12 +96,28 @@
 
     <!-- create a clone of the JBoss EAP 'domain' config and name it the value of ${jboss.domain.base.dir} -->
     <target name="clone.jboss" >
+        <if>
+            <not><available file="${jboss.home}" /></not>
+            <then>
+                <if>
+                    <equals arg1="${community.or.supported}" arg2="community" />
+                    <then>
+                        <get src="${as7.download.url}" dest="${install.home}/lib/${as7.name}.zip"  skipexisting="true" />
+                        <unzip src="${install.home}/lib/${as7.name}.zip" dest="${jboss.home}/.." />
+                    </then>
+                    <else>
+                        <get src="${eap6.download.url}" dest="${install.home}/lib/"  skipexisting="true" />
+                        <unzip src="${install.home}/lib/${eap6.name}.zip" dest="${jboss.home}/.." />
+                    </else>
+                </if>
+            </then>
+        </if>
         <delete dir="${jboss.home}/${jboss.domain.base.dir}" />
         <copy overwrite="true" todir="${jboss.home}/${jboss.domain.base.dir}">
             <fileset dir="${jboss.home}/domain" />
         </copy>
         <antcall target="filter">
-            <param name="source.dir" value="conf/jboss"/>
+            <param name="source.dir" value="conf/jboss/${community.or.supported}"/>
             <param name="file.name" value="domain.xml"/>
             <param name="dest.dir" value="${jboss.home}/${jboss.domain.base.dir}/configuration"/>
         </antcall>
@@ -204,7 +220,7 @@
 
     <target name="explode.guvnor.and.designer" >
         <if>
-            <equals arg1="${upstream.jbpm5.drools.libs.type}" arg2="BRMS" />
+            <equals arg1="${community.or.supported}" arg2="supported" />
             <then>
                 <antcall target="unzip.brms.deployable" />
                 <copy todir="${guvnor.target}" >
@@ -253,7 +269,7 @@
 
     <target name="explode.jbpm.gwt.console" >
         <if>
-            <equals arg1="${upstream.jbpm5.drools.libs.type}" arg2="BRMS" />
+            <equals arg1="${community.or.supported}" arg2="supported" />
             <then>
                 <antcall target="unzip.brms.deployable" />
                 <copy todir="${console.target}" >
@@ -468,21 +484,8 @@
             </fileset>
         </copy>
         <if>
-            <equals arg1="${upstream.jbpm5.drools.libs.type}" arg2="COMMUNITY_SOURCE" />
-            <then>
-                <copy toDir="${temp.jboss.dir}/modules/org/jbpm/main" overwrite="true" >
-                    <fileset dir="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-shared/target/" >
-                        <include name="jbpm-gwt-shared-${jBPM.version}.jar" />
-                    </fileset>
-                </copy>
-            </then>
-            <else>
-                <copy toDir="${temp.jboss.dir}/modules/org/jbpm/main" overwrite="true" >
-                    <fileset dir="${temp.brms.unzip.dir}/${console.sub.domain}-server.war/WEB-INF/lib" >
-                        <include name="jbpm-gwt-shared-${jBPM.version}.jar" />
-                    </fileset>
-                </copy>
-            </else>
+            <equals arg1="${community.or.supported}" arg2="community" />
+            <then><antcall target="local.copy.community.jbpm.deps.to.modules" /></then>
         </if>
         <copy todir="${temp.jboss.dir}/modules/org/jboss/processFlow/main" >
             <fileset dir="${temp.pfp.lib.dir}" />
@@ -725,7 +728,7 @@
 
     <target name="all" >
         <if>
-            <equals arg1="${upstream.jbpm5.drools.libs.type}" arg2="BRMS" />
+            <equals arg1="${community.or.supported}" arg2="supported" />
             <then><antcall target="unzip.brms.deployable" /></then>
         </if>
         <antcall target="refresh.master" />

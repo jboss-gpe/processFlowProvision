@@ -33,7 +33,7 @@
 
     <target name="setClasspath">
         <if>
-            <equals arg1="${upstream.jbpm5.drools.libs.type}" arg2="COMMUNITY_SOURCE" />
+            <equals arg1="${community.or.supported}" arg2="community" />
                 <then>
                     <available file="${jbpm.source.dir}/jbpm-distribution/target/jbpm-${jBPM.version}-pre-bin/lib" property="jbpm5CommunitySourceExists" />
                     <fail unless="jbpm5CommunitySourceExists" message="no compiled jbpm5/drools libraries at: ${jbpm.source.dir}/jbpm-distribution/target/jbpm-${jBPM.version}-pre-bin/lib.  Please review ${development.base}/doc/DEVELOPER_GUIDE.txt" />
@@ -57,7 +57,7 @@
                 </then>
         </if>
         <if>
-            <equals arg1="${upstream.jbpm5.drools.libs.type}" arg2="BRMS" />
+            <equals arg1="${community.or.supported}" arg2="supported" />
             <then>
                 <path id="classpath">
                     <path refid="initial.classpath" />

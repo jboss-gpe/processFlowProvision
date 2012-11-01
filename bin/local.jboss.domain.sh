@@ -42,6 +42,9 @@ do
         -hostName=*)
             hostName=`echo $var | cut -f2 -d\=` 
             ;;
+        -cliCommand=*)
+            cliCommand=`echo $var | cut -f2 -d\=` 
+            ;;
     esac
 done
 
@@ -70,6 +73,7 @@ start() {
     echo -en $"Starting jboss daemon w/ following command line args: \n\tjboss.bind.address = $HOSTNAME\n\t-bmanagement = $HOSTNAME\n\tjboss.domain.base.dir= $jbossDomainBaseDir\n\tdomainConfig=$domainConfig\n"
     sleep 1 
     cd $JBOSS_HOME
+    chmod 755 $JBOSS_HOME/bin/*.sh
     rm nohup.out
     nohup ./bin/domain.sh -b=$HOSTNAME -bmanagement=$HOSTNAME -Djboss.domain.base.dir=$jbossDomainBaseDir -Ddomain-config=$domainConfig &
     sleep 15 
@@ -107,7 +111,7 @@ executeAddUser() {
 }
 
 executeCli() {
-    echo -en "executeCli() "
+    echo -en "executeCli() cliCommand = $cliCommand"
     chmod 755 $jbossHome/bin/*.sh
 
     export JAVA_OPTS=-Xmx$jbossCliXmx

@@ -5,7 +5,7 @@ JA Bride
 
 ASSUMPTIONS
     - you are a RHCE (or equivalent in a Unix environment)
-    - you are installing on Fedora 14,16 or Red Hat Enterprise Linux (RHEL) 6.*
+    - you are installing on Fedora 17 or Red Hat Enterprise Linux (RHEL) 6.*
 
 
 OVERVIEW
@@ -49,9 +49,9 @@ INSTALL   :
                              init 6 (bounce the operating system)
         -- mapping in /etc/hosts
                 -- ensure that the OS hostname is correctly mapped to the ethernet interface 
-                    (as root) :  modify /etc/hosts such that it has entries similar to the following (example assumes 'fedora14-jbpm5' is OS hostname):
+                    (as root) :  modify /etc/hosts such that it has entries similar to the following (example assumes 'fedora17-jbpm5' is OS hostname):
 
-                        192.168.122.10  fedora14-jbpm5
+                        192.168.122.10  fedora17-jbpm5
 
         NOTE:  often times, the OS hostname will already be mapped to the localhost interface.  
             It is important to remove that mapping and ensure that only the mapping between the OS hostname and the ethernet NIC exists
@@ -92,22 +92,15 @@ INSTALL   :
 
 
     -- Java Development Kit
-        -- probably best to stick with JDK 1.6 for now
-        -- JBoss EAP 5 can NOT run on JDK 1.7
-        -- JBoss EAP 6 can run on JDK 7 .... however PFP has not yet been tested sufficiently using JDK 7
-        -- ensure that either OpenJDK or Sun JDK 1.6 is installed
-           (as root) :     yum install java-1.6.0-openjdk
-                           yum install java-1.6.0-openjdk-devel
-                    or
-                           yum install java-1.6.0-sun
-                           yum install java-1.6.0-sun-devel
-
+        -- ensure that OpenJDK 1.7 is installed
+           (as root) :     yum install java-1.7.0-openjdk
+                           yum install java-1.7.0-openjdk-devel
 
 
     -- 'jboss' operating system user
-            - there are some processFlowProvision steps that require root privledges.
-            - the majority of steps should NOT be executed as root.
-            - instead, processFlowProvision assumes an operating system user called 'jboss' that has non-root privledges
+        - there are some processFlowProvision steps that require root privledges.
+        - the majority of steps should NOT be executed as root.
+        - instead, processFlowProvision assumes an operating system user called 'jboss' that has non-root privledges
             (as root) : useradd -u 600 -g 100 -d /home/jboss -m -s /bin/bash jboss
             (as root) : passwd jboss
 
@@ -115,10 +108,10 @@ INSTALL   :
 
 
     --  $JBOSS_PROJECTS directory
-            -- make a 'jbossProjects' directory and have it owned by jboss:jboss
-                (as root) :     mkdir -p /opt/jbossProjects/jboss
-                                mkdir /opt/jbossProjects/downloads
-                                chown -R jboss:100 /opt/jbossProjects
+        -- make a 'jbossProjects' directory and have it owned by jboss:jboss
+            (as root) :     mkdir -p /opt/jbossProjects/jboss
+                            mkdir /opt/jbossProjects/downloads
+                            chown -R jboss:100 /opt/jbossProjects
 
     --  git and wget
         (as root)   :   yum install git wget
@@ -128,7 +121,7 @@ INSTALL   :
           JBOSS_HOME        :   location of JBoss EAP
           PFP_HOME          :   location of process flow provision project
           JBOSS_PROJECTS    :   default location of PFP service task repository and guvnor filesystem
-      - these environment variables are set via the standard ~/.bashrc
+      - these environment variables are set via the standard ~/.bashrc or in (.bash_profile)
       - processFlowProvision maintains a template bashrc
       - execute the following to copy the template bashrc to the 'jboss' users home directory :
             (as jboss):     cd /opt/jbossProjects/processFlowProvision
@@ -156,7 +149,7 @@ INSTALL   :
 
                                 
      -- Apache Ant
-        -- this project requires Apache Ant v. 1.8.3 along with the ant-contrib library
+        -- this project requires Apache Ant v. 1.8.3 (or more recent) along with the ant-contrib library
 
         -- if Ant v. 1.8.3 is not already installed, download from the following : http://ant.apache.org/bindownload.cgi
 
@@ -227,28 +220,11 @@ INSTALL   :
                 -- (as root)    service postgresql reload
 
 
-
- 
-    -- JBoss Enterprise App Platform (JBoss EAP)
-        - master branch of PFP is currently targeting :  jboss-eap-6.0.0.zip
-        - this EAP distribution can be optained here :
-            https://access.redhat.com/jbossnetwork/restricted/listSoftware.html?product=appplatform&downloadType=distributions
-
-        - once downloaded :
-            cd $JBOSS_PROJECTS
-            unzip /path/to/downloaded/jboss-eap-6.0.0.zip
-
-
     -- messaging
-        - hornetq 2.2.14 is provided out-of-the-box with jboss-eap-6.0.0
-
-        -- route HornetQ broadcast traffic to a specific network interface card (if Hornetq is bound to a NIC that is not the default for the OS)
+        - hornetq 2.2.16 is provided out-of-the-box with jboss-eap-6.0.0    ..... which is sufficient
+        - multi-cast cluster routing 
+            -- route HornetQ broadcast traffic to a specific network interface card (if Hornetq is bound to a NIC that is not the default for the OS)
             -- (as root) : route add -net 231.0.0.0 netmask 255.0.0.0 eth0
-
-
-    -- BRMS 5.3 Early Adapter libraries
-        - not available for jboss-as-7*  ... will need to build from source
-        - please see "PFP using community drools/jbpm5" section of $PFP_HOME/docs/DEVELOPERS_GUIDE.txt
 
 
     - deploy jBPM5/PFP "core" and "brms-webs" artifacts to JBoss EAP
