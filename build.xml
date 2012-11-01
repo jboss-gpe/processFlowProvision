@@ -5,6 +5,7 @@
 
     <import file="base-build.xml"/>
     <import file="openshift-build.xml" />
+    <import file="sy-build.xml" />
     <import file="osProvision/build.xml"/>
     <import file="privateServiceTaskRepo/build.xml"/>
 
@@ -348,12 +349,16 @@
             <param name="non.openshift.environment" value="true"/>
         </antcall>
         <jar jarfile="${guvnor.zipped}" basedir="${guvnor.target}" />
+
+        <!-- TO-DO:  change the following to use executeCli function -->
         <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
             <arg value="--connect"/>
             <arg value="--controller=${os.hostname}:${management.port}"/>
             <arg value="deploy ${guvnor.zipped} --name=${guvnor.name} --server-groups=brms-webs-group"/>
         </exec>
         <jar jarfile="${designer.zipped}" basedir="${designer.target}" />
+
+        <!-- TO-DO:  change the following to use executeCli function -->
         <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
             <arg value="--connect"/>
             <arg value="--controller=${os.hostname}:${management.port}"/>
@@ -561,15 +566,35 @@
         <if>
             <equals arg1="${org.jboss.processFlow.provision.switchyard}" arg2="true" />
             <then>
-                <if>
-                    <equals arg1="${refresh.master}" arg2="true" />
-                    <then><antcall target="refresh.master" /></then>
-                </if>
+                <antcall target="stop.standalone" >
+                    <param name="server.ip.address" value="${sy.core.ip.address}"/>
+                    <param name="management.port" value="${sy.core.management.port}"/>
+                </antcall>
+                <antcall target="clone.standalone" >
+                    <param name="new.server.configuration" value="${sy.core.server.config}"/>
+                </antcall>
+                <antcall target="add.auth.props.to.standalone" >
+                    <param name="new.server.configuration" value="${sy.core.server.config}"/>
+                </antcall>
+                <copy file="conf/switchyard/standalone.xml" todir="${jboss.home}/${sy.core.server.config}/configuration" overwrite="true" />
+                <antcall target="start.standalone" >
+                    <param name="port.offset" value="${sy.core.port.offset}"/>
+                    <param name="server.ip.address" value="${sy.core.ip.address}"/>
+                    <param name="new.server.configuration" value="${sy.core.server.config}"/>
+                    <param name="server.config.file.with.no.suffix" value="standalone"/>
+                </antcall>
+                <antcall target="provision.sy.with.jdbc" >
+                    <param name="server.ip.address" value="${sy.core.ip.address}"/>
+                    <param name="management.port" value="${sy.core.management.port}"/>
+                </antcall>
                 <antcall target="cli.batch">
                     <param name="cli.source.dir" value="conf/switchyard"/>
                     <param name="cli.to.filter.and.execute" value="sy-config-up.cli"/>
+                    <param name="server.ip.address" value="${sy.core.ip.address}"/>
+                    <param name="management.port" value="${sy.core.management.port}"/>
                     <param name="cli.fail.on.error" value="true"/>
                 </antcall>
+
             </then>
             <else>
                 <echo message="local.provision.switchyard:  org.jboss.processFlow.provision.switchyard = ${org.jboss.processFlow.provision.switchyard}" />

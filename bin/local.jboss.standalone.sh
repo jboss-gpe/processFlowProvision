@@ -45,6 +45,9 @@ do
         -sleepSec=*)
             sleepSec=`echo $var | cut -f2 -d\=` 
             ;;
+        -jbossModulePath=*)
+            jbossModulePath=`echo $var | cut -f2 -d\=`
+            ;;
     esac
 done
 
@@ -53,6 +56,10 @@ start() {
     echo -en $"Starting jboss daemon w/ following command line args: \n\thostName = $hostName\n\tserver-config = $serverConfig\n\tjboss.server.base.dir = $jbossServerBaseDir \n\tjboss.socket.binding.port-offset = $jbossSocketBindingPortOffset \n\t jbossNodeName= $jbossNodeName"
     cd $jbossHome
     chmod 755 bin/*.sh
+
+    if [ "x$jbossModulePath" != "x" ]; then
+        export JBOSS_MODULEPATH=$jbossModulePath
+    fi
 
     if [ "$jbossServerBaseDir" = "standalone" ]; then
         #  defining jboss.server.base.dir causes problems when deploying SOAP service on AS7.1.1    :   http://pastebin.com/qyX1crrT 
