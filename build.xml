@@ -487,8 +487,8 @@
 
         <if>
             <equals arg1="${community.or.supported}" arg2="community" />
-            <then><var name="temp.gwt.path" value="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-shared/target/"</then>
-            <else><var name="temp.gwt.path" value="${jbpm.lib.path}/business-central-server.war/WEB-INF/lib/"</else>
+            <then><var name="temp.gwt.path" value="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-shared/target/" /></then>
+            <else><var name="temp.gwt.path" value="${jbpm.lib.path}/business-central-server.war/WEB-INF/lib/" /></else>
         </if>
         <copy toDir="${temp.jboss.dir}/modules/org/jbpm/main" overwrite="true" >
             <fileset dir="${temp.gwt.path}" >

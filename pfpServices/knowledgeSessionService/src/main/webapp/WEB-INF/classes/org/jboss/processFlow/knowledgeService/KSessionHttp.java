@@ -61,25 +61,25 @@ public class KSessionHttp {
 
     /**
      * sample usage :
-     *  curl -X PUT -HAccept:text/plain $HOSTNAME:8330/knowledgeService/kbase/agent
-     *  curl -X PUT -HAccept:text/plain https://pfpcore-jbride0.rhcloud.com/knowledgeService/kbase/agent
+     *  curl -X PUT -HAccept:text/plain $HOSTNAME:8330/knowledgeService/kbase
+     *  curl -X PUT -HAccept:text/plain http://pfpcore-jbride0.rhcloud.com/knowledgeService/kbase
      */
     @PUT
-    @Path("/kbase/agent")
-    public Response rebuildKnowledgeBaseViaKnowledgeAgent() {
-    	ResponseBuilder builder = Response.ok();
-    	try {
-    		kProxy.rebuildKnowledgeBaseViaKnowledgeAgent();
-    	}catch(ConnectException x){
-    		builder = Response.status(Status.SERVICE_UNAVAILABLE);
-    	}
+    @Path("/kbase")
+    public Response createKnowledgeBaseViaKnowledgeAgentOrBuilder() {
+        ResponseBuilder builder = Response.ok();
+        try {
+            kProxy.createKnowledgeBaseViaKnowledgeAgentOrBuilder();
+        }catch(RuntimeException x){
+            builder = Response.status(Status.SERVICE_UNAVAILABLE);
+        }
         return builder.build();
     }
 
     /**
      * sample usage :
      *  curl -X GET -HAccept:text/plain $HOSTNAME:8330/knowledgeService/kbase/content
-     *  curl -X GET -HAccept:text/plain https://pfpcore-jbride0.rhcloud.com/knowledgeService/kbase/content
+     *  curl -X GET -HAccept:text/plain http://pfpcore-jbride0.rhcloud.com/knowledgeService/kbase/content
      */
     @GET
     @Path("/kbase/content")
@@ -92,7 +92,7 @@ public class KSessionHttp {
     /**
      * sample usage :
      *  curl -X GET -HAccept:text/plain $HOSTNAME:8330/knowledgeService/workItemHandlers
-     *  curl -X GET -HAccept:text/plain https://pfpcore-jbride0.rhcloud.com/knowledgeService/workItemHandlers
+     *  curl -X GET -HAccept:text/plain http://pfpcore-jbride0.rhcloud.com/knowledgeService/workItemHandlers
      */
     @GET
     @Path("/workItemHandlers")

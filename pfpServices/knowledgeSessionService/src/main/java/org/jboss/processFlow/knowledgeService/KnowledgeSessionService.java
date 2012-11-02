@@ -515,22 +515,29 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
             throw new RuntimeException("printKnowledgeBaseContent() ... kbase has not yet been instantiated");
 
         StringBuilder sBuilder = new StringBuilder();
-        sBuilder.append("guvnor changesets\n\t");
-        
-        sBuilder.append(guvnorChangeSet);
+        sBuilder.append("guvnor changesets:\n\t");
+       
+        if(guvnorChangeSet != null) 
+            sBuilder.append(guvnorChangeSet);
+        else
+            sBuilder.append("not yet created by knowledgeAgent");
 
         Collection<KnowledgePackage> kPackages = kbase.getKnowledgePackages();
-        for(KnowledgePackage kPackage : kPackages){
-            Collection<Process> processes = kPackage.getProcesses();
-            if(processes.size() == 0){
-                sBuilder.append("\n\tpackage = "+kPackage.getName()+" : no process definitions found ");
-            }else {
+        if(kPackages != null && kPackages.size() > 0) {
+            for(KnowledgePackage kPackage : kPackages){
+                Collection<Process> processes = kPackage.getProcesses();
+                if(processes.size() == 0){
+                    sBuilder.append("\n\tpackage = "+kPackage.getName()+" : no process definitions found ");
+                }else {
 
-                sBuilder.append("\nprintKnowledgeBaseContent()\n\t"); 
-                for (Process process : processes) {
-                    sBuilder.append("\n\tpackage = "+kPackage.getName()+" : process definition = " + process.getId());
+                    sBuilder.append("\nprintKnowledgeBaseContent()\n\t"); 
+                    for (Process process : processes) {
+                        sBuilder.append("\n\tpackage = "+kPackage.getName()+" : process definition = " + process.getId());
+                    }
                 }
             }
+        } else {
+            sBuilder.append("\n\nNo Packages found in kbase");
         }
         sBuilder.append("\n");
         return sBuilder.toString();
