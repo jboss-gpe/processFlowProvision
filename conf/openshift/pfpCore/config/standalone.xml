@@ -56,6 +56,7 @@
             <property name="hibernate.dialect" value="${hibernate.dialect}"/>
             <property name="hibernate.show_sql" value="${hibernate.show_sql}"/>
             <property name="jbpm.conf.dir" value="${jbpm.conf.dir}"/>
+            <property name="drools.session.template.path" value="${openshift.drools.session.template.path}"/>
         </system-properties>
 
 

@@ -215,7 +215,6 @@
                 </antcall>
             </then>
         </if>
-
     </target>
 
     <target name="explode.guvnor.and.designer" >
@@ -247,6 +246,11 @@
             <param name="file.name" value="beans.xml"/ -->
             <param name="file.name" value="components.xml"/>
             <param name="dest.dir" value="${guvnor.target}/WEB-INF"/>
+        </antcall>
+        <antcall target="filter">
+            <param name="source.dir" value="conf/brmsWebs/drools-guvnor"/>
+            <param name="file.name" value="repository.xml"/>
+            <param name="dest.dir" value="${local.guvnor.repo.location}"/>
         </antcall>
         <antcall target="filter">
             <param name="source.dir" value="conf/brmsWebs/drools-guvnor/WEB-INF/classes"/>

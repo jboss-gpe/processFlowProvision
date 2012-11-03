@@ -31,7 +31,20 @@
         <fileset dir="${development.base}/lib" />
     </path>
 
+    <!--
+          parameters to pass to this target:
+            1) project.path.property        :   optional
+    -->
     <target name="setClasspath">
+        <!-- check if project.path.property is set and if not then set to empty -->
+        <echo message="setClasspath project.path.property = ${project.path.property} " />
+        <condition property="project.path.is.set" else="false"><isset property="project.path.property" /></condition>
+        <if>
+            <equals arg1="${project.path.is.set}" arg2="false" />
+            <then><var name="project.path.property" value="${development.base}/lib/ant" /></then>
+        </if>
+        <path id="project.classpath" ><fileset dir="${project.path.property}" /></path>
+
         <if>
             <equals arg1="${community.or.supported}" arg2="community" />
                 <then>
@@ -40,6 +53,7 @@
 
                     <path id="classpath">
                     <path refid="initial.classpath" />
+                    <path refid="project.classpath" />
                         <fileset dir="${jbpm.source.dir}/jbpm-bam/target" ><include name="*.jar" /></fileset>
                         <fileset dir="${jbpm.source.dir}/jbpm-human-task/jbpm-human-task-core/target" ><include name="*.jar" /></fileset>
                         <fileset dir="${jbpm.source.dir}/jbpm-flow/target" ><include name="*.jar" /></fileset>
@@ -61,7 +75,7 @@
             <then>
                 <path id="classpath">
                     <path refid="initial.classpath" />
-                    <!--path refid="project.classpath" / -->
+                    <path refid="project.classpath" />
                     <fileset dir="${temp.brms.unzip.dir}/binaries" />
                     <fileset dir="${temp.brms.unzip.dir}" >
                         <include name="*.jar" />
@@ -109,6 +123,7 @@
             1) jar.name
             2) generate.java.doc (optional: defaults to false)
             3) include.resources (optional: defaults to true)
+            4) project.path.property (optional: defaults to empty)
     -->
     <target name="jar" depends="setClasspath">
         <fail unless="jar.name" message="jar:  need to pass 'jar.name' property" />
@@ -155,6 +170,8 @@
         usage
           parameters to pass to this target:
             1) war.name
+            2) project.path.property (optional: defaults to empty)
+
         note:  jboss-deployment-structure.xml belongs directly in WEB-INF
     -->
     <!-- 3 May 2012:  wars and jars can't have the same name in EAP6.  will add '-war' to name to all web archives to avoid possible name confliction -->
@@ -271,13 +288,17 @@
                 <property name="jbpm.conf.dir" value="${pfp.module.path}/org/jbpm/configuration/main"/>
                 <property name="guvnor.host" value="${os.hostname}:${brms.webs.http.port}"/>
                 <property name="guvnor.external.host" value="${guvnor.host}"/>
+                <property name="org.jboss.processFlow.remoting.ejb.receiver" value="${local.org.jboss.processFlow.remoting.ejb.receiver}"/>
             </then>
             <else>
                 <property name="jbpm.console.server.host" value="${openshift.pfpCore.uri}"/>
                 <property name="jbpm.console.server.port" value="80"/>
                 <property name="jbpm.conf.dir" value="/var/lib/stickshift/${openshift.pfpCore.user.hash}/pfpCore/${openshift.jboss.cartridge.type}/standalone/configuration/modules/org/jbpm/configuration/main"/>
-                <property name="guvnor.host" value="${openshift.brmsWebs.uri}:80"/>
+                <property name="guvnor.host" value="${openshift.brmsWebs.uri}"/>
                 <property name="guvnor.external.host" value="${openshift.brmsWebs.uri}"/>
+                <property name="org.jboss.processFlow.remoting.ejb.receiver" value=""/>
+                <property name="openshift.drools.session.template.path" 
+                        value="${openshift.pfpCore.home.dir}/${openshift.jboss.cartridge.type}/${openshift.jboss.cartridge.type}/standalone/configuration/drools.session.template"/>
             </else>
         </if>
     </target>

@@ -370,12 +370,12 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
     }
     
     public void createKnowledgeBaseViaKnowledgeAgentOrBuilder() {
-    	try {
-    		this.createKnowledgeBaseViaKnowledgeAgent();
-    	}catch(ConnectException x){
-    		log.warn("createKnowledgeBaseViaKnowledgeAgentOrBuilder() can not create a kbase via a kagent due to a connection problem with guvnor ... will now create kbase via knowledgeBuilder");
-    		rebuildKnowledgeBaseViaKnowledgeBuilder();
-    	}
+        try {
+            this.createKnowledgeBaseViaKnowledgeAgent();
+        }catch(ConnectException x){
+            log.warn("createKnowledgeBaseViaKnowledgeAgentOrBuilder() can not create a kbase via a kagent due to a connection problem with guvnor ... will now create kbase via knowledgeBuilder");
+            rebuildKnowledgeBaseViaKnowledgeBuilder();
+        }
     }
     
     public void rebuildKnowledgeBaseViaKnowledgeAgent() throws ConnectException{
@@ -500,8 +500,8 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
         List<String> processes = guvnorUtils.getAllProcessesInPackage(pkgName);
         StringBuilder sBuilder = new StringBuilder("getAllProcessesInPackage() pkgName = "+pkgName);
         if(processes.isEmpty()){
-        	sBuilder.append("\n\n\t :  not processes found");
-        	return sBuilder.toString();
+            sBuilder.append("\n\n\t :  not processes found");
+            return sBuilder.toString();
         }
         for(String pDef : processes){
             sBuilder.append("\n\t");
@@ -544,44 +544,44 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
     }
     
     private SessionTemplate newSessionTemplate() {
-    	if(sessionTemplateInstantiationAlreadyBombed)
-    		return null;
-    	
-    	if(templateString == null){
-    		String droolsSessionTemplatePath = System.getProperty(DROOLS_SESSION_TEMPLATE_PATH);
-    		if(StringUtils.isNotEmpty(droolsSessionTemplatePath)){
-    			File droolsSessionTemplate = new File(droolsSessionTemplatePath);
-    			if(!droolsSessionTemplate.exists()) {
-    				throw new RuntimeException("newSessionTemplate() drools session template not found at : "+droolsSessionTemplatePath);
-    			}else {
-    				FileInputStream fStream = null;
-    				try {
-    					fStream = new FileInputStream(droolsSessionTemplate);
-    					templateString = IOUtils.toString(fStream);
+        if(sessionTemplateInstantiationAlreadyBombed)
+            return null;
+        
+        if(templateString == null){
+            String droolsSessionTemplatePath = System.getProperty(DROOLS_SESSION_TEMPLATE_PATH);
+            if(StringUtils.isNotEmpty(droolsSessionTemplatePath)){
+                File droolsSessionTemplate = new File(droolsSessionTemplatePath);
+                if(!droolsSessionTemplate.exists()) {
+                    throw new RuntimeException("newSessionTemplate() drools session template not found at : "+droolsSessionTemplatePath);
+                }else {
+                    FileInputStream fStream = null;
+                    try {
+                        fStream = new FileInputStream(droolsSessionTemplate);
+                        templateString = IOUtils.toString(fStream);
 
-    				}catch(IOException x){
-    					x.printStackTrace();
-    				}finally {
-    					if(fStream != null) {
-    						try {fStream.close(); }catch(Exception x){x.printStackTrace();}
-    					}
-    				}
-    			}
-    		}else {
-    			throw new RuntimeException("newSessionTemplate() following property must be defined : "+DROOLS_SESSION_TEMPLATE_PATH);
-    		}
-    	}
-    	ParserConfiguration pconf = new ParserConfiguration();
-    	pconf.addImport("SessionTemplate", SessionTemplate.class);
-    	ParserContext context = new ParserContext(pconf);
-    	Serializable s = MVEL.compileExpression(templateString.trim(), context);
-    	try {
-    		return (SessionTemplate)MVEL.executeExpression(s);
-    	}catch(Throwable x){
-    		sessionTemplateInstantiationAlreadyBombed = true;
-    		log.error("newSessionTemplate() following exception thrown \n\t"+x.getLocalizedMessage()+"\n : with session template string = \n\n"+templateString);
-    		return null;
-    	}
+                    }catch(IOException x){
+                        x.printStackTrace();
+                    }finally {
+                        if(fStream != null) {
+                            try {fStream.close(); }catch(Exception x){x.printStackTrace();}
+                        }
+                    }
+                }
+            }else {
+                throw new RuntimeException("newSessionTemplate() following property must be defined : "+DROOLS_SESSION_TEMPLATE_PATH);
+            }
+        }
+        ParserConfiguration pconf = new ParserConfiguration();
+        pconf.addImport("SessionTemplate", SessionTemplate.class);
+        ParserContext context = new ParserContext(pconf);
+        Serializable s = MVEL.compileExpression(templateString.trim(), context);
+        try {
+            return (SessionTemplate)MVEL.executeExpression(s);
+        }catch(Throwable x){
+            sessionTemplateInstantiationAlreadyBombed = true;
+            log.error("newSessionTemplate() following exception thrown \n\t"+x.getLocalizedMessage()+"\n : with session template string = \n\n"+templateString);
+            return null;
+        }
     }
 
     
@@ -602,15 +602,15 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
         sBuilder.append("\nWork Item Handlers loaded from drools session template:");
         SessionTemplate sTemplate = newSessionTemplate();
         if(sTemplate != null){
-        	for(Map.Entry<?, ?> entry : sTemplate.getWorkItemHandlers().entrySet()){
-        		Class wiClass = entry.getValue().getClass();
-        		sBuilder.append("\n\t"); 
-        		sBuilder.append(entry.getKey()); 
-        		sBuilder.append(" : "); 
-        		sBuilder.append(wiClass.getClass());
-        	}
+            for(Map.Entry<?, ?> entry : sTemplate.getWorkItemHandlers().entrySet()){
+                Class wiClass = entry.getValue().getClass();
+                sBuilder.append("\n\t"); 
+                sBuilder.append(entry.getKey()); 
+                sBuilder.append(" : "); 
+                sBuilder.append(wiClass.getClass());
+            }
         }else {
-        	sBuilder.append("\n\tsessionTemplate not instantiated ... check previous exceptions");
+            sBuilder.append("\n\tsessionTemplate not instantiated ... check previous exceptions");
         }
         sBuilder.append("\nConfiguration Loaded Work Item Handlers :");
         SessionConfiguration ksConfig = (SessionConfiguration)KnowledgeBaseFactory.newKnowledgeSessionConfiguration(ksconfigProperties);
@@ -854,7 +854,7 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
         
         //0) initialise knowledge base if it hasn't already been done so
         if(kbase == null){
-        	createKnowledgeBaseViaKnowledgeAgentOrBuilder();
+            createKnowledgeBaseViaKnowledgeAgentOrBuilder();
         }
 
         //1) very important that a unique 'Environment' is created per StatefulKnowledgeSession
@@ -879,12 +879,12 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
         try {
             KnowledgeSessionWrapper kWrapper = ((KnowledgeSessionWrapper)kWrapperHash.get(sessionId));
             if(kWrapper == null)
-            	throw new RuntimeException("disposeStatefulKnowledgeSessionAndExtras() no ksessionWrapper found with sessionId = "+sessionId);
+                throw new RuntimeException("disposeStatefulKnowledgeSessionAndExtras() no ksessionWrapper found with sessionId = "+sessionId);
             
             kWrapper.dispose();
             kWrapperHash.remove(sessionId);
         } catch(RuntimeException x) {
-        	throw x;
+            throw x;
         } catch(Exception x){
             throw new RuntimeException(x);
         }
@@ -901,14 +901,14 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
         //1.5 register any addition workItemHandlers defined in drools.session.template
         SessionTemplate sTemplate = newSessionTemplate();
         if(sTemplate != null){
-        	for(Map.Entry<String, ?> entry : sTemplate.getWorkItemHandlers().entrySet()){
-        		try {
-        			WorkItemHandler wHandler = (WorkItemHandler)entry.getValue();
-        			ksession.getWorkItemManager().registerWorkItemHandler(entry.getKey(), wHandler);
-        		} catch(Exception x){
-        			throw new RuntimeException("addExtrasToStatefulKnowledgeSession() following exception occurred when registering workItemId = "+entry.getKey()+" : "+x.getLocalizedMessage());
-        		}
-        	}
+            for(Map.Entry<String, ?> entry : sTemplate.getWorkItemHandlers().entrySet()){
+                try {
+                    WorkItemHandler wHandler = (WorkItemHandler)entry.getValue();
+                    ksession.getWorkItemManager().registerWorkItemHandler(entry.getKey(), wHandler);
+                } catch(Exception x){
+                    throw new RuntimeException("addExtrasToStatefulKnowledgeSession() following exception occurred when registering workItemId = "+entry.getKey()+" : "+x.getLocalizedMessage());
+                }
+            }
         }
         
             
@@ -1299,8 +1299,8 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
         } catch(Exception x) {
             throw new RuntimeException(x);
         } finally {
-        	if(ksession != null)
-        		disposeStatefulKnowledgeSessionAndExtras(ksessionId);
+            if(ksession != null)
+                disposeStatefulKnowledgeSessionAndExtras(ksessionId);
         }
     }
 
@@ -1324,8 +1324,8 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
                 throw new IllegalArgumentException("Could not find process instance " + processInstanceId);
             }
         } finally {
-        	if(ksession != null)
-        		disposeStatefulKnowledgeSessionAndExtras(ksessionId);
+            if(ksession != null)
+                disposeStatefulKnowledgeSessionAndExtras(ksessionId);
         }
     }
     
