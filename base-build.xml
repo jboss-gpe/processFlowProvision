@@ -232,6 +232,7 @@
             3)  management.port                 :   optional; default = 9999
             4)  cli.fail.on.error               :   optional; default = true
             5)  dest.dir                        :   optional; default = ${temp.dir}
+            6)  server.ip.address               :   optional: default = ${os.hostname}
     -->
     <target name="cli.batch" depends="" >
         <fail unless="cli.source.dir" message="cli.batch:  need to pass 'cli.source.dir' property" />
@@ -252,7 +253,7 @@
             <param name="dest.dir" value="${dest.dir}"/>
         </antcall>
         <echo message="***** cli.batch :  about to execute following batch script = ${build.dir}/${cli.to.filter.and.execute} : cli.fail.on.error = ${cli.fail.on.error} : jbossCliXmx = ${jbossCliXmx}"/>
-        <exec executable="bin/local.jboss.domain.sh" failonerror="${cli.fail.on.error}" >
+        <exec executable="${development.base}/bin/local.jboss.domain.sh" failonerror="${cli.fail.on.error}" >
             <arg value="executeCli"/>
             <arg value="-jbossHome=${jboss.home}"/>
             <arg value="-hostName=${server.ip.address}" />
