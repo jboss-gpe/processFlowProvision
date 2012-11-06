@@ -77,7 +77,7 @@
         <fail unless="new.server.configuration" message="clone.standalone:  need to pass 'new.server.configuration' property" />
         <delete dir="${jboss.home}/${new.server.configuration}" />
         <copy overwrite="true" todir="${jboss.home}/${new.server.configuration}">
-            <fileset dir="${jboss.home}/standalone" />
+            <fileset dir="${jboss.home}/standalone-orig" />
         </copy>
     </target>
 

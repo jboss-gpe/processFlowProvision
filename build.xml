@@ -581,23 +581,18 @@
         <if>
             <equals arg1="${org.jboss.processFlow.provision.switchyard}" arg2="true" />
             <then>
-                <antcall target="stop.standalone" >
-                    <param name="server.ip.address" value="${sy.core.ip.address}"/>
-                    <param name="management.port" value="${sy.core.management.port}"/>
-                </antcall>
+                <antcall target="local.sy.stop.core" />
+                <copy toDir="${jboss.home}/standalone-orig" >
+                    <fileset dir="${jboss.home}/standalone"  />
+                </copy>
                 <antcall target="clone.standalone" >
                     <param name="new.server.configuration" value="${sy.core.server.config}"/>
                 </antcall>
                 <antcall target="add.auth.props.to.standalone" >
                     <param name="new.server.configuration" value="${sy.core.server.config}"/>
                 </antcall>
-                <copy file="conf/switchyard/standalone.xml" todir="${jboss.home}/${sy.core.server.config}/configuration" overwrite="true" />
-                <antcall target="start.standalone" >
-                    <param name="port.offset" value="${sy.core.port.offset}"/>
-                    <param name="server.ip.address" value="${sy.core.ip.address}"/>
-                    <param name="new.server.configuration" value="${sy.core.server.config}"/>
-                    <param name="server.config.file.with.no.suffix" value="standalone"/>
-                </antcall>
+                <copy file="conf/switchyard/${sy.core.config.file.with.no.suffix}.xml" todir="${jboss.home}/${sy.core.server.config}/configuration" overwrite="true" />
+                <antcall target="local.sy.start.core"  />
                 <antcall target="provision.sy.with.jdbc" >
                     <param name="server.ip.address" value="${sy.core.ip.address}"/>
                     <param name="management.port" value="${sy.core.management.port}"/>
