@@ -32,6 +32,7 @@
             <arg value="-jbossServerBaseDir=${new.server.configuration}"/>
             <arg value="-jbossSocketBindingPortOffset=${port.offset}"/>
             <arg value="-jbossModulePath=${jbossModulePath}"/>
+            <arg value="-sleepSec=${sy.sleep.sec.after.start}"/>
         </exec>
     </target>
 
