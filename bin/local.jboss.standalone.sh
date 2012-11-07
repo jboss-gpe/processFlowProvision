@@ -53,7 +53,7 @@ done
 
 # better solution is to set and export JAVA_OPTS environment variable
 start() {
-    echo -en $"Starting jboss daemon w/ following command line args: \n\thostName = $hostName\n\tserver-config = $serverConfig\n\tjboss.server.base.dir = $jbossServerBaseDir \n\tjboss.socket.binding.port-offset = $jbossSocketBindingPortOffset \n\t jbossNodeName= $jbossNodeName\n\tsleepSec=$sleepSec""
+    echo -en $"Starting jboss daemon w/ following command line args: \n\thostName = $hostName\n\tserver-config = $serverConfig\n\tjboss.server.base.dir = $jbossServerBaseDir \n\tjboss.socket.binding.port-offset = $jbossSocketBindingPortOffset \n\t jbossNodeName= $jbossNodeName\n\tsleepSec=$sleepSec"
     cd $jbossHome
     chmod 755 bin/*.sh
 
