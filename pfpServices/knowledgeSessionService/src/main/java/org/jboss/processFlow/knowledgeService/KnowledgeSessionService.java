@@ -40,6 +40,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.ejb.*;
+import javax.ejb.LockType;
 import javax.management.ObjectName;
 import javax.management.MBeanServer;
 import javax.transaction.UserTransaction;
@@ -224,6 +225,7 @@ import org.mvel2.ParserContext;
 @Local(IBaseKnowledgeSessionService.class)
 @Singleton(name="prodKSessionProxy")
 @Startup
+@Lock(LockType.READ)
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class KnowledgeSessionService extends PFPBaseService implements IKnowledgeSessionService, KnowledgeSessionServiceMXBean {
 
