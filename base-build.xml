@@ -304,6 +304,64 @@
         </if>
     </target>
 
+    <target name="local.bounce.all.servers" description="">
+        <if>
+            <not><isset property="management.port"/></not>
+            <then><property name="management.port" value="9999" /></then>
+        </if>
+        <antcall target="local.stop.master"  />
+        <antcall target="local.start.master" />
+        <if>
+            <equals arg1="${org.jboss.processFlow.provision.pfpCore}" arg2="true" />
+            <then>
+                <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
+                    <arg value="--connect"/>
+                    <arg value="--controller=${os.hostname}:${management.port}"/>
+                    <arg value="/server-group=${pfp.core.group}/:start-servers"/>
+                </exec>
+            </then>
+        </if>
+        <if>
+            <equals arg1="${org.jboss.processFlow.provision.brmsWebs}" arg2="true" />
+            <then>
+                <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
+                    <arg value="--connect"/>
+                    <arg value="--controller=${os.hostname}:${management.port}"/>
+                    <arg value="/host=master/server-config=brms-webs/:start(server=brms-webs,blocking=true)"/>
+                </exec>
+            </then>
+        </if>
+    </target>
+    <target name="local.stop.master" description="default behavior is to shutdown all jboss servers via management port of 9999" >
+        <if>
+            <not><isset property="management.port"/></not>
+            <then><property name="management.port" value="9999" /></then>
+        </if>
+        <exec executable="bash" failonerror="true" dir="." >
+           <arg value="${development.base}/bin/local.jboss.domain.sh"/>
+           <arg value="stop"/>
+           <arg value="-port=${management.port}"/>
+           <arg value="-node=master"/>
+        </exec>
+    </target>
+    <target name="local.start.master">
+        <var name="jbossModulePath" value="${jboss.home}/modules:${pfp.module.path}" />
+        <if>
+            <equals arg1="${org.jboss.processFlow.provision.switchyard}" arg2="true" />
+            <then><var name="jbossModulePath" value="${jbossModulePath}:${sy.module.path}"/></then>
+        </if>
+        <exec executable="bash" failonerror="true" dir="." >
+           <arg value="${development.base}/bin/local.jboss.domain.sh"/>
+           <arg value="start"/>
+           <arg value="-jbossDomainBaseDir=${jboss.domain.base.dir}"/>
+           <arg value="-domainConfig=${domain.config.file}"/>
+           <arg value="-jbossModulePath=${jbossModulePath}"/>
+           <arg value="-sleepSec=${master.sleep.sec.after.start}"/>
+        </exec>
+    </target>
+
+
+
     <!--
         pass following parameters to this target :
         1) source.dir

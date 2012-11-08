@@ -45,13 +45,16 @@ do
         -cliCommand=*)
             cliCommand=`echo $var | cut -f2 -d\=` 
             ;;
+        -sleepSec=*)
+            sleepSec=`echo $var | cut -f2 -d\=`
+            ;;
     esac
 done
 
 checkHostName() {
     if ping -c 1 $HOSTNAME > /dev/null 2>&1
     then
-        echo "we are online!" && break
+        echo "we are online!"
     else
         echo -en "\n unable to ping $HOSTNAME.  check your network settings"
         exit 1
@@ -70,13 +73,18 @@ start() {
     if [ "x$jbossModulePath" != "x" ]; then
         export JBOSS_MODULEPATH=$jbossModulePath
     fi
-    echo -en $"Starting jboss daemon w/ following command line args: \n\tjboss.bind.address = $HOSTNAME\n\t-bmanagement = $HOSTNAME\n\tjboss.domain.base.dir= $jbossDomainBaseDir\n\tdomainConfig=$domainConfig\n"
+    echo -en $"Starting jboss daemon w/ following command line args: \n\tjboss.bind.address = $HOSTNAME\n\t-bmanagement = $HOSTNAME\n\tjboss.domain.base.dir= $jbossDomainBaseDir\n\tdomainConfig=$domainConfig\n\tsleepSec=$sleepSec\n"
     sleep 1 
     cd $JBOSS_HOME
     chmod 755 $JBOSS_HOME/bin/*.sh
     rm nohup.out
     nohup ./bin/domain.sh -b=$HOSTNAME -bmanagement=$HOSTNAME -Djboss.domain.base.dir=$jbossDomainBaseDir -Ddomain-config=$domainConfig &
-    sleep 15 
+    if [ "x$sleepSec" !=  "x" ]; then
+        sleep $sleepSec
+    else
+        sleep 3
+    fi
+
 }
 
 stop() {
