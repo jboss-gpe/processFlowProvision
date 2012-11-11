@@ -14,20 +14,37 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.xml.XMLConstants;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathFactory;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -92,15 +109,20 @@ public class ShifterProvisioner {
     public static final String OPENSHIFT_BRMS_WEBS_APP_SIZE="openshift.brmsWebs.app.size";
     public static final String OPENSHIFT_PFP_CORE_APP_SIZE="openshift.pfpCore.app.size";
     public static final String OPENSHIFT_PFP_CORE_SCALED_APP="openshift.pfpCore.scaled.app";
-    public static final String ACCOUNT_ID = "tns:accountId";
-    public static final String PASSWORD = "tns:password";
-    public static final String DOMAIN_ID = "tns:domainId";
+    public static final String ACCOUNT_ID = "accountId";
+    public static final String PASSWORD = "password";
+    public static final String DOMAIN_ID = "domain_id";
+    public static final String SSH_URL = "ssh_url";
+    public static final String UUID = "uuid";
+    public static final String GIT_URL = "git_url";
+    public static final String APP_URL = "app_url";
+    public static final String GEAR_COUNT = "gear_count";
+    public static final String GEAR_PROFILE = "gear_profile";
     public static final String REFRESH_DOMAIN ="openshift.account.refresh.domain";
     public static final String CREATE_PFP_CORE="openshift.account.create.pfp.core";
     public static final String CREATE_BRMS_WEBS="openshift.account.create.brms.webs";
     public static final String DUMP_RESPONSE_TO_FILE="openshift.dump.response.to.file";
     public static final String OPENSHIFT_DUMP_DIR="openshift.dump.dir";
-    
     public static final String DATA = "data";
     public static final String LINKS = "links";
     public static final String ADD_APPLICATION = "ADD_APPLICATION";
@@ -125,9 +147,6 @@ public class ShifterProvisioner {
     public static final String TEXT = "text";
     public static final String YES = "y";
     
-
-
-
     private static Logger log = Logger.getLogger("ShifterProvisioner"); 
     private static String openshiftRestURI;
     private static String openshiftAccountDetailsFile;
@@ -144,67 +163,70 @@ public class ShifterProvisioner {
     private static boolean dumpResponseToFile=false;
     private static String openshiftDumpDir;
     private static boolean dumpDirCreated = false;
+    private static Document accountDetailsDoc = null;
+    private static NodeList accountsList =null;
 
     public static void main(String args[] ) throws Exception{
         RegisterBuiltin.register(ResteasyProviderFactory.getInstance());
         
         getSystemProperties();
-        if(refreshDomain) {
-        	StringBuffer warningBuf = new StringBuffer("\n\nDANGER:  you have requested to re-provision(aka: annihilate) your Openshift account(s).");
-        	warningBuf.append("\n\tdo you seriously want to do that?");
-        	warningBuf.append("\n\twhat's the chances you've invoked the wrong command ?  (i do it all the time)");
-        	warningBuf.append("\n\tif you want to proceed, type in the character 'y' and press return");
-        	log.info(warningBuf);
-        	if(!YES.equals(readEntry())){
-        		return;
-        	}
-        }
-        validateAccountDetailsXmlFile();
-        provisionAccounts();
-    }
-    
-    private static void provisionAccounts() throws Exception {
         File xmlFile = new File(openshiftAccountDetailsFile);
         if(!xmlFile.exists())
             throw new RuntimeException("provisionAccounts() can't find xml file: "+openshiftAccountDetailsFile);
+        accountDetailsDoc = createDocument(xmlFile);
+        XPath xpath = XPathFactory.newInstance().newXPath();
+        xpath.setNamespaceContext(new AccountNameSpaceContext());
+        XPathExpression expression = xpath.compile("/openshiftAccounts/account");
+        accountsList = (NodeList)expression.evaluate(accountDetailsDoc, XPathConstants.NODESET);
+        if(refreshDomain) {
+            StringBuffer warningBuf = new StringBuffer("\n\nDANGER:  you have requested to re-provision(aka: annihilate) the following Openshift account(s):\n");
+            for(int p=0; p < accountsList.getLength(); p++){
+                Node accountNameNode = accountsList.item(p);
+                warningBuf.append("\n\t\t"+accountNameNode.getChildNodes().item(1).getTextContent());            }
+            warningBuf.append("\n\n\tdo you seriously want to do that?");
+            warningBuf.append("\n\tif you want to proceed, type in the character 'y' and press return");
+            log.info(warningBuf);
+            if(!YES.equals(readEntry())){
+                return;
+            }
+        }
+        //validateAccountDetailsXmlFile();
+        try {
+            provisionAccounts();
+        }finally {
+            flushNewAccountDetailsFile();
+        }
+    }
+    
+    private static void flushNewAccountDetailsFile() throws Exception {
+        TransformerFactory tFactory = TransformerFactory.newInstance();
+        Transformer transformer = tFactory.newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        DateFormat dFormat = new SimpleDateFormat("MM-dd-yyyy");
+
+        DOMSource source = new DOMSource(accountDetailsDoc);
+        File xmlFile = new File(openshiftAccountDetailsFile+"."+dFormat.format(new Date()));
+        FileOutputStream foStream = new FileOutputStream(xmlFile);
+        StreamResult result = new StreamResult(foStream);
+        transformer.transform(source, result);
+        foStream.flush();
+        foStream.close();
+    }
+    
+    private static void provisionAccounts() throws Exception {
         
         accountLogDir = new File(openshiftAccountProvisioningLogDir);
         accountLogDir.mkdirs();
         
-        Document accountDetailsDoc = createDocument(xmlFile);
-        Element rootElement = (Element)accountDetailsDoc.getFirstChild();
-        NodeList accountsList = rootElement.getChildNodes();
-        for(int t=0; t<= accountsList.getLength(); t++){
-            Node account = accountsList.item(t);
-            if(account != null && account.getNodeType() == Node.ELEMENT_NODE) {
-                
-                /*  now parsing openshift accounts
-                 *  will iterate through each account and with each account will spawn a new thread
-                 *  thread is responsible for provisioning that openshift account
-                 */
-                String accountId = null;
-                String password = null;
-                String domainId = null;
-                NodeList accountDetailsList = ((Element)account).getChildNodes();
-                for(int y=0; y<=accountDetailsList.getLength(); y++){
-                    Node detail = accountDetailsList.item(y);
-                    if(detail != null && detail.getNodeType() == Node.ELEMENT_NODE){
-                        Element detailElem = (Element)detail;
-                        if(ACCOUNT_ID.equals(detailElem.getNodeName()))
-                            accountId = detailElem.getTextContent();
-                        else if(PASSWORD.equals(detailElem.getNodeName()))
-                            password = detailElem.getTextContent();
-                        else if(DOMAIN_ID.equals(detailElem.getNodeName()))
-                            domainId = detailElem.getTextContent();
-                        else
-                            throw new RuntimeException("provisionAccounts() invalid Element = "+detailElem.getNodeName()+" : in file = "+openshiftAccountDetailsFile);
-                    }
-                }
-                ProvisionerThread shifterProvisioner = new ProvisionerThread(accountId, password, domainId);
-                Thread pThread = new Thread(shifterProvisioner);
-                pThread.start();
-            }
+        ExecutorService execObj = Executors.newFixedThreadPool(accountsList.getLength());
+        for(int t=0; t<accountsList.getLength(); t++){
+            Node accountNode = accountsList.item(t);
+            Runnable shifterProvisioner = new ProvisionerThread(accountNode);
+            execObj.execute(shifterProvisioner);
         }
+        execObj.shutdown();
+        execObj.awaitTermination(1200, TimeUnit.MINUTES);
+        log.info("provisionAccounts() all threads completed");
     }
     
     static class ProvisionerThread implements Runnable {
@@ -218,11 +240,18 @@ public class ShifterProvisioner {
         private DefaultHttpClient httpClient;
         private ObjectMapper jsonMapper;
         private String body = null;
+        private XPath xpath = null;
+        private Node accountNode = null;
         
-        public ProvisionerThread(String accountId, String password, String domainId){
-            this.accountId = accountId;
-            this.password = password;
-            this.domainId = domainId;
+        public ProvisionerThread(Node accountNode) throws Exception {
+            this.accountNode = accountNode;
+            xpath = XPathFactory.newInstance().newXPath();
+            xpath.setNamespaceContext(new AccountNameSpaceContext());
+            XPathExpression expression = xpath.compile("//accountId | //password | //domainId");
+            NodeList detailList = (NodeList)expression.evaluate(accountNode, XPathConstants.NODESET);
+            this.accountId = detailList.item(0).getTextContent();
+            this.password = detailList.item(1).getTextContent();
+            this.domainId = detailList.item(2).getTextContent();
             accountLog = new File(accountLogDir, accountId+".log");
             jsonMapper = new ObjectMapper();
         }
@@ -232,11 +261,11 @@ public class ShifterProvisioner {
                 prepConnection();
                 prepRESTeasy();
                 if(refreshDomain)
-                	refreshDomain();
+                    refreshDomain();
                 if(createPfpCore)
-                	createPfpCore();
+                    createPfpCore();
                 if(createBrmsWebs)
-                	createBrmsWebs();
+                    createBrmsWebs();
             }catch(Exception x){
                 throw new RuntimeException(x);
             }finally{
@@ -245,7 +274,7 @@ public class ShifterProvisioner {
                 if(accountLog != null){
                     FileOutputStream fStream = null;
                     try {
-                    	//write log to file:  append only if refreshDomain == false
+                        //write log to file:  append only if refreshDomain == false
                         fStream = new FileOutputStream(accountLog, !refreshDomain);
                         fStream.write(logBuilder.toString().getBytes());
                     }catch(Exception x){
@@ -265,7 +294,7 @@ public class ShifterProvisioner {
             consumeEntityAndCheckResponse(CREATE_PFP_CORE, cResponse);
             dumpResponseToFile(CREATE_PFP_CORE);
             JsonNode rootNode = jsonMapper.readValue(body, JsonNode.class);
-            logAppDetails(rootNode);
+            Element appElement = logAppDetails(PFP_CORE, rootNode);
             
             log.info(ADD_DATABASE_CARTRIDGE);
             cResponse = osClient.addCartridge(domainId, PFP_CORE, POSTGRESQL_8_4);
@@ -275,6 +304,12 @@ public class ShifterProvisioner {
             String dbAddResponseText = rootNode.path(MESSAGES).path(1).path(TEXT).getTextValue();
             logBuilder.append("\n\t");
             logBuilder.append(dbAddResponseText);
+            
+            String internalIp = rootNode.path(MESSAGES).path(2).path(TEXT).getTextValue().substring(29);
+            Element internalIpElem = accountDetailsDoc.createElement(SSH_URL);
+             appElement.appendChild(internalIpElem);
+             Node internalIpNode = accountDetailsDoc.createTextNode(internalIp.substring(0,internalIp.indexOf(":")));
+             internalIpElem.appendChild(internalIpNode);
 
         }
         private void createBrmsWebs() throws Exception {
@@ -283,7 +318,7 @@ public class ShifterProvisioner {
             consumeEntityAndCheckResponse(CREATE_BRMS_WEBS, cResponse);
             dumpResponseToFile(CREATE_BRMS_WEBS);
             JsonNode rootNode = jsonMapper.readValue(body, JsonNode.class);
-            logAppDetails(rootNode);
+            Element appElement = logAppDetails(BRMS_WEBS, rootNode);
             
             log.info(ADD_DATABASE_CARTRIDGE);
             cResponse = osClient.addCartridge(domainId, BRMS_WEBS, POSTGRESQL_8_4);
@@ -293,9 +328,15 @@ public class ShifterProvisioner {
             String dbAddResponseText = rootNode.path(MESSAGES).path(1).path(TEXT).getTextValue();
             logBuilder.append("\n\t");
             logBuilder.append(dbAddResponseText);
+            
+            String internalIp = rootNode.path(MESSAGES).path(2).path(TEXT).getTextValue().substring(29);
+            Element internalIpElem = accountDetailsDoc.createElement(SSH_URL);
+             appElement.appendChild(internalIpElem);
+             Node internalIpNode = accountDetailsDoc.createTextNode(internalIp.substring(0,internalIp.indexOf(":")));
+             internalIpElem.appendChild(internalIpNode);
         }
         private void refreshDomain() throws Exception {
-            log.info(GET_DOMAIN);
+            log.info(GET_DOMAIN+" : accountId = "+accountId);
             // 1)  get any existing openshift domains for this account
             ClientResponse<?> cResponse = osClient.getDomains();
             consumeEntityAndCheckResponse(GET_DOMAIN, cResponse);
@@ -318,37 +359,60 @@ public class ShifterProvisioner {
             cResponse = osClient.createDomain(domainId);
             consumeEntityAndCheckResponse(CREATE_DOMAIN, cResponse);
         }
-        private void logAppDetails(JsonNode rootNode) {
-        	logBuilder.append("\n\tdomain_id= "+rootNode.path(DATA).path("domain_id").getTextValue());
-        	logBuilder.append("\n\tcurrent_ip (external) = "+rootNode.path("messages").path(1).path("text").getTextValue());
-        	logBuilder.append("\n\tinternal_ip = TO_DO:  openshift API does not provide in response");
-        	logBuilder.append("\n\tsshUrl = "+rootNode.path(DATA).path("ssh_url").getTextValue().substring(6));
-        	logBuilder.append("\n\tuuid= "+rootNode.path(DATA).path("uuid").getTextValue());
-        	logBuilder.append("\n\tgit_url = "+rootNode.path(DATA).path("git_url").getTextValue());
-        	logBuilder.append("\n\tapp_url= "+rootNode.path(DATA).path("app_url").getTextValue());
-        	logBuilder.append("\n\tgear_count= "+rootNode.path(DATA).path("gear_count") );
-        	logBuilder.append("\n\tgear_profile= "+rootNode.path(DATA).path("gear_profile").getTextValue() );
+        private Element logAppDetails(String appName, JsonNode rootNode) {
+            String sshUrl = rootNode.path(DATA).path(SSH_URL).getTextValue().substring(6);
+            String gitUrl = rootNode.path(DATA).path(GIT_URL).getTextValue();
+            String appUrl = rootNode.path(DATA).path(APP_URL).getTextValue();
+            logBuilder.append("\n\tdomain_id= "+rootNode.path(DATA).path(DOMAIN_ID).getTextValue());
+            logBuilder.append("\n\tcurrent_ip (external) = "+rootNode.path("messages").path(1).path("text").getTextValue());
+            logBuilder.append("\n\tinternal_ip = TO_DO:  openshift API does not provide in response");
+            logBuilder.append("\n\tsshUrl = "+sshUrl);
+            logBuilder.append("\n\tuuid= "+rootNode.path(DATA).path(UUID).getTextValue());
+            logBuilder.append("\n\tgit_url = "+gitUrl);
+            logBuilder.append("\n\tapp_url= "+appUrl);
+            logBuilder.append("\n\tgear_count= "+rootNode.path(DATA).path(GEAR_COUNT) );
+            logBuilder.append("\n\tgear_profile= "+rootNode.path(DATA).path(GEAR_PROFILE).getTextValue() );
+            
+            Element appNameElement = accountDetailsDoc.createElement(appName);
+            
+            Element sshElement = accountDetailsDoc.createElement(SSH_URL);
+             appNameElement.appendChild(sshElement);
+             Node sshNode = accountDetailsDoc.createTextNode(sshUrl);
+             sshElement.appendChild(sshNode);
+             
+             Element gitElement = accountDetailsDoc.createElement(GIT_URL);
+             appNameElement.appendChild(gitElement);
+             Node gitNode = accountDetailsDoc.createTextNode(gitUrl);
+             gitElement.appendChild(gitNode);
+             
+             Element appUrlElement = accountDetailsDoc.createElement(APP_URL);
+             appNameElement.appendChild(appUrlElement);
+             Node appNode = accountDetailsDoc.createTextNode(appUrl);
+             appUrlElement.appendChild(appNode);
+             
+             accountNode.appendChild(appNameElement);
+             return appNameElement;
         }
         private void dumpResponseToFile(String fileName) throws Exception {
-        	if(!dumpResponseToFile)
-        		return;
-        	
-        	FileOutputStream fStream = null;
-        	try{
-        		if(!dumpDirCreated){
-        			File dirObj = new File(openshiftDumpDir);
-        			if(!dirObj.exists()){
-        				dirObj.mkdirs(); 
-        			}
-        			dumpDirCreated = true;
-        		}
-        		File fileObj = new File(openshiftDumpDir+fileName+".dump");
-        		fStream = new FileOutputStream(fileObj, false);
-        		fStream.write(body.getBytes());
-        	}finally {
-        		if(fStream != null)
-        			fStream.close();
-        	}
+            if(!dumpResponseToFile)
+                return;
+            
+            FileOutputStream fStream = null;
+            try{
+                if(!dumpDirCreated){
+                    File dirObj = new File(openshiftDumpDir);
+                    if(!dirObj.exists()){
+                        dirObj.mkdirs(); 
+                    }
+                    dumpDirCreated = true;
+                }
+                File fileObj = new File(openshiftDumpDir+fileName+".dump");
+                fStream = new FileOutputStream(fileObj, false);
+                fStream.write(body.getBytes());
+            }finally {
+                if(fStream != null)
+                    fStream.close();
+            }
         }
         private void checkResponse(String eventName, HttpResponse response) throws Exception {
             int status = response.getStatusLine().getStatusCode();
@@ -494,8 +558,9 @@ public class ShifterProvisioner {
     }
     
     private static Document createDocument(File fileObj) throws Exception {
-        if(builder == null)
+        if(builder == null){
             builder = factory.newDocumentBuilder();
+        }
         
         FileReader fileReader = null;
         try {
@@ -558,15 +623,15 @@ public class ShifterProvisioner {
         openshiftDumpDir = props.getProperty(OPENSHIFT_DUMP_DIR, "/tmp/openshift/dump/");
         
         if(props.getProperty(REFRESH_DOMAIN) != null)
-        	refreshDomain = Boolean.parseBoolean(props.getProperty(REFRESH_DOMAIN));
+            refreshDomain = Boolean.parseBoolean(props.getProperty(REFRESH_DOMAIN));
         if(props.getProperty(CREATE_PFP_CORE) != null)
-        	createPfpCore = Boolean.parseBoolean(props.getProperty(CREATE_PFP_CORE));
+            createPfpCore = Boolean.parseBoolean(props.getProperty(CREATE_PFP_CORE));
         if(props.getProperty(CREATE_BRMS_WEBS) != null)
-        	createBrmsWebs = Boolean.parseBoolean(props.getProperty(CREATE_BRMS_WEBS));
+            createBrmsWebs = Boolean.parseBoolean(props.getProperty(CREATE_BRMS_WEBS));
         if(props.getProperty(OPENSHIFT_PFP_CORE_SCALED_APP) != null)
-        	openshiftPfpCoreScaledApp = Boolean.parseBoolean(props.getProperty(OPENSHIFT_PFP_CORE_SCALED_APP));
+            openshiftPfpCoreScaledApp = Boolean.parseBoolean(props.getProperty(OPENSHIFT_PFP_CORE_SCALED_APP));
         if(props.getProperty(DUMP_RESPONSE_TO_FILE) != null)
-        	dumpResponseToFile = Boolean.parseBoolean(props.getProperty(DUMP_RESPONSE_TO_FILE));
+            dumpResponseToFile = Boolean.parseBoolean(props.getProperty(DUMP_RESPONSE_TO_FILE));
 
         StringBuilder sBuilder = new StringBuilder("setProps() props = ");
         sBuilder.append("\n\topenshiftRestURI = "+openshiftRestURI);
@@ -582,4 +647,27 @@ public class ShifterProvisioner {
         sBuilder.append("\n\topenshift.dump.dir = "+openshiftDumpDir);
         log.info(sBuilder.toString());
     }
+}
+
+/*
+- if the elements in the XML document are in a namespace, then the XPath expression for querying that document must use the same namespace
+- The XPath expression does not need to use the same prefixes, only the same namespace URIs
+- Indeed, when the XML document uses the default namespace, the XPath expression must use a prefix even though the target document does not.
+- However, Java programs are not XML documents, so normal namespace resolution does not apply
+- Instead provide an object that maps the prefixes to the namespace URIs. This object is an instance of the javax.xml.namespace.NamespaceContext interface
+*/
+class AccountNameSpaceContext implements NamespaceContext {
+      public String getNamespaceURI(String prefix) {
+        if(prefix == null) {
+          throw new NullPointerException("Null prefix");
+        }
+        return XMLConstants.NULL_NS_URI;
+      }
+     
+      public String getPrefix(String uri) {
+        throw new UnsupportedOperationException();
+      }
+      public Iterator getPrefixes(String uri) {
+        throw new UnsupportedOperationException();
+      }
 }

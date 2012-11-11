@@ -13,6 +13,7 @@
     <target name="openshift.json.parser" depends="openshiftCompile" description="">
         <java fork="yes" classname="org.jboss.processFlow.openshift.JsonParser" failonerror="true">
             <sysproperty key="log4j.configuration" value="file:conf/test/log4j.xml" />
+            <sysproperty key="openshift.account.details.file.location" value="${openshift.account.details.file.location}.test" />
             <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${org.jboss.processFlow.client.debuggerPort},server=y,suspend=n" />
             <classpath refid="sub.classpath"/>
         </java>
