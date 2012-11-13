@@ -1,34 +1,35 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.example.org/openshift_accounts_details" xmlns:tns="http://www.example.org/openshift_accounts_details" elementFormDefault="qualified">
-
-    
-
-
-
-    <element name="openshiftAccounts"
-    	type="tns:openshiftAccountsType">
-    </element>
-
-
-    
-
-    <complexType name="openshiftAccountsType">
-    	<sequence>
-    		<element name="account" type="tns:accountType"
-    			maxOccurs="unbounded" minOccurs="1">
-    		</element>
-    	</sequence>
-    </complexType>
-
-    <complexType name="accountType">
-    	<sequence>
-    		<element name="accountId" type="string" maxOccurs="1"
-    			minOccurs="1">
-    		</element>
-    		<element name="password" type="string" maxOccurs="1"
-    			minOccurs="1">
-    		</element>
-    		<element name="domainId" type="string" maxOccurs="1" minOccurs="1"></element>
-    	</sequence>
-    </complexType>
-</schema>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://www.example.org/openshift_accounts_details" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="openshiftAccounts">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="account">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element type="xs:string" name="accountId"/>
+              <xs:element type="xs:string" name="password"/>
+              <xs:element type="xs:string" name="domainId"/>
+              <xs:element name="pfpCore">
+                <xs:complexType>
+                  <xs:choice maxOccurs="unbounded" minOccurs="0">
+                    <xs:element type="xs:string" name="ssh_url"/>
+                    <xs:element type="xs:string" name="git_url"/>
+                    <xs:element type="xs:string" name="app_url"/>
+                  </xs:choice>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="brmsWebs">
+                <xs:complexType>
+                  <xs:choice maxOccurs="unbounded" minOccurs="0">
+                    <xs:element type="xs:string" name="ssh_url"/>
+                    <xs:element type="xs:string" name="git_url"/>
+                    <xs:element type="xs:string" name="app_url"/>
+                  </xs:choice>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
