@@ -177,14 +177,14 @@ provisionAccounts() {
     for i in `xmlstarlet sel -t -n -m '//openshiftAccounts/account' -o 'openshift.domain.name=' -v 'accountId' -n /home/jbride/redhat/openshift/openshift_account_details.xml.test`; 
     do 
         printf "\n$i\n"; 
-        echo -n "" > target/openshift.account.properties
+        echo -n "" > target/openshiftAccount.properties
         xmlstarlet sel -t -n -m '//openshiftAccounts/account' -n \
-        -o 'openshift.domain.name=' -v "accountId" -n \
+        -o 'openshift.domain.name=' -v "domainId" -n \
         -o 'openshift.pfpCore.user.hash=' -v "pfpCore/uuid" -n \
         -o 'openshift.pfpCore.internal.ip=' -v "pfpCore/internal_ip" -n \
         -o 'openshift.brmsWebs.user.hash=' -v "brmsWebs/uuid" -n \
         -o 'openshift.brmsWebs.internal.ip=' -v "brmsWebs/internal_ip" -n \
-        /home/jbride/redhat/openshift/openshift_account_details.xml.test >> target/openshift.account.properties
+        /home/jbride/redhat/openshift/openshift_account_details.xml.test >> target/openshiftAccount.properties
 
         ant openshift.provision.both
     done

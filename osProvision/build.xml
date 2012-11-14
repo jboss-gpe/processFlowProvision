@@ -36,7 +36,7 @@
     </target>
     <target name="openshiftCompile" depends="openshiftClean" >
         <mkdir dir="${subproject.build}" />
-        <copy file="build.properties" tofile="${subproject.build}/openshift.pfp.properties" overwrite="true" >
+        <copy file="openshift.properties" tofile="${subproject.build}/openshift.pfp.properties" overwrite="true" >
             <filterchain><expandproperties/></filterchain>
         </copy>
         <copy file="${subproject.name}/src/main/resources/openshift_account_details.xsd" todir="${subproject.build}" />

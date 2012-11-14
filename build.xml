@@ -2,7 +2,9 @@
 
     <property environment="ENV"/>
     <property file="build.properties" />
-    <property file="${development.base}/${build.dir}/openshift.account.properties" />
+
+    <property file="target/openshiftAccount.properties" />
+    <property file="openshift.properties" />
 
     <import file="base-build.xml"/>
     <import file="openshift-build.xml" />
