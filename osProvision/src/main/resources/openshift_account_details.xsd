@@ -8,21 +8,23 @@
               <xs:element type="xs:string" name="accountId"/>
               <xs:element type="xs:string" name="password"/>
               <xs:element type="xs:string" name="domainId"/>
-              <xs:element name="pfpCore">
+              <xs:element name="pfpCore" maxOccurs="1" minOccurs="0">
                 <xs:complexType>
                   <xs:choice maxOccurs="unbounded" minOccurs="0">
                     <xs:element type="xs:string" name="ssh_url"/>
                     <xs:element type="xs:string" name="git_url"/>
                     <xs:element type="xs:string" name="app_url"/>
+                    <xs:element type="xs:string" name="internal_ip"/>
                   </xs:choice>
                 </xs:complexType>
               </xs:element>
-              <xs:element name="brmsWebs">
+              <xs:element name="brmsWebs" maxOccurs="1" minOccurs="0">
                 <xs:complexType>
                   <xs:choice maxOccurs="unbounded" minOccurs="0">
                     <xs:element type="xs:string" name="ssh_url"/>
                     <xs:element type="xs:string" name="git_url"/>
                     <xs:element type="xs:string" name="app_url"/>
+                    <xs:element type="xs:string" name="internal_ip"/>
                   </xs:choice>
                 </xs:complexType>
               </xs:element>

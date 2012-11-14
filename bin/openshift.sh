@@ -168,12 +168,34 @@ push() {
     git push $domainName master
 }
 
+function provisionIndividualAccount() {
+    echo "hello"
+}
+
+
+provisionAccounts() {
+    for i in `xmlstarlet sel -t -n -m '//openshiftAccounts/account' -o 'openshift.domain.name=' -v 'accountId' -n /home/jbride/redhat/openshift/openshift_account_details.xml.test`; 
+    do 
+        printf "\n$i\n"; 
+        echo -n "" > target/openshift.account.properties
+        xmlstarlet sel -t -n -m '//openshiftAccounts/account' -n \
+        -o 'openshift.domain.name=' -v "accountId" -n \
+        -o 'openshift.pfpCore.user.hash=' -v "pfpCore/uuid" -n \
+        -o 'openshift.pfpCore.internal.ip=' -v "pfpCore/internal_ip" -n \
+        -o 'openshift.brmsWebs.user.hash=' -v "brmsWebs/uuid" -n \
+        -o 'openshift.brmsWebs.internal.ip=' -v "brmsWebs/internal_ip" -n \
+        /home/jbride/redhat/openshift/openshift_account_details.xml.test >> target/openshift.account.properties
+
+        ant openshift.provision.both
+    done
+}
+
 
 case "$1" in
-    startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand)
+    startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|provisionAccounts)
         $1
         ;;
     *)
-    echo 1>&2 $"Usage: $0 {startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand}"
+    echo 1>&2 $"Usage: $0 {startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|provisionAccounts}"
     exit 1
 esac

@@ -113,6 +113,7 @@ public class ShifterProvisioner {
     public static final String PASSWORD = "password";
     public static final String DOMAIN_ID = "domain_id";
     public static final String SSH_URL = "ssh_url";
+    public static final String INTERNAL_IP="internal_ip";
     public static final String UUID = "uuid";
     public static final String GIT_URL = "git_url";
     public static final String APP_URL = "app_url";
@@ -173,9 +174,10 @@ public class ShifterProvisioner {
         File xmlFile = new File(openshiftAccountDetailsFile);
         if(!xmlFile.exists())
             throw new RuntimeException("provisionAccounts() can't find xml file: "+openshiftAccountDetailsFile);
+        //validateAccountDetailsXmlFile();
         accountDetailsDoc = createDocument(xmlFile);
         XPath xpath = XPathFactory.newInstance().newXPath();
-        xpath.setNamespaceContext(new AccountNameSpaceContext());
+        //xpath.setNamespaceContext(new AccountNameSpaceContext());
         XPathExpression expression = xpath.compile("/openshiftAccounts/account");
         accountsList = (NodeList)expression.evaluate(accountDetailsDoc, XPathConstants.NODESET);
         if(refreshDomain) {
@@ -190,7 +192,6 @@ public class ShifterProvisioner {
                 return;
             }
         }
-        //validateAccountDetailsXmlFile();
         try {
             provisionAccounts();
         }finally {
@@ -242,12 +243,16 @@ public class ShifterProvisioner {
         private String body = null;
         private XPath xpath = null;
         private Node accountNode = null;
+        private XPathExpression findPFPExpression = null;
+        private XPathExpression findBRMSWebsExpression = null;
         
         public ProvisionerThread(Node accountNode) throws Exception {
             this.accountNode = accountNode;
             xpath = XPathFactory.newInstance().newXPath();
             xpath.setNamespaceContext(new AccountNameSpaceContext());
             XPathExpression expression = xpath.compile("//accountId | //password | //domainId");
+            findPFPExpression = xpath.compile("/account/pfpCore");
+            findBRMSWebsExpression = xpath.compile("/account/brmsWebs");
             NodeList detailList = (NodeList)expression.evaluate(accountNode, XPathConstants.NODESET);
             this.accountId = detailList.item(0).getTextContent();
             this.password = detailList.item(1).getTextContent();
@@ -306,7 +311,7 @@ public class ShifterProvisioner {
             logBuilder.append(dbAddResponseText);
             
             String internalIp = rootNode.path(MESSAGES).path(2).path(TEXT).getTextValue().substring(29);
-            Element internalIpElem = accountDetailsDoc.createElement(SSH_URL);
+            Element internalIpElem = accountDetailsDoc.createElement(INTERNAL_IP);
              appElement.appendChild(internalIpElem);
              Node internalIpNode = accountDetailsDoc.createTextNode(internalIp.substring(0,internalIp.indexOf(":")));
              internalIpElem.appendChild(internalIpNode);
@@ -330,7 +335,7 @@ public class ShifterProvisioner {
             logBuilder.append(dbAddResponseText);
             
             String internalIp = rootNode.path(MESSAGES).path(2).path(TEXT).getTextValue().substring(29);
-            Element internalIpElem = accountDetailsDoc.createElement(SSH_URL);
+            Element internalIpElem = accountDetailsDoc.createElement(INTERNAL_IP);
              appElement.appendChild(internalIpElem);
              Node internalIpNode = accountDetailsDoc.createTextNode(internalIp.substring(0,internalIp.indexOf(":")));
              internalIpElem.appendChild(internalIpNode);
@@ -359,15 +364,16 @@ public class ShifterProvisioner {
             cResponse = osClient.createDomain(domainId);
             consumeEntityAndCheckResponse(CREATE_DOMAIN, cResponse);
         }
-        private Element logAppDetails(String appName, JsonNode rootNode) {
+        private Element logAppDetails(String appName, JsonNode rootNode) throws Exception {
             String sshUrl = rootNode.path(DATA).path(SSH_URL).getTextValue().substring(6);
             String gitUrl = rootNode.path(DATA).path(GIT_URL).getTextValue();
             String appUrl = rootNode.path(DATA).path(APP_URL).getTextValue();
+            String uuid = rootNode.path(DATA).path(UUID).getTextValue();
             logBuilder.append("\n\tdomain_id= "+rootNode.path(DATA).path(DOMAIN_ID).getTextValue());
             logBuilder.append("\n\tcurrent_ip (external) = "+rootNode.path("messages").path(1).path("text").getTextValue());
             logBuilder.append("\n\tinternal_ip = TO_DO:  openshift API does not provide in response");
             logBuilder.append("\n\tsshUrl = "+sshUrl);
-            logBuilder.append("\n\tuuid= "+rootNode.path(DATA).path(UUID).getTextValue());
+            logBuilder.append("\n\tuuid= "+uuid);
             logBuilder.append("\n\tgit_url = "+gitUrl);
             logBuilder.append("\n\tapp_url= "+appUrl);
             logBuilder.append("\n\tgear_count= "+rootNode.path(DATA).path(GEAR_COUNT) );
@@ -375,10 +381,10 @@ public class ShifterProvisioner {
             
             Element appNameElement = accountDetailsDoc.createElement(appName);
             
-            Element sshElement = accountDetailsDoc.createElement(SSH_URL);
-             appNameElement.appendChild(sshElement);
-             Node sshNode = accountDetailsDoc.createTextNode(sshUrl);
-             sshElement.appendChild(sshNode);
+            Element uuidElement = accountDetailsDoc.createElement(UUID);
+             appNameElement.appendChild(uuidElement);
+             Node uuidNode = accountDetailsDoc.createTextNode(uuid);
+             uuidElement.appendChild(uuidNode);
              
              Element gitElement = accountDetailsDoc.createElement(GIT_URL);
              appNameElement.appendChild(gitElement);
@@ -390,7 +396,15 @@ public class ShifterProvisioner {
              Node appNode = accountDetailsDoc.createTextNode(appUrl);
              appUrlElement.appendChild(appNode);
              
-             accountNode.appendChild(appNameElement);
+             Node existingChildNode = null;
+             if(PFP_CORE.equals(appName))
+            	 existingChildNode = (Node)findPFPExpression.evaluate(accountNode, XPathConstants.NODE);
+             else
+            	 existingChildNode = (Node)findBRMSWebsExpression.evaluate(accountNode, XPathConstants.NODE);
+             if(existingChildNode != null)
+            	 accountNode.replaceChild(appNameElement, existingChildNode);
+             else
+            	 accountNode.appendChild(appNameElement);
              return appNameElement;
         }
         private void dumpResponseToFile(String fileName) throws Exception {

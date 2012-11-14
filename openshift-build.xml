@@ -1,6 +1,5 @@
 <project name="pfp-openshift" >
 
-    
     <target name="openshift.provision.both" description="" >
         <antcall target="openshift.provision.brms.webs" />
         <antcall target="openshift.provision.pfp.core" />
