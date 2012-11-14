@@ -174,7 +174,7 @@ public class ShifterProvisioner {
         File xmlFile = new File(openshiftAccountDetailsFile);
         if(!xmlFile.exists())
             throw new RuntimeException("provisionAccounts() can't find xml file: "+openshiftAccountDetailsFile);
-        //validateAccountDetailsXmlFile();
+        validateAccountDetailsXmlFile();
         accountDetailsDoc = createDocument(xmlFile);
         XPath xpath = XPathFactory.newInstance().newXPath();
         //xpath.setNamespaceContext(new AccountNameSpaceContext());

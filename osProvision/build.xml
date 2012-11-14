@@ -1,7 +1,7 @@
-<project name="osProvision" default="openshift.provision.accounts" >
+<project name="osProvision" default="openshift.provision.empty.accounts" >
 
 
-    <target name="openshift.provision.accounts" depends="openshiftCompile" description="">
+    <target name="openshift.provision.empty.accounts" depends="openshiftCompile" description="">
         <java fork="yes" classname="org.jboss.processFlow.openshift.ShifterProvisioner" failonerror="true">
             <jvmarg value="-Xms16m" />
             <jvmarg value="-Xmx64m" />

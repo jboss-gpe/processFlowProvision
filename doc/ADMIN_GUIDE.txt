@@ -623,8 +623,21 @@ openshift provisioning
 
   - procedure :
     - cd $PFP_HOME
-    - vi build.properties
+    - vi openshift.properties
         - familiarize yourself with the properties that begin with a prefix of 'openshift'
-    - create an xml file containing openshift account details
-        - modify value of 'openshift.account.details.file.location' property in $PFP_HOME/build.properties if needed
-    - ant openshift.provision.accounts
+        - in particular, create or modify the file referenced by the following property:  openshift.account.details.file.location
+
+    - ant openshift.provision.empty.accounts
+        - reads as input the contents of ${openshift.account.details.file.location}
+        - multi-threaded java standalone app to provision empty pfpCore and brmsWebs apps in each account
+        if(openshift.account.refresh.domain)
+            - will blow away any pre-existing accounts in openshift with the same account names defined in ${openshift.account.details.file.location}
+        if(openshift.account.create.pfp.core)
+            - will create pfpCore application with postgresql database
+        if(openshift.account.create.brms.webs)
+            - will create brmsWebs application with postgresql database
+
+    - ./bin/openshift.sh provisionAccountsWithPFP
+        - reads as input the contents of ${openshift.account.details.file.location} and loops with every account
+        - uploads pfpCore and brmsWebs binaries
+        - modifies pfpCore and brmsWebs configuration settings

@@ -173,7 +173,7 @@ function provisionIndividualAccount() {
 }
 
 
-provisionAccounts() {
+provisionAccountsWithPFP() {
     for i in `xmlstarlet sel -t -n -m '//openshiftAccounts/account' -o 'openshift.domain.name=' -v 'accountId' -n /home/jbride/redhat/openshift/openshift_account_details.xml.test`; 
     do 
         printf "\n$i\n"; 
@@ -192,10 +192,10 @@ provisionAccounts() {
 
 
 case "$1" in
-    startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|provisionAccounts)
+    startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|provisionAccountsWithPFP)
         $1
         ;;
     *)
-    echo 1>&2 $"Usage: $0 {startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|provisionAccounts}"
+    echo 1>&2 $"Usage: $0 {startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|provisionAccountsWithPFP}"
     exit 1
 esac

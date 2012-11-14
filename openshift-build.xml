@@ -1,13 +1,13 @@
 <project name="pfp-openshift" >
 
-    <target name="openshift.provision.both" description="" >
+    <target name="openshift.provision.both" >
         <echo message="service repository = ${service.repository}" />
         <echo message="openshift.domain.name = ${openshift.domain.name}" />
         <antcall target="openshift.provision.brms.webs" />
         <antcall target="openshift.provision.pfp.core" />
     </target>
 
-    <target name="openshift.provision.pfp.core" description="" >
+    <target name="openshift.provision.pfp.core" >
         <delete dir="${openshift.pfpCore.app.location}" />
         <mkdir dir="${openshift.app.dir}" />
         <exec executable="git" failonerror="true" >
@@ -63,7 +63,7 @@
         </exec> 
     </target>
 
-    <target name="openshift.provision.brms.webs" description="" >
+    <target name="openshift.provision.brms.webs" >
         <delete dir="${openshift.brmsWebs.app.location}" />
         <mkdir dir="${openshift.app.dir}" />
         <exec executable="git" failonerror="true" >
