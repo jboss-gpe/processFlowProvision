@@ -48,6 +48,9 @@ do
         -remoteDir=*)
             remoteDir=`echo $var | cut -f2 -d\=`
             ;;
+        -osAccountDetailsFileLocation=*)
+            osAccountDetailsFileLocation=`echo $var | cut -f2 -d\=`
+            ;;
     esac
 done
 
@@ -173,8 +176,13 @@ function provisionIndividualAccount() {
 }
 
 
+# loops through accounts in ${openshift.account.details.file.location}, creates an Ant property file invokes the 'openshift.provision.both' target
 provisionAccountsWithPFP() {
-    for i in `xmlstarlet sel -t -n -m '//openshiftAccounts/account' -o 'openshift.domain.name=' -v 'accountId' -n /home/jbride/redhat/openshift/openshift_account_details.xml.test`; 
+    if [ "x$osAccountDetailsFileLocation" = "x" ]; then
+        osAccountDetailsFileLocation=$HOME/redhat/openshift/openshift_account_details.xml
+    fi
+    echo openshift.account.details.file.location = $osAccountDetailsFileLocation
+    for i in `xmlstarlet sel -t -n -m '//openshiftAccounts/account' -o 'openshift.domain.name=' -v 'accountId' -n $osAccountDetailsFileLocation`; 
     do 
         printf "\n$i\n"; 
         echo -n "" > target/openshiftAccount.properties
@@ -188,6 +196,9 @@ provisionAccountsWithPFP() {
 
         ant openshift.provision.both
     done
+
+    # will now set 'is.deployment.local' to false .... this property will only exist in an openshift deployment
+    echo -n "is.deployment.local=false" >> target/openshiftAccount.properties
 }
 
 

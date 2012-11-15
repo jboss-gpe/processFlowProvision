@@ -282,16 +282,8 @@
 
     <target name="resolve.local.or.openshift.properties" >
         <if>
-            <equals arg1="${is.deployment.local}" arg2="true" />
+            <equals arg1="${is.deployment.local}" arg2="false" />
             <then>
-                <property name="jbpm.console.server.host" value="${os.hostname}"/>
-                <property name="jbpm.console.server.port" value="${brms.webs.http.port}"/>
-                <property name="jbpm.conf.dir" value="${pfp.module.path}/org/jbpm/configuration/main"/>
-                <property name="guvnor.host" value="${os.hostname}:${brms.webs.http.port}"/>
-                <property name="guvnor.external.host" value="${guvnor.host}"/>
-                <property name="org.jboss.processFlow.remoting.ejb.receiver" value="${local.org.jboss.processFlow.remoting.ejb.receiver}"/>
-            </then>
-            <else>
                 <property name="jbpm.console.server.host" value="${openshift.pfpCore.uri}"/>
                 <property name="jbpm.console.server.port" value="80"/>
                 <property name="jbpm.conf.dir" value="/var/lib/stickshift/${openshift.pfpCore.user.hash}/pfpCore/${openshift.jboss.cartridge.type}/standalone/configuration/modules/org/jbpm/configuration/main"/>
@@ -300,6 +292,14 @@
                 <property name="org.jboss.processFlow.remoting.ejb.receiver" value=""/>
                 <property name="openshift.drools.session.template.path" 
                         value="${openshift.pfpCore.home.dir}/${openshift.jboss.cartridge.type}/${openshift.jboss.cartridge.type}/standalone/configuration/drools.session.template"/>
+            </then>
+            <else>
+                <property name="jbpm.console.server.host" value="${os.hostname}"/>
+                <property name="jbpm.console.server.port" value="${brms.webs.http.port}"/>
+                <property name="jbpm.conf.dir" value="${pfp.module.path}/org/jbpm/configuration/main"/>
+                <property name="guvnor.host" value="${os.hostname}:${brms.webs.http.port}"/>
+                <property name="guvnor.external.host" value="${guvnor.host}"/>
+                <property name="org.jboss.processFlow.remoting.ejb.receiver" value="${local.org.jboss.processFlow.remoting.ejb.receiver}"/>
             </else>
         </if>
     </target>

@@ -605,14 +605,14 @@ BIRT reporting
 openshift provisioning
   - purpose :
     - in addition to the automated provisioning of a local EAP6 environment, PFP allows for the automated provisioning of one or more remote openshift accounts
-    - the openshift provisioning functionality offered by PFP will provision each account in parrellel.
 
   - implementation approach
     - PFP is a client to one or more remote openshift accounts
-    - PFP uses account information provided in a xml file to provision each of those accounts
+    - PFP uses account information provided in a xml file to provision an empty 'pfpCore' and 'brmsWebs' applications (based on the jbosseap-6.0 cartridge) of those accounts
     - PFP does so using the REST API exposed by Openshift as documented here :  
             http://docs.redhat.com/docs/en-US/OpenShift/2.0/html-single/REST_API_Guide/#chap-API_Guide-Add_Domain
-    - PFP also customizes each EAP6 & postgresql application in each openshift account via ssh, rsync and git
+    - the provisioning of multipe openshift accounts with empty applications can happen in parrellel
+    - after each account has been provisioned with the empty pfpCore and brmsWebs applications, PFP then customizes each app with BRMS related components via ssh, rsync and git
 
   - pre-requisites : (applicable to both the public openshift as well as an internal Origin PaaS)
     1)  create one or more accounts with the following
@@ -622,11 +622,13 @@ openshift provisioning
         d)  accountId can not contain any special characters
 
   - procedure :
-    - cd $PFP_HOME
+    - cd $PFP_HOME in local environment
     - vi openshift.properties
         - familiarize yourself with the properties that begin with a prefix of 'openshift'
         - in particular, create or modify the file referenced by the following property:  openshift.account.details.file.location
-
+        - the schema that defines the structure of ${openshift.account.details.file.location} can be found in: 
+                $PFP_HOME/osProvision/src/main/resources/openshift_account_details.xsd
+    
     - ant openshift.provision.empty.accounts
         - reads as input the contents of ${openshift.account.details.file.location}
         - multi-threaded java standalone app to provision empty pfpCore and brmsWebs apps in each account
