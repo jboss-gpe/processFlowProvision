@@ -66,10 +66,10 @@ public class KSessionHttp {
      */
     @PUT
     @Path("/kbase")
-    public Response createKnowledgeBaseViaKnowledgeAgentOrBuilder() {
+    public Response createOrRebuildKnowledgeBaseViaKnowledgeAgentOrBuilder() {
         ResponseBuilder builder = Response.ok();
         try {
-            kProxy.createKnowledgeBaseViaKnowledgeAgentOrBuilder();
+            kProxy.createOrRebuildKnowledgeBaseViaKnowledgeAgentOrBuilder();
         }catch(RuntimeException x){
             builder = Response.status(Status.SERVICE_UNAVAILABLE);
         }

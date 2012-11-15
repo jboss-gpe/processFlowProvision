@@ -379,6 +379,15 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
             rebuildKnowledgeBaseViaKnowledgeBuilder();
         }
     }
+
+    public void createOrRebuildKnowledgeBaseViaKnowledgeAgentOrBuilder() {
+        try {
+            this.createKnowledgeBaseViaKnowledgeAgent(true);
+        }catch(ConnectException x){
+            log.warn("createKnowledgeBaseViaKnowledgeAgentOrBuilder() can not create a kbase via a kagent due to a connection problem with guvnor ... will now create kbase via knowledgeBuilder");
+            rebuildKnowledgeBaseViaKnowledgeBuilder();
+        }
+    }
     
     public void rebuildKnowledgeBaseViaKnowledgeAgent() throws ConnectException{
         this.createKnowledgeBaseViaKnowledgeAgent(true);
@@ -390,8 +399,8 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
     // only one knowledgeBase object is needed and is shared amongst all StatefulKnowledgeSessions
     // needs to be invoked AFTER guvnor is available (obviously)
     // setting 'force' parameter to true re-creates an existing kbase
-    private synchronized void createKnowledgeBaseViaKnowledgeAgent(boolean force) throws ConnectException{
-        if(kbase != null && !force)
+    private synchronized void createKnowledgeBaseViaKnowledgeAgent(boolean forceRefresh) throws ConnectException{
+        if(kbase != null && !forceRefresh)
             return;
 
         // investigate:  List<String> guvnorPackages = guvnorUtils.getBuiltPackageNames();
@@ -514,7 +523,7 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
     
     public String printKnowledgeBaseContent() {
         if(kbase == null)
-            throw new RuntimeException("printKnowledgeBaseContent() ... kbase has not yet been instantiated");
+            createKnowledgeBaseViaKnowledgeAgentOrBuilder();
 
         StringBuilder sBuilder = new StringBuilder();
         sBuilder.append("guvnor changesets:\n\t");

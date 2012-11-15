@@ -138,7 +138,7 @@ public interface IKnowledgeSessionService extends IBaseKnowledgeSessionService {
      * initial attempt is to create kbase via guvnor through a knowledgeAgent
      * if that fails, then fall back is to create kbase via knowledgeBuilder
      */
-    public void createKnowledgeBaseViaKnowledgeAgentOrBuilder();
+    public void createOrRebuildKnowledgeBaseViaKnowledgeAgentOrBuilder();
     /**
      *return a snapshot of all process definitions that the KnowledgeBase is currently aware of
      */
