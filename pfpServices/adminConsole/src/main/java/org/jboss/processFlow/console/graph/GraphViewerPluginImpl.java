@@ -56,6 +56,8 @@ import org.jboss.bpm.console.client.model.DiagramInfo;
 import org.jboss.bpm.console.client.model.DiagramNodeInfo;
 import org.jboss.processFlow.bam.IBAMService;
 import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
+import org.jboss.processFlow.knowledgeService.SerializableNodeMetaData;
+import org.jboss.processFlow.knowledgeService.SerializableProcessMetaData;
 import org.jbpm.process.audit.NodeInstanceLog;
 import org.jbpm.process.audit.ProcessInstanceLog;
 
@@ -136,8 +138,8 @@ public class GraphViewerPluginImpl extends org.jbpm.integration.console.graph.Gr
     }
 
     public DiagramInfo getDiagramInfo(String processId) {
-        Process process = null; //ksessionProxy.getProcess(processId);
-        if (process == null) {
+        SerializableProcessMetaData processMeta = ksessionProxy.getProcess(processId);
+        if (processMeta == null) {
             return null;
         }
 
@@ -146,29 +148,17 @@ public class GraphViewerPluginImpl extends org.jbpm.integration.console.graph.Gr
         result.setWidth(932);
         result.setHeight(541);
         List<DiagramNodeInfo> nodeList = new ArrayList<DiagramNodeInfo>();
-        if (process instanceof WorkflowProcess) {
-            addNodesInfo(nodeList, ((WorkflowProcess) process).getNodes(), "id=");
-        }
+        addNodesInfo(nodeList, processMeta, "id=");
         result.setNodeList(nodeList);
         return result;
     }
     
-    private void addNodesInfo(List<DiagramNodeInfo> nodeInfos, Node[] nodes, String prefix) {
-        for (Node node: nodes) {
-        	
-        	// JA Bride:  AsyncBAMProducer has been modified from stock jbpm5 to persist the "uniqueNodeId" in the jbpm_bam database
-        	//  (as opposed to persisting just the simplistic nodeId)
-        	//  will need to invoke same functionality here to calculate 'uniqueNodeId' 
-        	String uniqueId = org.jbpm.bpmn2.xml.XmlBPMNProcessDumper.getUniqueNodeId(node);
-            nodeInfos.add(new DiagramNodeInfo(
-                uniqueId,
-                (Integer) node.getMetaData().get("x"),
-                (Integer) node.getMetaData().get("y"),
-                (Integer) node.getMetaData().get("width"),
-                (Integer) node.getMetaData().get("height")));
-            if (node instanceof NodeContainer) {
-                addNodesInfo(nodeInfos, ((NodeContainer) node).getNodes(), prefix + node.getId() + ":");
-            }
+    private void addNodesInfo(List<DiagramNodeInfo> nodeInfos, SerializableProcessMetaData processMeta, String prefix) {
+        for (SerializableNodeMetaData node: processMeta.getNodes()) {
+            nodeInfos.add(new DiagramNodeInfo(node.getUniqueId(),node.getX(),node.getY(),node.getWidth(),node.getHeight()));
+            //if (node instanceof NodeContainer) {
+            //   addNodesInfo(nodeInfos, ((NodeContainer) node).getNodes(), prefix + node.getId() + ":");
+            //}
         }
     }
 }

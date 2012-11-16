@@ -1105,36 +1105,30 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
         SerializableProcessMetaData spObj = new SerializableProcessMetaData(processObj.getId(), processObj.getName(), pVersion, processObj.getPackageName());
         if (processObj instanceof org.drools.definition.process.WorkflowProcess) {
             List<SerializableNodeMetaData> snList = spObj.getNodes();
-            for(Node nodeObj : ((WorkflowProcess)processObj).getNodes()) {
-                // JA Bride:  AsyncBAMProducer has been modified from stock jbpm5 to persist the "uniqueNodeId" in the jbpm_bam database
-                //  (as opposed to persisting just the simplistic nodeId)
-                //  will need to invoke same functionality here to calculate 'uniqueNodeId' 
-                String uniqueId = org.jbpm.bpmn2.xml.XmlBPMNProcessDumper.getUniqueNodeId(nodeObj);
-                SerializableNodeMetaData snObj = new SerializableNodeMetaData(
-                        (Integer)nodeObj.getMetaData().get(SerializableNodeMetaData.X),
-                        (Integer)nodeObj.getMetaData().get(SerializableNodeMetaData.Y),
-                        (Integer)nodeObj.getMetaData().get(SerializableNodeMetaData.HEIGHT),
-                        (Integer)nodeObj.getMetaData().get(SerializableNodeMetaData.WIDTH),
-                        uniqueId                                                      
-                        );
-                snList.add(snObj);
-            }
+            addNodesInfo(snList, processObj, spObj, "id=");
         }
         return spObj;
     }
-
-    public Process getProcessByName(String name) throws Exception {
-        if(kbase == null)
-            createKnowledgeBaseViaKnowledgeAgent();
-        for (KnowledgePackage kpackage: kbase.getKnowledgePackages()) {
-            for (Process process: kpackage.getProcesses()) {
-                if (name.equals(process.getName())) {
-                    return process;
-                }
-            }
-        }
-        return null;
+    private void addNodesInfo(List<SerializableNodeMetaData> snList, Process processObj, SerializableProcessMetaData processMeta, String prefix) {
+    	for(Node nodeObj : ((WorkflowProcess)processObj).getNodes()) {
+    		// JA Bride:  AsyncBAMProducer has been modified from stock jbpm5 to persist the "uniqueNodeId" in the jbpm_bam database
+    		//  (as opposed to persisting just the simplistic nodeId)
+    		//  will need to invoke same functionality here to calculate 'uniqueNodeId' 
+    		String uniqueId = org.jbpm.bpmn2.xml.XmlBPMNProcessDumper.getUniqueNodeId(nodeObj);
+    		SerializableNodeMetaData snObj = new SerializableNodeMetaData(
+    				(Integer)nodeObj.getMetaData().get(SerializableNodeMetaData.X),
+    				(Integer)nodeObj.getMetaData().get(SerializableNodeMetaData.Y),
+    				(Integer)nodeObj.getMetaData().get(SerializableNodeMetaData.HEIGHT),
+    				(Integer)nodeObj.getMetaData().get(SerializableNodeMetaData.WIDTH),
+    				uniqueId                                                      
+    				);
+    		snList.add(snObj);
+    		//if (node instanceof NodeContainer) {
+    		//  addNodesInfo(nodeInfos, ((NodeContainer) node).getNodes(), prefix + node.getId() + ":");
+    		//}
+    	}
     }
+    
 
     public void removeProcess(String processId) {
         throw new UnsupportedOperationException();
