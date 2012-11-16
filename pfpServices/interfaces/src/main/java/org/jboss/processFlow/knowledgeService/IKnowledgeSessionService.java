@@ -66,6 +66,9 @@ public interface IKnowledgeSessionService extends IBaseKnowledgeSessionService {
     public static final String SPACE_DELIMITED_PROCESS_EVENT_LISTENERS = "space.delimited.process.event.listeners";
     public static final String TASK_CLEAN_UP_PROCESS_EVENT_LISTENER_IMPL="task.clean.up.process.event.listener.impl";
     public static final String PROCESS_ID = "processid";
+    public static final String PROCESS_NAME="processName";
+    public static final String PROCESS_VERSION="processVersion";
+    public static final String PACKAGE_NAME="packageName";
     public static final String PROCESS_INSTANCE_ID = "processInstanceId";
     public static final String KSESSION_ID = "ksessionId";
     public static final String WORK_ITEM_ID = "workItemId";
@@ -154,7 +157,7 @@ public interface IKnowledgeSessionService extends IBaseKnowledgeSessionService {
     /**
      *retrieve a list of all Process definition objects that the KnowledgeBase is currently aware of
      */
-    public List<Process> retrieveProcesses() throws Exception ;
+    public List<SerializableProcessMetaData> retrieveProcesses() throws Exception ;
 
     public void addProcessToKnowledgeBase(Process processObj, Resource resourceObj);
 
@@ -169,8 +172,7 @@ public interface IKnowledgeSessionService extends IBaseKnowledgeSessionService {
      */
     public List<ProcessInstance> getActiveProcessInstances(Map<String,Object> queryCriteria);
 
-    public Process                  getProcess(String processId);
-    public Process                  getProcessByName(String name) throws Exception;
+    public SerializableProcessMetaData getProcess(String processId);
     public void                     removeProcess(String processId);
     
     public String                   printActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId);

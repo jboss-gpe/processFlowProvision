@@ -136,7 +136,7 @@ public class GraphViewerPluginImpl extends org.jbpm.integration.console.graph.Gr
     }
 
     public DiagramInfo getDiagramInfo(String processId) {
-        Process process = ksessionProxy.getProcess(processId);
+        Process process = null; //ksessionProxy.getProcess(processId);
         if (process == null) {
             return null;
         }

@@ -192,9 +192,10 @@ provisionAccountsWithPFP() {
         -o 'openshift.pfpCore.internal.ip=' -v "pfpCore/internal_ip" -n \
         -o 'openshift.brmsWebs.user.hash=' -v "brmsWebs/uuid" -n \
         -o 'openshift.brmsWebs.internal.ip=' -v "brmsWebs/internal_ip" -n \
-        /home/jbride/redhat/openshift/openshift_account_details.xml.test >> target/openshiftAccount.properties
+        $osAccountDetailsFileLocation >> target/openshiftAccount.properties
 
-        ant openshift.provision.both
+        #ant openshift.provision.both
+        ant openshift.provision.pfp.core
     done
 
     # will now set 'is.deployment.local' to false .... this property will only exist in an openshift deployment

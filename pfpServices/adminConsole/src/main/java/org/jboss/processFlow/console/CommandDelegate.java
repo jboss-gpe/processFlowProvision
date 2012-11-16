@@ -33,6 +33,7 @@ import javax.naming.InitialContext;
 import org.drools.definition.process.Process;
 import org.jboss.processFlow.bam.IBAMService;
 import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
+import org.jboss.processFlow.knowledgeService.SerializableProcessMetaData;
 import org.jbpm.process.audit.ProcessInstanceLog;
 import org.jboss.processFlow.util.PFPServicesLookupUtil;
 
@@ -51,7 +52,7 @@ public class CommandDelegate {
         bamProxy = PFPServicesLookupUtil.getBamProxy();
     }
     
-    public List<Process> getProcesses() {
+    public List<SerializableProcessMetaData> getProcesses() {
         try {
             return ksessionProxy.retrieveProcesses();
         } catch(RuntimeException x) {
@@ -61,7 +62,7 @@ public class CommandDelegate {
         }
     }
     
-    public Process getProcess(String processId) {
+    public SerializableProcessMetaData getProcess(String processId) {
         try {
             return ksessionProxy.getProcess(processId);
         } catch(RuntimeException x) {
@@ -71,16 +72,6 @@ public class CommandDelegate {
         }
     }
     
-    public Process getProcessByName(String name) {
-        try {
-            return ksessionProxy.getProcessByName(name);
-        } catch(RuntimeException x) {
-            throw x;
-        } catch(Exception x) {
-            throw new RuntimeException(x);
-        }
-    }
-
     public void removeProcess(String processId) {
         throw new UnsupportedOperationException();
     }

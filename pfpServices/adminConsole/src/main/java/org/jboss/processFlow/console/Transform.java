@@ -27,23 +27,22 @@ import org.jboss.bpm.console.client.model.ProcessDefinitionRef;
 import org.jboss.bpm.console.client.model.ProcessInstanceRef;
 import org.jboss.bpm.console.client.model.TaskRef;
 import org.jboss.bpm.console.client.model.TokenReference;
+import org.jboss.processFlow.knowledgeService.SerializableProcessMetaData;
 import org.jbpm.process.audit.ProcessInstanceLog;
 import org.jbpm.task.I18NText;
 import org.jbpm.task.Task;
 import org.jbpm.task.query.TaskSummary;
 
 public class Transform {
-	
-	public static ProcessDefinitionRef processDefinition(Process process) {
-		long version = 0;
-		try {
-			version = new Long(process.getVersion());
-		} catch (NumberFormatException e) {
-			// Do nothing, keep version 0
-		}
-		ProcessDefinitionRef result = new ProcessDefinitionRef(
-			process.getId(), process.getName(), version);
-		result.setPackageName(process.getPackageName());
+
+        /**
+         * JA Bride:  modified to accept Map rather than Process (which may not be Serializable
+         *             which will cause issues between EJB remoting layers
+         */
+	public static ProcessDefinitionRef processDefinition(SerializableProcessMetaData pMetaData) {
+		long version = pMetaData.getProcessVersion();
+		ProcessDefinitionRef result = new ProcessDefinitionRef(pMetaData.getProcessId(),pMetaData.getProcessName(), version);
+		result.setPackageName(pMetaData.getPackageName());
 		result.setDeploymentId("N/A");
 		return result;
 	}

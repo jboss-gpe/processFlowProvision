@@ -40,7 +40,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.ejb.*;
-import javax.ejb.LockType;
 import javax.management.ObjectName;
 import javax.management.MBeanServer;
 import javax.transaction.UserTransaction;
@@ -74,6 +73,8 @@ import org.drools.compiler.PackageBuilder;
 import org.drools.definition.process.Process;
 import org.drools.definitions.impl.KnowledgePackageImp;
 import org.drools.definition.KnowledgePackage;
+import org.drools.definition.process.WorkflowProcess;
+import org.drools.definition.process.Node;
 import org.drools.event.*;
 import org.drools.event.process.ProcessCompletedEvent;
 import org.drools.event.process.ProcessEventListener;
@@ -1078,21 +1079,48 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
     
 /******************************************************************************
 *************              Process Definition Management              *********/
-    public List<Process> retrieveProcesses() throws Exception {
-        List<Process> result = new ArrayList<Process>();
+    public List<SerializableProcessMetaData> retrieveProcesses() throws Exception {
+        List<SerializableProcessMetaData> result = new ArrayList<SerializableProcessMetaData>();
         if(kbase == null)
             createKnowledgeBaseViaKnowledgeAgent();
         for (KnowledgePackage kpackage: kbase.getKnowledgePackages()) {
-            result.addAll(kpackage.getProcesses());
+            for(Process processObj : kpackage.getProcesses()){
+                Long pVersion = 0L;
+                if(!StringUtils.isEmpty(processObj.getVersion()))
+                    pVersion = Long.parseLong(processObj.getVersion());
+                result.add(getProcess(processObj.getId()));
+            }
         }
         log.info("getProcesses() # of processes = "+result.size());
         return result;
     }
 
-    public Process getProcess(String processId) {
+    public SerializableProcessMetaData getProcess(String processId) {
         if(kbase == null)
             createKnowledgeBaseViaKnowledgeAgentOrBuilder();
-        return kbase.getProcess(processId);
+        Process processObj = kbase.getProcess(processId);
+        Long pVersion = 0L;
+        if(!StringUtils.isEmpty(processObj.getVersion()))
+            pVersion = Long.parseLong(processObj.getVersion());
+        SerializableProcessMetaData spObj = new SerializableProcessMetaData(processObj.getId(), processObj.getName(), pVersion, processObj.getPackageName());
+        if (processObj instanceof org.drools.definition.process.WorkflowProcess) {
+            List<SerializableNodeMetaData> snList = spObj.getNodes();
+            for(Node nodeObj : ((WorkflowProcess)processObj).getNodes()) {
+                // JA Bride:  AsyncBAMProducer has been modified from stock jbpm5 to persist the "uniqueNodeId" in the jbpm_bam database
+                //  (as opposed to persisting just the simplistic nodeId)
+                //  will need to invoke same functionality here to calculate 'uniqueNodeId' 
+                String uniqueId = org.jbpm.bpmn2.xml.XmlBPMNProcessDumper.getUniqueNodeId(nodeObj);
+                SerializableNodeMetaData snObj = new SerializableNodeMetaData(
+                        (Integer)nodeObj.getMetaData().get(SerializableNodeMetaData.X),
+                        (Integer)nodeObj.getMetaData().get(SerializableNodeMetaData.Y),
+                        (Integer)nodeObj.getMetaData().get(SerializableNodeMetaData.HEIGHT),
+                        (Integer)nodeObj.getMetaData().get(SerializableNodeMetaData.WIDTH),
+                        uniqueId                                                      
+                        );
+                snList.add(snObj);
+            }
+        }
+        return spObj;
     }
 
     public Process getProcessByName(String name) throws Exception {

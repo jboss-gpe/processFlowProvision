@@ -31,6 +31,7 @@ import org.jboss.bpm.console.client.model.ProcessDefinitionRef;
 import org.jboss.bpm.console.client.model.ProcessInstanceRef;
 import org.jboss.bpm.console.client.model.ProcessInstanceRef.RESULT;
 import org.jboss.bpm.console.client.model.ProcessInstanceRef.STATE;
+import org.jboss.processFlow.knowledgeService.SerializableProcessMetaData;
 import org.jbpm.process.audit.ProcessInstanceLog;
 
 public class ProcessManagement implements org.jboss.bpm.console.server.integration.ProcessManagement {
@@ -42,16 +43,16 @@ public class ProcessManagement implements org.jboss.bpm.console.server.integrati
     }
     
     public List<ProcessDefinitionRef> getProcessDefinitions() {
-        List<Process> processes = delegate.getProcesses();
+        List<SerializableProcessMetaData> processes = delegate.getProcesses();
         List<ProcessDefinitionRef> result = new ArrayList<ProcessDefinitionRef>();
-        for (Process process: processes) {
+        for (SerializableProcessMetaData process: processes) {
             result.add(Transform.processDefinition(process));
         }
         return result;
     }
 
     public ProcessDefinitionRef getProcessDefinition(String definitionId) {
-        Process process = delegate.getProcess(definitionId);
+        SerializableProcessMetaData process = delegate.getProcess(definitionId);
         return Transform.processDefinition(process);
     }
 

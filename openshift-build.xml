@@ -31,7 +31,7 @@
             <param name="config.path" value="${openshift.pfpCore.app.location}/.openshift/config"/>
         </antcall>
         <antcall target="explode.jbpm.gwt.console" />
-        <copy todir="${openshift.pfpCore.app.location}/deployments">
+        <copy todir="${openshift.pfpCore.app.location}/deployments" overwrite="true" >
             <fileset dir="${temp.pfp.services.dir}" >
                 <include name="*.jar" />
                 <include name="*.war" />

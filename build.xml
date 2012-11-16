@@ -3,9 +3,6 @@
     <property environment="ENV"/>
     <property file="build.properties" />
 
-    <property file="target/openshiftAccount.properties" />
-    <property file="openshift.properties" />
-
     <import file="base-build.xml"/>
     <import file="openshift-build.xml" />
     <import file="sy-build.xml" />
