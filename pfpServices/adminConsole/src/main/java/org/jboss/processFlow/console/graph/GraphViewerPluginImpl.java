@@ -148,17 +148,17 @@ public class GraphViewerPluginImpl extends org.jbpm.integration.console.graph.Gr
         result.setWidth(932);
         result.setHeight(541);
         List<DiagramNodeInfo> nodeList = new ArrayList<DiagramNodeInfo>();
-        addNodesInfo(nodeList, processMeta, "id=");
+        addNodesInfo(nodeList, processMeta.getNodes(), "id=");
         result.setNodeList(nodeList);
         return result;
     }
     
-    private void addNodesInfo(List<DiagramNodeInfo> nodeInfos, SerializableProcessMetaData processMeta, String prefix) {
-        for (SerializableNodeMetaData node: processMeta.getNodes()) {
+    private void addNodesInfo(List<DiagramNodeInfo> nodeInfos, List<SerializableNodeMetaData> nodes, String prefix) {
+        for (SerializableNodeMetaData node: nodes) {
             nodeInfos.add(new DiagramNodeInfo(node.getUniqueId(),node.getX(),node.getY(),node.getWidth(),node.getHeight()));
-            //if (node instanceof NodeContainer) {
-            //   addNodesInfo(nodeInfos, ((NodeContainer) node).getNodes(), prefix + node.getId() + ":");
-            //}
+            if (node.getNodes().size() > 0) {
+               addNodesInfo(nodeInfos, node.getNodes(), prefix + node.getUniqueId() + ":");
+            }
         }
     }
 }

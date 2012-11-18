@@ -1,6 +1,8 @@
 package org.jboss.processFlow.knowledgeService;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SerializableNodeMetaData implements Serializable {
     public static final String X = "x";
@@ -38,11 +40,20 @@ public class SerializableNodeMetaData implements Serializable {
     public void setWidth(Integer width) {
         this.width = width;
     }
+    public List<SerializableNodeMetaData> getNodes() {
+		return nodes;
+	}
+
+	public void setNodes(List<SerializableNodeMetaData> nodes) {
+		this.nodes = nodes;
+	}
+    
     private Integer x;
     private Integer y;
     private Integer height;
     private Integer width;
     private String uniqueId;
+    private List<SerializableNodeMetaData> nodes = new ArrayList();
     
     public SerializableNodeMetaData(Integer x, Integer y, Integer height, Integer width, String uniqueId){
         this.x = x;

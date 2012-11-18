@@ -101,6 +101,7 @@ import org.drools.runtime.process.WorkItemHandler;
 import org.jbpm.process.audit.ProcessInstanceLog;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
+import org.jbpm.workflow.core.NodeContainer;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.jbpm.workflow.instance.node.SubProcessNodeInstance;
 import org.jbpm.compiler.ProcessBuilderImpl;
@@ -1104,13 +1105,13 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
             pVersion = Long.parseLong(processObj.getVersion());
         SerializableProcessMetaData spObj = new SerializableProcessMetaData(processObj.getId(), processObj.getName(), pVersion, processObj.getPackageName());
         if (processObj instanceof org.drools.definition.process.WorkflowProcess) {
-            List<SerializableNodeMetaData> snList = spObj.getNodes();
-            addNodesInfo(snList, processObj, spObj, "id=");
+            Node[] nodes = ((WorkflowProcess)processObj).getNodes();
+            addNodesInfo(spObj.getNodes(), nodes, "id=");
         }
         return spObj;
     }
-    private void addNodesInfo(List<SerializableNodeMetaData> snList, Process processObj, SerializableProcessMetaData processMeta, String prefix) {
-    	for(Node nodeObj : ((WorkflowProcess)processObj).getNodes()) {
+    private void addNodesInfo(List<SerializableNodeMetaData> snList, Node[] nodes, String prefix) {
+    	for(Node nodeObj : nodes) {
     		// JA Bride:  AsyncBAMProducer has been modified from stock jbpm5 to persist the "uniqueNodeId" in the jbpm_bam database
     		//  (as opposed to persisting just the simplistic nodeId)
     		//  will need to invoke same functionality here to calculate 'uniqueNodeId' 
@@ -1123,9 +1124,9 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
     				uniqueId                                                      
     				);
     		snList.add(snObj);
-    		//if (node instanceof NodeContainer) {
-    		//  addNodesInfo(nodeInfos, ((NodeContainer) node).getNodes(), prefix + node.getId() + ":");
-    		//}
+    		if (nodeObj instanceof NodeContainer) {
+    		    addNodesInfo(snObj.getNodes(), ((NodeContainer)nodeObj).getNodes(), prefix + nodeObj.getId() + ":");
+    		}
     	}
     }
     
