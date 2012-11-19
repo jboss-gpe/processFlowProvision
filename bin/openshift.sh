@@ -194,12 +194,13 @@ provisionAccountsWithPFP() {
         -o 'openshift.brmsWebs.internal.ip=' -v "brmsWebs/internal_ip" -n \
         $osAccountDetailsFileLocation >> target/openshiftAccount.properties
 
+        # will now set 'is.deployment.local' to false .... this property will only exist in an openshift deployment
+        echo -n "is.deployment.local=false" >> target/openshiftAccount.properties
+
         #ant openshift.provision.both
         ant openshift.provision.pfp.core
     done
 
-    # will now set 'is.deployment.local' to false .... this property will only exist in an openshift deployment
-    echo -n "is.deployment.local=false" >> target/openshiftAccount.properties
 }
 
 
