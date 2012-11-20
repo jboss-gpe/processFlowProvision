@@ -473,9 +473,13 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
                 List<String> packages = guvnorUtils.getPackageNames();
                 for(String pkg : packages){
                     GuvnorRestApi guvnorRestApi = new GuvnorRestApi(guvnorURI);
-                    InputStream binaryPackage = guvnorRestApi.getBinaryPackage(pkg);
-                    kbuilder.add(new InputStreamResource(binaryPackage), ResourceType.PKG);
-                    guvnorRestApi.close();
+                    try {
+                        InputStream binaryPackage = guvnorRestApi.getBinaryPackage(pkg);
+                        kbuilder.add(new InputStreamResource(binaryPackage), ResourceType.PKG);
+                        guvnorRestApi.close();
+                    } catch(java.io.IOException y) {
+                        log.error("rebuildKnowledgeBaseViaKnowledgeBuilder() returned following exception when querying package = "+pkg+" : "+y);
+                    }
                 }
             }
             kbase = kbuilder.newKnowledgeBase();

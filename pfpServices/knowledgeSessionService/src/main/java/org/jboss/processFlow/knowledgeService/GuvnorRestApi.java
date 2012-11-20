@@ -7,8 +7,11 @@ import javax.ws.rs.core.MediaType;
 
 import sun.misc.BASE64Encoder;
 
+import org.apache.log4j.Logger;
+
 public class GuvnorRestApi {
-    
+   
+    private Logger log = Logger.getLogger("GuvnorRestApi"); 
     private String guvnorURI;
     private InputStream iStream;
     
@@ -16,8 +19,9 @@ public class GuvnorRestApi {
         this.guvnorURI = guvnorURI;
     }
     
-    public InputStream getBinaryPackage(String packageName) throws Exception {
-        URL url = new URL(guvnorURI + "/rest/packages/"+packageName+"/binary");
+    public InputStream getBinaryPackage(String packageName) throws java.io.IOException {
+        String urlString = guvnorURI + "/rest/packages/"+packageName+"/binary";
+        URL url = new URL(urlString);
         HttpURLConnection connection = (HttpURLConnection)url.openConnection();
         connection.setRequestMethod("GET");
         connection.setRequestProperty("Accept", MediaType.APPLICATION_OCTET_STREAM);
@@ -28,9 +32,7 @@ public class GuvnorRestApi {
         connection.setRequestProperty("Authorization", "Basic "+encodedAuth);
         
         connection.connect();
-        if(connection.getResponseCode() != 200){
-            throw new Exception("Bad response code: "+connection.getResponseCode());
-        }
+        log.info("getBinaryPackage() response code for GET request to : "+urlString+" is : "+connection.getResponseCode());
         iStream = connection.getInputStream();
         return iStream;
     }
