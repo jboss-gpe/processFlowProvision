@@ -1,12 +1,3 @@
 #!/bin/bash
 
-createSoftLinksToWebArchives() {
-    echo -en "createSoftLinksToWebArchives() \n";
-    cd $OPENSHIFT_RUNTIME_DIR/repo/deployments; 
-    ln -s ~/$OPENSHIFT_GEAR_TYPE/tmp/deployments/${designer.name}
-    touch ${designer.name}.dodeploy
-    ln -s ~/$OPENSHIFT_GEAR_TYPE/tmp/deployments/${guvnor.name}
-    touch ${guvnor.name}.dodeploy
-}
-
-createSoftLinksToWebArchives
+echo "** inside deploy"

@@ -197,8 +197,9 @@ provisionAccountsWithPFP() {
         # will now set 'is.deployment.local' to false .... this property will only exist in an openshift deployment
         echo -n "is.deployment.local=false" >> target/openshiftAccount.properties
 
-        #ant openshift.provision.both
-        ant openshift.provision.pfp.core
+        ant openshift.provision.both
+        #ant openshift.provision.pfp.core
+        #ant openshift.provision.brms.webs
     done
 
 }

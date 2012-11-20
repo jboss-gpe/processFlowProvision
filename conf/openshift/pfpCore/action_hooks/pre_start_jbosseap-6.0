@@ -1,3 +1,34 @@
 #!/bin/bash
 
 echo "** inside pre_start_jbosseap-6.0 "
+
+cleanRuntime() {
+    if [ -e $HOME/$OPENSHIFT_GEAR_TYPE/$OPENSHIFT_GEAR_TYPE/standalone/log/server.log ]
+    then
+        echo -en "cleanRuntime() \n";
+        rm $HOME/$OPENSHIFT_GEAR_TYPE/$OPENSHIFT_GEAR_TYPE/standalone/log/server.log
+    fi
+}
+
+createSoftLinksToWebArchives() {
+    cd $OPENSHIFT_RUNTIME_DIR/repo/deployments;
+    echo -en "createSoftLinksToWebArchives() will now create soft links \n";
+
+    if [ -e ${console.server.name} ]
+    then
+        rm ${console.server.name}
+    fi
+    ln -s ~/$OPENSHIFT_GEAR_TYPE/tmp/deployments/${console.server.name}
+    touch ${console.server.name}.dodeploy
+
+
+    if [ -e ${console.name} ]
+    then
+        rm ${console.name}
+    fi
+    ln -s ~/$OPENSHIFT_GEAR_TYPE/tmp/deployments/${console.name}
+    touch ${console.name}.dodeploy
+}
+
+cleanRuntime
+createSoftLinksToWebArchives
