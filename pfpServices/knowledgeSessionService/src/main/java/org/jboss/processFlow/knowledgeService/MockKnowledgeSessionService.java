@@ -38,9 +38,9 @@ public class MockKnowledgeSessionService implements IBaseKnowledgeSessionService
         log.info("disposeStatefulKnowledgeSessionAndExtras() ksessionId = "+sessionId);
     }
 
-	@Override
-	public void signalEvent(String type, Object event, Long processInstanceId, Integer ksessionId) {
-		log.info("signalEvent() type = "+type+" : pInstanceId = "+processInstanceId+" : ksessionId = "+ksessionId);
-	}
+    @Override
+    public void signalEvent(String type, Object event, Long processInstanceId, Integer ksessionId) {
+        log.info("signalEvent() type = "+type+" : pInstanceId = "+processInstanceId+" : ksessionId = "+ksessionId);
+    }
 
 }

@@ -41,12 +41,12 @@ public class SerializableNodeMetaData implements Serializable {
         this.width = width;
     }
     public List<SerializableNodeMetaData> getNodes() {
-		return nodes;
-	}
+        return nodes;
+    }
 
-	public void setNodes(List<SerializableNodeMetaData> nodes) {
-		this.nodes = nodes;
-	}
+    public void setNodes(List<SerializableNodeMetaData> nodes) {
+        this.nodes = nodes;
+    }
     
     private Integer x;
     private Integer y;

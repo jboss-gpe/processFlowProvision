@@ -24,16 +24,16 @@ package org.jboss.processFlow.console;
 
 public class ManagementFactory extends org.jboss.bpm.console.server.integration.ManagementFactory {
 
-	public ProcessManagement createProcessManagement() {
-		return new ProcessManagement();
-	}
+    public ProcessManagement createProcessManagement() {
+        return new ProcessManagement();
+    }
 
-	public TaskManagement createTaskManagement() {
-		return new TaskManagement();
-	}
+    public TaskManagement createTaskManagement() {
+        return new TaskManagement();
+    }
 
-	public UserManagement createUserManagement() {
-		return new UserManagement();
-	}
+    public UserManagement createUserManagement() {
+        return new UserManagement();
+    }
 
 }

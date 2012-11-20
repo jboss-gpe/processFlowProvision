@@ -62,73 +62,73 @@ public class LogSystemEventListener implements SystemEventListener
     
     protected Logger getLogger()
     {
-    	return logger;
+        return logger;
     }
     
     protected String getMessagePrefix()
     {
-    	return message_prefix;
+        return message_prefix;
     }
     
     private final String format(String message)
     {
-    	return new StringBuilder()
-	    	.append(getMessagePrefix())
-	    	.append(String.valueOf(message))
-	    	.append(suffix)
-	    	.toString();
+        return new StringBuilder()
+            .append(getMessagePrefix())
+            .append(String.valueOf(message))
+            .append(suffix)
+            .toString();
     }
     
     private final String format(String message, Object object)
     {
-    	return new StringBuilder()
-    		.append(getMessagePrefix())
-    		.append(String.valueOf(message))
-    		.append(suffix)
-    		.append(object_prefix)
-    		.append(String.valueOf(object))
-    		.append(suffix)
-    		.toString();
+        return new StringBuilder()
+            .append(getMessagePrefix())
+            .append(String.valueOf(message))
+            .append(suffix)
+            .append(object_prefix)
+            .append(String.valueOf(object))
+            .append(suffix)
+            .toString();
     }
 
-	public final void info(String message)
-	{
-		getLogger().info(format(message));
-	}
+    public final void info(String message)
+    {
+        getLogger().info(format(message));
+    }
 
-	public final void info(String message, Object object)
-	{
-		getLogger().info(format(message, object));
-	}
+    public final void info(String message, Object object)
+    {
+        getLogger().info(format(message, object));
+    }
 
-	public final void warning(String message)
-	{
-		getLogger().warn(format(message));
-	}
+    public final void warning(String message)
+    {
+        getLogger().warn(format(message));
+    }
 
-	public final void warning(String message, Object object)
-	{
-		getLogger().warn(format(message, object));
-	}
-	
-	public final void exception(Throwable e)
-	{
-		getLogger().error(format(e.getMessage()), e);
-	}
+    public final void warning(String message, Object object)
+    {
+        getLogger().warn(format(message, object));
+    }
+    
+    public final void exception(Throwable e)
+    {
+        getLogger().error(format(e.getMessage()), e);
+    }
 
-	public final void exception(String message, Throwable e)
-	{
-		getLogger().error(format(message), e);
-	}
+    public final void exception(String message, Throwable e)
+    {
+        getLogger().error(format(message), e);
+    }
 
-	public final void debug(String message)
-	{
-		getLogger().debug(format(message));
-	}
+    public final void debug(String message)
+    {
+        getLogger().debug(format(message));
+    }
 
-	public final void debug(String message, Object object)
-	{
-		getLogger().debug(format(message, object));
-	}
+    public final void debug(String message, Object object)
+    {
+        getLogger().debug(format(message, object));
+    }
 
 }

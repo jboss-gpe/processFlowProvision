@@ -23,15 +23,15 @@ public class PFPFailTaskHandler extends BasePFPTaskHandler implements WorkItemHa
     public static final Logger log = Logger.getLogger("PFPFailTaskHandler");
 
     public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
-    	TaskChangeDetails changeDetails = (TaskChangeDetails)workItem.getParameter(TaskChangeDetails.TASK_CHANGE_DETAILS);
-    	if(changeDetails == null)
-    		throw new RuntimeException("executeWorkItem() must supply a workItem parameter of : "+TaskChangeDetails.TASK_CHANGE_DETAILS);
-    	
-    	long taskId = changeDetails.getTaskId();
-    	String reason = changeDetails.getReason();
-    	changeDetails.setNewStatus(Status.Failed);
-    	
-    	// places task in a status of "Failed" and continues work flow execution of "task" branch
+        TaskChangeDetails changeDetails = (TaskChangeDetails)workItem.getParameter(TaskChangeDetails.TASK_CHANGE_DETAILS);
+        if(changeDetails == null)
+            throw new RuntimeException("executeWorkItem() must supply a workItem parameter of : "+TaskChangeDetails.TASK_CHANGE_DETAILS);
+        
+        long taskId = changeDetails.getTaskId();
+        String reason = changeDetails.getReason();
+        changeDetails.setNewStatus(Status.Failed);
+        
+        // places task in a status of "Failed" and continues work flow execution of "task" branch
         taskProxy.failTask(taskId, workItem.getParameters(), null, reason, false);
         
         // executes kSessionProxy.completeWorkItem(...) so as to continue execution of "signaled" branch

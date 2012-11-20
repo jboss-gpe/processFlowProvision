@@ -82,17 +82,17 @@ public class KnowledgeSessionMDB implements MessageListener {
                 log.info("onMessage() about to startProcessInstance for processId = "+processId);
                 Map<String, Object> responseFromKProxy = kProxy.startProcessAndReturnId(processId, pInstanceVariables);
                 if(mObj.getJMSReplyTo() != null){
-                	Session producerSession = null;
+                    Session producerSession = null;
                     try {
-                		producerSession = connectObj.createSession(false, Session.AUTO_ACKNOWLEDGE);
+                        producerSession = connectObj.createSession(false, Session.AUTO_ACKNOWLEDGE);
                         Message mResponse = producerSession.createObjectMessage((Serializable) responseFromKProxy);
                         mResponse.setJMSCorrelationID(mObj.getJMSCorrelationID());
                         mResponse.setStringProperty(IKnowledgeSessionService.NODE_ID, jbossNodeName);
                         MessageProducer producer = producerSession.createProducer(null);
                         producer.send(mObj.getJMSReplyTo(), mResponse);
                     }finally{
-                    	if(producerSession != null)
-                    		producerSession.close();
+                        if(producerSession != null)
+                            producerSession.close();
                     }
                 }
                 

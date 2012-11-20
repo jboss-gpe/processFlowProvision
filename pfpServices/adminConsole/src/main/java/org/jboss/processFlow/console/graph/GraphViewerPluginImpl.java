@@ -129,7 +129,7 @@ public class GraphViewerPluginImpl extends org.jbpm.integration.console.graph.Gr
                     throw new IllegalArgumentException("Could not find diagramInfo for "+processInstance.getProcessId());
                 }
                 if (!found) {
-                	throw new IllegalArgumentException("Could not find diagram info for: "+ nodeInstance.getNodeName() + " nodeId = "+nodeId+" : process " + processInstance.getProcessId());
+                    throw new IllegalArgumentException("Could not find diagram info for: "+ nodeInstance.getNodeName() + " nodeId = "+nodeId+" : process " + processInstance.getProcessId());
                 }
             }
             return result;

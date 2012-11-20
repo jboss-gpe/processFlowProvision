@@ -55,7 +55,7 @@ public interface OpenshiftClient {
     @Consumes("test/plain")
     @Produces("application/json")
     ClientResponse<String>addCartridge(@PathParam("domainId")String domainId,
-    									@PathParam("appId")String appId,
-    									@QueryParam("cartridge") String cartridgeType);
+                                        @PathParam("appId")String appId,
+                                        @QueryParam("cartridge") String cartridgeType);
 
 }

@@ -735,23 +735,23 @@ public class BaseKnowledgeSessionService {
             return spObj;
         }
         private void addNodesInfo(List<SerializableNodeMetaData> snList, Node[] nodes, String prefix) {
-        	for(Node nodeObj : nodes) {
-        		// JA Bride:  AsyncBAMProducer has been modified from stock jbpm5 to persist the "uniqueNodeId" in the jbpm_bam database
-        		//  (as opposed to persisting just the simplistic nodeId)
-        		//  will need to invoke same functionality here to calculate 'uniqueNodeId' 
-        		String uniqueId = org.jbpm.bpmn2.xml.XmlBPMNProcessDumper.getUniqueNodeId(nodeObj);
-        		SerializableNodeMetaData snObj = new SerializableNodeMetaData(
-        				(Integer)nodeObj.getMetaData().get(SerializableNodeMetaData.X),
-        				(Integer)nodeObj.getMetaData().get(SerializableNodeMetaData.Y),
-        				(Integer)nodeObj.getMetaData().get(SerializableNodeMetaData.HEIGHT),
-        				(Integer)nodeObj.getMetaData().get(SerializableNodeMetaData.WIDTH),
-        				uniqueId                                                      
-        				);
-        		snList.add(snObj);
-        		if (nodeObj instanceof NodeContainer) {
-        		    addNodesInfo(snObj.getNodes(), ((NodeContainer)nodeObj).getNodes(), prefix + nodeObj.getId() + ":");
-        		}
-        	}
+            for(Node nodeObj : nodes) {
+                // JA Bride:  AsyncBAMProducer has been modified from stock jbpm5 to persist the "uniqueNodeId" in the jbpm_bam database
+                //  (as opposed to persisting just the simplistic nodeId)
+                //  will need to invoke same functionality here to calculate 'uniqueNodeId' 
+                String uniqueId = org.jbpm.bpmn2.xml.XmlBPMNProcessDumper.getUniqueNodeId(nodeObj);
+                SerializableNodeMetaData snObj = new SerializableNodeMetaData(
+                        (Integer)nodeObj.getMetaData().get(SerializableNodeMetaData.X),
+                        (Integer)nodeObj.getMetaData().get(SerializableNodeMetaData.Y),
+                        (Integer)nodeObj.getMetaData().get(SerializableNodeMetaData.HEIGHT),
+                        (Integer)nodeObj.getMetaData().get(SerializableNodeMetaData.WIDTH),
+                        uniqueId                                                      
+                        );
+                snList.add(snObj);
+                if (nodeObj instanceof NodeContainer) {
+                    addNodesInfo(snObj.getNodes(), ((NodeContainer)nodeObj).getNodes(), prefix + nodeObj.getId() + ":");
+                }
+            }
         }
     
     public void removeProcess(String processId) {

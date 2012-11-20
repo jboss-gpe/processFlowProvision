@@ -99,30 +99,30 @@ public class BAMService implements IBAMService, MessageListener {
 
     @PostConstruct
     public void start() throws Exception {
-    	//ConnectionFactory cFactory = MessagingUtil.grabConnectionFactory();
-    	//queue = (Destination)MessagingUtil.grabJMSObject(IBAMService.BAM_QUEUE);
+        //ConnectionFactory cFactory = MessagingUtil.grabConnectionFactory();
+        //queue = (Destination)MessagingUtil.grabJMSObject(IBAMService.BAM_QUEUE);
 
-    	connectObj = cFactory.createConnection();
-    	connectObj.setExceptionListener(new ExceptionListener() {
-    		public void onException(final JMSException e) {
-    			log.error("start() JMSException = "+e.getLocalizedMessage());
-    		}
-    	});
+        connectObj = cFactory.createConnection();
+        connectObj.setExceptionListener(new ExceptionListener() {
+            public void onException(final JMSException e) {
+                log.error("start() JMSException = "+e.getLocalizedMessage());
+            }
+        });
 
-    	sessionObj = connectObj.createSession(true, Session.AUTO_ACKNOWLEDGE);
-    	MessageConsumer mConsumer = sessionObj.createConsumer(queue);
-    	mConsumer.setMessageListener(this);
-    	connectObj.start();
+        sessionObj = connectObj.createSession(true, Session.AUTO_ACKNOWLEDGE);
+        MessageConsumer mConsumer = sessionObj.createConsumer(queue);
+        mConsumer.setMessageListener(this);
+        connectObj.start();
 
-    	if(System.getProperty("hibernate.jdbc.batch_size") != null)
-    		batchSize = Integer.parseInt(System.getProperty("hibernate.jdbc.batch_size"));
+        if(System.getProperty("hibernate.jdbc.batch_size") != null)
+            batchSize = Integer.parseInt(System.getProperty("hibernate.jdbc.batch_size"));
 
-    	log.info("start() batch size = "+batchSize);
+        log.info("start() batch size = "+batchSize);
 
-    	persistManager = jbpmBamEFactory.createEntityManager();
+        persistManager = jbpmBamEFactory.createEntityManager();
 
-    	bamEnv = EnvironmentFactory.newEnvironment();
-    	bamEnv.set(EnvironmentName.ENTITY_MANAGER_FACTORY, jbpmBamEFactory);
+        bamEnv = EnvironmentFactory.newEnvironment();
+        bamEnv.set(EnvironmentName.ENTITY_MANAGER_FACTORY, jbpmBamEFactory);
 
         /**
          *  similar to HumanTaskService, need to suspend JTA trnx 
@@ -130,7 +130,7 @@ public class BAMService implements IBAMService, MessageListener {
          */
         try {
             Transaction suspendedTrnx = tMgr.suspend();
-    	    JPAProcessInstanceDbLog.setEnvironment(bamEnv);
+            JPAProcessInstanceDbLog.setEnvironment(bamEnv);
             tMgr.resume(suspendedTrnx);
         } catch(Exception x) {
             throw new RuntimeException(x);
@@ -138,11 +138,11 @@ public class BAMService implements IBAMService, MessageListener {
     }
 
     public ProcessInstanceLog getProcessInstanceLog(Long processInstanceId) {
-    	return JPAProcessInstanceDbLog.findProcessInstance(processInstanceId);
+        return JPAProcessInstanceDbLog.findProcessInstance(processInstanceId);
     }
 
     public List<ProcessInstanceLog> getProcessInstanceLogsByProcessId(String processId) {
-    	return JPAProcessInstanceDbLog.findProcessInstances(processId);
+        return JPAProcessInstanceDbLog.findProcessInstances(processId);
     }
 
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
@@ -151,7 +151,7 @@ public class BAMService implements IBAMService, MessageListener {
     }
 
     public List<NodeInstanceLog> findNodeInstances(Long processInstanceId) {
-    	return JPAProcessInstanceDbLog.findNodeInstances(processInstanceId);
+        return JPAProcessInstanceDbLog.findNodeInstances(processInstanceId);
     }
 
     public void onMessage(Message message) {
@@ -171,7 +171,7 @@ public class BAMService implements IBAMService, MessageListener {
                 unmarshaller.finish();
 
                 if(persistManager == null)
-                	persistManager = jbpmBamEFactory.createEntityManager();
+                    persistManager = jbpmBamEFactory.createEntityManager();
                 
                 if (logEventType == AsyncBAMProducer.AFTER_SUBPROCESSINSTANCE_CREATED
                         || logEventType == AsyncBAMProducer.AFTER_HUMANTASK_CREATED) {
