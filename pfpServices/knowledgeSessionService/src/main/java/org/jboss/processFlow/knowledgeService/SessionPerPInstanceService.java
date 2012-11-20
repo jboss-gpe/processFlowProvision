@@ -34,18 +34,12 @@ import javax.management.ObjectName;
 import javax.persistence.*;
 
 import org.apache.log4j.Logger;
-import org.apache.commons.lang.StringUtils;
-
 import org.drools.SystemEventListenerFactory;
 import org.drools.core.util.DelegatingSystemEventListener;
 import org.drools.KnowledgeBaseFactory;
 import org.drools.agent.impl.PrintStreamSystemEventListener;
 import org.drools.command.SingleSessionCommandService;
 import org.drools.command.impl.CommandBasedStatefulKnowledgeSession;
-import org.drools.definition.process.Process;
-import org.drools.definition.KnowledgePackage;
-import org.drools.definition.process.WorkflowProcess;
-import org.drools.definition.process.Node;
 import org.drools.event.process.ProcessCompletedEvent;
 import org.drools.event.process.ProcessEventListener;
 import org.drools.event.process.ProcessNodeLeftEvent;
@@ -65,7 +59,6 @@ import org.drools.runtime.process.ProcessInstance;
 import org.drools.runtime.process.WorkItemHandler;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
-import org.jbpm.workflow.core.NodeContainer;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.jbpm.workflow.instance.node.SubProcessNodeInstance;
 import org.jbpm.integration.console.shared.GuvnorConnectionUtils;
@@ -497,14 +490,6 @@ public class SessionPerPInstanceService extends BaseKnowledgeSessionService impl
         //kmanagement.registerKnowledgeSession(((StatefulKnowledgeSessionImpl)ksession).getInternalWorkingMemory());
 
         SingleSessionCommandService ssCommandService = (SingleSessionCommandService) ((CommandBasedStatefulKnowledgeSession)ksession).getCommandService();
-        if(false) {
-            StringBuilder logBuilder = new StringBuilder();
-            logBuilder.append("addExtrasToStatefulKnowledgeSession() extras added to CommandBasedStatefulKnowledgeSession with the following : ");
-            logBuilder.append("\n\tksession id = ");
-            logBuilder.append(ksession.getId());
-            logBuilder.append("\n\tSingleSessionCommandService = "+ssCommandService);
-            log.info(logBuilder.toString());
-        }
     }
 
     private StatefulKnowledgeSession loadStatefulKnowledgeSessionAndAddExtras(Integer sessionId) {
@@ -530,68 +515,7 @@ public class SessionPerPInstanceService extends BaseKnowledgeSessionService impl
     }
     
     
-/******************************************************************************
-*************              Process Definition Management              *********/
-    public List<SerializableProcessMetaData> retrieveProcesses() throws Exception {
-        List<SerializableProcessMetaData> result = new ArrayList<SerializableProcessMetaData>();
-        if(kbase == null)
-            createKnowledgeBaseViaKnowledgeAgent();
-        for (KnowledgePackage kpackage: kbase.getKnowledgePackages()) {
-            for(Process processObj : kpackage.getProcesses()){
-                Long pVersion = 0L;
-                if(!StringUtils.isEmpty(processObj.getVersion()))
-                    pVersion = Long.parseLong(processObj.getVersion());
-                result.add(getProcess(processObj.getId()));
-            }
-        }
-        log.info("getProcesses() # of processes = "+result.size());
-        return result;
-    }
 
-    public SerializableProcessMetaData getProcess(String processId) {
-        if(kbase == null)
-            createKnowledgeBaseViaKnowledgeAgentOrBuilder();
-        Process processObj = kbase.getProcess(processId);
-        Long pVersion = 0L;
-        if(!StringUtils.isEmpty(processObj.getVersion()))
-            pVersion = Long.parseLong(processObj.getVersion());
-        SerializableProcessMetaData spObj = new SerializableProcessMetaData(processObj.getId(), processObj.getName(), pVersion, processObj.getPackageName());
-        if (processObj instanceof org.drools.definition.process.WorkflowProcess) {
-            Node[] nodes = ((WorkflowProcess)processObj).getNodes();
-            addNodesInfo(spObj.getNodes(), nodes, "id=");
-        }
-        return spObj;
-    }
-    private void addNodesInfo(List<SerializableNodeMetaData> snList, Node[] nodes, String prefix) {
-    	for(Node nodeObj : nodes) {
-    		// JA Bride:  AsyncBAMProducer has been modified from stock jbpm5 to persist the "uniqueNodeId" in the jbpm_bam database
-    		//  (as opposed to persisting just the simplistic nodeId)
-    		//  will need to invoke same functionality here to calculate 'uniqueNodeId' 
-    		String uniqueId = org.jbpm.bpmn2.xml.XmlBPMNProcessDumper.getUniqueNodeId(nodeObj);
-    		SerializableNodeMetaData snObj = new SerializableNodeMetaData(
-    				(Integer)nodeObj.getMetaData().get(SerializableNodeMetaData.X),
-    				(Integer)nodeObj.getMetaData().get(SerializableNodeMetaData.Y),
-    				(Integer)nodeObj.getMetaData().get(SerializableNodeMetaData.HEIGHT),
-    				(Integer)nodeObj.getMetaData().get(SerializableNodeMetaData.WIDTH),
-    				uniqueId                                                      
-    				);
-    		snList.add(snObj);
-    		if (nodeObj instanceof NodeContainer) {
-    		    addNodesInfo(snObj.getNodes(), ((NodeContainer)nodeObj).getNodes(), prefix + nodeObj.getId() + ":");
-    		}
-    	}
-    }
-    
-
-    public void removeProcess(String processId) {
-        throw new UnsupportedOperationException();
-    }
-
-    
-    
-    
-    
-    
  
 /******************************************************************************
  *************              Process Instance Management              *********/

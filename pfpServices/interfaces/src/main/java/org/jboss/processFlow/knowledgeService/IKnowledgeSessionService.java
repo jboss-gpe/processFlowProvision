@@ -91,21 +91,6 @@ public interface IKnowledgeSessionService extends IBaseKnowledgeSessionService {
      */
     public String printWorkItemHandlers();
 
-    /**
-     * Signals the process instance that an event has occurred. The type parameter defines
-     * which type of event and the event parameter can contain additional information
-     * related to the event.  All node instances inside the given process instance that
-     * are listening to this type of (internal) event will be notified.  Note that the event
-     * will only be processed inside the given process instance.  All other process instances
-     * waiting for this type of event will not be notified.
-     *
-     * @param type the type of event
-     * @param event the data associated with this event
-     * @param processInstanceId the id of the process instance that should be signaled
-     * @param ksessionId the id of the KnowledgeSession that is managing the lifecycle of the process instance
-     */
-    public void signalEvent(String type, Object event, Long processInstanceId, Integer ksessionId);
-
 
     /**
      * Aborts the process instance with the given id.  If the process instance has been completed

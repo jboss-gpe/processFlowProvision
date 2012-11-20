@@ -1,12 +1,9 @@
 package org.jboss.processFlow.knowledgeService;
 
-import java.io.File;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.ejb.Local;
-import javax.ejb.Remote;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.ejb.TransactionAttribute;
@@ -40,5 +37,10 @@ public class MockKnowledgeSessionService implements IBaseKnowledgeSessionService
     public void disposeStatefulKnowledgeSessionAndExtras(Integer sessionId) {
         log.info("disposeStatefulKnowledgeSessionAndExtras() ksessionId = "+sessionId);
     }
+
+	@Override
+	public void signalEvent(String type, Object event, Long processInstanceId, Integer ksessionId) {
+		log.info("signalEvent() type = "+type+" : pInstanceId = "+processInstanceId+" : ksessionId = "+ksessionId);
+	}
 
 }
