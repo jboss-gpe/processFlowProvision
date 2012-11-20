@@ -22,18 +22,8 @@
 
 package org.jboss.processFlow.knowledgeService;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.io.StringReader;
-import java.io.BufferedReader;
-import java.lang.reflect.Constructor;
 import java.lang.management.ManagementFactory;
-import java.net.ConnectException;
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -41,70 +31,43 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.ejb.*;
 import javax.management.ObjectName;
-import javax.management.MBeanServer;
-import javax.transaction.UserTransaction;
-import javax.transaction.TransactionManager;
-
 import javax.persistence.*;
 
 import org.apache.log4j.Logger;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
-import org.drools.SessionConfiguration;
 import org.drools.SystemEventListenerFactory;
-import org.drools.SystemEventListener;
-import org.drools.builder.KnowledgeBuilder;
-import org.drools.builder.KnowledgeBuilderFactory;
-import org.drools.builder.ResourceType;
 import org.drools.core.util.DelegatingSystemEventListener;
-import org.drools.KnowledgeBase;
 import org.drools.KnowledgeBaseFactory;
-import org.drools.reteoo.ReteooRuleBase;
-import org.drools.WorkingMemory;
-import org.drools.agent.KnowledgeAgentConfiguration;
-import org.drools.agent.KnowledgeAgent;
-import org.drools.agent.KnowledgeAgentFactory;
 import org.drools.agent.impl.PrintStreamSystemEventListener;
 import org.drools.command.SingleSessionCommandService;
 import org.drools.command.impl.CommandBasedStatefulKnowledgeSession;
-import org.drools.command.impl.KnowledgeCommandContext;
-import org.drools.compiler.PackageBuilder;
 import org.drools.definition.process.Process;
-import org.drools.definitions.impl.KnowledgePackageImp;
 import org.drools.definition.KnowledgePackage;
 import org.drools.definition.process.WorkflowProcess;
 import org.drools.definition.process.Node;
-import org.drools.event.*;
 import org.drools.event.process.ProcessCompletedEvent;
 import org.drools.event.process.ProcessEventListener;
 import org.drools.event.process.ProcessNodeLeftEvent;
 import org.drools.event.process.ProcessNodeTriggeredEvent;
 import org.drools.event.process.ProcessStartedEvent;
 import org.drools.event.process.ProcessVariableChangedEvent;
-import org.drools.impl.StatefulKnowledgeSessionImpl;
-import org.drools.impl.KnowledgeBaseImpl;
 import org.drools.io.*;
-import org.drools.io.impl.InputStreamResource;
 import org.drools.logger.KnowledgeRuntimeLogger;
 import org.drools.logger.KnowledgeRuntimeLoggerFactory;
-import org.drools.management.DroolsManagementAgent;
 import org.drools.persistence.jpa.JPAKnowledgeService;
 import org.drools.persistence.jpa.JpaJDKTimerService;
 import org.drools.persistence.jpa.processinstance.JPAWorkItemManagerFactory;
 import org.drools.runtime.KnowledgeSessionConfiguration;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.Environment;
-import org.drools.runtime.EnvironmentName;
 import org.drools.runtime.process.ProcessInstance;
 import org.drools.runtime.process.WorkItemHandler;
-import org.jbpm.process.audit.ProcessInstanceLog;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.jbpm.workflow.core.NodeContainer;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.jbpm.workflow.instance.node.SubProcessNodeInstance;
-import org.jbpm.compiler.ProcessBuilderImpl;
 import org.jbpm.integration.console.shared.GuvnorConnectionUtils;
 import org.jbpm.task.admin.TaskCleanUpProcessEventListener;
 import org.jbpm.task.admin.TasksAdmin;
@@ -116,17 +79,10 @@ import org.jboss.processFlow.knowledgeService.IBaseKnowledgeSessionService;
 import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
 import org.jboss.processFlow.knowledgeService.KnowledgeSessionServiceMXBean;
 import org.jboss.processFlow.tasks.ITaskService;
-import org.jboss.processFlow.workItem.WorkItemHandlerLifecycle;
 import org.jboss.processFlow.util.LogSystemEventListener;
-import org.jboss.processFlow.PFPBaseService;
-import org.mvel2.MVEL;
-import org.mvel2.ParserConfiguration;
-import org.mvel2.ParserContext;
 
 /**
  *<pre>
- *currently, this is the only implementation of org.jboss.processFlow.knowledgeService.IKnowledgeSessionService
- *
  *architecture
  *  - this singleton utilizes a 'processInstance per knowledgeSession' architecture
  *  - although the jbpm5 API technically allows for a StatefulKnowledgeSession to manage the lifecycle of multiple process instances,
@@ -229,41 +185,12 @@ import org.mvel2.ParserContext;
 @Startup
 @Lock(LockType.READ)
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
-public class KnowledgeSessionService extends PFPBaseService implements IKnowledgeSessionService, KnowledgeSessionServiceMXBean {
+public class KnowledgeSessionService extends BaseKnowledgeSessionService implements IKnowledgeSessionService, KnowledgeSessionServiceMXBean {
 
-    private static final String EMF_NAME = "org.jbpm.persistence.jpa";
-    public static final String DROOLS_SESSION_CONF_PATH="/META-INF/drools.session.conf";
-    public static final String DROOLS_SESSION_TEMPLATE_PATH="drools.session.template.path";
-    private static final String DROOLS_WORK_ITEM_HANDLERS = "drools.workItemHandlers";
-    
     private ConcurrentMap<Integer, KnowledgeSessionWrapper> kWrapperHash = new ConcurrentHashMap<Integer, KnowledgeSessionWrapper>();
     private Logger log = Logger.getLogger(KnowledgeSessionService.class);
-    private String droolsResourceScannerInterval = "30";
-    private boolean enableLog = false;
-    private boolean enableKnowledgeRuntimeLogger = true;
-    private Map<String, Class> programmaticallyLoadedWorkItemHandlers = new HashMap<String, Class>();
-
-    private KnowledgeBase kbase = null;
-    private SystemEventListener originalSystemEventListener = null;
-    private DroolsManagementAgent kmanagement = null;
-    private GuvnorConnectionUtils guvnorUtils = null;
     private AsyncBAMProducerPool bamProducerPool=null;
-    private Properties ksconfigProperties;
     private IKnowledgeSessionPool sessionPool;
-    private String[] processEventListeners;
-    private String guvnorChangeSet;
-    private ObjectName objectName;
-    private MBeanServer platformMBeanServer;
-    private Properties guvnorProps;
-    private String taskCleanUpImpl;
-    private String templateString;
-    private boolean sessionTemplateInstantiationAlreadyBombed = false;
-    
-
-    private @PersistenceUnit(unitName=EMF_NAME)  EntityManagerFactory jbpmCoreEMF;
-    private @javax.annotation.Resource UserTransaction uTrnx;
-    private @javax.annotation.Resource(name="java:/TransactionManager") TransactionManager tMgr;
-
 /******************************************************************************
  **************        Singleton Lifecycle Management                     *********/
     @PostConstruct
@@ -358,463 +285,6 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
 
     }
 
-    
-    
-    
-    
-
-/******************************************************************************
- * *************        Drools KnowledgeBase Management               *********/
-    
-    // critical that each StatefulKnowledgeSession have its own JPA 'Environment'
-    private Environment createKnowledgeSessionEnvironment() {
-        Environment env = KnowledgeBaseFactory.newEnvironment();
-        env.set(EnvironmentName.ENTITY_MANAGER_FACTORY, jbpmCoreEMF);
-        return env;
-    }
-    
-    public void createKnowledgeBaseViaKnowledgeAgentOrBuilder() {
-        try {
-            this.createKnowledgeBaseViaKnowledgeAgent();
-        }catch(ConnectException x){
-            log.warn("createKnowledgeBaseViaKnowledgeAgentOrBuilder() can not create a kbase via a kagent due to a connection problem with guvnor ... will now create kbase via knowledgeBuilder");
-            rebuildKnowledgeBaseViaKnowledgeBuilder();
-        }
-    }
-
-    public void createOrRebuildKnowledgeBaseViaKnowledgeAgentOrBuilder() {
-        try {
-            this.createKnowledgeBaseViaKnowledgeAgent(true);
-        }catch(ConnectException x){
-            log.warn("createKnowledgeBaseViaKnowledgeAgentOrBuilder() can not create a kbase via a kagent due to a connection problem with guvnor ... will now create kbase via knowledgeBuilder");
-            rebuildKnowledgeBaseViaKnowledgeBuilder();
-        }
-    }
-    
-    public void rebuildKnowledgeBaseViaKnowledgeAgent() throws ConnectException{
-        this.createKnowledgeBaseViaKnowledgeAgent(true);
-    }
-    private void createKnowledgeBaseViaKnowledgeAgent() throws ConnectException{
-        this.createKnowledgeBaseViaKnowledgeAgent(false);
-    }
-
-    // only one knowledgeBase object is needed and is shared amongst all StatefulKnowledgeSessions
-    // needs to be invoked AFTER guvnor is available (obviously)
-    // setting 'force' parameter to true re-creates an existing kbase
-    private synchronized void createKnowledgeBaseViaKnowledgeAgent(boolean forceRefresh) throws ConnectException{
-        if(kbase != null && !forceRefresh)
-            return;
-
-        // investigate:  List<String> guvnorPackages = guvnorUtils.getBuiltPackageNames();
-        // http://ratwateribm:8080/jboss-brms/org.drools.guvnor.Guvnor/package/org.jboss.processFlow/test-pfp-snapshot
-
-        if(!guvnorUtils.guvnorExists()) {
-            StringBuilder sBuilder = new StringBuilder();
-            sBuilder.append(guvnorUtils.getGuvnorProtocol());
-            sBuilder.append("://");
-            sBuilder.append(guvnorUtils.getGuvnorHost());
-            sBuilder.append("/");
-            sBuilder.append(guvnorUtils.getGuvnorSubdomain());
-            sBuilder.append("/rest/packages/");
-            throw new ConnectException("createKnowledgeBase() cannot connect to guvnor at URL : "+sBuilder.toString()); 
-        }
-
-        // for polling of guvnor to occur, the polling and notifier services must be started
-        ResourceChangeScannerConfiguration sconf = ResourceFactory.getResourceChangeScannerService().newResourceChangeScannerConfiguration();
-        sconf.setProperty( "drools.resource.scanner.interval", droolsResourceScannerInterval);
-        ResourceFactory.getResourceChangeScannerService().configure( sconf );
-        ResourceFactory.getResourceChangeScannerService().start();
-        ResourceFactory.getResourceChangeNotifierService().start();
-        
-        KnowledgeAgentConfiguration aconf = KnowledgeAgentFactory.newKnowledgeAgentConfiguration(); // implementation = org.drools.agent.impl.KnowledgeAgentConfigurationImpl
-
-        /*  - incremental change set processing enabled
-            - will create a single KnowledgeBase and always refresh that same instance
-        */
-        aconf.setProperty("drools.agent.newInstance", "false");
-
-        /*  -- Knowledge Agent provides automatic loading, caching and re-loading of resources
-            -- the knowledge agent can update or rebuild this knowledge base as the resources it uses are changed
-        */
-        KnowledgeAgent kagent = KnowledgeAgentFactory.newKnowledgeAgent("Guvnor default", aconf);
-        StringReader sReader = guvnorUtils.createChangeSet();
-        try {
-            guvnorChangeSet = IOUtils.toString(sReader);
-            sReader.close();
-        }catch(Exception x){
-            x.printStackTrace();
-        }
-        
-        kagent.applyChangeSet(ResourceFactory.newByteArrayResource(guvnorChangeSet.getBytes()));
-
-        /*  - set KnowledgeBase as instance variable to this mbean for use throughout all functionality of this service
-            - a knowledge base is a collection of compiled definitions, such as rules and processes, which are compiled using the KnowledgeBuilder
-            - the knowledge base itself does not contain instance data, known as facts
-            - instead, sessions are created from the knowledge base into which data can be inserted and where process instances may be started
-            - creating the knowledge base can be heavy, whereas session creation is very light :  http://blog.athico.com/2011/09/small-efforts-big-improvements.html
-            - a knowledge base is also serializable, allowing for it to be stored
-        */
-        kbase = kagent.getKnowledgeBase();
-    }
-    
-    public void rebuildKnowledgeBaseViaKnowledgeBuilder() {
-        guvnorProps = new Properties();
-        try {
-            KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
-            if(guvnorUtils.guvnorExists()) {
-                guvnorProps.load(KnowledgeSessionService.class.getResourceAsStream("/jbpm.console.properties"));
-                StringBuilder guvnorSBuilder = new StringBuilder();
-                guvnorSBuilder.append(guvnorProps.getProperty(GuvnorConnectionUtils.GUVNOR_PROTOCOL_KEY));
-                guvnorSBuilder.append("://");
-                guvnorSBuilder.append(guvnorProps.getProperty(GuvnorConnectionUtils.GUVNOR_HOST_KEY));
-                guvnorSBuilder.append("/");
-                guvnorSBuilder.append(guvnorProps.getProperty(GuvnorConnectionUtils.GUVNOR_SUBDOMAIN_KEY));
-                String guvnorURI = guvnorSBuilder.toString();
-                List<String> packages = guvnorUtils.getPackageNames();
-                for(String pkg : packages){
-                    GuvnorRestApi guvnorRestApi = new GuvnorRestApi(guvnorURI);
-                    try {
-                        InputStream binaryPackage = guvnorRestApi.getBinaryPackage(pkg);
-                        kbuilder.add(new InputStreamResource(binaryPackage), ResourceType.PKG);
-                        guvnorRestApi.close();
-                    } catch(java.io.IOException y) {
-                        log.error("rebuildKnowledgeBaseViaKnowledgeBuilder() returned following exception when querying package = "+pkg+" : "+y);
-                    }
-                }
-            }
-            kbase = kbuilder.newKnowledgeBase();
-        }catch(Exception x){
-            throw new RuntimeException(x);
-        }
-    }
-   
-    // compile a process into a package and add it to the knowledge base 
-    public void addProcessToKnowledgeBase(Process processObj, Resource resourceObj) {
-        if(kbase == null)
-            rebuildKnowledgeBaseViaKnowledgeBuilder();
-       
-        PackageBuilder packageBuilder = new PackageBuilder();
-        ProcessBuilderImpl processBuilder = new ProcessBuilderImpl( packageBuilder );
-        processBuilder.buildProcess( processObj, resourceObj);
-
-        List<KnowledgePackage> kpackages = new ArrayList<KnowledgePackage>();
-        kpackages.add( new KnowledgePackageImp( packageBuilder.getPackage() ) );
-        kbase.addKnowledgePackages(kpackages);
-        log.info("addProcessToKnowledgeBase() just added the following bpmn2 process definition to the kbase: "+processObj.getId());
-    }
-
-    public void addProcessToKnowledgeBase(File bpmnFile) {
-        if(kbase == null)
-            rebuildKnowledgeBaseViaKnowledgeBuilder();
-
-        KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
-        kbuilder.add(ResourceFactory.newFileResource(bpmnFile), ResourceType.BPMN2);
-        kbase.addKnowledgePackages(kbuilder.getKnowledgePackages());
-        log.info("addProcessToKnowledgeBase() just added the following bpmn2 process definition to the kbase: "+bpmnFile.getName());
-    }
-    
-    public String getAllProcessesInPackage(String pkgName){
-        List<String> processes = guvnorUtils.getAllProcessesInPackage(pkgName);
-        StringBuilder sBuilder = new StringBuilder("getAllProcessesInPackage() pkgName = "+pkgName);
-        if(processes.isEmpty()){
-            sBuilder.append("\n\n\t :  not processes found");
-            return sBuilder.toString();
-        }
-        for(String pDef : processes){
-            sBuilder.append("\n\t");
-            sBuilder.append(pDef);
-        }
-        return sBuilder.toString();
-    }
-    
-    public String printKnowledgeBaseContent() {
-        if(kbase == null)
-            createKnowledgeBaseViaKnowledgeAgentOrBuilder();
-
-        StringBuilder sBuilder = new StringBuilder();
-        sBuilder.append("guvnor changesets:\n\t");
-       
-        if(guvnorChangeSet != null) 
-            sBuilder.append(guvnorChangeSet);
-        else
-            sBuilder.append("not yet created by knowledgeAgent");
-
-        Collection<KnowledgePackage> kPackages = kbase.getKnowledgePackages();
-        if(kPackages != null && kPackages.size() > 0) {
-            for(KnowledgePackage kPackage : kPackages){
-                Collection<Process> processes = kPackage.getProcesses();
-                if(processes.size() == 0){
-                    sBuilder.append("\n\tpackage = "+kPackage.getName()+" : no process definitions found ");
-                }else {
-
-                    sBuilder.append("\nprintKnowledgeBaseContent()\n\t"); 
-                    for (Process process : processes) {
-                        sBuilder.append("\n\tpackage = "+kPackage.getName()+" : process definition = " + process.getId());
-                    }
-                }
-            }
-        } else {
-            sBuilder.append("\n\nNo Packages found in kbase");
-        }
-        sBuilder.append("\n");
-        return sBuilder.toString();
-    }
-    
-    private SessionTemplate newSessionTemplate() {
-        if(sessionTemplateInstantiationAlreadyBombed)
-            return null;
-        
-        if(templateString == null){
-            String droolsSessionTemplatePath = System.getProperty(DROOLS_SESSION_TEMPLATE_PATH);
-            if(StringUtils.isNotEmpty(droolsSessionTemplatePath)){
-                File droolsSessionTemplate = new File(droolsSessionTemplatePath);
-                if(!droolsSessionTemplate.exists()) {
-                    throw new RuntimeException("newSessionTemplate() drools session template not found at : "+droolsSessionTemplatePath);
-                }else {
-                    FileInputStream fStream = null;
-                    try {
-                        fStream = new FileInputStream(droolsSessionTemplate);
-                        templateString = IOUtils.toString(fStream);
-
-                    }catch(IOException x){
-                        x.printStackTrace();
-                    }finally {
-                        if(fStream != null) {
-                            try {fStream.close(); }catch(Exception x){x.printStackTrace();}
-                        }
-                    }
-                }
-            }else {
-                throw new RuntimeException("newSessionTemplate() following property must be defined : "+DROOLS_SESSION_TEMPLATE_PATH);
-            }
-        }
-        ParserConfiguration pconf = new ParserConfiguration();
-        pconf.addImport("SessionTemplate", SessionTemplate.class);
-        ParserContext context = new ParserContext(pconf);
-        Serializable s = MVEL.compileExpression(templateString.trim(), context);
-        try {
-            return (SessionTemplate)MVEL.executeExpression(s);
-        }catch(Throwable x){
-            sessionTemplateInstantiationAlreadyBombed = true;
-            log.error("newSessionTemplate() following exception thrown \n\t"+x.getLocalizedMessage()+"\n : with session template string = \n\n"+templateString);
-            return null;
-        }
-    }
-
-    
-    
-    
-
-/******************************************************************************
- * *************            WorkItemHandler Management               *********/
-    
-    public String printWorkItemHandlers() { 
-        StringBuilder sBuilder = new StringBuilder("Programmatically Loaded Work Item Handlers :");
-        for(String name : programmaticallyLoadedWorkItemHandlers.keySet()){
-           sBuilder.append("\n\t"); 
-           sBuilder.append(name); 
-           sBuilder.append(" : "); 
-           sBuilder.append(programmaticallyLoadedWorkItemHandlers.get(name)); 
-        }
-        sBuilder.append("\nWork Item Handlers loaded from drools session template:");
-        SessionTemplate sTemplate = newSessionTemplate();
-        if(sTemplate != null){
-            for(Map.Entry<?, ?> entry : sTemplate.getWorkItemHandlers().entrySet()){
-                Class wiClass = entry.getValue().getClass();
-                sBuilder.append("\n\t"); 
-                sBuilder.append(entry.getKey()); 
-                sBuilder.append(" : "); 
-                sBuilder.append(wiClass.getClass());
-            }
-        }else {
-            sBuilder.append("\n\tsessionTemplate not instantiated ... check previous exceptions");
-        }
-        sBuilder.append("\nConfiguration Loaded Work Item Handlers :");
-        SessionConfiguration ksConfig = (SessionConfiguration)KnowledgeBaseFactory.newKnowledgeSessionConfiguration(ksconfigProperties);
-        try {
-            Map<String, WorkItemHandler> wiHandlers = ksConfig.getWorkItemHandlers();
-            if(wiHandlers.size() == 0) {
-                sBuilder.append("\n\t no work item handlers defined");
-                Properties badProps = createPropsFromDroolsSessionConf();
-                if(badProps == null)
-                    sBuilder.append("\n\tunable to locate "+DROOLS_SESSION_CONF_PATH);
-                else
-                    sBuilder.append("\n\tlocated"+DROOLS_SESSION_CONF_PATH);
-            } else {
-                for(String name : wiHandlers.keySet()){
-                    sBuilder.append("\n\t"); 
-                    sBuilder.append(name); 
-                    sBuilder.append(" : "); 
-                    Class wiClass = wiHandlers.get(name).getClass();
-                    sBuilder.append(wiClass); 
-                }
-            }
-        }catch(NullPointerException x){
-            sBuilder.append("\n\tError intializing at least one of the configured work item handlers via drools.session.conf.\n\tEnsure all space delimited work item handlers listed in drools.session.conf exist on the classpath");
-            Properties badProps = createPropsFromDroolsSessionConf();
-            if(badProps == null){
-                sBuilder.append("\n\tunable to locate "+DROOLS_SESSION_CONF_PATH);
-            } else {
-                try {
-                    Enumeration badEnums = badProps.propertyNames();
-                    while (badEnums.hasMoreElements()) {
-                        String handlerConfName = (String) badEnums.nextElement();
-                        if(DROOLS_WORK_ITEM_HANDLERS.equals(handlerConfName)) {
-                            String[] badHandlerNames = ((String)badProps.get(handlerConfName)).split("\\s");
-                            for(String badHandlerName : badHandlerNames){
-                                sBuilder.append("\n\t\t");
-                                sBuilder.append(badHandlerName);
-                                InputStream iStream = this.getClass().getResourceAsStream("/META-INF/"+badHandlerName);
-                                if(iStream != null){
-                                    sBuilder.append("\t : found on classpath");
-                                    iStream.close();
-                                } else {
-                                    sBuilder.append("\t : NOT FOUND on classpath !!!!!  ");
-                                }
-                            }
-                        }
-                    }
-                } catch (Exception y) {
-                    y.printStackTrace();
-                }
-            }
-        }catch(org.mvel2.CompileException x) {
-            sBuilder.append("\n\t located "+DROOLS_SESSION_CONF_PATH);
-            sBuilder.append("\n\t however, following ClassNotFoundException encountered when instantiating defined work item handlers : \n\t\t");
-            sBuilder.append(x.getLocalizedMessage());
-        }
-        sBuilder.append("\n"); 
-        return sBuilder.toString();
-    }
-    
-    private Properties createPropsFromDroolsSessionConf() {
-        Properties badProps = null;
-        InputStream iStream = null;
-        try {
-            iStream = this.getClass().getResourceAsStream(DROOLS_SESSION_CONF_PATH);
-            if(iStream != null){
-                badProps = new Properties();
-                badProps.load(iStream);
-                iStream.close();
-            }
-        } catch(Exception x) {
-            x.printStackTrace();
-        }
-        return badProps; 
-    }
-    
-    private void registerWorkItemHandler(StatefulKnowledgeSession ksession, String serviceTaskName, WorkItemHandlerLifecycle handler) {
-        try {
-            ksession.getWorkItemManager().registerWorkItemHandler(serviceTaskName, handler);
-        } catch(NullPointerException x) {
-            StringBuilder sBuilder = new StringBuilder();
-            sBuilder.append("registerHumanTaskWorkItemHandler() ********* NullPointerException when attempting to programmatically register workItemHander of type: "+serviceTaskName);
-            sBuilder.append("\nthe following is a report of your work item situation: \n\n");
-            sBuilder.append(printWorkItemHandlers());
-            sBuilder.append("\n");
-            log.error(sBuilder);
-            throw x;
-        }
-    }
-    
-    private void registerAddHumanTaskWorkItemHandler(StatefulKnowledgeSession ksession) {
-        try {
-            // 1.  instantiate an object and register with this session workItemManager 
-            Class workItemHandlerClass = programmaticallyLoadedWorkItemHandlers.get(ITaskService.HUMAN_TASK);
-            WorkItemHandlerLifecycle handler = (WorkItemHandlerLifecycle)workItemHandlerClass.newInstance();
-
-            // 2.  register workItemHandler with workItemManager
-            registerWorkItemHandler(ksession, ITaskService.HUMAN_TASK, handler);
-
-            // 3).  call init() on newly instantiated WorkItemHandlerLifecycle
-            handler.init(ksession);
-        }catch(Exception x) {
-            throw new RuntimeException(x);
-        }
-    }
-    private void registerSkipHumanTaskWorkItemHandler(StatefulKnowledgeSession ksession){
-        try {
-            Class workItemHandlerClass = programmaticallyLoadedWorkItemHandlers.get(ITaskService.SKIP_TASK);
-            WorkItemHandlerLifecycle handler = (WorkItemHandlerLifecycle)workItemHandlerClass.newInstance();
-            registerWorkItemHandler(ksession, ITaskService.SKIP_TASK, handler);
-            handler.init(ksession);
-        }catch(Exception x) {
-            throw new RuntimeException(x);
-        }
-    }
-    private void registerFailHumanTaskWorkItemHandler(StatefulKnowledgeSession ksession){
-        try {
-            Class workItemHandlerClass = programmaticallyLoadedWorkItemHandlers.get(ITaskService.FAIL_TASK);
-            WorkItemHandlerLifecycle handler = (WorkItemHandlerLifecycle)workItemHandlerClass.newInstance();
-            registerWorkItemHandler(ksession, ITaskService.FAIL_TASK, handler);
-            handler.init(ksession);
-        }catch(Exception x) {
-            throw new RuntimeException(x);
-        }
-    }
-
-    private void registerEmailWorkItemHandler(StatefulKnowledgeSession ksession) {
-        String address = System.getProperty("org.jbpm.workItemHandler.mail.address");
-        String port = System.getProperty("org.jbpm.workItemHandler.mail.port");
-        String userId = System.getProperty("org.jbpm.workItemHandler.mail.userId");
-        String password = System.getProperty("org.jbpm.workItemHandler.mail.password");
-        WorkItemHandlerLifecycle handler = null;
-        try {
-            Class workItemHandlerClass = programmaticallyLoadedWorkItemHandlers.get(IKnowledgeSessionService.EMAIL);
-            Class[] classParams = new Class[] {String.class, String.class, String.class, String.class};
-            Object[] objParams = new Object[] {address, port, userId, password};
-            Constructor cObj = workItemHandlerClass.getConstructor(classParams);
-            handler = (WorkItemHandlerLifecycle)cObj.newInstance(objParams);
-            registerWorkItemHandler(ksession, IKnowledgeSessionService.EMAIL, handler);
-        }catch(Exception x) {
-            throw new RuntimeException(x);
-        }
-    }
-
-    
-    
-    
-    
-    
-/******************************************************************************
- * *************    ProcessEventListener Management                  *********/    
-    
-    // listens for agenda changes like rules being activated, fired, cancelled, etc
-    private void addAgendaEventListener(Object ksession) {
-        final org.drools.event.AgendaEventListener agendaEventListener = new org.drools.event.AgendaEventListener() {
-            public void activationCreated(ActivationCreatedEvent event, WorkingMemory workingMemory){
-            }
-            public void activationCancelled(ActivationCancelledEvent event, WorkingMemory workingMemory){
-            }
-            public void beforeActivationFired(BeforeActivationFiredEvent event, WorkingMemory workingMemory) {
-            }
-            public void afterActivationFired(AfterActivationFiredEvent event, WorkingMemory workingMemory) {
-            }
-            public void agendaGroupPopped(AgendaGroupPoppedEvent event, WorkingMemory workingMemory) {
-            }
-            public void agendaGroupPushed(AgendaGroupPushedEvent event, WorkingMemory workingMemory) {
-            }
-            public void beforeRuleFlowGroupActivated(RuleFlowGroupActivatedEvent event, WorkingMemory workingMemory) {
-            }
-            public void afterRuleFlowGroupActivated(RuleFlowGroupActivatedEvent event, WorkingMemory workingMemory) {
-                workingMemory.fireAllRules();
-            }
-            public void beforeRuleFlowGroupDeactivated(RuleFlowGroupDeactivatedEvent event, WorkingMemory workingMemory) {
-            }
-            public void afterRuleFlowGroupDeactivated(RuleFlowGroupDeactivatedEvent event,  WorkingMemory workingMemory) {
-            }
-        };
-        ((StatefulKnowledgeSessionImpl)  ((KnowledgeCommandContext) ((CommandBasedStatefulKnowledgeSession) ksession)
-                    .getCommandService().getContext()).getStatefulKnowledgesession() )
-                    .session.addEventListener(agendaEventListener);
-    }
-
-    
-    
-    
-    
-    
-    
 /******************************************************************************
  *************        StatefulKnowledgeSession Management               *********/
     
@@ -835,24 +305,6 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
         } else {
             ksession = makeStatefulKnowledgeSession();
         }
-        return ksession;
-    }
-
-
-    private StatefulKnowledgeSession makeStatefulKnowledgeSession() {
-        // 1) instantiate a KnowledgeBase via query to guvnor or kbuilder
-        createKnowledgeBaseViaKnowledgeAgentOrBuilder();
-
-        // 2) very important that a unique 'Environment' is created per StatefulKnowledgeSession
-        Environment ksEnv = createKnowledgeSessionEnvironment();
-
-        // what's the difference between KnowledgeSession and KnowledgeBase configuration ??
-        // Nick: always instantiate new ksconfig to make it threadlocal bo bapass the ConcurrentModificationExcepotion
-        KnowledgeSessionConfiguration ksConfig = KnowledgeBaseFactory.newKnowledgeSessionConfiguration(ksconfigProperties);
-
-        // 3) instantiate StatefulKnowledgeSession
-        //    make synchronize because under heavy load, appears that underlying SessionInfo.update() breaks with a NPE
-        StatefulKnowledgeSession ksession = JPAKnowledgeService.newStatefulKnowledgeSession(kbase, ksConfig, ksEnv);
         return ksession;
     }
 
@@ -1076,10 +528,6 @@ public class KnowledgeSessionService extends PFPBaseService implements IKnowledg
         }
         return sBuilder.toString();
     }
-    
-    
-    
-    
     
     
 /******************************************************************************
@@ -1397,12 +845,6 @@ class KnowledgeSessionWrapper {
         }
 
         ksession.dispose();
-/*
-        StringWriter sw = new StringWriter();
-new Throwable("").printStackTrace(new PrintWriter(sw));
-String stackTrace = sw.toString();
-System.out.println("stack = "+stackTrace);
-*/
     }
 
     public void setKnowledgeRuntimeLogger(KnowledgeRuntimeLogger x) {
