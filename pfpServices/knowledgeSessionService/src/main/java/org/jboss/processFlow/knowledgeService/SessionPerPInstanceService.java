@@ -185,10 +185,10 @@ import org.jboss.processFlow.util.LogSystemEventListener;
 @Startup
 @Lock(LockType.READ)
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
-public class KnowledgeSessionService extends BaseKnowledgeSessionService implements IKnowledgeSessionService, KnowledgeSessionServiceMXBean {
+public class SessionPerPInstanceService extends BaseKnowledgeSessionService implements IKnowledgeSessionService, KnowledgeSessionServiceMXBean {
 
     private ConcurrentMap<Integer, KnowledgeSessionWrapper> kWrapperHash = new ConcurrentHashMap<Integer, KnowledgeSessionWrapper>();
-    private Logger log = Logger.getLogger(KnowledgeSessionService.class);
+    private Logger log = Logger.getLogger(SessionPerPInstanceService.class);
     private AsyncBAMProducerPool bamProducerPool=null;
     private IKnowledgeSessionPool sessionPool;
 /******************************************************************************
