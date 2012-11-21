@@ -184,7 +184,8 @@ public class ShifterProvisioner {
             StringBuffer warningBuf = new StringBuffer("\n\nDANGER:  you have requested to re-provision(aka: annihilate) the following Openshift account(s):\n");
             for(int p=0; p < accountsList.getLength(); p++){
                 Node accountNameNode = accountsList.item(p);
-                warningBuf.append("\n\t\t"+accountNameNode.getChildNodes().item(1).getTextContent());            }
+                warningBuf.append("\n\t\t"+accountNameNode.getChildNodes().item(1).getTextContent());            
+            }
             warningBuf.append("\n\n\tdo you seriously want to do that?");
             warningBuf.append("\n\tif you want to proceed, type in the character 'y' and press return");
             log.info(warningBuf);
@@ -224,6 +225,8 @@ public class ShifterProvisioner {
             Node accountNode = accountsList.item(t);
             Runnable shifterProvisioner = new ProvisionerThread(accountNode);
             execObj.execute(shifterProvisioner);
+            //ProvisionerThread shifterProvisioner = new ProvisionerThread(accountNode);
+            //shifterProvisioner.run();
         }
         execObj.shutdown();
         execObj.awaitTermination(1200, TimeUnit.MINUTES);
@@ -248,15 +251,13 @@ public class ShifterProvisioner {
         
         public ProvisionerThread(Node accountNode) throws Exception {
             this.accountNode = accountNode;
-            xpath = XPathFactory.newInstance().newXPath();
-            xpath.setNamespaceContext(new AccountNameSpaceContext());
-            XPathExpression expression = xpath.compile("//accountId | //password | //domainId");
+            XPathFactory xpathF = XPathFactory.newInstance();
+            xpath = xpathF.newXPath();
             findPFPExpression = xpath.compile("/account/pfpCore");
             findBRMSWebsExpression = xpath.compile("/account/brmsWebs");
-            NodeList detailList = (NodeList)expression.evaluate(accountNode, XPathConstants.NODESET);
-            this.accountId = detailList.item(0).getTextContent();
-            this.password = detailList.item(1).getTextContent();
-            this.domainId = detailList.item(2).getTextContent();
+            this.accountId = accountNode.getChildNodes().item(1).getTextContent();
+            this.password = accountNode.getChildNodes().item(3).getTextContent();
+            this.domainId = accountNode.getChildNodes().item(5).getTextContent();
             accountLog = new File(accountLogDir, accountId+".log");
             jsonMapper = new ObjectMapper();
         }
