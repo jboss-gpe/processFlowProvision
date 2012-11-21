@@ -6,13 +6,13 @@ echo "** inside pre_start_jbosseap-6.0 "
 export JAVA_OPTS="-client -Xmx664m -XX:MaxPermSize=256m -XX:+AggressiveOpts -Dorg.jboss.resolver.warning=true -Djava.net.preferIPv4Stack=true -Dfile.encoding=UTF-8 -Djava.net.preferIPv4Stack=true -Djboss.node.name=${OPENSHIFT_GEAR_DNS} -Djgroups.bind_addr=${OPENSHIFT_INTERNAL_IP}"
 
 createSoftLinksToWebArchives() {
-    cd $OPENSHIFT_RUNTIME_DIR/repo/deployments;    
+    cd $OPENSHIFT_REPO_DIR/deployments;    
     
     if [ -e ${designer.name} ]
     then
         rm ${designer.name}
     fi
-    ln -s ~/$OPENSHIFT_GEAR_TYPE/tmp/deployments/${designer.name}
+    ln -s ~/${openshift.jboss.cartridge.type}/tmp/deployments/${designer.name}
     touch ${designer.name}.dodeploy
 
 
@@ -20,7 +20,7 @@ createSoftLinksToWebArchives() {
     then
         rm ${guvnor.name}
     fi
-    ln -s ~/$OPENSHIFT_GEAR_TYPE/tmp/deployments/${guvnor.name}
+    ln -s ~/${openshift.jboss.cartridge.type}/tmp/deployments/${guvnor.name}
     touch ${guvnor.name}.dodeploy
 }
 

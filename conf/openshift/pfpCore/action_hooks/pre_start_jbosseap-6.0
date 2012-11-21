@@ -3,22 +3,22 @@
 echo "** inside pre_start_jbosseap-6.0 "
 
 cleanRuntime() {
-    if [ -e $HOME/$OPENSHIFT_GEAR_TYPE/$OPENSHIFT_GEAR_TYPE/standalone/log/server.log ]
+    if [ -e $HOME/${openshift.jboss.cartridge.type}/${openshift.jboss.cartridge.type}/standalone/log/server.log ]
     then
         echo -en "cleanRuntime() \n";
-        rm $HOME/$OPENSHIFT_GEAR_TYPE/$OPENSHIFT_GEAR_TYPE/standalone/log/server.log
+        rm $HOME/${openshift.jboss.cartridge.type}/${openshift.jboss.cartridge.type}/standalone/log/server.log
     fi
 }
 
 createSoftLinksToWebArchives() {
-    cd $OPENSHIFT_RUNTIME_DIR/repo/deployments;
+    cd $OPENSHIFT_REPO_DIR/deployments
     echo -en "createSoftLinksToWebArchives() will now create soft links \n";
 
     if [ -e ${console.server.name} ]
     then
         rm ${console.server.name}
     fi
-    ln -s ~/$OPENSHIFT_GEAR_TYPE/tmp/deployments/${console.server.name}
+    ln -s ~/${openshift.jboss.cartridge.type}/tmp/deployments/${console.server.name}
     touch ${console.server.name}.dodeploy
 
 
@@ -26,7 +26,7 @@ createSoftLinksToWebArchives() {
     then
         rm ${console.name}
     fi
-    ln -s ~/$OPENSHIFT_GEAR_TYPE/tmp/deployments/${console.name}
+    ln -s ~/${openshift.jboss.cartridge.type}/tmp/deployments/${console.name}
     touch ${console.name}.dodeploy
 }
 

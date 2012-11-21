@@ -139,12 +139,12 @@
 				</datasource>
 				<datasource jndi-name="java:jboss/datasources/MysqlDS"
 					enabled="false" use-java-context="true" pool-name="MysqlDS">
-					<connection-url>jdbc:mysql://${env.OPENSHIFT_DB_HOST}:${env.OPENSHIFT_DB_PORT}/pfpCore
+					<connection-url>jdbc:mysql://${env.OPENSHIFT_POSTGRESQL_DB_HOST}:${env.OPENSHIFT_POSTGRESQL_DB_PORT}/pfpCore
 					</connection-url>
 					<driver>mysql</driver>
 					<security>
-						<user-name>${env.OPENSHIFT_DB_USERNAME}</user-name>
-						<password>${env.OPENSHIFT_DB_PASSWORD}</password>
+						<user-name>${env.OPENSHIFT_POSTGRESQL_DB_USERNAME}</user-name>
+						<password>${env.OPENSHIFT_POSTGRESQL_DB_PASSWORD}</password>
 					</security>
 					<validation>
                       <check-valid-connection-sql>SELECT 1</check-valid-connection-sql>
@@ -153,12 +153,12 @@
 				<datasource jndi-name="java:jboss/datasources/PostgreSQLDS"
 					enabled="false" use-java-context="true" pool-name="PostgreSQLDS"
 					use-ccm="true">
-					<connection-url>jdbc:postgresql://${env.OPENSHIFT_DB_HOST}:${env.OPENSHIFT_DB_PORT}/pfpCore
+					<connection-url>jdbc:postgresql://${env.OPENSHIFT_POSTGRESQL_DB_HOST}:${env.OPENSHIFT_POSTGRESQL_DB_PORT}/pfpCore
 					</connection-url>
 					<driver>postgresql</driver>
 					<security>
-						<user-name>${env.OPENSHIFT_DB_USERNAME}</user-name>
-						<password>${env.OPENSHIFT_DB_PASSWORD}</password>
+						<user-name>${env.OPENSHIFT_POSTGRESQL_DB_USERNAME}</user-name>
+						<password>${env.OPENSHIFT_POSTGRESQL_DB_PASSWORD}</password>
 					</security>
 					<validation>
                       <check-valid-connection-sql>SELECT 1</check-valid-connection-sql>
@@ -168,7 +168,7 @@
                                 <datasource jndi-name="java:jboss/datasources/jbpm-core-cp"
                                         enabled="true" use-java-context="true" pool-name="jbpm-core-cp"
                                         use-ccm="true">
-                                        <connection-url>jdbc:postgresql://${env.OPENSHIFT_DB_HOST}:${env.OPENSHIFT_DB_PORT}/jbpm
+                                        <connection-url>jdbc:postgresql://${env.OPENSHIFT_POSTGRESQL_DB_HOST}:${env.OPENSHIFT_POSTGRESQL_DB_PORT}/jbpm
                                         </connection-url>
                                         <driver>postgresql</driver>
                                         <pool>
@@ -176,8 +176,8 @@
                                             <max-pool-size>50</max-pool-size>
                                         </pool>
                                         <security>
-                                                <user-name>${env.OPENSHIFT_DB_USERNAME}</user-name>
-                                                <password>${env.OPENSHIFT_DB_PASSWORD}</password>
+                                                <user-name>${env.OPENSHIFT_POSTGRESQL_DB_USERNAME}</user-name>
+                                                <password>${env.OPENSHIFT_POSTGRESQL_DB_PASSWORD}</password>
                                         </security>
                                         <validation>
                       <check-valid-connection-sql>SELECT 1</check-valid-connection-sql>
@@ -187,7 +187,7 @@
                                 <datasource jndi-name="java:jboss/datasources/jbpm-bam-cp"
                                         enabled="true" use-java-context="true" pool-name="jbpm-bam-cp"
                                         use-ccm="true">
-                                        <connection-url>jdbc:postgresql://${env.OPENSHIFT_DB_HOST}:${env.OPENSHIFT_DB_PORT}/jbpm_bam
+                                        <connection-url>jdbc:postgresql://${env.OPENSHIFT_POSTGRESQL_DB_HOST}:${env.OPENSHIFT_POSTGRESQL_DB_PORT}/jbpm_bam
                                         </connection-url>
                                         <driver>postgresql</driver>
                                         <pool>
@@ -195,8 +195,8 @@
                                             <max-pool-size>20</max-pool-size>
                                         </pool>
                                         <security>
-                                                <user-name>${env.OPENSHIFT_DB_USERNAME}</user-name>
-                                                <password>${env.OPENSHIFT_DB_PASSWORD}</password>
+                                                <user-name>${env.OPENSHIFT_POSTGRESQL_DB_USERNAME}</user-name>
+                                                <password>${env.OPENSHIFT_POSTGRESQL_DB_PASSWORD}</password>
                                         </security>
                                         <validation>
                       <check-valid-connection-sql>SELECT 1</check-valid-connection-sql>
