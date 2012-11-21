@@ -69,7 +69,7 @@ import org.jbpm.task.service.TaskException;
 import org.jbpm.task.service.TaskService;
 import org.jbpm.task.service.TaskServiceSession;
 
-import org.jboss.processFlow.knowledgeService.IBaseKnowledgeSessionService;
+import org.jboss.processFlow.knowledgeService.IBaseKnowledgeSession;
 import org.jboss.processFlow.PFPBaseService;
 import org.jboss.processFlow.tasks.event.PfpTaskEventSupport;
 
@@ -102,8 +102,8 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
 
     // https://issues.jboss.org/browse/AS7-4567
     //@EJB(name="kSessionProxy", beanName="ejb/prodKSessionProxy")
-    @EJB(name="kSessionProxy", lookup="java:global/processFlow-knowledgeSessionService/prodKSessionProxy!org.jboss.processFlow.knowledgeService.IBaseKnowledgeSessionService")
-    private IBaseKnowledgeSessionService kSessionProxy;
+    @EJB(name="kSessionProxy", lookup="java:global/processFlow-knowledgeSessionService/prodKSessionProxy!org.jboss.processFlow.knowledgeService.IBaseKnowledgeSession")
+    private IBaseKnowledgeSession kSessionProxy;
 
     private PfpTaskEventSupport eventSupport;
     private TaskService taskService;

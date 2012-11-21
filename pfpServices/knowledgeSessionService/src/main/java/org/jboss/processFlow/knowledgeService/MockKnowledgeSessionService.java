@@ -10,26 +10,24 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 
 import org.apache.log4j.Logger;
-import org.jboss.processFlow.knowledgeService.IBaseKnowledgeSessionService;
+import org.jboss.processFlow.knowledgeService.IBaseKnowledgeSession;
 
-@Local(IBaseKnowledgeSessionService.class)
+@Local(IBaseKnowledgeSession.class)
 @Singleton(name="mockKSessionProxy")
 @Startup
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
-public class MockKnowledgeSessionService implements IBaseKnowledgeSessionService {
+public class MockKnowledgeSessionService implements IBaseKnowledgeSession {
     
     private Logger log = Logger.getLogger(MockKnowledgeSessionService.class);
 
     @Override
-    public Map<String, Object> startProcessAndReturnId(String processId,
-            Map<String, Object> parameters) throws Exception {
+    public Map<String, Object> startProcessAndReturnId(String processId, Map<String, Object> parameters) {
         log.info("startProcessAndReturnId() processId = "+processId+" : will return empty map");
         return new HashMap<String, Object>();
     }
 
     @Override
-    public void completeWorkItem(Integer ksessionId, Long workItemId,
-            Map<String, Object> pInstanceVariables) {
+    public void completeWorkItem(Integer ksessionId, Long workItemId, Map<String, Object> pInstanceVariables) {
         log.info("completeWorkItem() ksessionId = "+ksessionId+" : workItemId = "+workItemId);
     }
 
