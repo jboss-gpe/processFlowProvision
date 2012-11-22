@@ -56,7 +56,7 @@ done
 
 stopJboss() {
     echo -en $"\nstopping openshift jboss \n"
-    ssh $sshUrl "stop_app.sh"
+    ssh $sshUrl "app_ctl.sh stop"
     sleep 2
 }
 
@@ -125,10 +125,7 @@ function createTunnel() {
 
 startJboss() {
     echo -en "\nattempting to start jboss using sshUrl = $sshUrl\n"
-    ssh $sshUrl '
-        cd git/$OPENSHIFT_APP_NAME.git;
-        post_receive_app.sh
-    '
+    ssh $sshUrl 'app_ctl.sh start'
 }
 
 executeMysqlScript() {
@@ -182,11 +179,12 @@ provisionAccountsWithPFP() {
         osAccountDetailsFileLocation=$HOME/redhat/openshift/openshift_account_details.xml
     fi
     echo openshift.account.details.file.location = $osAccountDetailsFileLocation
-    for i in `xmlstarlet sel -t -n -m '//openshiftAccounts/account' -o 'openshift.domain.name=' -v 'accountId' -n $osAccountDetailsFileLocation`; 
+    t=1
+    for i in `xmlstarlet sel -t -n -m '//openshiftAccounts/account' -v 'domainId' -n $osAccountDetailsFileLocation`; 
     do 
-        printf "\n$i\n"; 
+        echo -en "\n$i\n"; 
         echo -n "" > target/openshiftAccount.properties
-        xmlstarlet sel -t -n -m '//openshiftAccounts/account' -n \
+        xmlstarlet sel -t -n -m '//openshiftAccounts/account['$t']' -n \
         -o 'openshift.domain.name=' -v "domainId" -n \
         -o 'openshift.pfpCore.user.hash=' -v "pfpCore/uuid" -n \
         -o 'openshift.pfpCore.internal.ip=' -v "pfpCore/internal_ip" -n \
@@ -198,18 +196,37 @@ provisionAccountsWithPFP() {
         echo -n "is.deployment.local=false" >> target/openshiftAccount.properties
 
         ant openshift.provision.both
-        #ant openshift.provision.pfp.core
-        #ant openshift.provision.brms.webs
-    done
+        ((t++))
 
+        cd $JBOSS_PROJECTS/workshops/BusinessLogicDevelopmentWorkshop/BLDW-openshift-provision
+        ant
+        cd $PFP_HOME
+    done
+}
+
+bounceMultiple() {
+    if [ "x$osAccountDetailsFileLocation" = "x" ]; then
+        osAccountDetailsFileLocation=$HOME/redhat/openshift/openshift_account_details.xml
+    fi
+    echo openshift.account.details.file.location = $osAccountDetailsFileLocation
+    t=1
+    for domainId in `xmlstarlet sel -t -n -m '//openshiftAccounts/account' -v 'domainId' -n $osAccountDetailsFileLocation`; 
+    do 
+        eval accountId=\"`xmlstarlet sel -t -n -m '//openshiftAccounts/account['$t']' -v 'accountId' -n $osAccountDetailsFileLocation` \"
+        eval password=\"`xmlstarlet sel -t -n -m '//openshiftAccounts/account['$t']' -v 'password' -n $osAccountDetailsFileLocation` \"
+        echo -en "\naccountId = $accountId \t:password = $password\n"; 
+        rhc app restart -a brmsWebs -l $accountId -p $password
+        rhc app restart -a pfpCore -l $accountId -p $password
+        ((t++))
+    done
 }
 
 
 case "$1" in
-    startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|provisionAccountsWithPFP)
+    startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|provisionAccountsWithPFP|bounceMultiple)
         $1
         ;;
     *)
-    echo 1>&2 $"Usage: $0 {startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|provisionAccountsWithPFP}"
+    echo 1>&2 $"Usage: $0 {startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|provisionAccountsWithPFP|bounceMultiple}"
     exit 1
 esac
