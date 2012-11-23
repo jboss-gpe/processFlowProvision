@@ -52,11 +52,11 @@ do
 done
 
 checkHostName() {
-    if ping -c 1 $HOSTNAME > /dev/null 2>&1
+    if ping -c 1 $hostName > /dev/null 2>&1
     then
         echo "we are online!"
     else
-        echo -en "\n unable to ping $HOSTNAME.  check your network settings"
+        echo -en "\n unable to ping $hostName.  check your network settings"
         exit 1
     fi
 }
@@ -73,12 +73,12 @@ start() {
     if [ "x$jbossModulePath" != "x" ]; then
         export JBOSS_MODULEPATH=$jbossModulePath
     fi
-    echo -en $"Starting jboss daemon w/ following command line args: \n\tjboss.bind.address = $HOSTNAME\n\t-bmanagement = $HOSTNAME\n\tjboss.domain.base.dir= $jbossDomainBaseDir\n\tdomainConfig=$domainConfig\n\tsleepSec=$sleepSec\n"
+    echo -en $"Starting jboss daemon w/ following command line args: \n\tjboss.bind.address = $hostName\n\t-bmanagement = $hostName\n\tjboss.domain.base.dir= $jbossDomainBaseDir\n\tdomainConfig=$domainConfig\n\tsleepSec=$sleepSec\n"
     sleep 1 
     cd $JBOSS_HOME
     chmod 755 $JBOSS_HOME/bin/*.sh
     rm nohup.out
-    nohup ./bin/domain.sh -b=$HOSTNAME -bmanagement=$HOSTNAME -Djboss.domain.base.dir=$jbossDomainBaseDir -Ddomain-config=$domainConfig &
+    nohup ./bin/domain.sh -b=$hostName -bmanagement=$hostName -Djboss.domain.base.dir=$jbossDomainBaseDir -Ddomain-config=$domainConfig &
     if [ "x$sleepSec" !=  "x" ]; then
         sleep $sleepSec
     else
@@ -97,7 +97,7 @@ stop() {
 
     echo -en $"stopping the following jboss node: $node\n"
     cd $JBOSS_HOME
-    ./bin/jboss-cli.sh --connect --controller=$HOSTNAME:$cliPort --command=/host=$node:shutdown
+    ./bin/jboss-cli.sh --connect --controller=$hostName:$cliPort --command=/host=$node:shutdown
     echo
     sleep 3
 }
