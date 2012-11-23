@@ -221,12 +221,33 @@ bounceMultiple() {
     done
 }
 
+bounceMultipleKBase() {
+    reloadUri="knowledgeService/kbase"
+    getContentUri="knowledgeService/kbase/content"
+    if [ "x$osAccountDetailsFileLocation" = "x" ]; then
+        osAccountDetailsFileLocation=$HOME/redhat/openshift/openshift_account_details.xml
+    fi
+    echo openshift.account.details.file.location = $osAccountDetailsFileLocation  : will write results to :  /tmp/kbaseRefreshResults.log
+    echo -n "" > /tmp/kbaseRefreshResults.log
+    t=1
+    for domainId in `xmlstarlet sel -t -n -m '//openshiftAccounts/account' -v 'domainId' -n $osAccountDetailsFileLocation`; 
+    do 
+        eval app_url=\"`xmlstarlet sel -t -n -m '//openshiftAccounts/account['$t']/pfpCore' -v 'app_url' -n $osAccountDetailsFileLocation`\"
+        echo -en "\nabout to execute:  curl -X PUT -HAccept:text/plain $app_url$reloadUri\n"; 
+        curl -X PUT -HAccept:text/plain $app_url$reloadUri
+        echo -en "\nabout to execute:  curl -X GET -HAccept:text/plain $app_url$getContentUri\n"; 
+        curl -X GET -HAccept:text/plain $app_url$getContentUri >> /tmp/kbaseRefreshResults.log
+        ((t++))
+        echo -en "\n\n\n" >> /tmp/kbaseRefreshResults.log
+    done
+}
+
 
 case "$1" in
-    startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|provisionAccountsWithPFP|bounceMultiple)
+    startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|provisionAccountsWithPFP|bounceMultiple|bounceMultipleKBase)
         $1
         ;;
     *)
-    echo 1>&2 $"Usage: $0 {startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|provisionAccountsWithPFP|bounceMultiple}"
+    echo 1>&2 $"Usage: $0 {startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|provisionAccountsWithPFP|bounceMultiple|bounceMultipleKBase}"
     exit 1
 esac
