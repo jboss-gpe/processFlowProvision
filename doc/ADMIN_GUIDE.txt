@@ -636,10 +636,36 @@ openshift provisioning
             - will blow away any pre-existing accounts in openshift with the same account names defined in ${openshift.account.details.file.location}
         if(openshift.account.create.pfp.core)
             - will create pfpCore application with postgresql database
+            - will append pfpCore app details to ${openshift.account.details.file.location}
         if(openshift.account.create.brms.webs)
             - will create brmsWebs application with postgresql database
+            - will append brmsWebs app details to ${openshift.account.details.file.location}
 
     - ./bin/openshift.sh provisionAccountsWithPFP
         - reads as input the contents of ${openshift.account.details.file.location} and loops with every account
         - uploads pfpCore and brmsWebs binaries
-        - modifies pfpCore and brmsWebs configuration settings
+        - modifies pfpCore and brmsWebs app configuration settings
+
+
+openshift troubleshooting
+    $ cd $PFP_HOME
+    $  ./bin/openshift.sh bounceMultipleAccounts
+        - bounces brmsWebs and pfpCore apps in one or more accounts
+        - reads as input the contents of ${openshift.account.details.file.location} and loops with every account
+        - assumes the following is installed in the local operating system :
+            1)  xmlstarlet
+            2)  openshift 'rhc' utilities
+
+
+    $ ./bin/openshift.sh bounceMultipleKBase
+        - refreshes kbase in pfpCore from packages in guvnor hosted in brmsWebs
+        - reads as input the contents of ${openshift.account.details.file.location} and loops with every account
+        - executes the following commands per account :
+            curl -X PUT -HAccept:text/plain ${pfp.core.app.url}/knowledgeService/kbase
+            curl -X GET -HAccept:text/plain ${pfp.core.app.url}/knowledgeService/kbase/content  
+                - prints content of kbase to /tmp/kbaseRefreshResults.log
+        - assumes the following is installed in the local operating system :
+            1)  xmlstarlet
+            2)  curl
+
+

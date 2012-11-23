@@ -204,7 +204,7 @@ provisionAccountsWithPFP() {
     done
 }
 
-bounceMultiple() {
+bounceMultipleAccounts() {
     if [ "x$osAccountDetailsFileLocation" = "x" ]; then
         osAccountDetailsFileLocation=$HOME/redhat/openshift/openshift_account_details.xml
     fi
@@ -244,10 +244,10 @@ bounceMultipleKBase() {
 
 
 case "$1" in
-    startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|provisionAccountsWithPFP|bounceMultiple|bounceMultipleKBase)
+    startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|provisionAccountsWithPFP|bounceMultipleAccounts|bounceMultipleKBase)
         $1
         ;;
     *)
-    echo 1>&2 $"Usage: $0 {startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|provisionAccountsWithPFP|bounceMultiple|bounceMultipleKBase}"
+    echo 1>&2 $"Usage: $0 {startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|provisionAccountsWithPFP|bounceMultipleAccounts|bounceMultipleKBase}"
     exit 1
 esac
