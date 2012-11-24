@@ -13,6 +13,7 @@ function checkRemotePort() {
     fi
 }
 
+# TO_DO:  this should be configurable as per 'hibernate.hbm2ddl.auto' property
 ${openshift.jdbc.module.name}_DBModifications() {
     echo -en "post_deploy.${openshift.jdbc.module.name}_DBModifications() ... start\n"
     PGPASSWORD=$OPENSHIFT_${openshift.jdbc.module.name}_DB_PASSWORD psql -h $OPENSHIFT_${openshift.jdbc.module.name}_DB_HOST -U admin -d $OPENSHIFT_APP_NAME -c "drop database if exists jbpm;"
