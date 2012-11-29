@@ -95,7 +95,7 @@ stop() {
         node=master
     fi
 
-    echo -en $"stopping the following jboss node: $node\n"
+    echo -en $"stopping following jboss node: $node\t: at $hostName:$cliPort\n"
     cd $JBOSS_HOME
     ./bin/jboss-cli.sh --connect --controller=$hostName:$cliPort --command=/host=$node:shutdown
     echo

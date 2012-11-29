@@ -1,0 +1,19 @@
+batch
+
+/profile=default/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=formatter,value=%d{HH:mm:ss,SSS} %-5p [%c] %s%E%n)
+/profile=default/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=append,value=false)
+/profile=default/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=level,value=TRACE)
+
+# trace level logging of org.switchyard.transform.TransformerRegistryLoader to view loaded transforms
+/profile=default/subsystem=logging/logger=org.switchyard.transform.TransformerRegistryLoader/:add(category=org.switchyard.transform.TransformerRegistryLoader,level=TRACE,use-parent-handlers=true)
+
+# trace level logging of org.switchyard.component.soap view inbound soap
+/profile=default/subsystem=logging/logger=org.switchyard.component.soap.InboundHandler/:add(category=org.switchyard.component.soap.InboundHandler,level=TRACE,use-parent-handlers=true)
+
+# DEBUG level logging of org.switchyard.internal.ExchangeImpl to view message traffic
+/profile=default/subsystem=logging/logger=org.switchyard.internal.ExchangeImpl/:add(category=org.switchyard.internal.ExchangeImpl,level=DEBUG,use-parent-handlers=true)
+
+# create sy.core server group and start
+/server-group=${sy.core.group}/:add(profile=default,socket-binding-group=standard-sockets)
+
+run-batch

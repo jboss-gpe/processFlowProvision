@@ -335,14 +335,11 @@
         </if>
     </target>
     <target name="local.stop.master" description="default behavior is to shutdown all jboss servers via management port of 9999" >
-        <if>
-            <not><isset property="management.port"/></not>
-            <then><property name="management.port" value="9999" /></then>
-        </if>
         <exec executable="bash" failonerror="true" dir="." >
            <arg value="${development.base}/bin/local.jboss.domain.sh"/>
            <arg value="stop"/>
-           <arg value="-port=${management.port}"/>
+           <arg value="-hostName=${os.hostname}"/>
+           <arg value="-cliPort=${management.port}"/>
            <arg value="-node=master"/>
         </exec>
     </target>
