@@ -30,7 +30,7 @@ import java.util.List;
 
 import org.drools.definition.process.Process;
 import org.drools.io.Resource;
-import org.drools.runtime.process.ProcessInstance;
+import org.jbpm.persistence.processinstance.ProcessInstanceInfo;
 
 /**
  *
@@ -153,9 +153,11 @@ public interface IKnowledgeSession extends IBaseKnowledgeSession {
      *<pre>
      *given an optional Map of query criteria, return a List of ProcessInstance objects
      *currently, only one type of query criteria is supported and is keyed by PROCESS_ID
+     *NOTE:  org.jbpm.persistence.processinstance.ProcessInstanceInfo does not implement java.io.Serializable ... so don't invoke directly from an EJB client
      *</pre>
      */
-    public List<ProcessInstance> getActiveProcessInstances(Map<String,Object> queryCriteria);
+    public List<ProcessInstanceInfo> getActiveProcessInstances(Map<String,Object> queryCriteria);
+    public String printActiveProcessInstances(Map<String,Object> queryCriteria);
 
     public SerializableProcessMetaData getProcess(String processId);
     public void                     removeProcess(String processId);

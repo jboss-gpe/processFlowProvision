@@ -40,6 +40,7 @@ import org.drools.runtime.process.ProcessInstance;
 import org.jboss.processFlow.knowledgeService.IBaseKnowledgeSession;
 import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
 import org.jboss.processFlow.knowledgeService.KnowledgeSessionServiceMXBean;
+import org.jbpm.persistence.processinstance.ProcessInstanceInfo;
 
 /**
  *<pre>
@@ -197,6 +198,9 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
     public String printWorkItemHandlers() { 
         return kBean.printWorkItemHandlers();
     }
+    public String printActiveProcessInstances(Map<String,Object> queryCriteria) {
+    	return kBean.printActiveProcessInstances(queryCriteria);
+    }
     public List<SerializableProcessMetaData> retrieveProcesses() throws Exception {
         return kBean.retrieveProcesses();
     }
@@ -206,7 +210,7 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
     public void removeProcess(String processId) {
         throw new UnsupportedOperationException();
     }
-    public List<ProcessInstance> getActiveProcessInstances(Map<String, Object> queryCriteria) {
+    public List<ProcessInstanceInfo> getActiveProcessInstances(Map<String, Object> queryCriteria) {
         return kBean.getActiveProcessInstances(queryCriteria);
     }
 

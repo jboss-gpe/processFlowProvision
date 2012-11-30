@@ -40,22 +40,16 @@ public class KSessionHttp {
     IKnowledgeSessionService kProxy;
 
     private Logger log = LoggerFactory.getLogger("KSessionHttp");
-
+    
     /**
      * sample usage :
-     *  curl -X GET -HAccept:text/plain $HOSTNAME:8330/knowledgeService/processInstances/count
+     *  curl -X GET -HAccept:text/plain $HOSTNAME:8330/knowledgeService/processInstances
      */
     @GET
-    @Path("/processInstances/count")
+    @Path("/processInstances")
     @Produces({ "text/plain" })
-    public Response getActiveProcessInstancesCount() {
-        log.info("getActiveProcessInstancesCount() .. invoking ...");
-        List<ProcessInstance> pInstances = kProxy.getActiveProcessInstances(null);
-        log.info("getActiveProcessInstancesCount() .. returned ...");
-        int count = 0;
-        if(pInstances != null)
-            count = pInstances.size();
-        ResponseBuilder builder = Response.ok(count);
+    public Response printActiveProcessInstances() {
+        ResponseBuilder builder = Response.ok(kProxy.printActiveProcessInstances(null));
         return builder.build();
     }
 

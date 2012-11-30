@@ -31,6 +31,7 @@ import java.io.StringReader;
 import java.lang.reflect.Constructor;
 import java.net.ConnectException;
 import java.util.*;
+
 import javax.management.ObjectName;
 import javax.management.MBeanServer;
 import javax.transaction.UserTransaction;
@@ -74,6 +75,7 @@ import org.drools.runtime.process.WorkItemHandler;
 import org.jbpm.workflow.core.NodeContainer;
 import org.jbpm.compiler.ProcessBuilderImpl;
 import org.jbpm.integration.console.shared.GuvnorConnectionUtils;
+import org.jbpm.persistence.processinstance.ProcessInstanceInfo;
 import org.jbpm.task.service.TaskService;
 
 import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
@@ -300,15 +302,14 @@ public class BaseKnowledgeSessionBean {
 
         Collection<KnowledgePackage> kPackages = kbase.getKnowledgePackages();
         if(kPackages != null && kPackages.size() > 0) {
+        	sBuilder.append("\nprintKnowledgeBaseContent()\n\t"); 
             for(KnowledgePackage kPackage : kPackages){
                 Collection<Process> processes = kPackage.getProcesses();
                 if(processes.size() == 0){
                     sBuilder.append("\n\tpackage = "+kPackage.getName()+" : no process definitions found ");
                 }else {
-
-                    sBuilder.append("\nprintKnowledgeBaseContent()\n\t"); 
                     for (Process process : processes) {
-                        sBuilder.append("\n\tpackage = "+kPackage.getName()+" : process definition = " + process.getId());
+                        sBuilder.append("\n\tpackage = "+kPackage.getName()+" : pDef= " + process.getId()+" : pDefVersion= "+process.getVersion());
                     }
                 }
             }
@@ -647,11 +648,11 @@ public class BaseKnowledgeSessionBean {
         throw new UnsupportedOperationException();
     }
 
-    public List<ProcessInstance> getActiveProcessInstances(Map<String, Object> queryCriteria) {
+    public List<ProcessInstanceInfo> getActiveProcessInstances(Map<String, Object> queryCriteria) {
          EntityManager psqlEm = null;
-         List<ProcessInstance> results = null;
+         List<ProcessInstanceInfo> results = null;
          StringBuilder sqlBuilder = new StringBuilder();
-         sqlBuilder.append("FROM ProcessInstance p ");
+         sqlBuilder.append("FROM ProcessInstanceInfo p ");
          if(queryCriteria != null && queryCriteria.size() > 0){
              sqlBuilder.append("WHERE ");
              if(queryCriteria.containsKey(IKnowledgeSessionService.PROCESS_ID)){
@@ -669,7 +670,22 @@ public class BaseKnowledgeSessionBean {
              results = processInstanceQuery.getResultList();
              return results;
          }catch(Exception x) {
-             return null;
+             throw new RuntimeException(x);
          }
      }
+    
+    public String printActiveProcessInstances(Map<String,Object> queryCriteria){
+    	List<ProcessInstanceInfo> pInstances = getActiveProcessInstances(queryCriteria);
+        StringBuffer sBuffer = new StringBuffer();
+        if(pInstances != null){
+        	sBuffer.append("\npInstanceId\tprocessId");
+            for(ProcessInstanceInfo pInstance: pInstances){
+            	sBuffer.append("\n"+pInstance.getId()+"\t"+pInstance.getProcessId());
+            }
+        }else{
+        	sBuffer.append("\nno active process instances found\n");
+        }
+        return sBuffer.toString();
+    }
+  
 }

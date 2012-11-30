@@ -40,6 +40,8 @@ import org.drools.KnowledgeBaseFactory;
 import org.drools.agent.impl.PrintStreamSystemEventListener;
 import org.drools.command.SingleSessionCommandService;
 import org.drools.command.impl.CommandBasedStatefulKnowledgeSession;
+import org.drools.common.AbstractWorkingMemory;
+import org.drools.common.InternalKnowledgeRuntime;
 import org.drools.event.process.ProcessCompletedEvent;
 import org.drools.event.process.ProcessEventListener;
 import org.drools.event.process.ProcessNodeLeftEvent;
@@ -51,12 +53,14 @@ import org.drools.logger.KnowledgeRuntimeLogger;
 import org.drools.logger.KnowledgeRuntimeLoggerFactory;
 import org.drools.persistence.jpa.JPAKnowledgeService;
 import org.drools.persistence.jpa.JpaJDKTimerService;
+import org.drools.persistence.jpa.processinstance.JPAWorkItemManager;
 import org.drools.persistence.jpa.processinstance.JPAWorkItemManagerFactory;
 import org.drools.runtime.KnowledgeSessionConfiguration;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.Environment;
 import org.drools.runtime.process.ProcessInstance;
 import org.drools.runtime.process.WorkItemHandler;
+import org.jbpm.persistence.processinstance.ProcessInstanceInfo;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
@@ -305,6 +309,7 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
 
         // 2) instantiate new StatefulKnowledgeSession from old sessioninfo
         StatefulKnowledgeSession ksession = JPAKnowledgeService.loadStatefulKnowledgeSession(sessionId, kbase, ksConfig, ksEnv);
+        //StatefulKnowledgeSession ksession = JPAKnowledgeService.loadStatefulKnowledgeSession(sessionId, null, ksConfig, ksEnv);
         return ksession;
     }
 
@@ -366,11 +371,12 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
             public void afterProcessCompleted(ProcessCompletedEvent event) {
                 StatefulKnowledgeSession ksession = (StatefulKnowledgeSession)event.getKnowledgeRuntime();
                 ProcessInstance pInstance = event.getProcessInstance();
+                org.drools.definition.process.Process droolsProcess = event.getProcessInstance().getProcess();
                 if(sessionPool.isBorrowed(ksession.getId(), pInstance.getProcessId())) {
-                    log.info("afterProcessCompleted()\tsessionId :  "+ksession.getId()+" : "+pInstance+" : session to be reused");
+                    log.info("afterProcessCompleted()\tsessionId :  "+ksession.getId()+" : "+pInstance+" : pDefVersion = "+droolsProcess.getVersion()+" : session to be reused");
                     sessionPool.markAsReturned(ksession.getId());
                 } else {
-                    log.info("afterProcessCompleted()\tsessionId :  "+ksession.getId()+" : process : "+pInstance);
+                    log.info("afterProcessCompleted()\tsessionId :  "+ksession.getId()+" : process : "+pInstance+" : pDefVersion = "+droolsProcess.getVersion());
                 }
             }
 
@@ -385,7 +391,8 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
             public void afterProcessStarted(ProcessStartedEvent event) {
                 StatefulKnowledgeSession ksession = (StatefulKnowledgeSession)event.getKnowledgeRuntime();
                 ProcessInstance pInstance = event.getProcessInstance();
-                log.info("afterProcessStarted()\tsessionId :  "+ksession.getId()+" : "+pInstance+" : ");
+                org.drools.definition.process.Process droolsProcess = event.getProcessInstance().getProcess();
+                log.info("afterProcessStarted()\tsessionId :  "+ksession.getId()+" : "+pInstance+" : pDefVersion = "+droolsProcess.getVersion());
             }
             public void beforeProcessCompleted(ProcessCompletedEvent event) {
             }
@@ -393,16 +400,18 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
                 if (event.getNodeInstance() instanceof SubProcessNodeInstance) {
                     StatefulKnowledgeSession ksession = (StatefulKnowledgeSession)event.getKnowledgeRuntime();
                     SubProcessNodeInstance spNode = (SubProcessNodeInstance)event.getNodeInstance();
+                    org.drools.definition.process.Process droolsProcess = event.getProcessInstance().getProcess();
                     if(enableLog)
-                        log.info("beforeNodeTriggered()\tsessionId :  "+ksession.getId()+" : sub-process : " + spNode.getNodeName()+" : pid: "+spNode.getProcessInstanceId());
+                        log.info("beforeNodeTriggered()\tsessionId :  "+ksession.getId()+" : sub-process : " + spNode.getNodeName()+" : pid: "+spNode.getProcessInstanceId()+" : pDefVersion = "+droolsProcess.getVersion());
                 }
             }
             public void afterNodeTriggered(ProcessNodeTriggeredEvent event) {
                 if (event.getNodeInstance() instanceof SubProcessNodeInstance) {
                     StatefulKnowledgeSession ksession = (StatefulKnowledgeSession)event.getKnowledgeRuntime();
-                      SubProcessNodeInstance spNode = (SubProcessNodeInstance)event.getNodeInstance();
+                    org.drools.definition.process.Process droolsProcess = event.getProcessInstance().getProcess();
+                    SubProcessNodeInstance spNode = (SubProcessNodeInstance)event.getNodeInstance();
                     if(enableLog)
-                        log.info("afterNodeTriggered()\tsessionId :  "+ksession.getId()+" : sub-process : " + spNode.getNodeName()+" : pid: "+spNode.getProcessInstanceId());
+                        log.info("afterNodeTriggered()\tsessionId :  "+ksession.getId()+" : sub-process : " + spNode.getNodeName()+" : pid: "+spNode.getProcessInstanceId()+" : pDefVersion = "+droolsProcess.getVersion());
                 }
             }
             public void beforeNodeLeft(ProcessNodeLeftEvent event) {
@@ -606,32 +615,6 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
         }
     }
 
-    public List<ProcessInstance> getActiveProcessInstances(Map<String, Object> queryCriteria) {
-         EntityManager psqlEm = null;
-         List<ProcessInstance> results = null;
-         StringBuilder sqlBuilder = new StringBuilder();
-         sqlBuilder.append("FROM ProcessInstance p ");
-         if(queryCriteria != null && queryCriteria.size() > 0){
-             sqlBuilder.append("WHERE ");
-             if(queryCriteria.containsKey(IKnowledgeSessionService.PROCESS_ID)){
-                 sqlBuilder.append("p.processid = :processId");
-             }
-         }
-         try {
-             psqlEm = jbpmCoreEMF.createEntityManager();
-             Query processInstanceQuery = psqlEm.createQuery(sqlBuilder.toString());
-             if(queryCriteria != null && queryCriteria.size() > 0){
-                 if(queryCriteria.containsKey(IKnowledgeSessionService.PROCESS_ID)){
-                     processInstanceQuery = processInstanceQuery.setParameter(IKnowledgeSessionService.PROCESS_ID, queryCriteria.get(IKnowledgeSessionService.PROCESS_ID));
-                 }
-             }
-             results = processInstanceQuery.getResultList();
-             return results;
-         }catch(Exception x) {
-             return null;
-         }
-     }
-
     public String printActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId) {
         Map<String,Object> vHash = getActiveProcessInstanceVariables(processInstanceId, ksessionId);
         StringBuilder sBuilder = new StringBuilder();
@@ -647,7 +630,7 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
         }
         return sBuilder.toString();
     }
-  
+    
     public Map<String, Object> getActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId) {
         StatefulKnowledgeSession ksession = null;
         try {
