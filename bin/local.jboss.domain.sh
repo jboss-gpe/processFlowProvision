@@ -73,7 +73,7 @@ start() {
     if [ "x$jbossModulePath" != "x" ]; then
         export JBOSS_MODULEPATH=$jbossModulePath
     fi
-    echo -en $"Starting jboss daemon w/ following command line args: \n\tjboss.bind.address = $hostName\n\t-bmanagement = $hostName\n\tjboss.domain.base.dir= $jbossDomainBaseDir\n\tdomainConfig=$domainConfig\n\tsleepSec=$sleepSec\n"
+    echo -en $"Starting jboss daemon w/ following command line args: \n\tjboss.bind.address = $hostName\n\t-bmanagement = $hostName\n\tjboss.domain.base.dir= $jbossDomainBaseDir\n\tdomainConfig=$domainConfig\n\tsleepSec=$sleepSec\n\tJBOSS_MODULEPATH=$jbossModulePath\n"
     sleep 1 
     cd $JBOSS_HOME
     chmod 755 $JBOSS_HOME/bin/*.sh

@@ -344,10 +344,10 @@
         </exec>
     </target>
     <target name="local.start.master">
-        <var name="jbossModulePath" value="${jboss.home}/modules:${pfp.module.path}" />
+        <var name="jbossModulePath" value="${jboss.home}/modules:${pfp.module.path}:${sy.module.path}" />
         <if>
-            <equals arg1="${org.jboss.processFlow.provision.switchyard}" arg2="true" />
-            <then><var name="jbossModulePath" value="${jbossModulePath}:${sy.module.path}"/></then>
+            <isset property="project.module.path"/>
+            <then><var name="jbossModulePath" value="${jbossModulePath}:${project.module.path}"/></then>
         </if>
         <exec executable="bash" failonerror="true" dir="." >
            <arg value="${development.base}/bin/local.jboss.domain.sh"/>

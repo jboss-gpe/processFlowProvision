@@ -347,21 +347,11 @@
         <delete dir="${eclipse.home}/drools-update-site"/>
     </target>
 
-    <!--    TO-DO:  probably need to filter out from sy.deployer.zip due to their pre-existence in as7.1.3 :
-            org/picketlink/main/module.xml
-            org/jboss/weld/core/main/module.xml
-    -->
     <target name="configure.sy.modules" >
-        <delete dir="${sy.module.path}" />
-        <if>
-            <equals arg1="${org.jboss.processFlow.provision.switchyard}" arg2="true" />
-            <then>
-                <antcall target="download.and.unzip.sy.deployer" />
-                <move todir="${sy.module.path}" >
-                    <fileset dir="${temp.sy.dir}/modules" />
-                </move>
-            </then>
-        </if>
+        <antcall target="download.and.unzip.sy.deployer" />
+        <move todir="${sy.module.path}" >
+            <fileset dir="${temp.sy.dir}/modules" />
+        </move>
     </target>
 
     <target name="configure.jboss.modules" >
