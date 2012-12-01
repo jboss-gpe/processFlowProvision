@@ -13,6 +13,11 @@
         <copy toDir="${build.dir}/META-INF/" overwrite="true" verbose="true" >
             <fileset dir="src/main/resources/META-INF" />
         </copy>
+        <antcall target="filter">
+            <param name="source.dir" value="src/main/resources/META-INF" />
+            <param name="file.name" value="beans.xml" />
+            <param name="dest.dir" value="${build.dir}/META-INF" />
+        </antcall>
         <jar jarfile="${build.dir}/processFlow-${ant.project.name}.jar" basedir="${build.dir}" />
         <copy file="${build.dir}/processFlow-${ant.project.name}.jar" toDir="${temp.pfp.services.dir}" />
 

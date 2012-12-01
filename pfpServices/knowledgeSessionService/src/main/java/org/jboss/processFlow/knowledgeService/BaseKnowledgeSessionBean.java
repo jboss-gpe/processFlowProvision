@@ -85,6 +85,69 @@ import org.mvel2.MVEL;
 import org.mvel2.ParserConfiguration;
 import org.mvel2.ParserContext;
 
+
+/**
+ *<pre>
+ *architecture
+ * Drools knowledgeBase management
+ *  - this implementation instantiates a single instance of org.drools.KnowledgeBase
+ *  - this KnowledgeBase is kept current by interacting with a remote BRMS guvnor service
+ *  - note: this KnowledgeBase instance is instantiated the first time any IKnowledgeSessionService operation is invoked
+ *  - the KnowledgeBase is not instantiated in a start() method because the BRMS guvnor may be co-located on the same jvm
+ *      as this KnowledgeSessionService and may not yet be available (depending on boot-loader order)
+ *      
+ *
+ * WorkItemHandler Management
+ *  - Creating & configuring custom work item handlers in PFP is almost identical to creating custom work item handlers in stock BRMS
+ *     - Background Documentation :       12.1.3  Registering your own service handlers
+ *      - The following are a few processFlowProvision additions :
+ *
+ *       1)  programmatically registered work item handlers
+ *         -- every StatefulKnowledgeSession managed by the processFlowProvision knowledgeSessionService is automatically registered with
+ *
+ *          the following workItemHandlers :
+ *           1)  "Human Task"    :   org.jboss.processFlow.tasks.handlers.PFPAddHumanTaskHandler
+ *           2)  "Skip Task"     :   org.jboss.processFlow.tasks.handlers.PFPSkipTaskHandler
+ *           3)  "Fail Task"     :   org.jboss.processFlow.tasks.handlers.PFPFailTaskHandler
+ *           4)  "Email"         :   org.jboss.processFlow.tasks.handlers.PFPEmailWorkItemHandler
+ *
+ *      2)  defining configurable work item handlers
+ *        -- jbpm5 allows for more than one META-INF/drools.session.conf in the runtime classpath
+ *          -- subsequently, there is the potential for mulitple locations that define custom work item handlers
+ *         -- the ability to have multiple META-INF/drools.session.conf files on the runtime classpath most likely will lead to
+ *               increased difficulty isolating problems encountered with defining and registering custom work item handlers
+ *        -- processFlowProvision/build.properties includes the following property:  space.delimited.workItemHandler.configs
+ *         -- rather than allowing for multiple locations to define custom work item handlers,
+ *               use of the 'space.delimited.workItemHandler.configs' property centralalizes where to define additional custom workItemHandlers
+ *         -- please see documentation provided for that property in the build.properties
+ *
+ * processEventListeners
+ *      - ProcessEventListeners get registered with the knowledgeSession/processEngine
+ *      - when any of the corresponding events occurs in the lifecycle of a process instance, those processevent listeners get invoked
+ *      - a configurable list of process event listeners can be registered with the process engine via the following system prroperty:
+ *          IKnowledgeSessionService.SPACE_DELIMITED_PROCESS_EVENT_LISTENERS
+ *
+ *      - in processFlowProvision, we have two classes that implement org.drools.event.process.ProcessEventListener :
+ *          1)  the 'busySessionsListener' inner class constructed in this knowledgeSessionService    
+ *              -- used to help maintain our ksessionid state
+ *              -- a new instance is automatically registered with a ksession with new ksession creation or ksession re-load
+ *          2)  org.jboss.processFlow.bam.AsyncBAMProducer
+ *              -- sends BAM events to a hornetq queue
+ *              -- registered by including it in IKnowledgeSessionService.SPACE_DELIMITED_PROCESS_EVENT_LISTENERS system property
+ *
+ *
+ * BAM audit logging
+ *  - this implementation leverages a pool of JMS producers to send BAM events to a JMS provider
+ *  - a corresponding BAM consumer receives those BAM events and persists to the BRMS BAM database
+ *  - it is possible to disable the production of BAM events by NOT including 'org.jboss.processFlow.bam.AsyncBAMProducer' as a value
+ *    in the IKnowledgeSessionService.SPACE_DELIMITED_PROCESS_EVENT_LISTENERS property
+ *  - note:  if 'org.jboss.processFlow.bam.AsyncBAMProducer' is not included, then any clients that query the BRMS BAM database will be affected
+ *  - an example is the BRMS gwt-console-server
+ *      the gwt-console-server queries the BRMS BAM database for listing of active process instances
+ *      
+ *     
+ *
+ */
 public class BaseKnowledgeSessionBean {
 
     public static final String EMF_NAME = "org.jbpm.persistence.jpa";
@@ -686,6 +749,15 @@ public class BaseKnowledgeSessionBean {
         	sBuffer.append("\nno active process instances found\n");
         }
         return sBuffer.toString();
+    }
+    
+    protected void rollbackTrnx() {
+        try {
+            if(uTrnx.getStatus() == javax.transaction.Status.STATUS_ACTIVE)
+                uTrnx.rollback();
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
     }
   
 }
