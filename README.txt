@@ -29,12 +29,13 @@ OVERVIEW
 
 PFP github branches :
     - master
-        - targeted for "domain" managed JBoss EAP6 environment in 'local' mode
-        - targeted for 'standalone'EAP 6 in 'openshift' mode
+        - targeted for "domain" managed JBoss AS7.1.3 environment in 'local' mode
+        - targeted for 'standalone' in 'openshift' mode
         - tracks master branch of jbpm5 community project from github
-        - configurable to use either mysql or postgres
+            - 5 Dec. 2012:  in particular, 5.4.0.Final tag of jbpm5
+        - configurable to use either mysql, oracle or postgres
         - leverages embedded hornetq provided by EAP 6
-        - pfp services implemented using EJB 3.1 and JPA 2.1
+        - pfp services implemented using CDI & JPA 2.1 with EJB 3.1 wrappings
         - provisions additional droolsjbpm web archives such as :
             1)  guvnor
             2)  designer
@@ -43,18 +44,21 @@ PFP github branches :
             5)  BIRT reporting
         - provisioning scripts work only in a *nix variant (read: no windows)
 
-    - switchyard
-        - targeted for "standalone" JBoss AS7 runtime modified with SY modules
-        - tracks master branch of SY community project from github
-        - configurable to use either mysql or postgres
+    - 5.3.1
+        - targeted for "domain" managed JBoss EAP6 environment in 'local' mode
+        - targeted for 'standalone' EAP 6 in 'openshift' mode
+        - provisions Red Hat BRMS 5.3.1
+            - 5 Dec. 2012:  in particular, BRMS 5.3.1 ER4
+        - configurable to use either mysql, oracle or postgres
         - leverages embedded hornetq provided by EAP 6
-        - does not include any pfp services
-        - configurable to use either mysql or postgres
+        - pfp services implemented using CDI & JPA 2.1 with EJB 3.1 wrappings
         - provisions additional droolsjbpm web archives such as :
-            1)  guvnor
+            1)  jboss-brms
             2)  designer
+            3)  business-central-server
+            4)  business-central
+            5)  BIRT reporting
         - provisioning scripts work only in a *nix variant (read: no windows)
-
 
     - 5.3.0.GA    
         - targeted for non-clustered JBoss EAP 5.*
@@ -79,37 +83,46 @@ FEATURES
 1)  automated provisioning
     - Automates provisioning of BRMS deployable libraries on JBoss EAP 5.1
     - Automates Hornetq or MRG-M standalone configuration
-    - Provides PostgreSQL configuration templates
+    - Provides PostgreSQL and mysql configuration templates
 
 
 2)  centralized configuration
     - centralized configuration of jbpm5 properties during build phase 
       - (via a single build.properties)
-    - centralized configuration of jbpm5 properties during the runtime phase 
-      - (via properties-service.xml)
+    - purpose
+        - BRMS deployable has configuration files throughout it's various 
+          sub-components
+        - instead of manually modifying it's various config files, PFP allows
+          the developer/admin to configure properties from a single properties
+          file
+          
 
 
 3)  database integration
     - integrated and performance tested  using postgresql
     - all jbpm5 / drools components now using one of 3 JCA connection pools:
         1)  jbpm-core-cp
-        2)  guvnor-cp
-        3)  jbpm-bam
+        2)  jbpm-bam
+        1)  guvnor-cp
 
 
-4)  EJB stateless/singleton services
+4)  CDI singleton services
     - Exposes full functionality of BRMS APIs to remote clients
     - Allows for scalability / fail-over in distributed environment
-    - Allows for wrapping with REST or SOAP endpoints
-    - Allows for runtime configuration of JAAS policies
-        - Authentication requirements
-        - Method-level authorization
-        - Programmatic authorization via SessionContext
+    - Allows for wrapping with EJB, REST or SOAP endpoints
     - avoids management of jbpm5/drools knowledge sessions in client code
     - simplifies usability of the jpm5 engine from the client perspective
 
 
-5)  task functionality
+5)  EJB wrappers of CDI singleton services
+    - provides remote access to CDI singleton services
+    - Allows for runtime configuration of JAAS policies
+        - Authentication requirements
+        - Method-level authorization
+        - Programmatic authorization via SessionContext
+
+
+6)  task functionality
     - No longer uses a Mina /Hornet-q messaging provider nor jbpm5 "Task Server"
     - instead, exposes task related API as EJB3
     - greatly simplifies environment
@@ -118,16 +131,23 @@ FEATURES
     - BRMS human task functionality is centralized
 
 
-6)  StatefulKnowledgeSession functionality
-    - “stateful knowledge session per processInstance” architecture
-    - allows for concurrency without invoking various optimistic lock exceptions
-    - recycles database SessionInfo records after process instance completion
+7)  StatefulKnowledgeSession management:
     - drools/jbpm5 process engine functionality is centralized
     - forwards process engine BAM events to a messaging provider
-    - significantly more performant than persisting BAM event to RDBMS in same thread of execution as process engine
+    - significantly more performant than persisting BAM event to RDBMS in same
+      thread of execution as process engine
+    - two implementions:
+        1)  SessionPerPInstance strategy
+          - appropriate when bpmn2 definitions include rules nodes 
+          - prevents optimistic lock exceptions that may occur in concurrent
+            environments
+          - recycles database SessionInfo records after process completion
+            -prevents SessionInfo table from continuosly growing
+        2)  SingleSessionForAll strategy
+          - appropriate when bpmn2 definitions do not include rules nodes
 
 
-7)  bam functionality
+8)  bam functionality
     - bam data maintains relationship between:
         parent process instances and its sub-process instances
     - this allows BAM reporting that can be depicted in a tree structure
