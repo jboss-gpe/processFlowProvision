@@ -177,5 +177,10 @@ public interface IKnowledgeSession extends IBaseKnowledgeSession {
      * this function lists the # of active and idle producers from a pool of JMS producers
      */  
     public String                   dumpBAMProducerPoolInfo();
+    
+    /**
+     * for details, please see:  http://docs.jboss.org/jbpm/v5.1/userguide/ch05.html#d0e1768
+     */
+    public void upgradeProcessInstance(long processInstanceId, String processId, Map<String, Long> nodeMapping);
 
 }

@@ -199,7 +199,7 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
         return kBean.printWorkItemHandlers();
     }
     public String printActiveProcessInstances(Map<String,Object> queryCriteria) {
-    	return kBean.printActiveProcessInstances(queryCriteria);
+        return kBean.printActiveProcessInstances(queryCriteria);
     }
     public List<SerializableProcessMetaData> retrieveProcesses() throws Exception {
         return kBean.retrieveProcesses();
@@ -273,5 +273,8 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
     }
     public void setProcessInstanceVariables(Long processInstanceId, Map<String, Object> variables, Integer ksessionId) {
         kBean.setProcessInstanceVariables(processInstanceId, variables, ksessionId);
+    }
+    public void upgradeProcessInstance(long processInstanceId, String processId, Map<String, Long> nodeMapping) {
+        kBean.upgradeProcessInstance(processInstanceId, processId, nodeMapping);
     }
 }

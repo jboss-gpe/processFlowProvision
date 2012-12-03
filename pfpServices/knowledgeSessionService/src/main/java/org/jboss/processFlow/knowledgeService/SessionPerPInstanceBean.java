@@ -69,6 +69,7 @@ import org.jbpm.workflow.instance.node.SubProcessNodeInstance;
 import org.jbpm.integration.console.shared.GuvnorConnectionUtils;
 import org.jbpm.task.admin.TaskCleanUpProcessEventListener;
 import org.jbpm.task.admin.TasksAdmin;
+import org.jbpm.workflow.instance.WorkflowProcessInstanceUpgrader;
 
 import org.jboss.processFlow.bam.IBAMService;
 import org.jboss.processFlow.bam.AsyncBAMProducerPool;
@@ -619,6 +620,19 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
             } else {
                 throw new IllegalArgumentException("Could not find process instance " + processInstanceId);
             }
+        } finally {
+            if(ksession != null)
+                disposeStatefulKnowledgeSessionAndExtras(ksessionId);
+        }
+    }
+
+    public void upgradeProcessInstance(long processInstanceId, String processId, Map<String, Long> nodeMapping) {
+        StatefulKnowledgeSession ksession = null;
+        Integer ksessionId = 0;
+        try {
+            ksessionId = sessionPool.getSessionId(processInstanceId);
+            ksession = loadStatefulKnowledgeSessionAndAddExtras(ksessionId);
+            WorkflowProcessInstanceUpgrader.upgradeProcessInstance(ksession, processInstanceId, processId, nodeMapping);
         } finally {
             if(ksession != null)
                 disposeStatefulKnowledgeSessionAndExtras(ksessionId);

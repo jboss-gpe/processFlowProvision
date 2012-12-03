@@ -23,6 +23,7 @@
 package org.jboss.processFlow.knowledgeService;
 
 import java.util.*;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.enterprise.inject.Alternative;
@@ -56,6 +57,7 @@ import org.drools.runtime.process.ProcessInstance;
 import org.drools.runtime.process.WorkItemHandler;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
+import org.jbpm.workflow.instance.WorkflowProcessInstanceUpgrader;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.jbpm.workflow.instance.node.SubProcessNodeInstance;
 import org.jbpm.integration.console.shared.GuvnorConnectionUtils;
@@ -144,12 +146,12 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
         Query processInstanceQuery = eManager.createQuery(sqlBuilder.toString());
         List<SessionInfo> results = processInstanceQuery.getResultList();
         if(results.size() == 0){
-        	ksession = makeStatefulKnowledgeSession();
+            ksession = makeStatefulKnowledgeSession();
         }else if(results.size() > 1){
-        	throw new RuntimeException("start() currently " +results.size()+" # of sessionInfo records when only 1 is allowed");
+            throw new RuntimeException("start() currently " +results.size()+" # of sessionInfo records when only 1 is allowed");
         }else{
-        	SessionInfo sInfoObj = (SessionInfo)results.get(0);
-        	loadStatefulKnowledgeSession(sInfoObj.getId());            	
+            SessionInfo sInfoObj = (SessionInfo)results.get(0);
+            loadStatefulKnowledgeSession(sInfoObj.getId());                
         }
         addExtrasToStatefulKnowledgeSession();
     }
@@ -422,7 +424,7 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
     }
 
     public void abortProcessInstance(Long processInstanceId, Integer ksessionId) {
-    	try{
+        try{
             uTrnx.begin();
             ksession.abortProcessInstance(processInstanceId);
             uTrnx.commit();
@@ -492,7 +494,11 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
         }
     }
 
-	public void disposeStatefulKnowledgeSessionAndExtras(Integer sessionId) {
-		 // do nothing.  ksession will be disposed at stop() lifecycle funtion
-	}
+    public void disposeStatefulKnowledgeSessionAndExtras(Integer sessionId) {
+         // do nothing.  ksession will be disposed at stop() lifecycle funtion
+    }
+
+    public void upgradeProcessInstance(long processInstanceId, String processId, Map<String, Long> nodeMapping) {
+        WorkflowProcessInstanceUpgrader.upgradeProcessInstance(ksession, processInstanceId, processId, nodeMapping);
+    }
 }
