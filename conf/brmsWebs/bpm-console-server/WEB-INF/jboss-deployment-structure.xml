@@ -1,18 +1,7 @@
 <jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.0">
     <deployment>
         <dependencies>
-            <module name="org.apache.commons.collections" />
-            <module name="org.apache.commons.io" />
-
-            <!-- bpm-integration is sub-classed with pfp layer that proxies requests to pfp-core -->
-            <!-- module name="org.jboss.processFlow" / -->
-
-            <!-- 
-                following is needed for birt reporting 
-                - will comment out until figure out a more configurable solution
-            -->
-            <!-- module name="org.postgresql.jdbc" / -->
+            <module name="org.jboss.processFlow.brmsExtras" />
         </dependencies>
     </deployment>
-
 </jboss-deployment-structure>

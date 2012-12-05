@@ -148,18 +148,6 @@
     <target name="local.refresh.guvnor" description="" >
         <delete dir="${local.guvnor.repo.location}" />
         <mkdir dir="${local.guvnor.repo.location}" />
-        <if>
-            <not>
-                <equals arg1="${hibernate.dialect}" arg2="org.hibernate.dialect.HSQLDialect" />
-            </not>
-            <then>
-                <antcall target="filter">
-                    <param name="source.dir" value="conf/brmsWebs/drools-guvnor"/>
-                    <param name="file.name" value="repository.xml"/>
-                    <param name="dest.dir" value="${local.guvnor.repo.location}"/>
-                </antcall>
-            </then>
-        </if>
     </target>
 
     <target name="explode.guvnor.and.designer" >
@@ -185,6 +173,7 @@
             <then><property name="guvnor.repo.location" value="${local.guvnor.repo.location}" /></then>
             <else><property name="guvnor.repo.location" value="${openshift.guvnor.repo.location}" /></else>
         </if>
+        <delete file="${guvnor.target}/WEB-INF/classes/log4j.xml" />
         <antcall target="filter">
             <param name="source.dir" value="conf/brmsWebs/drools-guvnor/WEB-INF"/>
             <!-- BRMS 5.3.1 does not use beans.xml
@@ -192,14 +181,13 @@
             <param name="file.name" value="components.xml"/>
             <param name="dest.dir" value="${guvnor.target}/WEB-INF"/>
         </antcall>
-        <antcall target="filter">
+        <!--antcall target="filter">
             <param name="source.dir" value="conf/brmsWebs/drools-guvnor"/>
             <param name="file.name" value="repository.xml"/>
             <param name="dest.dir" value="${local.guvnor.repo.location}"/>
-        </antcall>
+        </antcall -->
         <antcall target="filter">
             <param name="source.dir" value="conf/brmsWebs/drools-guvnor/WEB-INF/classes"/>
-            <param name="file.name" value="preferences.properties"/>
             <param name="dest.dir" value="${guvnor.target}/WEB-INF/classes"/>
         </antcall>
         <antcall target="filter">
@@ -207,15 +195,33 @@
             <param name="file.name" value="jboss-web.xml"/>
             <param name="dest.dir" value="${guvnor.target}/WEB-INF"/>
         </antcall>
-        <!-- compile process definitions using TaskChangeDetails -->
-        <copy file="${temp.pfp.lib.dir}/processFlow-interfaces.jar" toDir="${guvnor.target}/WEB-INF/lib" overwrite="true" />
+        <antcall target="filter">
+            <param name="source.dir" value="conf/brmsWebs/drools-guvnor/WEB-INF"/>
+            <param name="file.name" value="jboss-deployment-structure.xml"/>
+            <param name="dest.dir" value="${guvnor.target}/WEB-INF"/>
+        </antcall>
+        <move todir="${pfp.module.path}/org/jboss/processFlow/brmsExtras/main">
+            <fileset dir="${guvnor.target}/WEB-INF/lib" >
+                <include name="*.jar" />
+                <exclude name="*seam*.jar" />
+            </fileset>
+        </move>
 
         <antcall target="filter">
             <param name="source.dir" value="conf/brmsWebs/designer/profiles"/>
             <param name="file.name" value="jbpm.xml"/>
             <param name="dest.dir" value="${designer.target}/profiles"/>
         </antcall>
-        <copy file="conf/brmsWebs/designer/WEB-INF/jboss-web.xml" toDir="${designer.target}/WEB-INF" />
+        <antcall target="filter">
+            <param name="source.dir" value="conf/brmsWebs/designer/WEB-INF"/>
+            <param name="dest.dir" value="${designer.target}/WEB-INF"/>
+        </antcall>
+        <move todir="${pfp.module.path}/org/jboss/processFlow/brmsExtras/main">
+            <fileset dir="${designer.target}/WEB-INF/lib" >
+                <include name="*.jar" />
+                <exclude name="jbpm-bpmn2-emfextmodel*.jar" />
+            </fileset>
+        </move>
     </target>
 
     <target name="explode.jbpm.gwt.console" >
@@ -235,6 +241,20 @@
                 <unzip src="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-console-server/target/jbpm-gwt-console-server-${jBPM.version}-EE6.war" dest="${console.server.target}"/>
             </else>
         </if>
+        <move todir="${pfp.module.path}/org/jboss/processFlow/brmsExtras/main">
+            <fileset dir="${console.server.target}/WEB-INF/lib" >
+                <include name="*.jar" />
+            </fileset>
+        </move>
+        <move todir="${pfp.module.path}/org/jboss/processFlow/brmsExtras/main">
+            <fileset dir="${console.target}/WEB-INF/lib" >
+                <include name="*.jar" />
+            </fileset>
+            <fileset dir="${console.target}/WEB-INF/classes" >
+                <include name="Errai*.properties" />
+            </fileset>
+        </move>
+        <copy file="${temp.pfp.lib.dir}/processFlow-adminConsole.jar" todir="${pfp.module.path}/org/jboss/processFlow/brmsExtras/main" />
 
         <delete file="${console.server.target}/WEB-INF/classes/ChangeSet.xml" />
         <delete file="${console.server.target}/WEB-INF/classes/META-INF/persistence.xml" />
@@ -247,9 +267,6 @@
             <param name="source.dir" value="conf/brmsWebs/bpm-console-server/WEB-INF"/>
             <param name="dest.dir" value="${console.server.target}/WEB-INF"/>
         </antcall>
-        <copy file="${temp.pfp.lib.dir}/processFlow-adminConsole.jar" toDir="${console.server.target}/WEB-INF/lib" overwrite="true" />
-        <copy file="${temp.pfp.lib.dir}/processFlow-interfaces.jar" toDir="${console.server.target}/WEB-INF/lib" overwrite="true" />
-        <copy file="${temp.pfp.lib.dir}/processFlow-common.jar" toDir="${console.server.target}/WEB-INF/lib" overwrite="true" />
 
         <!-- bpm-console integration in BRMS 5.3.1 uses GuvnorConnectionUtils directly
              - expects a valid jbpm.console.properties in root of classpath
@@ -295,7 +312,6 @@
     </target>
 
     <target name="local.deploy.jbpm.gwt.console" >
-        <antcall target="explode.jbpm.gwt.console" />
         <!-- antcall target="install.reporting.into.jboss7" / -->
         <jar jarfile="${console.server.zipped}" basedir="${console.server.target}" />
         <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="true">
@@ -312,9 +328,6 @@
     </target>
 
     <target name="local.deploy.guvnor.designer" >
-        <antcall target="explode.guvnor.and.designer" >
-            <param name="non.openshift.environment" value="true"/>
-        </antcall>
         <jar jarfile="${guvnor.zipped}" basedir="${guvnor.target}" />
 
         <!-- TO-DO:  change the following to use executeCli function -->
@@ -396,6 +409,7 @@
         <copy file="${deps.lib.path}/xstream-${version.xstream}.jar" todir="${temp.jboss.dir}/modules/com/thoughtworks/xstream/main" />
         <copy file="${deps.lib.path}/xpp3_min-${version.xpp3_min}.jar" todir="${temp.jboss.dir}/modules/com/thoughtworks/xstream/main" />
         <copy file="${deps.lib.path}/xmlpull-${version.xmlpull}.jar" todir="${temp.jboss.dir}/modules/com/thoughtworks/xstream/main" />
+        <!--copy file="${deps.lib.path}/xml-apis-${version.xml.apis}.jar" todir="${temp.jboss.dir}/modules/com/thoughtworks/xstream/main" / -->
         <copy tofile="${temp.jboss.dir}/modules/org/drools/main/drools-compiler-${version.drools}.jar" >
             <fileset dir="${deps.lib.path}" ><include name="drools-compiler-*.jar" /></fileset>
         </copy>
@@ -433,7 +447,12 @@
         </if>
         <copy toDir="${temp.jboss.dir}/modules/org/jbpm/main" overwrite="true" >
             <fileset dir="${temp.gwt.path}" >
-                <include name="jbpm-gwt-shared-${jBPM.version}.jar" />
+                <include name="jbpm-gwt-shared*.jar" />
+            </fileset>
+        </copy>
+        <copy toDir="${temp.jboss.dir}/modules/org/jboss/processFlow/brmsExtras/main" overwrite="true" >
+            <fileset dir="${temp.gwt.path}" >
+                <include name="jbpm-gwt*.jar" />
             </fileset>
         </copy>
         <copy todir="${temp.jboss.dir}/modules/org/jboss/processFlow/main" >
@@ -564,6 +583,24 @@
                 </if>
                 <!-- in clustered environment, needs to change to HA EJB ?  -->
                 <math result="pfp.core.remoting.port" operand1="${base.remoting.port}" operation="+" operand2="${pfp.core.base.port.offset}" datatype="int" />
+                <antcall target="explode.guvnor.and.designer" >
+                    <param name="non.openshift.environment" value="true"/>
+                </antcall>
+                <antcall target="explode.jbpm.gwt.console" />
+        <delete> 
+            <fileset dir="${pfp.module.path}/org/jboss/processFlow/brmsExtras/main" >
+                <include name="commons-collections*.jar" />
+                <include name="log4j*.jar" />
+                <include name="slf4j*.jar" />
+                <exclude name="jbpm-gwt-*.jar" />
+                <include name="jbpm*.jar" />
+                <include name="drools-compiler*.jar" />
+                <include name="drools-core*.jar" />
+                <include name="hornetq*.jar" />
+                <include name="knowledge-*.jar" />
+                <include name="mvel-*.jar" />
+            </fileset>
+        </delete>
                 <antcall target="cli.batch">
                     <param name="cli.source.dir" value="conf/brmsWebs"/>
                     <param name="cli.to.filter.and.execute" value="brmsWebs-config-up.cli"/>
@@ -608,7 +645,6 @@
                 </if>
             </then>
         </if>
-        <delete dir="${local.guvnor.repo.location}" />
         <delete dir="${distro.clean}" />
         <delete dir="privateServiceTaskRepo/${build.dir}" />
         <delete dir="pfpServicesTest/${build.dir}" />
