@@ -200,7 +200,7 @@
             <param name="file.name" value="jboss-deployment-structure.xml"/>
             <param name="dest.dir" value="${guvnor.target}/WEB-INF"/>
         </antcall>
-        <move todir="${pfp.module.path}/org/jboss/processFlow/brmsExtras/main">
+        <move todir="${temp.brmsExtras.module.path}">
             <fileset dir="${guvnor.target}/WEB-INF/lib" >
                 <include name="*.jar" />
                 <exclude name="*seam*.jar" />
@@ -216,7 +216,7 @@
             <param name="source.dir" value="conf/brmsWebs/designer/WEB-INF"/>
             <param name="dest.dir" value="${designer.target}/WEB-INF"/>
         </antcall>
-        <move todir="${pfp.module.path}/org/jboss/processFlow/brmsExtras/main">
+        <move todir="${temp.brmsExtras.module.path}">
             <fileset dir="${designer.target}/WEB-INF/lib" >
                 <include name="*.jar" />
                 <exclude name="jbpm-bpmn2-emfextmodel*.jar" />
@@ -241,12 +241,12 @@
                 <unzip src="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-console-server/target/jbpm-gwt-console-server-${jBPM.version}-EE6.war" dest="${console.server.target}"/>
             </else>
         </if>
-        <move todir="${pfp.module.path}/org/jboss/processFlow/brmsExtras/main">
+        <move todir="${temp.brmsExtras.module.path}">
             <fileset dir="${console.server.target}/WEB-INF/lib" >
                 <include name="*.jar" />
             </fileset>
         </move>
-        <move todir="${pfp.module.path}/org/jboss/processFlow/brmsExtras/main">
+        <move todir="${temp.brmsExtras.module.path}">
             <fileset dir="${console.target}/WEB-INF/lib" >
                 <include name="*.jar" />
             </fileset>
@@ -254,7 +254,7 @@
                 <include name="Errai*.properties" />
             </fileset>
         </move>
-        <copy file="${temp.pfp.lib.dir}/processFlow-adminConsole.jar" todir="${pfp.module.path}/org/jboss/processFlow/brmsExtras/main" />
+        <copy file="${temp.pfp.lib.dir}/processFlow-adminConsole.jar" todir="${temp.brmsExtras.module.path}" />
 
         <delete file="${console.server.target}/WEB-INF/classes/ChangeSet.xml" />
         <delete file="${console.server.target}/WEB-INF/classes/META-INF/persistence.xml" />
@@ -450,7 +450,7 @@
                 <include name="jbpm-gwt-shared*.jar" />
             </fileset>
         </copy>
-        <copy toDir="${temp.jboss.dir}/modules/org/jboss/processFlow/brmsExtras/main" overwrite="true" >
+        <copy toDir="${temp.brmsExtras.module.path}" overwrite="true" >
             <fileset dir="${temp.gwt.path}" >
                 <include name="jbpm-gwt*.jar" />
             </fileset>
@@ -587,20 +587,26 @@
                     <param name="non.openshift.environment" value="true"/>
                 </antcall>
                 <antcall target="explode.jbpm.gwt.console" />
-        <delete> 
-            <fileset dir="${pfp.module.path}/org/jboss/processFlow/brmsExtras/main" >
-                <include name="commons-collections*.jar" />
-                <include name="log4j*.jar" />
-                <include name="slf4j*.jar" />
-                <exclude name="jbpm-gwt-*.jar" />
-                <include name="jbpm*.jar" />
-                <include name="drools-compiler*.jar" />
-                <include name="drools-core*.jar" />
-                <include name="hornetq*.jar" />
-                <include name="knowledge-*.jar" />
-                <include name="mvel-*.jar" />
-            </fileset>
-        </delete>
+                <delete> 
+                    <fileset dir="${temp.brmsExtras.module.path}" >
+                        <include name="commons-collections*.jar" />
+                        <include name="log4j*.jar" />
+                        <include name="slf4j*.jar" />
+                        <exclude name="jbpm-gwt-*.jar" />
+                        <include name="jbpm*.jar" />
+                        <include name="drools-compiler*.jar" />
+                        <include name="drools-core*.jar" />
+                        <include name="google-collections*.jar" />
+                        <include name="gwt-servlet-2.0.4.jar" />
+                        <include name="hornetq*.jar" />
+                        <include name="knowledge-*.jar" />
+                        <include name="mvel-*.jar" />
+                        <include name="serializer-*.jar" />
+                        <include name="xalan-2.7.1.jar" />
+                        <include name="xstream-1.3.1.jar" />
+                    </fileset>
+                </delete>
+                <copy todir="${pfp.module.path}/org/jboss/processFlow/brmsExtras/main" ><fileset dir="${temp.brmsExtras.module.path}" /></copy>
                 <antcall target="cli.batch">
                     <param name="cli.source.dir" value="conf/brmsWebs"/>
                     <param name="cli.to.filter.and.execute" value="brmsWebs-config-up.cli"/>
