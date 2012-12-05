@@ -660,7 +660,7 @@ public class BaseKnowledgeSessionBean {
         public List<SerializableProcessMetaData> retrieveProcesses() throws Exception {
             List<SerializableProcessMetaData> result = new ArrayList<SerializableProcessMetaData>();
             if(kbase == null)
-                createKnowledgeBaseViaKnowledgeAgent();
+                createKnowledgeBaseViaKnowledgeAgentOrBuilder();
             for (KnowledgePackage kpackage: kbase.getKnowledgePackages()) {
                 for(Process processObj : kpackage.getProcesses()){
                     Long pVersion = 0L;
