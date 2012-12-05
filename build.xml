@@ -368,7 +368,6 @@
     </target>
 
     <target name="configure.jboss.modules" >
-        <delete dir="${temp.jboss.dir}/modules" />
         <if>
             <not><available file="${temp.pfp.lib.dir}" type="dir" /></not>
             <then><antcall target="pfp.compile" /></then>
@@ -458,7 +457,39 @@
         <copy todir="${temp.jboss.dir}/modules/org/jboss/processFlow/main" >
             <fileset dir="${temp.pfp.lib.dir}" />
         </copy>
+        <if>
+            <isset property="non.openshift.environment"/>
+            <then>
+                <antcall target="explode.guvnor.and.designer" >
+                    <param name="non.openshift.environment" value="true"/>
+                </antcall>
+            </then>
+            <else>
+                <antcall target="explode.guvnor.and.designer" />
+            </else>
+        </if>
+        <antcall target="explode.jbpm.gwt.console" />
+                <delete> 
+                    <fileset dir="${temp.brmsExtras.module.path}" >
+                        <include name="commons-collections*.jar" />
+                        <include name="log4j*.jar" />
+                        <include name="slf4j*.jar" />
+                        <exclude name="jbpm-gwt-*.jar" />
+                        <include name="jbpm*.jar" />
+                        <include name="drools-compiler*.jar" />
+                        <include name="drools-core*.jar" />
+                        <include name="google-collections*.jar" />
+                        <include name="gwt-servlet-2.0.4.jar" />
+                        <include name="hornetq*.jar" />
+                        <include name="knowledge-*.jar" />
+                        <include name="mvel-*.jar" />
+                        <include name="serializer-*.jar" />
+                        <include name="xalan-2.7.1.jar" />
+                        <include name="xstream-1.3.1.jar" />
+                    </fileset>
+                </delete>
     </target> 
+
     <target name="local.deploy.jboss.modules" >
         <antcall target="configure.jboss.modules" >
             <param name="non.openshift.environment" value="true"/>
@@ -583,30 +614,6 @@
                 </if>
                 <!-- in clustered environment, needs to change to HA EJB ?  -->
                 <math result="pfp.core.remoting.port" operand1="${base.remoting.port}" operation="+" operand2="${pfp.core.base.port.offset}" datatype="int" />
-                <antcall target="explode.guvnor.and.designer" >
-                    <param name="non.openshift.environment" value="true"/>
-                </antcall>
-                <antcall target="explode.jbpm.gwt.console" />
-                <delete> 
-                    <fileset dir="${temp.brmsExtras.module.path}" >
-                        <include name="commons-collections*.jar" />
-                        <include name="log4j*.jar" />
-                        <include name="slf4j*.jar" />
-                        <exclude name="jbpm-gwt-*.jar" />
-                        <include name="jbpm*.jar" />
-                        <include name="drools-compiler*.jar" />
-                        <include name="drools-core*.jar" />
-                        <include name="google-collections*.jar" />
-                        <include name="gwt-servlet-2.0.4.jar" />
-                        <include name="hornetq*.jar" />
-                        <include name="knowledge-*.jar" />
-                        <include name="mvel-*.jar" />
-                        <include name="serializer-*.jar" />
-                        <include name="xalan-2.7.1.jar" />
-                        <include name="xstream-1.3.1.jar" />
-                    </fileset>
-                </delete>
-                <copy todir="${pfp.module.path}/org/jboss/processFlow/brmsExtras/main" ><fileset dir="${temp.brmsExtras.module.path}" /></copy>
                 <antcall target="cli.batch">
                     <param name="cli.source.dir" value="conf/brmsWebs"/>
                     <param name="cli.to.filter.and.execute" value="brmsWebs-config-up.cli"/>
