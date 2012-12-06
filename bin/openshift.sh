@@ -175,6 +175,9 @@ function provisionIndividualAccount() {
 
 # loops through accounts in ${openshift.account.details.file.location}, creates an Ant property file invokes the 'openshift.provision.both' target
 provisionAccountsWithPFP() {
+    cd $PFP_HOME
+    ant pfp.clean
+
     if [ "x$osAccountDetailsFileLocation" = "x" ]; then
         osAccountDetailsFileLocation=$HOME/redhat/openshift/openshift_account_details.xml
     fi
@@ -188,8 +191,6 @@ provisionAccountsWithPFP() {
         -o 'openshift.domain.name=' -v "domainId" -n \
         -o 'openshift.pfpCore.user.hash=' -v "pfpCore/uuid" -n \
         -o 'openshift.pfpCore.internal.ip=' -v "pfpCore/internal_ip" -n \
-        -o 'openshift.brmsWebs.user.hash=' -v "brmsWebs/uuid" -n \
-        -o 'openshift.brmsWebs.internal.ip=' -v "brmsWebs/internal_ip" -n \
         $osAccountDetailsFileLocation >> target/openshiftAccount.properties
 
         # will now set 'is.deployment.local' to false .... this property will only exist in an openshift deployment

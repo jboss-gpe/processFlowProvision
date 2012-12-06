@@ -19,7 +19,7 @@
             <param name="dest.dir" value="${build.dir}/META-INF" />
         </antcall>
         <jar jarfile="${build.dir}/processFlow-${ant.project.name}.jar" basedir="${build.dir}" />
-        <copy file="${build.dir}/processFlow-${ant.project.name}.jar" toDir="${temp.pfp.services.dir}" />
+        <copy file="${build.dir}/processFlow-${ant.project.name}.jar" toDir="${temp.pfp.services.dir}" overwrite="true" verbose="true" />
 
         <!-- now re-create so as to generate java doc -->
         <antcall target="clean" />
@@ -27,13 +27,13 @@
             <param name="jar.name" value="processFlow-${ant.project.name}" />
             <param name="generate.java.doc" value="true" />
         </antcall>
-        <copy file="${build.dir}/processFlow-${ant.project.name}-javadoc.jar" toDir="${temp.client.dir}" />
+        <copy file="${build.dir}/processFlow-${ant.project.name}-javadoc.jar" toDir="${temp.client.dir}" overwrite="true" verbose="true" />
 
         <!-- now create ksessionService war -->
         <antcall target="war" >
             <param name="war.name" value="processFlow-${ant.project.name}-web" />
         </antcall>
-        <copy file="${build.dir}/processFlow-${ant.project.name}-web.war" toDir="${temp.pfp.services.dir}" />
+        <copy file="${build.dir}/processFlow-${ant.project.name}-web.war" toDir="${temp.pfp.services.dir}" overwrite="true" verbose="true" />
     </target>
 
     <target name="test" depends="clean,setClasspath" >

@@ -524,8 +524,8 @@ public class ShifterProvisioner {
     /*
      * ensures that first request to openshift broker includes authentication credentials in header
      * otherwise, apache commons httpClient will fire off an initial request that does NOT include auth credentials
-     * Not including auth credentials in the first request is per the http specification
-     * however, public openshift is misbehaving such that if auth credentials are not included in a request, the openshift broker fails a returns a 500 Internal Server Error
+     * Not including auth credentials in the first request as per the http specification
+     * however, public openshift is misbehaving such that if auth credentials are not included in a request, the openshift broker fails and returns a 500 Internal Server Error
      * see :  http://stackoverflow.com/questions/9539141/httpclient-sends-out-two-requests-when-using-basic-auth
      */
     static class PreemptiveAuthInterceptor implements HttpRequestInterceptor {

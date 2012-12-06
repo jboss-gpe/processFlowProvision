@@ -3,7 +3,6 @@
     <target name="openshift.provision.both" >
         <echo message="service repository = ${service.repository}" />
         <echo message="openshift.domain.name = ${openshift.domain.name}" />
-        <antcall target="openshift.provision.brms.webs" />
         <antcall target="openshift.provision.pfp.core" />
     </target>
 
@@ -17,8 +16,6 @@
            <arg value="${openshift.pfpCore.git.url}"/>
            <arg value="${openshift.pfpCore.app.location}"/>
         </exec>
-
-        <!-- pfp modules are needed to support subclassing of bpm integration layer to proxy to pfpCore -->
         <antcall target="openshift.deploy.jboss.modules" >
             <param name="app.location" value="${openshift.pfpCore.app.location}"/>
         </antcall>
@@ -27,16 +24,17 @@
             <param name="dest.dir" value="${openshift.pfpCore.app.location}/.openshift"/>
         </antcall>
         <delete file="${openshift.pfpCore.app.location}/pom.xml" />
+        <delete file="${openshift.pfpCore.app.location}/.openshift/markers/java7" />
         <antcall target="addUserRoleConfigs" >
             <param name="config.path" value="${openshift.pfpCore.app.location}/.openshift/config"/>
         </antcall>
-        <antcall target="explode.jbpm.gwt.console" />
         <copy todir="${openshift.pfpCore.app.location}/deployments" overwrite="true" >
             <fileset dir="${temp.pfp.services.dir}" >
                 <include name="*.jar" />
                 <include name="*.war" />
             </fileset>
         </copy>
+        <antcall target="openshift.provision.brms.webs" />
         <!-- rsync to exploded web archives to :  ${openshift.jboss.cartridge.type}/tmp/deployments
             this directory will not get blown away when executing 'git push' on openshift app
         -->
@@ -54,7 +52,6 @@
            <arg value="-sshUrl=${openshift.pfpCore.ssh.url}"/>
            <arg value="-remoteDir=${openshift.jboss.cartridge.type}/tmp/deployments/${console.name}"/>
         </exec> 
-
         <exec executable="bash" failonerror="true" dir="." >
            <arg value="${development.base}/bin/openshift.sh"/>
            <arg value="push"/>
@@ -64,30 +61,6 @@
     </target>
 
     <target name="openshift.provision.brms.webs" >
-        <delete dir="${openshift.brmsWebs.app.location}" />
-        <mkdir dir="${openshift.app.dir}" />
-        <exec executable="git" failonerror="true" >
-           <arg value="clone"/>
-           <arg value="-o"/>
-           <arg value="${openshift.domain.name}"/>
-           <arg value="${openshift.brmsWebs.git.url}"/>
-           <arg value="${openshift.brmsWebs.app.location}"/>
-        </exec>
-        <antcall target="openshift.deploy.jboss.modules" >
-            <param name="app.location" value="${openshift.brmsWebs.app.location}"/>
-        </antcall>
-        <property name="pfp.core.remoting.port" value="${base.remoting.port}" />
-        <antcall target="filter">
-            <param name="source.dir" value="conf/openshift/brmsWebs"/>
-            <param name="dest.dir" value="${openshift.brmsWebs.app.location}/.openshift"/>
-        </antcall>
-        <delete file="${openshift.brmsWebs.app.location}/pom.xml" />
-        <delete file="${openshift.brmsWebs.app.location}/.openshift/markers/java7" />
-        <antcall target="addUserRoleConfigs" >
-            <param name="config.path" value="${openshift.brmsWebs.app.location}/.openshift/config"/>
-        </antcall>
-        <delete dir="${temp.brmsWebs.dir}" />
-        <antcall target="explode.guvnor.and.designer" />
         <!-- rsync to exploded web archives to :  ${openshift.jboss.cartridge.type}/tmp/deployments
             this directory will not get blown away when executing 'git push' on openshift app
         -->
@@ -95,23 +68,15 @@
            <arg value="${development.base}/bin/openshift.sh"/>
            <arg value="openshiftRsync"/>
            <arg value="-localDir=${temp.brmsWebs.dir}/${guvnor.name}/*"/>
-           <arg value="-sshUrl=${openshift.brmsWebs.ssh.url}"/>
+           <arg value="-sshUrl=${openshift.pfpCore.ssh.url}"/>
            <arg value="-remoteDir=${openshift.jboss.cartridge.type}/tmp/deployments/${guvnor.name}"/>
         </exec> 
         <exec executable="bash" failonerror="true" dir="." >
            <arg value="${development.base}/bin/openshift.sh"/>
            <arg value="openshiftRsync"/>
            <arg value="-localDir=${temp.brmsWebs.dir}/${designer.name}/*"/>
-           <arg value="-sshUrl=${openshift.brmsWebs.ssh.url}"/>
+           <arg value="-sshUrl=${openshift.pfpCore.ssh.url}"/>
            <arg value="-remoteDir=${openshift.jboss.cartridge.type}/tmp/deployments/${designer.name}"/>
-        </exec> 
-
-        <!-- NOTE:  git push on openshift app will blow away exploded archives in app-root/repo/deployments -->
-        <exec executable="bash" failonerror="true" dir="." >
-           <arg value="${development.base}/bin/openshift.sh"/>
-           <arg value="push"/>
-           <arg value="-localAppLocation=${openshift.brmsWebs.app.location}"/>
-           <arg value="-domainName=${openshift.domain.name}"/>
         </exec> 
     </target>
 
@@ -191,9 +156,13 @@
         <fail unless="app.location" message="openshift.deploy.jboss.modules:  need to pass 'app.location' property" />
         <delete dir="${openshift.pfpCore.app.location}/.openshift/config/modules" />
         <antcall target="configure.jboss.modules" />
-        <copy overwrite="true" todir="${app.location}/.openshift/config/modules">
-            <fileset dir="${temp.jboss.dir}/modules" />
-        </copy>
+        <exec executable="bash" failonerror="true" dir="." >
+           <arg value="${development.base}/bin/openshift.sh"/>
+           <arg value="openshiftRsync"/>
+           <arg value="-localDir=${temp.jboss.dir}/modules/*"/>
+           <arg value="-sshUrl=${openshift.pfpCore.ssh.url}"/>
+           <arg value="-remoteDir=${openshift.jboss.cartridge.type}/tmp/pfpModules"/>
+        </exec> 
     </target>
 
     <target name="openshift.provision.db" >

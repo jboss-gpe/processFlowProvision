@@ -204,6 +204,8 @@
             <fileset dir="${guvnor.target}/WEB-INF/lib" >
                 <include name="*.jar" />
                 <exclude name="*seam*.jar" />
+                <exclude name="gwt*.jar" />
+                <exclude name="cobogw*.jar" />
             </fileset>
         </move>
 
@@ -244,17 +246,21 @@
         <move todir="${temp.brmsExtras.module.path}">
             <fileset dir="${console.server.target}/WEB-INF/lib" >
                 <include name="*.jar" />
+                <include name="jbpm-gwt-shared*.jar" />
+                <exclude name="gwt*.jar" />
+                <exclude name="jbpm-gwt*.jar" />
             </fileset>
         </move>
         <move todir="${temp.brmsExtras.module.path}">
             <fileset dir="${console.target}/WEB-INF/lib" >
                 <include name="*.jar" />
+                <exclude name="gwt*.jar" />
             </fileset>
             <fileset dir="${console.target}/WEB-INF/classes" >
                 <include name="Errai*.properties" />
             </fileset>
         </move>
-        <copy file="${temp.pfp.lib.dir}/processFlow-adminConsole.jar" todir="${temp.brmsExtras.module.path}" />
+        <copy file="${temp.pfp.lib.dir}/processFlow-adminConsole.jar" todir="${console.server.target}/WEB-INF/lib" />
 
         <delete file="${console.server.target}/WEB-INF/classes/ChangeSet.xml" />
         <delete file="${console.server.target}/WEB-INF/classes/META-INF/persistence.xml" />
@@ -435,6 +441,7 @@
                 <exclude name="jbpm-human-task-jms-*.jar" />
                 <exclude name="jbpm-human-task-mina-*.jar" />
                 <exclude name="jbpm-test-*.jar" />
+                <exclude name="jbpm-gwt-*.jar" />
             </fileset>
         </copy>
 

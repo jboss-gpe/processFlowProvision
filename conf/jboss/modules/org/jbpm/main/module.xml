@@ -27,12 +27,15 @@
         <resource-root path="jbpm-flow-${jBPM.version}.jar"/>
         <resource-root path="jbpm-flow-builder-${jBPM.version}.jar"/>
         <resource-root path="jbpm-gwt-shared-${jBPM.version}.jar"/>
-        <!--resource-root path="jbpm-human-task-core-${jBPM.version}.jar"/ -->
         <resource-root path="jbpm-human-task-${jBPM.version}.jar"/>
         <resource-root path="jbpm-persistence-jpa-${jBPM.version}.jar"/>
         <resource-root path="jbpm-workitems-${jBPM.version}.jar"/>
     </resources>
     <dependencies>
+        <module name="org.apache.commons.io" export="true" />
+        <module name="org.apache.commons.pool" export="true" />
+        <module name="org.apache.commons.lang" export="true" />
+        <module name="org.apache.log4j" export="true" />
         <module name="org.drools" export="true" />
         <module name="org.jbpm.configuration" export="true" />
     </dependencies>
