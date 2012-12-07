@@ -105,10 +105,12 @@ import org.jboss.processFlow.util.LogSystemEventListener;
  *      - some of the public methods implemented by this bean take both a 'processInstanceId' and a 'ksessionId' as a parameter
  *      - for the purposes of this implementation, the 'ksessionId' is always optional 
  *          if null is passed to any of the methods accepting a ksessionid, then this implementation will query the jbpm5 task table
-            to determine the mapping between processInstanceId and ksessionId
+ *          to determine the mapping between processInstanceId and ksessionId
+ *  - this implementation is ideal in a multi-thread, concurrent client environment where the following is either met or is acceptable:
+ *      1)  process definitions do include rule data
+ *      2)  from a performance perspective, it's critical that process instance lifecycle functions are executed in parallel rather than synchroneously
+ *          NOTE:  see org.drools.persistence.SingleSessionCommandService.execute(...) function
  *
- *  TO-DO :  prevent potential optimisticlock exception scenarios when invoking 'abortProcess', 'signalEvent', etc
- *      see comments on loadStatefulKnowledgeSession(...) method
  *</pre>
  */
 

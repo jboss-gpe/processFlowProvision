@@ -78,7 +78,10 @@ import org.jboss.processFlow.util.LogSystemEventListener;
  *      - some of the public methods implemented by this bean take both a 'processInstanceId' and a 'ksessionId' as a parameter
  *      - for the purposes of this implementation, the 'ksessionId' is always ignored
  *
- *  - this implementation is ideal in a multi-threaded, concurrent client environment where process definitions do not include rule data
+ *  - this implementation is ideal in a multi-threaded, concurrent client environment where the following is either met or is acceptable :
+ *      1)  process definitions do not include rule data
+ *      2)  process instance lifecycle functions are executed synchroneously, not in parallel
+ *          NOTE:  see org.drools.persistence.SingleSessionCommandService.execute(...) function
  *
  *</pre>
  */
