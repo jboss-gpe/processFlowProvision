@@ -55,5 +55,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/drools-verifier"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-human-task"/>
 	<classpathentry kind="src" path="/knowledge-api"/>
+	<classpathentry kind="var" path="JBOSS_HOME/modules/org/codehaus/jackson/jackson-core-asl/main/jackson-core-asl-1.9.2-redhat-1.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/modules/org/codehaus/jackson/jackson-mapper-asl/main/jackson-mapper-asl-1.9.2-redhat-1.jar"/>
 	<classpathentry kind="output" path="taskService/target"/>
 </classpath>
