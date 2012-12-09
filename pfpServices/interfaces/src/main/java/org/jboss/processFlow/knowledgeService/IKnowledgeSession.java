@@ -81,6 +81,7 @@ public interface IKnowledgeSession extends IBaseKnowledgeSession {
     public static final String SIGNAL_TYPE="signalType";
     public static final String BPMN_FILE="bpmnFile";
     public static final String NODE_ID="nodeId";
+    public static final String DELIVER_ASYNC="deliverAsync";
 
     /**
      * printWorkItemHandlers

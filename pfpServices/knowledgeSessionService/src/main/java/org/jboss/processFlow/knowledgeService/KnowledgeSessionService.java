@@ -31,8 +31,11 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.ejb.*;
 import javax.inject.Inject;
+import javax.jms.*;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+import javax.naming.Context;
+import javax.naming.InitialContext;
 
 import org.drools.definition.process.Process;
 import org.drools.io.*;
@@ -44,100 +47,10 @@ import org.jbpm.persistence.processinstance.ProcessInstanceInfo;
 
 /**
  *<pre>
- *architecture
- *  - this singleton utilizes a 'processInstance per knowledgeSession' architecture
- *  - although the jbpm5 API technically allows for a StatefulKnowledgeSession to manage the lifecycle of multiple process instances,
- *      we choose not to have to deal with optimistic lock exception handling (in particular with the sessionInfo) during highly concurrent environments
- *
- *
- *
- *Drools knowledgeBase management
- *  - this implementation instantiates a single instance of org.drools.KnowledgeBase
- *  - this KnowledgeBase is kept current by interacting with a remote BRMS guvnor service
- *  - note: this KnowledgeBase instance is instantiated the first time any IKnowledgeSessionService operation is invoked
- *  - the KnowledgeBase is not instantiated in a start() method because the BRMS guvnor may be co-located on the same jvm
- *      as this KnowledgeSessionService and may not yet be available (depending on boot-loader order)
- *      
- *
- *WorkItemHandler Management
- *  - Creating & configuring custom work item handlers in PFP is almost identical to creating custom work item handlers in stock BRMS
- *     - Background Documentation :       12.1.3  Registering your own service handlers
- *      - The following are a few processFlowProvision additions :
- *
- *       1)  programmatically registered work item handlers
- *         -- every StatefulKnowledgeSession managed by the processFlowProvision knowledgeSessionService is automatically registered with
- *
- *          the following workItemHandlers :
- *           1)  "Human Task"    :   org.jboss.processFlow.tasks.handlers.PFPAddHumanTaskHandler
- *           2)  "Skip Task"     :   org.jboss.processFlow.tasks.handlers.PFPSkipTaskHandler
- *           3)  "Fail Task"     :   org.jboss.processFlow.tasks.handlers.PFPFailTaskHandler
- *           4)  "Email"         :   org.jboss.processFlow.tasks.handlers.PFPEmailWorkItemHandler
- *
- *      2)  defining configurable work item handlers
- *        -- jbpm5 allows for more than one META-INF/drools.session.conf in the runtime classpath
- *          -- subsequently, there is the potential for mulitple locations that define custom work item handlers
- *         -- the ability to have multiple META-INF/drools.session.conf files on the runtime classpath most likely will lead to
- *               increased difficulty isolating problems encountered with defining and registering custom work item handlers
- *        -- processFlowProvision/build.properties includes the following property:  space.delimited.workItemHandler.configs
- *         -- rather than allowing for multiple locations to define custom work item handlers,
- *               use of the 'space.delimited.workItemHandler.configs' property centralalizes where to define additional custom workItemHandlers
- *         -- please see documentation provided for that property in the build.properties
- *
- *
- *
- *
  *notes on Transactions
  *  - most publicly exposed methods in this singleton assumes a container managed trnx demarcation of REQUIRED
  *  - in some methods, bean managed transaction demarcation is used IOT dispose of the ksession *AFTER* the transaction has committed
  *  - otherwise, the method will fail due to implementation of JBRULES-1880
- *
- *
- *processEventListeners
- *      - ProcessEventListeners get registered with the knowledgeSession/processEngine
- *      - when any of the corresponding events occurs in the lifecycle of a process instance, those processevent listeners get invoked
- *      - a configurable list of process event listeners can be registered with the process engine via the following system prroperty:
- *          IKnowledgeSessionService.SPACE_DELIMITED_PROCESS_EVENT_LISTENERS
- *
- *      - in processFlowProvision, we have two classes that implement org.drools.event.process.ProcessEventListener :
- *          1)  the 'busySessionsListener' inner class constructed in this knowledgeSessionService    
- *              -- used to help maintain our ksessionid state
- *              -- a new instance is automatically registered with a ksession with new ksession creation or ksession re-load
- *          2)  org.jboss.processFlow.bam.AsyncBAMProducer
- *              -- sends BAM events to a hornetq queue
- *              -- registered by including it in IKnowledgeSessionService.SPACE_DELIMITED_PROCESS_EVENT_LISTENERS system property
- *
- *
- *BAM audit logging
- *  - this implementation leverages a pool of JMS producers to send BAM events to a JMS provider
- *  - a corresponding BAM consumer receives those BAM events and persists to the BRMS BAM database
- *  - it is possible to disable the production of BAM events by NOT including 'org.jboss.processFlow.bam.AsyncBAMProducer' as a value
- *    in the IKnowledgeSessionService.SPACE_DELIMITED_PROCESS_EVENT_LISTENERS property
- *  - note:  if 'org.jboss.processFlow.bam.AsyncBAMProducer' is not included, then any clients that query the BRMS BAM database will be affected
- *  - an example is the BRMS gwt-console-server
- *      the gwt-console-server queries the BRMS BAM database for listing of active process instances
- *      
- *     
- *      
- *ksession management
- *  - in this IKnowledgeSessionService implementation, a ksessionId is allocated to a process instance (and any subprocesses) for its entire lifecycle 
- *  - upon completion of a process instance, the ksessionId is made available again for a new process instance
- *  - this singleton utilizes two data structures, busySessions & availableSessions, to maintain which ksessionIds are available for reuse
- *  - a sessioninfo record in the jbpm database corresponds to a single StatefulKnowledgeSession
- *  - a sessioninfo record typically includes the state of :
- *          * timers
- *          * business rule data
- *          * business rule state
- *  - a sessioninfo record is never purged from the database ... in this implementation it is simply re-cycled for use by a new process instance
- *  - ksessionId state :
- *      - some of the public methods implemented by this bean take both a 'processInstanceId' and a 'ksessionId' as a parameter
- *      - for the purposes of this implementation, the 'ksessionId' is always optional 
- *          if null is passed to any of the methods accepting a ksessionid, then this implementation will query the jbpm5 task table
-            to determine the mapping between processInstanceId and ksessionId
- *
- *  TO-DO :  prevent potential optimisticlock exception scenarios when invoking 'abortProcess', 'signalEvent', etc
- *      see comments on loadStatefulKnowledgeSession(...) method
- *
- *
  *</pre>
  */
 @Remote(IKnowledgeSessionService.class)
@@ -153,13 +66,25 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
     
     protected ObjectName objectName;
     protected MBeanServer platformMBeanServer;
+
+    private final String cFactoryName = "/ConnectionFactory";
+    private final String gwDObjName = "queue/processFlow.knowledgeSessionQueue";
+    private Destination gwDObj = null;
+    private Connection connectionObj = null;
     
     @PostConstruct
     public void start() throws Exception {
+        Context jndiContext = null;
         try {
             objectName = new ObjectName("org.jboss.processFlow:type="+this.getClass().getName());
             platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
             platformMBeanServer.registerMBean(this, objectName);
+
+            jndiContext = new InitialContext();
+            ConnectionFactory cFactory = (ConnectionFactory)jndiContext.lookup(cFactoryName);
+            connectionObj = cFactory.createConnection();
+            gwDObj = (Destination)jndiContext.lookup(gwDObjName);
+            jndiContext.close(); 
         } catch(Exception x) {
             throw new RuntimeException(x);
         }
@@ -247,14 +172,70 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
      *- at completion of the process instance (or arrival at a wait state), the StatefulKnowledgeSession will be disposed
      *- bean managed transaction demarcation is used by this method IOT dispose of the ksession *AFTER* the transaction has committed
      *- otherwise, this method will fail due to implementation of JBRULES-1880
+     *
+     *  will deliver to KSessionManagement via JMS if inbound pInstanceVariables map contains an entry keyed by IKnowledgeSessionService.DELIVER_ASYNC
      *</pre>
      */
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public Map<String, Object> startProcessAndReturnId(String processId, Map<String, Object> parameters) {
-        return kBean.startProcessAndReturnId(processId, parameters);
+    public Map<String, Object> startProcessAndReturnId(String processId, Map<String, Object> pInstanceVariables) {
+        if(pInstanceVariables != null && pInstanceVariables.containsKey(IKnowledgeSessionService.DELIVER_ASYNC)) {
+            Session sessionObj = null;
+            try {
+                pInstanceVariables.remove(IKnowledgeSessionService.DELIVER_ASYNC);
+                sessionObj = connectionObj.createSession(false, Session.AUTO_ACKNOWLEDGE);
+                MessageProducer m_sender = sessionObj.createProducer(gwDObj);
+                ObjectMessage oMessage = sessionObj.createObjectMessage();
+                oMessage.setObject((HashMap<String,Object>)pInstanceVariables);
+                oMessage.setStringProperty(IKnowledgeSessionService.OPERATION_TYPE, IKnowledgeSessionService.START_PROCESS_AND_RETURN_ID);
+                oMessage.setStringProperty(IKnowledgeSessionService.PROCESS_ID, processId);
+                m_sender.send(oMessage);
+                Map<String, Object> returnMap = new HashMap<String, Object>();
+                returnMap.put(IKnowledgeSession.PROCESS_INSTANCE_ID, new Long(0));
+                return returnMap;
+            } catch(JMSException x) {
+                throw new RuntimeException(x);
+            }finally {
+                if(sessionObj != null) {
+                    try { sessionObj.close(); }catch(Exception x){ x.printStackTrace(); }
+                }
+            }
+        } else {
+            return kBean.startProcessAndReturnId(processId, pInstanceVariables);
+        }
     }
+    
+
+    /**
+     * completeWorkItem
+     * <pre>
+     * this method will block until the existing process instance either completes or arrives at a wait state
+     *
+     * will deliver to KSessionManagement via JMS if inbound pInstanceVariables map contains an entry keyed by IKnowledgeSessionService.DELIVER_ASYNC
+     * </pre>
+     */ 
     public void completeWorkItem(Integer ksessionId, Long workItemId, Map<String, Object> pInstanceVariables) {
-        kBean.completeWorkItem(ksessionId, workItemId, pInstanceVariables);
+        if(pInstanceVariables != null && pInstanceVariables.containsKey(IKnowledgeSessionService.DELIVER_ASYNC)) {
+            Session sessionObj = null;
+            try {
+                pInstanceVariables.remove(IKnowledgeSessionService.DELIVER_ASYNC);
+                sessionObj = connectionObj.createSession(false, Session.AUTO_ACKNOWLEDGE);
+                MessageProducer m_sender = sessionObj.createProducer(gwDObj);
+                ObjectMessage oMessage = sessionObj.createObjectMessage();
+                oMessage.setObject((HashMap<String,Object>)pInstanceVariables);
+                oMessage.setStringProperty(IKnowledgeSessionService.OPERATION_TYPE, IKnowledgeSessionService.COMPLETE_WORK_ITEM);
+                oMessage.setLongProperty(IKnowledgeSessionService.WORK_ITEM_ID, workItemId);
+                oMessage.setIntProperty(IKnowledgeSessionService.KSESSION_ID, ksessionId);
+                m_sender.send(oMessage);
+            } catch(JMSException x) {
+                throw new RuntimeException(x);
+            }finally {
+                if(sessionObj != null) {
+                    try { sessionObj.close(); }catch(Exception x){ x.printStackTrace(); }
+                }
+            }
+        } else {
+            kBean.completeWorkItem(ksessionId, workItemId, pInstanceVariables);
+        }
     }
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public void signalEvent(String signalType, Object signalValue, Long processInstanceId, Integer ksessionId) {

@@ -134,9 +134,11 @@ public class CommandDelegate {
 
             Long pInstanceId = (Long)returnMap.get(IKnowledgeSessionService.PROCESS_INSTANCE_ID);
             ProcessInstanceLog pInstanceLog = new ProcessInstanceLog(pInstanceId, processId);
-            pInstanceLog.setStart(new Date());
-
-            //return bamProxy.getProcessInstanceLog((Long)returnMap.get(IKnowledgeSessionService.PROCESS_INSTANCE_ID));
+            if(pInstanceId != 0L) {
+                pInstanceLog.setStart(new Date());
+            }else {
+                // was invoked with IKnowledgeSessionService.DELIVER_ASYNC == true
+            }
             return pInstanceLog;
         } catch(RuntimeException x) {
             throw x;
