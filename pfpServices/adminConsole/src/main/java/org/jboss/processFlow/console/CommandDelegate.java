@@ -23,6 +23,7 @@
 package org.jboss.processFlow.console;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -182,7 +183,11 @@ public class CommandDelegate {
         }
     }
     
-    public static void signalExecution(String executionId, String signalRef, String signal) {
-        throw new RuntimeException("signalExecution() method not yet implemented");
+    public static void signalExecution(String executionId, String signalRef, Map<String, String> signalValues) {
+    	try {
+    		ksessionProxy.signalEvent(signalRef, signalValues, Long.parseLong(executionId), null);
+    	}catch(Exception x) {
+    		throw new RuntimeException(x);
+    	}
     }
 }

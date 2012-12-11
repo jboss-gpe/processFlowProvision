@@ -23,6 +23,7 @@
 package org.jboss.processFlow.console;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -106,9 +107,17 @@ public class ProcessManagement implements org.jboss.bpm.console.server.integrati
 
     
     public void signalExecution(String executionId, String signal) {
-        if (signal.indexOf("^") != -1) {
-            String[] signalData = signal.split("\\^");
-            CommandDelegate.signalExecution(executionId, signalData[0], signalData[1]);
+    	
+    	// JA Bride:  will attempt to build a Map of signal values from the 'signal' parameter
+    	// changed to '$' because '^' doesn't seem to be a valid URL character
+        if (signal.indexOf("$") != -1) {
+            String[] signalData = signal.split("\\$");
+            Map<String, String> signalMap = new HashMap<String, String>();
+            for(int t = 1; t< signalData.length; t++) {
+            	signalMap.put(signalData[t], signalData[t+1]);
+            	t++;
+            }
+            CommandDelegate.signalExecution(executionId, signalData[0], signalMap);
         } else {
             CommandDelegate.signalExecution(executionId, signal, null);
         }
