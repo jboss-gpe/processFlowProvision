@@ -495,11 +495,17 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
      *- this method operates within scope of container managed transaction
      *- can no longer dispose knowledge session within scope of this transaction due to side effects from fix for JBRULES-1880
      *- subsequently, it's expected that a client will invoke 'disposeStatefulKnowledgeSessionAndExtras' after this JTA trnx has been committed
+     *
+     * if ksessionId param is passed, then pInstanceId param can be null
+     * otherwise, if ksessionId param is not passed, then pInstanceId param is mandatory
      *</pre>
      */
-    public void completeWorkItem(Integer ksessionId, Long workItemId, Map<String, Object> pInstanceVariables) {
+    public void completeWorkItem(Long workItemId, Map<String, Object> pInstanceVariables, Long pInstanceId, Integer ksessionId) {
         StatefulKnowledgeSession ksession = null;
         try {
+        	if(ksessionId == null)
+                ksessionId = sessionPool.getSessionId(pInstanceId);
+        	
             ksession = loadStatefulKnowledgeSessionAndAddExtras(ksessionId);
             ksession.getWorkItemManager().completeWorkItem(workItemId, pInstanceVariables);
         } catch(RuntimeException x) {

@@ -397,9 +397,11 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
      *<pre>
      *- notifies process engine to complete a work item and continue execution of next node in process instance
      *- this method operates within scope of container managed transaction
+     *
+     *- NOTE:  in this implementation, both pInstanceId and ksessionId can be null
      *</pre>
      */
-    public void completeWorkItem(Integer ksessionId, Long workItemId, Map<String, Object> pInstanceVariables) {
+    public void completeWorkItem(Long workItemId, Map<String, Object> pInstanceVariables, Long pInstanceId, Integer ksessionId) {
         try {
             ksession.getWorkItemManager().completeWorkItem(workItemId, pInstanceVariables);
         } catch(RuntimeException x) {

@@ -32,8 +32,6 @@ import java.lang.reflect.Constructor;
 import java.net.ConnectException;
 import java.util.*;
 
-import javax.management.ObjectName;
-import javax.management.MBeanServer;
 import javax.transaction.UserTransaction;
 import javax.persistence.*;
 
@@ -70,7 +68,6 @@ import org.drools.runtime.KnowledgeSessionConfiguration;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.Environment;
 import org.drools.runtime.EnvironmentName;
-import org.drools.runtime.process.ProcessInstance;
 import org.drools.runtime.process.WorkItemHandler;
 import org.jbpm.workflow.core.NodeContainer;
 import org.jbpm.compiler.ProcessBuilderImpl;

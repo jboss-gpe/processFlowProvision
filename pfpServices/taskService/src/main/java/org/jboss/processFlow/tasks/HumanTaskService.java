@@ -196,6 +196,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
             taskSession = taskService.createSession();
             Task taskObj = taskSession.getTask(taskId);
             int sessionId = taskObj.getTaskData().getProcessSessionId();
+            long pInstanceId = taskObj.getTaskData().getProcessInstanceId();
             if(taskObj.getTaskData().getStatus() != Status.InProgress) {
                 log.warn("completeTask() task with following id will be changed to status of InProgress: "+taskId);
                 taskSession.taskOperation(Operation.Start, taskId, userId, null, null, null);
@@ -238,7 +239,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
             changeDetails.setTaskId(taskId);
             newOutboundTaskVarMap.put(TaskChangeDetails.TASK_CHANGE_DETAILS, changeDetails);
    
-            kSessionProxy.completeWorkItem(sessionId, taskObj.getTaskData().getWorkItemId(), newOutboundTaskVarMap);
+            kSessionProxy.completeWorkItem(taskObj.getTaskData().getWorkItemId(), newOutboundTaskVarMap, pInstanceId, sessionId);
     
             if(disposeKsession)
                 kSessionProxy.disposeStatefulKnowledgeSessionAndExtras(taskObj.getTaskData().getProcessSessionId());
@@ -293,6 +294,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
     
             Task taskObj = taskSession.getTask(taskId);
             int sessionId = taskObj.getTaskData().getProcessSessionId();
+            long pInstanceId = taskObj.getTaskData().getProcessInstanceId();
             if(taskObj.getTaskData().getStatus() != Status.InProgress) {
                 throw new PermissionDeniedException("failTask() will not attempt operation due to incorrect existing status of : "+taskObj.getTaskData().getStatus());
             }
@@ -306,7 +308,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
             StringBuilder sBuilder = new StringBuilder("failTask()");
             this.dumpTaskDetails(taskObj, sBuilder);
            
-            kSessionProxy.completeWorkItem(taskObj.getTaskData().getProcessSessionId(), taskObj.getTaskData().getWorkItemId(), outboundTaskVars);
+            kSessionProxy.completeWorkItem(taskObj.getTaskData().getWorkItemId(), outboundTaskVars, pInstanceId, sessionId);
             
             if(disposeKsession)
                 kSessionProxy.disposeStatefulKnowledgeSessionAndExtras(sessionId);
@@ -355,13 +357,14 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
     
             Task taskObj = taskSession.getTask(taskId);
             int sessionId = taskObj.getTaskData().getProcessSessionId();
+            long pInstanceId = taskObj.getTaskData().getProcessInstanceId();
             taskSession.taskOperation(Operation.Skip, taskId, userId, null, null, null);
             eventSupport.fireTaskSkipped(taskId, userId);
 
             StringBuilder sBuilder = new StringBuilder("skipTask()");
             this.dumpTaskDetails(taskObj, sBuilder);
            
-            kSessionProxy.completeWorkItem(sessionId, taskObj.getTaskData().getWorkItemId(), outboundTaskVars);
+            kSessionProxy.completeWorkItem(taskObj.getTaskData().getWorkItemId(), outboundTaskVars, pInstanceId, sessionId);
             
             if(disposeKsession)
                 kSessionProxy.disposeStatefulKnowledgeSessionAndExtras(sessionId);

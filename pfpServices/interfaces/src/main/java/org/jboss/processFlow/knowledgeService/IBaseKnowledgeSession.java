@@ -48,11 +48,12 @@ public interface IBaseKnowledgeSession {
      *One example of a service commonly invoking this method is org.jboss.processFlow.tasks.HumanTaskService. 
      *  during execution of its 'completeTask(...), this method is subsequently invoked
     </pre>
-     * @param ksessionId the id of the KnowledgeSession that is managing the lifecycle of the process instance
      * @param workItemId the id of the workItem that has completed
-     * @param pInstanceVariables Map of any parameter results to be passed to process instance 
+     * @param pInstanceVariables Map of any parameter results to be passed to process instance
+     * @param processInstanceId
+     * @param ksessionId the id of the KnowledgeSession that is managing the lifecycle of the process instance (optional)
      */
-    public void completeWorkItem(Integer ksessionId, Long workItemId, Map<String, Object> pInstanceVariables);
+    public void completeWorkItem(Long workItemId, Map<String, Object> pInstanceVariables, Long processInstanceId, Integer ksessionId);
     
     
     /**

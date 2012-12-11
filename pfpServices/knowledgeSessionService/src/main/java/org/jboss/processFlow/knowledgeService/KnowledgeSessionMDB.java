@@ -64,6 +64,7 @@ public class KnowledgeSessionMDB implements MessageListener {
             Integer ksessionId = null;
             if(mObj.propertyExists(IKnowledgeSessionService.KSESSION_ID))
                 ksessionId = mObj.getIntProperty(IKnowledgeSessionService.KSESSION_ID);
+            Long pInstanceId = mObj.getLongProperty(IKnowledgeSessionService.PROCESS_INSTANCE_ID);
             
             // ADD PROCESS TO KNOWLEDGE BASE
             if(operationType.equals(IKnowledgeSessionService.ADD_PROCESS_TO_KNOWLEDGE_BASE)){
@@ -103,7 +104,9 @@ public class KnowledgeSessionMDB implements MessageListener {
                 Long workItemId = mObj.getLongProperty(IKnowledgeSessionService.WORK_ITEM_ID);
                 if(workItemId == 0)
                     throw new MessageFormatException("onMessage() need to include Int property with key = "+IKnowledgeSessionService.WORK_ITEM_ID);
-                kProxy.completeWorkItem(ksessionId, workItemId, pInstanceVariables);
+                if(pInstanceId == 0L)
+                    throw new MessageFormatException("onMessage() need to include Long property with key = "+IKnowledgeSessionService.PROCESS_INSTANCE_ID);
+                kProxy.completeWorkItem(workItemId, pInstanceVariables, pInstanceId, ksessionId);
                 
             
                 
@@ -115,7 +118,6 @@ public class KnowledgeSessionMDB implements MessageListener {
                 Object eventData = oMessage.getObject();
                 if(eventData == null)
                     throw new MessageFormatException("onMessage() need to include Object property in body of message");
-                Long pInstanceId = mObj.getLongProperty(IKnowledgeSessionService.PROCESS_INSTANCE_ID);
                 if(pInstanceId == 0L)
                     throw new MessageFormatException("onMessage() need to include Long property with key = "+IKnowledgeSessionService.PROCESS_INSTANCE_ID);
                 kProxy.signalEvent(type, eventData, pInstanceId, ksessionId);

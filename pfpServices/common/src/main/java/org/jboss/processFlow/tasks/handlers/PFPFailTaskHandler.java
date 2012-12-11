@@ -35,7 +35,7 @@ public class PFPFailTaskHandler extends BasePFPTaskHandler implements WorkItemHa
         taskProxy.failTask(taskId, workItem.getParameters(), null, reason, false);
         
         // executes kSessionProxy.completeWorkItem(...) so as to continue execution of "signaled" branch
-        kSessionProxy.completeWorkItem(ksessionId, workItem.getId(), workItem.getParameters());
+        kSessionProxy.completeWorkItem(workItem.getId(), workItem.getParameters(), workItem.getProcessInstanceId(), ksessionId);
     }
 
     public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {

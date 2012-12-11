@@ -213,7 +213,7 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
      * will deliver to KSessionManagement via JMS if inbound pInstanceVariables map contains an entry keyed by IKnowledgeSessionService.DELIVER_ASYNC
      * </pre>
      */ 
-    public void completeWorkItem(Integer ksessionId, Long workItemId, Map<String, Object> pInstanceVariables) {
+    public void completeWorkItem(Long workItemId, Map<String, Object> pInstanceVariables, Long pInstanceId, Integer ksessionId) {
         if(pInstanceVariables != null && pInstanceVariables.containsKey(IKnowledgeSessionService.DELIVER_ASYNC)) {
             Session sessionObj = null;
             try {
@@ -224,6 +224,7 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
                 oMessage.setObject((HashMap<String,Object>)pInstanceVariables);
                 oMessage.setStringProperty(IKnowledgeSessionService.OPERATION_TYPE, IKnowledgeSessionService.COMPLETE_WORK_ITEM);
                 oMessage.setLongProperty(IKnowledgeSessionService.WORK_ITEM_ID, workItemId);
+                oMessage.setLongProperty(IKnowledgeSessionService.PROCESS_INSTANCE_ID, pInstanceId);
                 oMessage.setIntProperty(IKnowledgeSessionService.KSESSION_ID, ksessionId);
                 m_sender.send(oMessage);
             } catch(JMSException x) {
@@ -234,7 +235,7 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
                 }
             }
         } else {
-            kBean.completeWorkItem(ksessionId, workItemId, pInstanceVariables);
+            kBean.completeWorkItem(workItemId, pInstanceVariables, pInstanceId, ksessionId);
         }
     }
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)

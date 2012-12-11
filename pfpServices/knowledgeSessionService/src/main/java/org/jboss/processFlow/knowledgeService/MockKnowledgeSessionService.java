@@ -27,7 +27,7 @@ public class MockKnowledgeSessionService implements IBaseKnowledgeSession {
     }
 
     @Override
-    public void completeWorkItem(Integer ksessionId, Long workItemId, Map<String, Object> pInstanceVariables) {
+    public void completeWorkItem(Long workItemId, Map<String, Object> pInstanceVariables, Long pInstanceId, Integer ksessionId) {
         log.info("completeWorkItem() ksessionId = "+ksessionId+" : workItemId = "+workItemId);
     }
 
