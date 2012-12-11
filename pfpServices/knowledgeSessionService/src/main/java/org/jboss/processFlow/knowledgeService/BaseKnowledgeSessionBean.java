@@ -416,6 +416,7 @@ public class BaseKnowledgeSessionBean {
             return (SessionTemplate)MVEL.executeExpression(s);
         }catch(Throwable x){
             sessionTemplateInstantiationAlreadyBombed = true;
+            x.printStackTrace();
             log.error("newSessionTemplate() following exception thrown \n\t"+x.getLocalizedMessage()+"\n : with session template string = \n\n"+templateString);
             return null;
         }
