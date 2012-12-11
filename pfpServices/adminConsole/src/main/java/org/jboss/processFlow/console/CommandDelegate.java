@@ -44,15 +44,15 @@ import org.jboss.processFlow.util.PFPServicesLookupUtil;
  */ 
 public class CommandDelegate {
 
-    private IKnowledgeSessionService ksessionProxy = null;
-    private IBAMService bamProxy = null;
+    private static IKnowledgeSessionService ksessionProxy = null;
+    private static IBAMService bamProxy = null;
 
-    public CommandDelegate() {
+    static {
         ksessionProxy = PFPServicesLookupUtil.getKSessionProxy();
         bamProxy = PFPServicesLookupUtil.getBamProxy();
     }
     
-    public List<SerializableProcessMetaData> getProcesses() {
+    public static List<SerializableProcessMetaData> getProcesses() {
         try {
             return ksessionProxy.retrieveProcesses();
         } catch(RuntimeException x) {
@@ -62,7 +62,7 @@ public class CommandDelegate {
         }
     }
     
-    public SerializableProcessMetaData getProcess(String processId) {
+    public static SerializableProcessMetaData getProcess(String processId) {
         try {
             return ksessionProxy.getProcess(processId);
         } catch(RuntimeException x) {
@@ -72,11 +72,11 @@ public class CommandDelegate {
         }
     }
     
-    public void removeProcess(String processId) {
+    public static void removeProcess(String processId) {
         throw new UnsupportedOperationException();
     }
 
-    public ProcessInstanceLog getProcessInstanceLog(String processId) {
+    public static ProcessInstanceLog getProcessInstanceLog(String processId) {
         try {
             List<ProcessInstanceLog> pInstanceLogs = bamProxy.getProcessInstanceLogsByProcessId(processId);
             if(pInstanceLogs.size() > 1) {
@@ -96,7 +96,7 @@ public class CommandDelegate {
      * @param processId
      * @return
      */
-    public List<ProcessInstanceLog> getProcessInstanceLogsByProcessId(String processId) {
+    public static List<ProcessInstanceLog> getProcessInstanceLogsByProcessId(String processId) {
         try {
             return bamProxy.getProcessInstanceLogsByProcessId(processId);
         } catch(RuntimeException x) {
@@ -111,7 +111,7 @@ public class CommandDelegate {
      * @param processId
      * @return
      */
-    public List<ProcessInstanceLog> getActiveProcessInstanceLogsByProcessId(String processId) {
+    public static List<ProcessInstanceLog> getActiveProcessInstanceLogsByProcessId(String processId) {
         try {
             //XXX what if there are thousands of active process instances? pagination could solve the issue, but need change the API
             return bamProxy.getActiveProcessInstanceLogsByProcessId(processId);
@@ -128,7 +128,7 @@ public class CommandDelegate {
      *     "in most cases where information about the current execution state of process instances is required, the use of a history log is mostyl recommended"
      *  due to the async nature of populating the history log in processFlowProvision, will now query the jbpm5 core engine for the newly created process instance  
      */ 
-    public ProcessInstanceLog startProcess(String processId, Map<String, Object> parameters) {
+    public static ProcessInstanceLog startProcess(String processId, Map<String, Object> parameters) {
         try {
             Map<String, Object> returnMap = ksessionProxy.startProcessAndReturnId(processId, parameters);
 
@@ -147,7 +147,7 @@ public class CommandDelegate {
         }
     }
     
-    public void abortProcessInstance(String processInstanceId) {
+    public static void abortProcessInstance(String processInstanceId) {
         try {
             ksessionProxy.abortProcessInstance(Long.valueOf(processInstanceId), null);
         } catch(RuntimeException x) {
@@ -157,7 +157,7 @@ public class CommandDelegate {
         }
     }
     
-    public Map<String, Object> getProcessInstanceVariables(String processInstanceId) {
+    public static Map<String, Object> getProcessInstanceVariables(String processInstanceId) {
         try {
             return ksessionProxy.getActiveProcessInstanceVariables(Long.valueOf(processInstanceId), null);
         } catch(RuntimeException x) {
@@ -172,7 +172,7 @@ public class CommandDelegate {
      * @param processInstanceId
      * @param variables
      */
-    public void setProcessInstanceVariables(String processInstanceId, Map<String, Object> variables) {
+    public static void setProcessInstanceVariables(String processInstanceId, Map<String, Object> variables) {
         try {
             ksessionProxy.setProcessInstanceVariables(Long.valueOf(processInstanceId), variables, null);
         } catch(RuntimeException x) {
@@ -182,7 +182,7 @@ public class CommandDelegate {
         }
     }
     
-    public void signalExecution(String executionId, String signal) {
+    public static void signalExecution(String executionId, String signalRef, String signal) {
         throw new RuntimeException("signalExecution() method not yet implemented");
     }
 }
