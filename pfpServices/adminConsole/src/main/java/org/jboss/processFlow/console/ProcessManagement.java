@@ -35,7 +35,11 @@ import org.jboss.bpm.console.client.model.ProcessInstanceRef.STATE;
 import org.jboss.processFlow.knowledgeService.SerializableProcessMetaData;
 import org.jbpm.process.audit.ProcessInstanceLog;
 
+import org.apache.log4j.Logger;
+
 public class ProcessManagement implements org.jboss.bpm.console.server.integration.ProcessManagement {
+
+    private static Logger log = Logger.getLogger("ProcessManagement");
 
     public ProcessManagement() {
     }
@@ -111,12 +115,19 @@ public class ProcessManagement implements org.jboss.bpm.console.server.integrati
     	// JA Bride:  will attempt to build a Map of signal values from the 'signal' parameter
     	// changed to '$' because '^' doesn't seem to be a valid URL character
         if (signal.indexOf("$") != -1) {
+            StringBuilder sDump = new StringBuilder("signalExecution pInstanceId = ");
+            sDump.append(executionId);
+            sDump.append(" signalType = ");
             String[] signalData = signal.split("\\$");
+            sDump.append(signalData[0]);
+            sDump.append(" signal value map = ");
             Map<String, String> signalMap = new HashMap<String, String>();
             for(int t = 1; t< signalData.length; t++) {
             	signalMap.put(signalData[t], signalData[t+1]);
+                sDump.append("\n\t"+signalData[t]+" : "+signalData[t+1]);
             	t++;
             }
+            log.info(sDump.toString());
             CommandDelegate.signalExecution(executionId, signalData[0], signalMap);
         } else {
             CommandDelegate.signalExecution(executionId, signal, null);

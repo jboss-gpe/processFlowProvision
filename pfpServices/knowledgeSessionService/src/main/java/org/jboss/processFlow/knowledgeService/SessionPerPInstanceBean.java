@@ -530,9 +530,11 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
             uTrnx.commit();
             disposeStatefulKnowledgeSessionAndExtras(ksessionId);
         } catch(RuntimeException x) {
+            log.error("signalEvent() exception thrown.  signalType = "+signalType+" : pInstanceId = "+processInstanceId+" : ksessionId ="+ksessionId);
             rollbackTrnx();
             throw x;
         }catch(Exception x) {
+            log.error("signalEvent() exception thrown.  signalType = "+signalType+" : pInstanceId = "+processInstanceId+" : ksessionId ="+ksessionId);
             rollbackTrnx();
             throw new RuntimeException(x);
         }
