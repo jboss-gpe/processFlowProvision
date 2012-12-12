@@ -415,16 +415,16 @@
         <copy file="${deps.lib.path}/xpp3_min-${version.xpp3_min}.jar" todir="${temp.jboss.dir}/modules/com/thoughtworks/xstream/main" />
         <copy file="${deps.lib.path}/xmlpull-${version.xmlpull}.jar" todir="${temp.jboss.dir}/modules/com/thoughtworks/xstream/main" />
         <!--copy file="${deps.lib.path}/xml-apis-${version.xml.apis}.jar" todir="${temp.jboss.dir}/modules/com/thoughtworks/xstream/main" / -->
-        <copy tofile="${temp.jboss.dir}/modules/org/drools/main/drools-compiler-${version.drools}.jar" >
+        <copy tofile="${temp.jboss.dir}/modules/org/drools/${droolsjbpm.slot}/drools-compiler-${version.drools}.jar" >
             <fileset dir="${deps.lib.path}" ><include name="drools-compiler-*.jar" /></fileset>
         </copy>
-        <copy tofile="${temp.jboss.dir}/modules/org/drools/main/drools-core-${version.drools}.jar" >
+        <copy tofile="${temp.jboss.dir}/modules/org/drools/${droolsjbpm.slot}/drools-core-${version.drools}.jar" >
             <fileset dir="${deps.lib.path}" ><include name="drools-core-*.jar" /></fileset>
         </copy>
-        <copy tofile="${temp.jboss.dir}/modules/org/drools/main/drools-persistence-jpa-${version.drools}.jar" >
+        <copy tofile="${temp.jboss.dir}/modules/org/drools/${droolsjbpm.slot}/drools-persistence-jpa-${version.drools}.jar" >
             <fileset dir="${deps.lib.path}" ><include name="drools-persistence-jpa-*.jar" /></fileset>
         </copy>
-        <copy tofile="${temp.jboss.dir}/modules/org/drools/main/knowledge-api-${version.drools}.jar" >
+        <copy tofile="${temp.jboss.dir}/modules/org/drools/${droolsjbpm.slot}/knowledge-api-${version.drools}.jar" >
             <fileset dir="${deps.lib.path}" ><include name="knowledge-api-*.jar" /></fileset>
         </copy>
         <!-- doesn't seem to exist in BRMS 5.3.1
@@ -434,7 +434,7 @@
         <copy tofile="${temp.jboss.dir}/modules/org/mvel/mvel2/main/mvel2-${version.mvel}.jar" >
             <fileset dir="${deps.lib.path}" ><include name="mvel2-*.jar" /></fileset>
         </copy>
-        <copy todir="${temp.jboss.dir}/modules/org/jbpm/main" >
+        <copy todir="${temp.jboss.dir}/modules/org/jbpm/${droolsjbpm.slot}" >
             <fileset dir="${jbpm.lib.path}" >
                 <include name="jbpm-*.jar" />
                 <exclude name="jbpm-human-task-hornetq-*.jar" />
@@ -451,7 +451,7 @@
             <then><var name="temp.gwt.path" value="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-shared/target/" /></then>
             <else><var name="temp.gwt.path" value="${jbpm.lib.path}/business-central-server.war/WEB-INF/lib/" /></else>
         </if>
-        <copy toDir="${temp.jboss.dir}/modules/org/jbpm/main" overwrite="true" >
+        <copy toDir="${temp.jboss.dir}/modules/org/jbpm/${droolsjbpm.slot}" overwrite="true" >
             <fileset dir="${temp.gwt.path}" >
                 <include name="jbpm-gwt-shared*.jar" />
             </fileset>
