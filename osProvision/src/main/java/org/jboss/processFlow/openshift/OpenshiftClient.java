@@ -42,7 +42,7 @@ public interface OpenshiftClient {
     */
     @POST
     @Path("domains/{domainId: /*}/applications")
-    @Consumes("test/plain")
+    @Consumes("text/plain")
     @Produces("application/json")
     ClientResponse<String> createApp(@PathParam("domainId")String domainId, @QueryParam("name") String name, @QueryParam("cartridge")String cartridge, @QueryParam("scale")String scale, @QueryParam("gear_profile")String gearProfile);
   
@@ -52,7 +52,7 @@ public interface OpenshiftClient {
     */ 
     @POST
     @Path("domains/{domainId: /*}/applications/{appId: /*}/cartridges")
-    @Consumes("test/plain")
+    @Consumes("text/plain")
     @Produces("application/json")
     ClientResponse<String>addCartridge(@PathParam("domainId")String domainId,
                                         @PathParam("appId")String appId,
