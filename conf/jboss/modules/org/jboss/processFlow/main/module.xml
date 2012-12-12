@@ -33,8 +33,8 @@
         <module name="javax.transaction.api" />
         <module name="javax.jms.api" />
 
-        <module name="org.drools" export="true" />
-        <module name="org.jbpm" export="true" >
+        <module name="org.drools" export="true" slot="5" />
+        <module name="org.jbpm" export="true" slot="5" >
             <imports>
                 <!-- JA Bride: 9 July 2012 .... this doesn't seem to work -->
                 <include path="META-INF/Taskorm.xml"/>

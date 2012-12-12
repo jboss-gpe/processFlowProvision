@@ -17,7 +17,7 @@
   ~ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
   ~ MA  02110-1301, USA.
   -->
-<module xmlns="urn:jboss:module:1.1" name="org.drools">
+<module xmlns="urn:jboss:module:1.1" name="org.drools" slot="5" >
     <resources>
         <resource-root path="drools-compiler-${version.drools}.jar"/>
         <resource-root path="drools-core-${version.drools}.jar"/>
@@ -45,6 +45,6 @@
         <module name="org.apache.commons.codec" export="true" slot="5" />
 
         <!-- drools needs org.jbpm, otherwise :  java.lang.ClassNotFoundException: org.jbpm.bpmn2.BPMN2ProcessProviderImpl from [Module "org.drools:main" -->
-        <module name="org.jbpm" />
+        <module name="org.jbpm" slot="5" />
     </dependencies>
 </module>

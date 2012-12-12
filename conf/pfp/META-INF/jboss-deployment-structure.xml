@@ -4,8 +4,8 @@
             <module name="org.dom4j" />
             <module name="org.apache.commons.collections" />
             <module name="org.apache.commons.pool" />
-            <module name="org.jbpm" export="true" />
-            <module name="org.drools" export="true" />
+            <module name="org.jbpm" export="true" slot="5" />
+            <module name="org.drools" export="true" slot="5" />
             <module name="org.mvel.mvel2" export="true" />
             <module name="org.jboss.marshalling" export="true" />
             <module name="org.jboss.marshalling.river" export="true" />
