@@ -550,7 +550,12 @@
                         <math result="pfp.core.port.increment" operand1="100" operation="*" operand2="@{serverNum}" datatype="int" />
                         <math result="pfp.core.port.offset" operand1="${pfp.core.base.port.offset}" operation="+" operand2="${pfp.core.port.increment}" datatype="int" />
                         <math result="pfp.core.debugger.port" operand1="${pfp.core.base.debugger.port}" operation="+" operand2="${pfp.core.port.increment}" datatype="int" />
-                        <echo message="pfp.core.server.id=${pfp.core.server.id} : pfp.core.port.offset=${pfp.core.port.offset} : pfp.core.debugger.port = ${pfp.core.debugger.port}" />
+                        <var name="server.specific.hibernate.hbm2ddl.auto" value="validate" />
+                        <if>
+                            <equals arg1="${pfp.core.server.id}" arg2="pfp-core-0" />
+                            <then><var name="server.specific.hibernate.hbm2ddl.auto" value="${hibernate.hbm2ddl.auto}" /></then>
+                        </if>
+                        <echo message="pfp.core.server.id=${pfp.core.server.id} : pfp.core.port.offset=${pfp.core.port.offset} : pfp.core.debugger.port = ${pfp.core.debugger.port}  : server.specific.hibernate.hbm2ddl.auto = ${server.specific.hibernate.hbm2ddl.auto} " />
                         <antcall target="cli.batch">
                             <param name="cli.source.dir" value="conf/pfp"/>
                             <param name="cli.to.filter.and.execute" value="pfp-server-up.cli"/>

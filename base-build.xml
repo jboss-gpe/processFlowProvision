@@ -46,48 +46,26 @@
             <then><var name="project.path.property" value="${development.base}/lib/ant" /></then>
         </if>
         <path id="project.classpath" ><fileset dir="${project.path.property}" /></path>
-
+        <path id="supported.classpath">
+            <path refid="initial.classpath" />
+            <path refid="project.classpath" />
+            <fileset dir="${temp.brms.unzip.dir}/binaries" />
+            <fileset dir="${temp.brms.unzip.dir}" >
+                <include name="*.jar" />
+            </fileset>
+            <fileset dir="${temp.brms.unzip.dir}/${console.sub.domain}-server.war/WEB-INF/lib/" >
+                <include name="jbpm-gwt-*.jar" />
+                <include name="gwt-console-*.jar" />
+           </fileset>
+        </path>
         <if>
-            <equals arg1="${community.or.supported}" arg2="community" />
-                <then>
-                    <available file="${jbpm.source.dir}/jbpm-distribution/target/jbpm-${jBPM.version}-pre-bin/lib" property="jbpm5CommunitySourceExists" />
-                    <fail unless="jbpm5CommunitySourceExists" message="no compiled jbpm5/drools libraries at: ${jbpm.source.dir}/jbpm-distribution/target/jbpm-${jBPM.version}-pre-bin/lib.  Please review ${development.base}/doc/DEVELOPER_GUIDE.txt" />
-
-                    <path id="classpath">
-                    <path refid="initial.classpath" />
-                    <path refid="project.classpath" />
-                        <fileset dir="${jbpm.source.dir}/jbpm-bam/target" ><include name="*.jar" /></fileset>
-                        <fileset dir="${jbpm.source.dir}/jbpm-human-task/jbpm-human-task-core/target" ><include name="*.jar" /></fileset>
-                        <fileset dir="${jbpm.source.dir}/jbpm-flow/target" ><include name="*.jar" /></fileset>
-                        <fileset dir="${jbpm.source.dir}/jbpm-flow-builder/target" ><include name="*.jar" /></fileset>
-                        <fileset dir="${jbpm.source.dir}/jbpm-bpmn2/target" ><include name="*.jar" /></fileset>
-                        <fileset dir="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-graph/target" ><include name="*.jar" /></fileset>
-                        <fileset dir="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-form/target" ><include name="*.jar" /></fileset>
-                        <fileset dir="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-shared/target" ><include name="*.jar" /></fileset>
-                        <fileset dir="${jbpm.source.dir}/jbpm-workitems/target" ><include name="*.jar" /></fileset>
-                        <fileset dir="${jbpm.source.dir}/jbpm-distribution/target/jbpm-${jBPM.version}-pre-bin/lib" ><include name="*.jar" /></fileset>
-                        <fileset dir="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-console-server/target/jbpm-gwt-console-server-${console.server.version}/WEB-INF/lib" >
-                            <include name="gwt-console*.jar" />
-                        </fileset>
-                    </path>
-                </then>
-        </if>
-        <if>
-            <equals arg1="${community.or.supported}" arg2="supported" />
+            <equals arg1="${org.jboss.processFlow.provision.switchyard}" arg2="true" />
             <then>
                 <path id="classpath">
-                    <path refid="initial.classpath" />
-                    <path refid="project.classpath" />
-                    <fileset dir="${temp.brms.unzip.dir}/binaries" />
-                    <fileset dir="${temp.brms.unzip.dir}" >
-                        <include name="*.jar" />
-                    </fileset>
-                    <fileset dir="${temp.brms.unzip.dir}/${console.sub.domain}-server.war/WEB-INF/lib/" >
-                        <include name="jbpm-gwt-*.jar" />
-                        <include name="gwt-console-*.jar" />
-                   </fileset>
-                </path>
+                <path refid="supported.classpath" />
+                <fileset dir="${sy.module.path}" ><include name="**/*.jar" /></fileset></path>
             </then>
+            <else><path id="classpath"><path refid="supported.classpath" /></path></else>
         </if>
     </target>
 

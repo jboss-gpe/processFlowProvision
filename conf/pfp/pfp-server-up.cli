@@ -3,5 +3,11 @@ batch
 /host=master/server-config=${pfp.core.server.id}/jvm=${pfp.core.server.id}/:add(env-classpath-ignored=false,heap-size=128m,max-heap-size=512m,permgen-size=64m,max-permgen-size=256m)
 /host=master/server-config=${pfp.core.server.id}/jvm=${pfp.core.server.id}/:write-attribute(name=jvm-options,value=["-Xrunjdwp:transport=dt_socket,address=${pfp.core.debugger.port},server=y,suspend=n"])
 /host=master/server-config=${pfp.core.server.id}/:write-attribute(name=socket-binding-port-offset,value=${pfp.core.port.offset})
+
+# JBAS014803: Duplicate resource [(\"system-property\" => \"hibernate.hbm2ddl.auto\")]
+#/host=master/server-config=${pfp.core.server.id}/system-property=hibernate.hbm2ddl.auto/:add(value=${server.specific.hibernate.hbm2ddl.auto},boot-time=false)
+
 /host=master/server-config=${pfp.core.server.id}/:start(server=${pfp.core.server.id},blocking=true)
 run-batch
+
+# /host=master/server-config=${pfp.core.server.id}/system-property=hibernate.hbm2ddl.auto/:write-attribute(name=value,value=${server.specific.hibernate.hbm2ddl.auto})
