@@ -1,15 +1,3 @@
-openshift bpm-console problem
-    - gui/app-base/src/main/java/org/jboss/bpm/console/client/LoginView.java
-        - requestProtectedResource
-        - server responds with 200 status, but with jsecurity login form
-    - gui/app-base/src/main/java/org/jboss/bpm/console/client/Authentication.java
-        - login(String user, String pass)
-        - invokes POST to /rs/identity/secure/j_security_check with j_username & j_password form data
-        - jboss web authenticates and returns wth a "302 Moved Temporarily" status code with the following in the Response header :
-            Location:  http://pfpcore-jbride0.rhcloud.com/gwt-console-server/rs/identity/secure/sid
-        - client invokes re-direction URL and in openshift .... this is a problem .... server never returns due to invoking on http and not https
-
-
 JBoss Moodules for BRMS components
     - https://bugzilla.redhat.com/show_bug.cgi?id=842452
 
