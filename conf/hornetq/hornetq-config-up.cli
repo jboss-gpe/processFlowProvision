@@ -3,6 +3,10 @@ batch
 /profile=full-ha/subsystem=messaging/hornetq-server=default/:write-attribute(name=jmx-management-enabled,value=true)
 /profile=full-ha/subsystem=messaging/hornetq-server=default/:write-attribute(name=cluster-password,value=${hornetq.cluster.password})
 
+# needed for remote hornetq clients to fail-over correctly
+/profile=full-ha/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=ha,value=true)
+/profile=full-ha/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=reconnect-attempts,value=-1)
+
 # turn off security since usually brokers are already on secure network
 /profile=full-ha/subsystem=messaging/hornetq-server=default/:write-attribute(name=security-enabled,value=false)
 
@@ -12,6 +16,7 @@ batch
 #        paging-directory
 #        bindings-directory
 #    these settings are supposed to be there before the server is up.. so I don't think you can change it via CLI
+
 
 
 
