@@ -1,10 +1,18 @@
 <project name="privateServiceTaskRepo" >
 
-    <target name="privateServiceTaskRepo" >
+    <property environment="ENV"/>
+    <property file="../build.properties" />
+    <import file="${development.base}/base-build.xml"/>
+
+    <target name="all" depends="clean" >
         <fail unless="service.repository" message="need to set service.repository property" />
         <copy toDir="${service.repository}" overwrite="true" verbose="true" >
-            <fileset dir="privateServiceTaskRepo/src/main/resources" />
+            <fileset dir="src/main/resources" />
         </copy>
+    </target>
+
+    <target name="clean" >
+        <delete dir="${service.repository}" />
     </target>
 
 </project>

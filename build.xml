@@ -6,7 +6,6 @@
     <import file="base-build.xml"/>
     <import file="openshift-build.xml" />
     <import file="osProvision/build.xml"/>
-    <import file="privateServiceTaskRepo/build.xml"/>
 
     <target name="refresh.master" >
         <echo message="***** refresh.master :  will now call the following target :  local.stop.master, clone.jboss, and local.start.master" />
@@ -563,7 +562,6 @@
                         </antcall>
                     </sequential>
                 </for>
-                <antcall target="privateServiceTaskRepo" />
             </then>
             <else>
                 <echo message="local.provision.pfp.core:  org.jboss.processFlow.provision.pfpCore = ${org.jboss.processFlow.provision.pfpCore}" />
@@ -650,6 +648,7 @@
                 <fileset dir="pfpServices/knowledgeSessionService" includes="build.xml"/>
                 <fileset dir="pfpServices/taskService" includes="build.xml"/>
                 <fileset dir="pfpServices/adminConsole" includes="build.xml"/>
+                <fileset dir="privateServiceTaskRepo" includes="build.xml"/>
             </subant>
         </sequential>
     </macrodef>
@@ -746,6 +745,11 @@
             <param name="refresh.master" value="false"/>
         </antcall>
         <antcall target="create.temp.client.dir" />
+        <echo message="you may find executing the following will be helpful to diagnose your environment :" />
+        <echo message="    curl -X PUT -HAccept:text/plain ${os.hostname}:8330/knowledgeService/kbase               :   refresh kBase in PFP's kSessionService" />
+        <echo message="    curl -X GET -HAccept:text/plain ${os.hostname}:8330/knowledgeService/kbase/content       :   view contents of kbase" />
+        <echo message="    curl -X GET -HAccept:text/plain ${os.hostname}:8330/knowledgeService/workItemHandlers    :   view all registerd workItemHandlers with kSessions" />
+        
     </target>
     <target name="pfp.distro" depends="" description="" >
         <property name="distro.name" value="processFlow-bin-${brms.major.version}-${brms.minor.version}" />
