@@ -86,7 +86,7 @@ function openshiftRsync() {
     ssh $sshUrl "
         mkdir -p $remoteDir;
     "
-    rsync -avz $localDir $sshUrl:$remoteDir
+    rsync -avz --delete $localDir $sshUrl:$remoteDir
 }
 
 
@@ -168,13 +168,26 @@ push() {
     git push $domainName master
 }
 
-function provisionIndividualAccount() {
-    echo "hello"
+
+
+# checkLocalJDKVersion
+#     - PFP services must be compiled using JDK 1.6 since target openshift runtime is JRE 1.6
+checkLocalJDKVersion() {
+    version=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
+    if [[ $version =~ .*1.6.* ]]; 
+    then
+        echo -en "\n checkJDKVersion() java version is fine:  $version \n\n"
+    else
+        echo -en "\n checkJDKVersion() java version: $version    must be 1.6.  will now exit\n\n"
+        exit 1
+    fi
 }
 
 
 # loops through accounts in ${openshift.account.details.file.location}, creates an Ant property file invokes the 'openshift.provision.both' target
 provisionAccountsWithPFP() {
+    checkLocalJDKVersion
+
     cd $PFP_HOME
     ant pfp.clean
 
