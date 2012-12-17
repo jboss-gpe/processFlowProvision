@@ -468,6 +468,15 @@
 						<message-counter-history-day-limit>10
 						</message-counter-history-day-limit>
 					</address-setting>
+                                        <!-- JA Bride :  added kSessionQueue for async invocations of ksession -->
+                                        <address-setting match="jms.queue.processFlow.knowledgeSessionQueue">
+                                            <dead-letter-address>jms.queue.DLQ</dead-letter-address>
+                                            <max-size-bytes>10485760</max-size-bytes>
+                                            <page-size-bytes>1048576</page-size-bytes>
+                                            <address-full-policy>PAGE</address-full-policy>
+                                            <last-value-queue>false</last-value-queue>
+                                            <send-to-dla-on-no-route>false</send-to-dla-on-no-route>
+                                        </address-setting>
                                         <!-- JA Bride :  added asyncWorkingMemoryLogger queue for async bam producer -->
                                         <address-setting match="jms.queue.processFlow.asyncWorkingMemoryLogger">
                                             <dead-letter-address>jms.queue.DLQ</dead-letter-address>
@@ -514,6 +523,12 @@
                                         <entry name="java:jboss/exported/jms/processFlow.asyncWorkingMemoryLogger"/>
                                         <durable>true</durable>
                                     </jms-queue>
+                                    <jms-queue name="processFlow.knowledgeSessionQueue">
+                                        <entry name="queue/processFlow.knowledgeSessionQueue"/>
+                                        <entry name="java:jboss/exported/jms/processFlow.knowledgeSessionQueue"/>
+                                        <durable>true</durable>
+                                    </jms-queue>
+
                                 </jms-destinations>
 			</hornetq-server>
 		</subsystem>
