@@ -31,5 +31,8 @@
     </resources>
 
     <dependencies>
+        <!-- needed for org.xml.sax libraries originating in JDK -->
+        <module name="javax.api" export="true" />
     </dependencies>
+
 </module>
