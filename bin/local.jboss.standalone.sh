@@ -78,6 +78,7 @@ start() {
 }
 
 stop() {
+    echo -en "\nabout to stop jboss.  jboss.home = $jbossHome : hostName = $hostName : cliPort = $cliPort\n"
     (echo >/dev/tcp/$hostName/$cliPort) &>/dev/null
     if [ $? -eq 0 ]; then
         echo -en $"stopping jboss daemon: \n"
