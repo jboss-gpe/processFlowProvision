@@ -119,7 +119,7 @@ executeAddUser() {
 }
 
 executeCli() {
-    echo -en "executeCli() cliCommand = $cliCommand"
+    echo -en "executeCli() cliCommand = $cliCommand\n"
     chmod 755 $jbossHome/bin/*.sh
 
     export JAVA_OPTS=-Xmx$jbossCliXmx
