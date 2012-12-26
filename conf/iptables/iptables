@@ -8,12 +8,11 @@
 -A INPUT -p icmp -j ACCEPT
 -A INPUT -i lo -j ACCEPT
 
-# HornetQ : TO-DO .... modify for domain mode
--A INPUT -m state --state NEW -m tcp -p tcp --dport 1597 -j ACCEPT
--A INPUT -m state --state NEW -m tcp -p tcp --dport 1598 -j ACCEPT
--A INPUT -m state --state NEW -m tcp -p tcp --dport 1599 -j ACCEPT
+# Hornetq messaging and messaging-throughput ports
 -A INPUT -m state --state NEW -m tcp -p tcp --dport 5545 -j ACCEPT
 -A INPUT -m state --state NEW -m tcp -p tcp --dport 5555 -j ACCEPT
+
+# Hornetq multicast discovery port
 -A INPUT -m state --state NEW -m udp -p udp --dport 9876 -j ACCEPT
 
 #EAP6.0 management
@@ -23,16 +22,16 @@
 #brmsWebs - http.port   :   8080 + 150 = 8230
 -A INPUT -m state --state NEW -m tcp -p tcp --dport 8230 -j ACCEPT
 
-#pfpCore - remoting:   4447 + 250 = 4697
+#pfpCore0 - remoting:   4447 + 250 = 4697
 -A INPUT -m state --state NEW -m tcp -p tcp --dport 4697 -j ACCEPT
 
-#pfpCore - remote debugging
+#pfpCore0 - remote debugging
 -A INPUT -m state --state NEW -m tcp -p tcp --dport 8789 -j ACCEPT
 
-#pfpCore - http port :  8080 + 250 = 
+#pfpCore0 - http port :  8080 + 250 = 
 -A INPUT -m state --state NEW -m tcp -p tcp --dport 8330 -j ACCEPT
 
-#Martin Swales  :   allow for remote postgresql administration
+#allow for remote postgresql administration
 -A INPUT -m state --state NEW -m tcp -p tcp --dport 5432 -j ACCEPT
 
 -A INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT

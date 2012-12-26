@@ -238,8 +238,8 @@ INSTALL   :
 POST INSTALL ADMINISTRATION
 
     jboss-brms
-        -- point browser to the following URL   :  http://<$HOSTNAME>:8080/jboss-brms
-            - userId / password = admin/admin
+        -- point browser to the following URL   :  http://<$HOSTNAME>:8230/jboss-brms/org.drools.guvnor.Guvnor/Guvnor.jsp
+            - userId / password = admin/brms
             
             -- building "defaultPackage"
                 - it's been observed that defaultPackage needs to be built in Guvnor even if that package will not being used
@@ -255,8 +255,6 @@ POST INSTALL ADMINISTRATION
             -- video tutorials on designer are made available at vimeo by the user : tsurdilo
             -- a nice tutorial on custom 'Service Tasks' in designer can be found here :  http://vimeo.com/26126678
             -- example bpmn2 diagrams developed by designer can be found in the jbpm5 source code :  $JBOSS_PROJECTS/jboss/jbpm/jbpm-examples/src/main/resources
-        -- guvnor REST API :
-            http://<hostName>:8080/jboss-brms/rest/packages        :   list contents of each package
 
 
     HornetQ queues
@@ -269,6 +267,7 @@ POST INSTALL ADMINISTRATION
             -  jms.queue.DLQ                                    :   not currently used
             -  jms.queue.ExpiryQueue                            :   not currently used
             -  jms.queue.processFlow.asyncWorkingMemoryLogger   :   used for transport of BAM events
+            -  jms.queue.processFlow.knowledgeSessionQueue      :   used for async interface to knowledge session service
 
 
     service tasks repository
@@ -276,9 +275,9 @@ POST INSTALL ADMINISTRATION
         - please reference privateServiceTaskRepo/README.txt for more details
 
 
-    jbpm-console
-        -- point browser to the following URL   :  http://<$HOSTNAME>:8080/jbpm-console
-        -- login as:  admin / admin
+    BRMS business-central console
+        -- point browser to the following URL   :  http://<$HOSTNAME>:8230/business-central/app.html
+        -- login as:  jboss / brms
 
 
     REST interfaces
@@ -286,8 +285,8 @@ POST INSTALL ADMINISTRATION
         -- point browser to the following URL   :  http://<$HOSTNAME>:8080/gwt-console-server/rs/server/resources
         -- Of possible interest is that the above URL is the root path to a variety of jbpm5 RESTful resources
         -- The jbpm5 process management resources exposed via this API are predominantly exposed as application/JSON representations
-        -- this REST API can be invoked via the command line.  Example as follows :
-            curl -u admin:admin $HOSTNAME:8080/gwt-console-server/rs/process/definitions
+        -- business-central REST API :
+            http://<hostName>:8230/business-central-server/rs/server/resources/jbpm
 
                 
     Eclipse Tooling                
