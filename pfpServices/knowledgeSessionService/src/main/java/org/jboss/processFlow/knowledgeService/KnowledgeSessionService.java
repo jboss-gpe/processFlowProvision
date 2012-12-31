@@ -45,6 +45,8 @@ import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
 import org.jboss.processFlow.knowledgeService.KnowledgeSessionServiceMXBean;
 import org.jbpm.persistence.processinstance.ProcessInstanceInfo;
 
+import org.apache.log4j.Logger;
+
 /**
  *<pre>
  *notes on Transactions
@@ -61,6 +63,7 @@ import org.jbpm.persistence.processinstance.ProcessInstanceInfo;
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class KnowledgeSessionService implements IKnowledgeSessionService, KnowledgeSessionServiceMXBean {
     
+	private static Logger log = Logger.getLogger("KnowledgeSessionService");
     @Inject
     private IKnowledgeSessionBean kBean;
     
@@ -92,6 +95,7 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
     
     @PreDestroy 
     public void stop() throws Exception{
+    	log.info("stop");
         try {
             platformMBeanServer.unregisterMBean(this.objectName);
         } catch (Exception e) {

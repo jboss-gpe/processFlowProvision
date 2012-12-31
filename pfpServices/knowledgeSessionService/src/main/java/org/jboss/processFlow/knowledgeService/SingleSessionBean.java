@@ -26,8 +26,8 @@ import java.util.*;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
-import javax.inject.Singleton;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import org.apache.commons.lang.StringUtils;
@@ -85,7 +85,7 @@ import org.jboss.processFlow.util.LogSystemEventListener;
  *
  *</pre>
  */
-@Singleton
+@ApplicationScoped
 @Alternative
 public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnowledgeSessionBean {
 

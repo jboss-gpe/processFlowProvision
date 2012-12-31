@@ -14,17 +14,18 @@
 	<classpathentry kind="var" path="JBOSS_HOME/modules/org/apache/httpcomponents/main/httpcore-4.1.4-redhat-1.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/modules/org/apache/httpcomponents/main/httpclient-4.1.3-redhat-1.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/modules/javax/ejb/api/main/jboss-ejb-api_3.1_spec-1.0.2.Final-redhat-1.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/modules/javax/enterprise/api/main/cdi-api-1.0-SP4-redhat-2.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/modules/javax/transaction/api/main/jboss-transaction-api_1.1_spec-1.0.1.Final-redhat-1.jar"/>
-	<classpathentry kind="var" path="JBOSS_HOME/modules/javax/persistence/api/main/hibernate-jpa-2.0-api-1.0.1.Final-redhat-1.jar"/>
-	<classpathentry kind="var" path="JBOSS_HOME/modules/org/apache/log4j/main/log4j-1.2.16-redhat-1.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/modules/javax/persistence/api/main/hibernate-jpa-2.0-api-1.0.1.Final-redhat-2.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/modules/org/apache/log4j/main/log4j-1.2.16-redhat-2.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/modules/org/apache/commons/io/main/commons-io-2.1-redhat-1.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/modules/org/apache/commons/lang/main/commons-lang-2.6-redhat-2.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/modules/org/slf4j/main/slf4j-api-1.6.1-redhat-1.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/modules/javax/jms/api/main/jboss-jms-api_1.1_spec-1.0.1.Final-redhat-1.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/modules/org/jboss/marshalling/main/jboss-marshalling-1.3.14.GA-redhat-1.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/modules/org/apache/commons/pool/main/commons-pool-1.5.6-redhat-1.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/modules/javax/ws/rs/api/main/jboss-jaxrs-api_1.1_spec-1.0.1.Final-redhat-1.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/modules/javax/inject/api/main/javax.inject-1-redhat-1.jar"/>
-	<classpathentry kind="var" path="JBOSS_HOME/modules/javax/enterprise/api/main/cdi-api-1.0-SP4-redhat-1.jar"/>
 	<classpathentry kind="src" path="/jbpm-gwt-graph"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-bam"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-bpmn2"/>
