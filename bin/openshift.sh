@@ -51,6 +51,9 @@ do
         -osAccountDetailsFileLocation=*)
             osAccountDetailsFileLocation=`echo $var | cut -f2 -d\=`
             ;;
+        -rsyncDelete=*)
+            rsyncDelete=`echo $var | cut -f2 -d\=`
+            ;;
     esac
 done
 
@@ -82,11 +85,15 @@ function getRemoteFileSize() {
 
 #rsync with recursion, verbosity & compression flags
 function openshiftRsync() {
-    echo -en "rsync() :  rsync -avz $localDir $sshUrl:$remoteDir\n"
+    echo -en "rsync() :  rsync -avz $localDir $sshUrl:$remoteDir\t\t :  rsyncDelete = $rsyncDelete\n"
     ssh $sshUrl "
         mkdir -p $remoteDir;
     "
-    rsync -avz --delete $localDir $sshUrl:$remoteDir
+    if [ "x$rsyncDelete" != "x" ]; then
+        rsync -avz --delete $localDir $sshUrl:$remoteDir
+    else
+        rsync -avz $localDir $sshUrl:$remoteDir
+    fi
 }
 
 
@@ -188,7 +195,7 @@ checkLocalJDKVersion() {
 provisionAccountsWithPFP() {
     checkLocalJDKVersion
 
-    cd $PFP_HOME
+    cd $JBOSS_PROJECTS/processFlowProvision
     ant pfp.clean
 
     if [ "x$osAccountDetailsFileLocation" = "x" ]; then
@@ -214,7 +221,7 @@ provisionAccountsWithPFP() {
 
         cd $JBOSS_PROJECTS/workshops/BusinessLogicDevelopmentWorkshop/BLDW-openshift-provision
         ant
-        cd $PFP_HOME
+    	cd $JBOSS_PROJECTS/processFlowProvision
     done
 }
 
