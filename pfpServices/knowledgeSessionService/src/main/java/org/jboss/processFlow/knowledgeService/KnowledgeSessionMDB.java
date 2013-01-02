@@ -66,7 +66,7 @@ public class KnowledgeSessionMDB implements MessageListener {
                 ksessionId = mObj.getIntProperty(IKnowledgeSessionService.KSESSION_ID);
             Long pInstanceId = null;
             if(mObj.propertyExists(IKnowledgeSessionService.PROCESS_INSTANCE_ID))
-            	pInstanceId = mObj.getLongProperty(IKnowledgeSessionService.PROCESS_INSTANCE_ID);
+                pInstanceId = mObj.getLongProperty(IKnowledgeSessionService.PROCESS_INSTANCE_ID);
             
             // ADD PROCESS TO KNOWLEDGE BASE
             if(operationType.equals(IKnowledgeSessionService.ADD_PROCESS_TO_KNOWLEDGE_BASE)){

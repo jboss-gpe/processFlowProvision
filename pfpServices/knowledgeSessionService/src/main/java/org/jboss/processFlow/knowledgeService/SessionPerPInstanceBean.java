@@ -258,7 +258,6 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
 
         // 2) instantiate new StatefulKnowledgeSession from old sessioninfo
         StatefulKnowledgeSession ksession = JPAKnowledgeService.loadStatefulKnowledgeSession(sessionId, kbase, ksConfig, ksEnv);
-        //StatefulKnowledgeSession ksession = JPAKnowledgeService.loadStatefulKnowledgeSession(sessionId, null, ksConfig, ksEnv);
         return ksession;
     }
 
@@ -589,6 +588,9 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
     }
     
     public Map<String, Object> getActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId) {
+        return getActiveProcessInstanceVariables(processInstanceId, ksessionId, true);
+    }
+    public Map<String, Object> getActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId, Boolean disposeKsession) {
         StatefulKnowledgeSession ksession = null;
         try {
             if(ksessionId == null)
@@ -615,12 +617,15 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
         } catch(Exception x) {
             throw new RuntimeException(x);
         } finally {
-            if(ksession != null)
+            if(ksession != null && disposeKsession)
                 disposeStatefulKnowledgeSessionAndExtras(ksessionId);
         }
     }
 
     public void setProcessInstanceVariables(Long processInstanceId, Map<String, Object> variables, Integer ksessionId) {
+        setProcessInstanceVariables(processInstanceId, variables, ksessionId, true);
+    }
+    public void setProcessInstanceVariables(Long processInstanceId, Map<String, Object> variables, Integer ksessionId, Boolean disposeKsession) {
         StatefulKnowledgeSession ksession = null;
         try {
             if(ksessionId == null)
@@ -640,7 +645,7 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
                 throw new IllegalArgumentException("Could not find process instance " + processInstanceId);
             }
         } finally {
-            if(ksession != null)
+            if(ksession != null && disposeKsession)
                 disposeStatefulKnowledgeSessionAndExtras(ksessionId);
         }
     }
@@ -657,6 +662,9 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
                 disposeStatefulKnowledgeSessionAndExtras(ksessionId);
         }
     }
+
+
+    
 
 }
 

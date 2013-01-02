@@ -165,7 +165,9 @@ public interface IKnowledgeSession extends IBaseKnowledgeSession {
     
     public String                   printActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId);
     public Map<String, Object>      getActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId);
+    public Map<String, Object>      getActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId, Boolean disposeKsession);
     public void                     setProcessInstanceVariables(Long processInstanceId, Map<String, Object> variables, Integer ksessionId );
+    public void                     setProcessInstanceVariables(Long processInstanceId, Map<String, Object> variables, Integer ksessionId, Boolean disposeKsession );
 
     /**
      * returns a snapshot of all KnowledgeSessions and the state that each session is currently in 

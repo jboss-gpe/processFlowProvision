@@ -111,9 +111,9 @@ public class ProcessManagement implements org.jboss.bpm.console.server.integrati
 
     
     public void signalExecution(String executionId, String signal) {
-    	
-    	// JA Bride:  will attempt to build a Map of signal values from the 'signal' parameter
-    	// changed to '$' because '^' doesn't seem to be a valid URL character
+        
+        // JA Bride:  will attempt to build a Map of signal values from the 'signal' parameter
+        // changed to '$' because '^' doesn't seem to be a valid URL character
         if (signal.indexOf("$") != -1) {
             StringBuilder sDump = new StringBuilder("signalExecution pInstanceId = ");
             sDump.append(executionId);
@@ -123,9 +123,9 @@ public class ProcessManagement implements org.jboss.bpm.console.server.integrati
             sDump.append(" signal value map = ");
             Map<String, String> signalMap = new HashMap<String, String>();
             for(int t = 1; t< signalData.length; t++) {
-            	signalMap.put(signalData[t], signalData[t+1]);
+                signalMap.put(signalData[t], signalData[t+1]);
                 sDump.append("\n\t"+signalData[t]+" : "+signalData[t+1]);
-            	t++;
+                t++;
             }
             log.info(sDump.toString());
             CommandDelegate.signalExecution(executionId, signalData[0], signalMap);

@@ -123,8 +123,8 @@ public class TaskManagement implements org.jboss.bpm.console.server.integration.
             List<Status> onlyReserved = Collections.singletonList(Status.Reserved);
             List<TaskSummary> tasks = taskServiceProxy.getAssignedTasks(idRef, onlyReserved, "en-UK");
             for (TaskSummary task: tasks) {
-            	// JAB:  needed until jbpm5 supports query by reserved status
-            	if (task.getStatus() == Status.Reserved) {
+                // JAB:  needed until jbpm5 supports query by reserved status
+                if (task.getStatus() == Status.Reserved) {
                     result.add(Transform.task(task));
                 }
             }

@@ -184,10 +184,10 @@ public class CommandDelegate {
     }
     
     public static void signalExecution(String executionId, String signalRef, Map<String, String> signalValues) {
-    	try {
-    		ksessionProxy.signalEvent(signalRef, signalValues, Long.parseLong(executionId), null);
-    	}catch(Exception x) {
-    		throw new RuntimeException(x);
-    	}
+        try {
+            ksessionProxy.signalEvent(signalRef, signalValues, Long.parseLong(executionId), null);
+        }catch(Exception x) {
+            throw new RuntimeException(x);
+        }
     }
 }

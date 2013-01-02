@@ -506,4 +506,12 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
     public void upgradeProcessInstance(long processInstanceId, String processId, Map<String, Long> nodeMapping) {
         WorkflowProcessInstanceUpgrader.upgradeProcessInstance(ksession, processInstanceId, processId, nodeMapping);
     }
+
+    public Map<String, Object> getActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId, Boolean disposeKsession) {
+        return this.getActiveProcessInstanceVariables(processInstanceId, ksessionId);
+    }
+
+    public void setProcessInstanceVariables(Long processInstanceId,Map<String, Object> variables, Integer ksessionId,Boolean disposeKsession) {
+        this.setProcessInstanceVariables(processInstanceId, variables, ksessionId);
+    }
 }

@@ -362,7 +362,7 @@ public class BaseKnowledgeSessionBean {
 
         Collection<KnowledgePackage> kPackages = kbase.getKnowledgePackages();
         if(kPackages != null && kPackages.size() > 0) {
-        	sBuilder.append("\nprintKnowledgeBaseContent()\n\t"); 
+            sBuilder.append("\nprintKnowledgeBaseContent()\n\t"); 
             for(KnowledgePackage kPackage : kPackages){
                 Collection<Process> processes = kPackage.getProcesses();
                 if(processes.size() == 0){
@@ -736,15 +736,15 @@ public class BaseKnowledgeSessionBean {
      }
     
     public String printActiveProcessInstances(Map<String,Object> queryCriteria){
-    	List<ProcessInstanceInfo> pInstances = getActiveProcessInstances(queryCriteria);
+        List<ProcessInstanceInfo> pInstances = getActiveProcessInstances(queryCriteria);
         StringBuffer sBuffer = new StringBuffer();
         if(pInstances != null){
-        	sBuffer.append("\npInstanceId\tprocessId");
+            sBuffer.append("\npInstanceId\tprocessId");
             for(ProcessInstanceInfo pInstance: pInstances){
-            	sBuffer.append("\n"+pInstance.getId()+"\t"+pInstance.getProcessId());
+                sBuffer.append("\n"+pInstance.getId()+"\t"+pInstance.getProcessId());
             }
         }else{
-        	sBuffer.append("\nno active process instances found\n");
+            sBuffer.append("\nno active process instances found\n");
         }
         return sBuffer.toString();
     }

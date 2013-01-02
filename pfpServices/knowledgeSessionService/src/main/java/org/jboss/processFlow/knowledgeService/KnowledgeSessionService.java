@@ -63,7 +63,7 @@ import org.apache.log4j.Logger;
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class KnowledgeSessionService implements IKnowledgeSessionService, KnowledgeSessionServiceMXBean {
     
-	private static Logger log = Logger.getLogger("KnowledgeSessionService");
+    private static Logger log = Logger.getLogger("KnowledgeSessionService");
     @Inject
     private IKnowledgeSessionBean kBean;
     
@@ -95,7 +95,7 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
     
     @PreDestroy 
     public void stop() throws Exception{
-    	log.info("stop");
+        log.info("stop");
         try {
             platformMBeanServer.unregisterMBean(this.objectName);
         } catch (Exception e) {
@@ -250,15 +250,20 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
     public void abortProcessInstance(Long processInstanceId, Integer ksessionId) {
         kBean.abortProcessInstance(processInstanceId, ksessionId);
     }
-    public String printActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId) {
-        return kBean.printActiveProcessInstanceVariables(processInstanceId, ksessionId);
+    public Map<String, Object> getActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId, Boolean disposeKsession) {
+        return kBean.getActiveProcessInstanceVariables(processInstanceId, ksessionId, disposeKsession);
     }
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED) 
     public Map<String, Object> getActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId) {
         return kBean.getActiveProcessInstanceVariables(processInstanceId, ksessionId);
     }
+    public void setProcessInstanceVariables(Long processInstanceId,Map<String, Object> variables, Integer ksessionId,Boolean disposeKsession) {
+        kBean.setProcessInstanceVariables(processInstanceId, variables, ksessionId, disposeKsession);
+    }
     public void setProcessInstanceVariables(Long processInstanceId, Map<String, Object> variables, Integer ksessionId) {
         kBean.setProcessInstanceVariables(processInstanceId, variables, ksessionId);
+    }
+    public String printActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId) {
+        return kBean.printActiveProcessInstanceVariables(processInstanceId, ksessionId);
     }
     public void upgradeProcessInstance(long processInstanceId, String processId, Map<String, Long> nodeMapping) {
         kBean.upgradeProcessInstance(processInstanceId, processId, nodeMapping);
