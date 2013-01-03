@@ -19,11 +19,11 @@
         </java>
     </target>
 
-    <target name="openshiftPrep" depends="setTestClasspath" >
+    <target name="openshiftPrep" depends="setClasspath" >
         <var name="subproject.name" value="osProvision" />
         <var name="subproject.build" value="${subproject.name}/target" />
         <path id="sub.classpath" >
-            <path refid="test.classpath" />
+            <path refid="classpath" />
             <pathelement location="${subproject.build}"/>
         </path>
 
@@ -42,7 +42,7 @@
         <copy file="${subproject.name}/src/main/resources/openshift_account_details.xsd" todir="${subproject.build}" />
 
         <javac debug="true" srcdir="${subproject.name}/src/main/java" destdir="${subproject.build}" optimize="true" >
-            <classpath refid="test.classpath" />
+            <classpath refid="classpath" />
         </javac>
     </target>
 
