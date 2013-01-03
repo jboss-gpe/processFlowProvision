@@ -6,6 +6,10 @@
         <antcall target="openshift.provision.pfp.core" />
     </target>
 
+    <!--    
+        pass following parameters to this target :
+        1)  bounce.servers  :   optional 
+    -->
     <target name="openshift.provision.pfp.core" >
         <delete dir="${openshift.pfpCore.app.location}" />
         <mkdir dir="${openshift.app.dir}" />
@@ -54,12 +58,17 @@
            <arg value="-remoteDir=${openshift.jboss.cartridge.type}/tmp/deployments/${console.name}"/>
            <arg value="-rsyncDelete=true"/>
         </exec> 
-        <exec executable="bash" failonerror="true" dir="." >
-           <arg value="${development.base}/bin/openshift.sh"/>
-           <arg value="push"/>
-           <arg value="-localAppLocation=${openshift.pfpCore.app.location}"/>
-           <arg value="-domainName=${openshift.domain.name}"/>
-        </exec> 
+        <if>
+            <not><equals arg1="${bounce.servers}" arg2="false" /></not>
+            <then>
+                <exec executable="bash" failonerror="true" dir="." >
+                <arg value="${development.base}/bin/openshift.sh"/>
+                <arg value="push"/>
+                <arg value="-localAppLocation=${openshift.pfpCore.app.location}"/>
+                <arg value="-domainName=${openshift.domain.name}"/>
+                </exec> 
+            </then>
+        </if>
     </target>
 
     <target name="openshift.provision.brms.webs" >

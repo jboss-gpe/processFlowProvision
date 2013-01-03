@@ -197,15 +197,19 @@ provisionAccountsWithPFP() {
 
     cd $JBOSS_PROJECTS/processFlowProvision
     ant pfp.clean
+    ant configure.jboss.modules
 
     if [ "x$osAccountDetailsFileLocation" = "x" ]; then
         osAccountDetailsFileLocation=$HOME/redhat/openshift/openshift_account_details.xml
     fi
     echo openshift.account.details.file.location = $osAccountDetailsFileLocation
     t=1
+    echo -en "\n\nprovisionAccountsWithPFP() BEGIN in 5 seconds\n\n"
+    sleep 5 
+    date1=$(date +"%s")
     for i in `xmlstarlet sel -t -n -m '//openshiftAccounts/account' -v 'domainId' -n $osAccountDetailsFileLocation`; 
     do 
-        echo -en "\n$i\n"; 
+        echo -en "\n\nprovisionAccountsWithPFP() ***** now provisioning: $i\n\n"; 
         echo -n "" > target/openshiftAccount.properties
         xmlstarlet sel -t -n -m '//openshiftAccounts/account['$t']' -n \
         -o 'openshift.domain.name=' -v "domainId" -n \
@@ -216,13 +220,17 @@ provisionAccountsWithPFP() {
         # will now set 'is.deployment.local' to false .... this property will only exist in an openshift deployment
         echo -n "is.deployment.local=false" >> target/openshiftAccount.properties
 
-        ant openshift.provision.both
+        ant openshift.provision.pfp.core -Dbounce.servers=false
         ((t++))
 
         cd $JBOSS_PROJECTS/workshops/BusinessLogicDevelopmentWorkshop/BLDW-openshift-provision
         ant
     	cd $JBOSS_PROJECTS/processFlowProvision
     done
+
+    date2=$(date +"%s")
+    diff=$(($date2-$date1))
+    echo -en "\n\nprovisionAccountsWithPFP() DONE ... completed in:   $(($diff / 60)) minutes and $(($diff % 60)) seconds\n\n"
 }
 
 bounceMultipleAccounts() {
