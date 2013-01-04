@@ -75,8 +75,8 @@ start() {
     fi
     echo -en $"Starting jboss daemon w/ following command line args: \n\tjboss.bind.address = $hostName\n\t-bmanagement = $hostName\n\tjboss.domain.base.dir= $jbossDomainBaseDir\n\tdomainConfig=$domainConfig\n\tsleepSec=$sleepSec\n\tJBOSS_MODULEPATH=$jbossModulePath\n"
     sleep 1 
-    cd $JBOSS_HOME
-    chmod 755 $JBOSS_HOME/bin/*.sh
+    cd $jbossHome
+    chmod 755 $jbossHome/bin/*.sh
     rm nohup.out
     nohup ./bin/domain.sh -b=$hostName -bmanagement=$hostName -Djboss.domain.base.dir=$jbossDomainBaseDir -Ddomain-config=$domainConfig &
     if [ "x$sleepSec" !=  "x" ]; then
@@ -96,7 +96,7 @@ stop() {
     fi
 
     echo -en $"stopping following jboss node: $node\t: at $hostName:$cliPort\n"
-    cd $JBOSS_HOME
+    cd $jbossHome
     ./bin/jboss-cli.sh --connect --controller=$hostName:$cliPort --command=/host=$node:shutdown
     echo
     sleep 3
@@ -109,7 +109,7 @@ restart() {
 
 executeAddUser() {
     echo -en "executeAddUser() : isAdmin = $isAdmin : userId = $userId \n"
-    cd $JBOSS_HOME
+    cd $jbossHome
         ./bin/add-user.sh $userId $password  --silent=false
     #if [$isAdmin -eq "true"]; then
     #    ./bin/add-user.sh $userId $password 

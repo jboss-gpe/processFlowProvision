@@ -320,6 +320,7 @@
            <arg value="-hostName=${os.hostname}"/>
            <arg value="-cliPort=${management.port}"/>
            <arg value="-node=master"/>
+           <arg value="-jbossHome=${jboss.home}"/>
         </exec>
     </target>
     <target name="local.start.master">
@@ -336,6 +337,7 @@
            <arg value="-jbossModulePath=${jbossModulePath}"/>
            <arg value="-sleepSec=${master.sleep.sec.after.start}"/>
            <arg value="-hostName=${os.hostname}"/>
+           <arg value="-jbossHome=${jboss.home}"/>
         </exec>
     </target>
 
