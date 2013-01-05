@@ -38,6 +38,10 @@ batch
 /profile=default/subsystem=datasources/data-source=guvnor-cp:add(jndi-name=java:/global/guvnor-cp,connection-url=${guvnor_connection_url},driver-class=${guvnor_driver_class},driver-name=${jdbc.module.name},user-name=${guvnor_db_user},password=${guvnor_db_password},pool-name=guvnor_ds_pool,max-pool-size=5,min-pool-size=1)
 /profile=default/subsystem=datasources/data-source=guvnor-cp:enable()
 
+### sy-core-group also uses the default profile, so provide it a non-XA datasource connection pools to jbpm and jbpm_bam databases
+/profile=default/subsystem=datasources/data-source=jbpm-core-cp:add(jndi-name=java:jboss/datasources/jbpm-core-cp,connection-url=${jbpm_connection_url},driver-class=${jbpm_driver_class},driver-name=${jdbc.module.name},user-name=${jbpm_db_user},password=${jbpm_db_password},pool-name=jbpm-core_ds_pool,max-pool-size=5,min-pool-size=1)
+/profile=default/subsystem=datasources/data-source=jbpm-core-cp:enable()
+
 # now that brms-webs is started, create a "remote-outbound-connection" which uses :
 #   1)  previously defined "remote-ejb" outbound-socket-binding
 #   2)  previously defined "ejb-security-realm"
