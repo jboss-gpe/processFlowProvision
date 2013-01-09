@@ -10,6 +10,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.core.Response;
@@ -93,6 +94,27 @@ public class KSessionHttp {
     public Response printWorkItemHandlers() {
         String kBaseContent = kProxy.printWorkItemHandlers();
         ResponseBuilder builder = Response.ok(kBaseContent);
+        return builder.build();
+    }
+
+    /**
+     * sample usage :
+     *  curl -X PUT -HAccept:text/plain $HOSTNAME:8330/knowledgeService/rs/process/tokens/1/transition?signalType=test
+     *  curl -X PUT -HAccept:text/plain http://pfpcore-jbride0.rhcloud.com/knowledgeService/rs/process/tokens/1/transition?signalType=test
+     */
+    @PUT
+    @Path("/rs/process/tokens/{pInstanceId: .*}/transition")
+    public Response signalEvent(@PathParam("pInstanceId")final Long pInstanceId, 
+                                @QueryParam("signalType")final String signalType,
+                                @QueryParam("ksessionId")final Integer ksessionId,
+                                final String signalPayload
+                                ) {
+        ResponseBuilder builder = Response.ok();
+        try {
+            kProxy.signalEvent(signalType, signalPayload, pInstanceId, ksessionId);
+        }catch(RuntimeException x){
+            builder = Response.status(Status.SERVICE_UNAVAILABLE);
+        }
         return builder.build();
     }
 
