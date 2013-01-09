@@ -533,6 +533,7 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
 
             
             //due to ksession.dispose() needing to be outside trnx, ksessionId could still be temporarily in kWrapperHash 
+            //want to avoid calling loadStatefulKnowledgeSessionAndExtras until ksessionId has been removed from kWrapperHash
             boolean goodToGo=true;
             for(int x=0; x < 10; x++){
                 if(kWrapperHash.containsKey(ksessionId)) {
