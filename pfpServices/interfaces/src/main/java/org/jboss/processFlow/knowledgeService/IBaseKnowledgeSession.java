@@ -64,12 +64,12 @@ public interface IBaseKnowledgeSession {
      * will only be processed inside the given process instance.  All other process instances
      * waiting for this type of event will not be notified.
      *
-     * @param type the type of event
-     * @param event the data associated with this event
+     * @param signalType the type of event
+     * @param signalPayload the data associated with this event
      * @param processInstanceId the id of the process instance that should be signaled
      * @param ksessionId the id of the KnowledgeSession that is managing the lifecycle of the process instance
      */
-    public void signalEvent(String type, Object event, Long processInstanceId, Integer ksessionId);
+    public void signalEvent(String signalType, Object signalPayload, Long processInstanceId, Integer ksessionId);
 
     public void disposeStatefulKnowledgeSessionAndExtras(Integer sessionId);
 }

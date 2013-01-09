@@ -1,26 +1,22 @@
 package org.jboss.processFlow.knowledgeService;
 
-import java.net.ConnectException;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.drools.runtime.process.ProcessInstance;
 
 /* test interface for ksessionService via http
  *
@@ -98,6 +94,9 @@ public class KSessionHttp {
     }
 
     /**
+     * purpose      : provide a REST API for signalling kSessionService that allows for a payload in the HttpRequest body
+     *                business-central-service REST API expose a signalling function.
+     *                however, payload data needs to be added as QueryData to the URL .... which is sufficient only with a small payload
      * sample usage :
      *  curl -X PUT -HAccept:text/plain $HOSTNAME:8330/knowledgeService/rs/process/tokens/1/transition?signalType=test
      *  curl -X PUT -HAccept:text/plain http://pfpcore-jbride0.rhcloud.com/knowledgeService/rs/process/tokens/1/transition?signalType=test
@@ -111,7 +110,13 @@ public class KSessionHttp {
                                 ) {
         ResponseBuilder builder = Response.ok();
         try {
-            kProxy.signalEvent(signalType, signalPayload, pInstanceId, ksessionId);
+        	String[] signalData = signalPayload.split("\\$");
+        	Map<String, String> signalMap = new HashMap<String, String>();
+            for(int t = 1; t< signalData.length; t++) {
+                signalMap.put(signalData[t], signalData[t+1]);
+                t++;
+            }
+            kProxy.signalEvent(signalType, signalMap, pInstanceId, ksessionId);
         }catch(RuntimeException x){
             builder = Response.status(Status.SERVICE_UNAVAILABLE);
         }
