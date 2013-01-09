@@ -241,7 +241,7 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
         -- the kWrapperHash datastructure is a good candidate to use
     */
     private StatefulKnowledgeSession loadStatefulKnowledgeSession(Integer sessionId) {
-    	if(kWrapperHash.containsKey(sessionId)) {
+        if(kWrapperHash.containsKey(sessionId)) {
             //log.info("loadStatefulKnowledgeSession() found ksession in cache for ksessionId = " +sessionId);
             return kWrapperHash.get(sessionId).ksession;
         }
@@ -526,31 +526,31 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
     public void signalEvent(String signalType, Object signalValue, Long processInstanceId, Integer ksessionId) {
         StatefulKnowledgeSession ksession = null;
         try {
-        	uTrnx.begin();
+            uTrnx.begin();
             
-        	// always go to the database to ensure row-level pessimistic lock for each process instance
+            // always go to the database to ensure row-level pessimistic lock for each process instance
             ksessionId = sessionPool.getSessionId(processInstanceId);
 
             
             //due to ksession.dispose() needing to be outside trnx, ksessionId could still be temporarily in kWrapperHash 
-        	boolean goodToGo=true;
-        	for(int x=0; x < 10; x++){
-        		if(kWrapperHash.containsKey(ksessionId)) {
-        			log.info("signalEvent() found ksession in cache for ksessionId = " +ksessionId+" :  will sleep");
-        			try {Thread.sleep(100);} catch(Exception t){t.printStackTrace();}
-        			goodToGo = false;
-        		}else {
-        			goodToGo = true;
-        			break;
-        		}
-        	}
-        	if(!goodToGo)
-        		throw new RuntimeException("signalEvent() the following ksession continues to be in use: "+ksessionId);
-        	
-        	
+            boolean goodToGo=true;
+            for(int x=0; x < 10; x++){
+                if(kWrapperHash.containsKey(ksessionId)) {
+                    log.info("signalEvent() found ksession in cache for ksessionId = " +ksessionId+" :  will sleep");
+                    try {Thread.sleep(100);} catch(Exception t){t.printStackTrace();}
+                    goodToGo = false;
+                }else {
+                    goodToGo = true;
+                    break;
+                }
+            }
+            if(!goodToGo)
+                throw new RuntimeException("signalEvent() the following ksession continues to be in use: "+ksessionId);
+            
+            
             ksession = this.loadStatefulKnowledgeSessionAndAddExtras(ksessionId);
             if(enableLog)
-            	log.info("signalEvent() \n\tksession = "+ksessionId+"\n\tprocessInstanceId = "+processInstanceId+"\n\tsignalType="+signalType+"\n\tsignalValue="+signalValue);
+                log.info("signalEvent() \n\tksession = "+ksessionId+"\n\tprocessInstanceId = "+processInstanceId+"\n\tsignalType="+signalType+"\n\tsignalValue="+signalValue);
            
             ProcessInstance pInstance = ksession.getProcessInstance(processInstanceId);
             pInstance.signalEvent(signalType, signalValue);
@@ -570,7 +570,7 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
     public void abortProcessInstance(Long processInstanceId, Integer ksessionId) {
         StatefulKnowledgeSession ksession = null;
         try {
-        	uTrnx.begin();
+            uTrnx.begin();
             if(ksessionId == null)
                 ksessionId = sessionPool.getSessionId(processInstanceId);
 
