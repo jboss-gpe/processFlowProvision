@@ -240,6 +240,8 @@ public class JpaKnowledgeSessionPool implements IKnowledgeSessionPool {
                     .setLockMode("xref", LockMode.PESSIMISTIC_WRITE)
                     .setParameter("pInstanceId", pInstanceId)
                     .uniqueResult();
+            if(xref == null)
+                throw new RuntimeException("getSessionId() unable to find SessionProcessXref in db for pInstanceId = "+pInstanceId);
             return xref.getSessionId();
         }
         finally {

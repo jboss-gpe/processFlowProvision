@@ -550,8 +550,13 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
             
             
             ksession = this.loadStatefulKnowledgeSessionAndAddExtras(ksessionId);
-            if(enableLog)
-                log.info("signalEvent() \n\tksession = "+ksessionId+"\n\tprocessInstanceId = "+processInstanceId+"\n\tsignalType="+signalType+"\n\tsignalValue="+signalValue);
+
+            StringBuilder sBuilder = new StringBuilder("signalEvent() \n\tksession = "+ksessionId+"\n\tprocessInstanceId = "+processInstanceId+"\n\tsignalType="+signalType);
+            // sometimes signalValue can be huge (as in if passing large JSON/xml strings )
+            if(enableLog) {
+                sBuilder.append("\n\tsignalValue="+signalValue);
+            }
+            log.info(sBuilder.toString());
            
             ProcessInstance pInstance = ksession.getProcessInstance(processInstanceId);
             pInstance.signalEvent(signalType, signalValue);
