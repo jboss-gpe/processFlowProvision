@@ -13,7 +13,9 @@ batch
 /profile=default/subsystem=logging/logger=org.jboss.as.ee.structure/:add(category=org.jboss.as.ee.structure,level=TRACE,use-parent-handlers=true)
 /profile=default/subsystem=logging/logger=org.jboss.bpm.report/:add(category=org.jboss.bpm.report,level=TRACE,use-parent-handlers=true)
 
-/profile=default/subsystem=logging/logger=org.apache.jackrabbit.core.TransientRepository/:add(category=org.apache.jackrabbit.core.TransientRepository,level=WARN,use-parent-handlers=true)
+ # skip excessive guvnor logging
+/profile=default/subsystem=logging/logger=org.apache.jackrabbit.core/:add(category=org.apache.jackrabbit.core.TransientRepository,level=WARN,use-parent-handlers=true)
+/profile=default/subsystem=logging/logger=org.drools.xml/:add(category=org.drools.xml.ExtensibleXmlParser,level=FATAL,use-parent-handlers=true)
 
 # configure brms-webs server group
 /server-group=brms-webs-group/:add(profile=default,socket-binding-group=standard-sockets,socket-binding-port-offset=${brms.webs.port.offset})
