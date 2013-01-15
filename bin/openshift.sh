@@ -271,12 +271,50 @@ bounceMultipleKBase() {
     done
 }
 
+executeCommandsAcrossAllAccounts() {
+    reloadUri="knowledgeService/kbase"
+    getContentUri="knowledgeService/kbase/content"
+    if [ "x$osAccountDetailsFileLocation" = "x" ]; then
+        osAccountDetailsFileLocation=$HOME/redhat/openshift/openshift_account_details.xml
+    fi
+    t=1
+    for git_url in `xmlstarlet sel -t -n -m '//openshiftAccounts/account[*]/pfpCore' -v 'git_url' -n $osAccountDetailsFileLocation`; 
+    do 
+        git_url=${git_url:6}
+        totalLength=${#git_url}
+        urlLength=$(($totalLength-19))
+        git_url=${git_url:0:$urlLength}
+        echo -en "\n*********   git_url = $git_url\t$totalLength\t$urlLength    **************\n"
+
+        localFile=target/lib/brmsUnzip/jboss-brms.war/WEB-INF/classes/org/drools/guvnor/server/configurations/ApplicationPreferencesInitializer.class
+        remoteFile=jbosseap-6.0/tmp/deployments/jboss-brms.war/WEB-INF/classes/org/drools/guvnor/server/configurations/ApplicationPreferencesInitializer.class
+        scp $localFile $git_url:$remoteFile
+        ssh $git_url "ls -l $remoteFile"
+        echo -en "\n"
+
+        localFile=target/lib/brmsUnzip/jboss-brms.war/WEB-INF/classes/org/drools/guvnor/client/configurations/ApplicationPreferences.class
+        remoteFile=jbosseap-6.0/tmp/deployments/jboss-brms.war/WEB-INF/classes/org/drools/guvnor/client/configurations/ApplicationPreferences.class
+        scp $localFile $git_url:$remoteFile
+        ssh $git_url "ls -l $remoteFile"
+        echo -en "\n"
+
+        localFile=target/lib/brmsUnzip/binaries/droolsjbpm-ide-common-5.3.1.BRMS.jar
+        remoteFile=jbosseap-6.0/tmp/pfpModules/org/jboss/processFlow/brmsExtras/main/droolsjbpm-ide-common-5.3.1.BRMS.jar
+        scp $localFile $git_url:$remoteFile
+        ssh $git_url "ls -l $remoteFile; app_ctl.sh restart"
+        echo -en "\n"
+
+        ((t++))
+    done
+        echo -en "\n\n"
+}
+
 
 case "$1" in
-    startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|provisionAccountsWithPFP|bounceMultipleAccounts|bounceMultipleKBase)
+    startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|provisionAccountsWithPFP|bounceMultipleAccounts|bounceMultipleKBase|executeCommandsAcrossAllAccounts)
         $1
         ;;
     *)
-    echo 1>&2 $"Usage: $0 {startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|provisionAccountsWithPFP|bounceMultipleAccounts|bounceMultipleKBase}"
+    echo 1>&2 $"Usage: $0 {startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|provisionAccountsWithPFP|bounceMultipleAccounts|bounceMultipleKBase|executeCommandsAcrossAllAccounts}"
     exit 1
 esac
