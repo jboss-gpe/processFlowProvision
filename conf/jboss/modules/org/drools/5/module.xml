@@ -20,6 +20,7 @@
 <module xmlns="urn:jboss:module:1.1" name="org.drools" slot="5" >
     <resources>
         <resource-root path="drools-compiler-${version.drools}.jar"/>
+        <resource-root path="droolsjbpm-ide-common-${version.drools}.jar"/>
         <resource-root path="drools-core-${version.drools}.jar"/>
         <resource-root path="drools-persistence-jpa-${version.drools}.jar"/>
         <resource-root path="knowledge-api-${version.drools}.jar"/>
