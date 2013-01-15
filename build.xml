@@ -417,6 +417,9 @@
         <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/${droolsjbpm.slot}/drools-compiler-${version.drools}.jar" >
             <fileset dir="${deps.lib.path}" ><include name="drools-compiler-*.jar" /></fileset>
         </copy>
+        <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/${droolsjbpm.slot}/droolsjbpm-ide-common-${version.drools}.jar" >
+            <fileset dir="${deps.lib.path}" ><include name="droolsjbpm-ide-common-*.jar" /></fileset>
+        </copy>
         <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/${droolsjbpm.slot}/drools-core-${version.drools}.jar" >
             <fileset dir="${deps.lib.path}" ><include name="drools-core-*.jar" /></fileset>
         </copy>

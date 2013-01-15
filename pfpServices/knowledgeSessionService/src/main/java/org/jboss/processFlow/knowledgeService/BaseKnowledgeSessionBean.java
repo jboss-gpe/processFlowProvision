@@ -743,6 +743,7 @@ public class BaseKnowledgeSessionBean {
             for(ProcessInstanceInfo pInstance: pInstances){
                 sBuffer.append("\n"+pInstance.getId()+"\t"+pInstance.getProcessId());
             }
+            sBuffer.append("\n");
         }else{
             sBuffer.append("\nno active process instances found\n");
         }

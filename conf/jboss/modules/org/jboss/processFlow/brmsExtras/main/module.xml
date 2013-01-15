@@ -96,7 +96,6 @@
 <resource-root path="dom4j-1.6.1.jar"/>
 <!--resource-root path="dom4j-1.6.jar"/ -->
 <resource-root path="drools-decisiontables-5.3.1.BRMS.jar"/>
-<resource-root path="droolsjbpm-ide-common-5.3.1.BRMS.jar"/>
 <resource-root path="drools-persistence-jpa-5.3.1.BRMS.jar"/>
 <resource-root path="drools-templates-5.3.1.BRMS.jar"/>
 <resource-root path="drools-verifier-5.3.1.BRMS.jar"/>

@@ -33,6 +33,8 @@ import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
+import org.hibernate.LockMode;
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +54,9 @@ import org.slf4j.LoggerFactory;
  * @author tanxu
  * @date Mar 5, 2012
  * @since
+ *
+ * 21 December 2012
+ *   - Michal Valach added row-level pessimistic locking to ensure enterprise-wide concurrency on each process instance.  thank you!
  */
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class JpaKnowledgeSessionPool implements IKnowledgeSessionPool {
@@ -140,8 +145,9 @@ public class JpaKnowledgeSessionPool implements IKnowledgeSessionPool {
     public void markAsBorrowed(Integer sessionId, String processId) {
         EntityManager em = emf.createEntityManager();
         try {
-            int rows = em.createQuery("UPDATE SessionProcessXref SET status=:status WHERE sessionId=:sessionId")
-                    .setParameter("status", STATUS_BUSY).setParameter("sessionId", sessionId).executeUpdate();
+            int rows = em.createQuery("UPDATE SessionProcessXref SET status=:status, processId =:processId WHERE sessionId=:sessionId")
+                    .setParameter("status", STATUS_BUSY).setParameter("sessionId", sessionId)
+                    .setParameter("processId", processId).executeUpdate();
             if (rows == 0) {
                 SessionProcessXref xref = new SessionProcessXref();
                 xref.setProcessId(processId);
@@ -228,9 +234,14 @@ public class JpaKnowledgeSessionPool implements IKnowledgeSessionPool {
     public Integer getSessionId(Long pInstanceId) {
         EntityManager em = emf.createEntityManager();
         try {
-            SessionProcessXref xref = (SessionProcessXref) em
+            Session session = (Session) em.getDelegate();
+			SessionProcessXref xref = (SessionProcessXref) session
                     .createQuery("SELECT xref FROM SessionProcessXref xref where xref.processInstanceId=:pInstanceId")
-                    .setParameter("pInstanceId", pInstanceId).getSingleResult();
+                    .setLockMode("xref", LockMode.PESSIMISTIC_WRITE)
+                    .setParameter("pInstanceId", pInstanceId)
+                    .uniqueResult();
+            if(xref == null)
+                throw new RuntimeException("getSessionId() unable to find SessionProcessXref in db for pInstanceId = "+pInstanceId);
             return xref.getSessionId();
         }
         finally {
