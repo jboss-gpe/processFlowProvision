@@ -205,8 +205,10 @@
                 <exclude name="*seam*.jar" />
                 <exclude name="gwt*.jar" />
                 <exclude name="cobogw*.jar" />
+                <exclude name="droolsjbpm-ide-common*.jar" />
             </fileset>
         </move>
+        <delete file="${guvnor.target}/WEB-INF/lib/droolsjbpm-ide-common-${jBPM.version}.jar" />
 
         <antcall target="filter">
             <param name="source.dir" value="conf/brmsWebs/designer/profiles"/>
@@ -737,6 +739,7 @@
             <equals arg1="${community.or.supported}" arg2="supported" />
             <then><antcall target="unzip.brms.deployable" /></then>
         </if>
+        <antcall target="apply.BZ887847" />
         <antcall target="refresh.master" />
         <antcall target="local.provision.brms.webs">
             <param name="refresh.master" value="false"/>
@@ -783,5 +786,29 @@
             <zipfileset dir="${temp.pfp.lib.dir}" prefix="${base.name}/${build.dir}/pfp/lib" />
             <zipfileset dir="${temp.pfp.services.dir}" prefix="${base.name}/${build.dir}/pfp/services" />
         </zip>
+    </target>
+
+    <target name="apply.BZ887847" >
+        <if>
+            <equals arg1="${org.jboss.process.apply.BZ887847}" arg2="true" />
+            <then>
+                <if><not><available file="${install.home}/lib/BZ887847.zip" /></not>
+                    <then>
+                        <fail message="need to download BZ887847.zip from: https://access.redhat.com/jbossnetwork/restricted/listSoftware.html?product=brms.  afterwards, copy to $PFP_HOME/target/lib directory" />
+                    </then>
+                </if>
+                <mkdir dir="${temp.brmsWebs.dir}" />
+                <unzip src="${install.home}/lib/BZ887847.zip" dest="${temp.brmsWebs.dir}" />
+                <copy file="${temp.brmsWebs.dir}/BZ887847/classes/org/drools/guvnor/server/configurations/ApplicationPreferencesInitializer.class"
+                      todir="${temp.brms.unzip.dir}/jboss-brms.war/WEB-INF/classes/org/drools/guvnor/server/configurations"
+                      overwrite="true" verbose="true" />
+                <copy file="${temp.brmsWebs.dir}/BZ887847/classes/org/drools/guvnor/client/configurations/ApplicationPreferences.class"
+                      todir="${temp.brms.unzip.dir}/jboss-brms.war/WEB-INF/classes/org/drools/guvnor/client/configurations"
+                      overwrite="true" verbose="true" />
+                <copy file="${temp.brmsWebs.dir}/BZ887847/lib/droolsjbpm-ide-common-5.3.1.BRMS-BZ_887847.jar"
+                      tofile="${temp.brms.unzip.dir}/binaries/droolsjbpm-ide-common-5.3.1.BRMS.jar" 
+                      overwrite="true" verbose="true" />
+            </then>
+        </if>
     </target>
 </project>
