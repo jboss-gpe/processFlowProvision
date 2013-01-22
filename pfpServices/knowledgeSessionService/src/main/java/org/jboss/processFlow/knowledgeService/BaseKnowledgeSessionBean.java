@@ -33,6 +33,7 @@ import java.net.ConnectException;
 import java.util.*;
 
 import javax.transaction.UserTransaction;
+import javax.annotation.PreDestroy;
 import javax.persistence.*;
 
 import org.apache.log4j.Logger;
@@ -143,7 +144,7 @@ import org.mvel2.ParserContext;
  *      the gwt-console-server queries the BRMS BAM database for listing of active process instances
  *      
  *     
- *
+ *  22 Jan 2013:  various performance optimizations and general cleanup contributed by Michal Valach.  thank you!
  */
 public class BaseKnowledgeSessionBean {
 
@@ -156,9 +157,10 @@ public class BaseKnowledgeSessionBean {
     protected String droolsResourceScannerInterval = "30";
     protected boolean enableLog = false;
     protected boolean enableKnowledgeRuntimeLogger = true;
-    protected Map<String, Class> programmaticallyLoadedWorkItemHandlers = new HashMap<String, Class>();
+    protected Map<String, Class<?>> programmaticallyLoadedWorkItemHandlers = new HashMap<String, Class<?>>();
 
     protected KnowledgeBase kbase = null;
+    protected KnowledgeAgent kagent = null;
     protected SystemEventListener originalSystemEventListener = null;
     protected DroolsManagementAgent kmanagement = null;
     protected GuvnorConnectionUtils guvnorUtils = null;
@@ -182,6 +184,14 @@ public class BaseKnowledgeSessionBean {
 
     protected @PersistenceUnit(unitName=EMF_NAME)  EntityManagerFactory jbpmCoreEMF;
     protected @javax.annotation.Resource UserTransaction uTrnx;
+    
+    @PreDestroy
+    public void destroy() throws Exception {
+        if (kagent != null) {
+            kagent.dispose();
+            kagent = null;
+        }
+    }
     
 
 /******************************************************************************
@@ -225,6 +235,11 @@ public class BaseKnowledgeSessionBean {
     protected synchronized void createKnowledgeBaseViaKnowledgeAgent(boolean forceRefresh) throws ConnectException{
         if(kbase != null && !forceRefresh)
             return;
+        
+        if(kagent != null) {
+        	kagent.dispose();
+        	kagent = null;
+        }
 
         // investigate:  List<String> guvnorPackages = guvnorUtils.getBuiltPackageNames();
         // http://ratwateribm:8080/jboss-brms/org.drools.guvnor.Guvnor/package/org.jboss.processFlow/test-pfp-snapshot
@@ -242,10 +257,20 @@ public class BaseKnowledgeSessionBean {
 
         // for polling of guvnor to occur, the polling and notifier services must be started
         ResourceChangeScannerConfiguration sconf = ResourceFactory.getResourceChangeScannerService().newResourceChangeScannerConfiguration();
-        sconf.setProperty( "drools.resource.scanner.interval", droolsResourceScannerInterval);
-        ResourceFactory.getResourceChangeScannerService().configure( sconf );
-        ResourceFactory.getResourceChangeScannerService().start();
-        ResourceFactory.getResourceChangeNotifierService().start();
+        
+        // Do not start change set notifications
+        Integer droolsResourceScannerIntervalValue = -1;
+        try {
+            droolsResourceScannerIntervalValue = Integer.valueOf(droolsResourceScannerInterval);
+        } catch (NumberFormatException nfe) {
+            log.error("DroolsResourceScannerInterval is not an integer: " + droolsResourceScannerInterval, nfe);
+        }
+        if (droolsResourceScannerIntervalValue > 0) {
+            sconf.setProperty( "drools.resource.scanner.interval", droolsResourceScannerInterval);
+            ResourceFactory.getResourceChangeScannerService().configure( sconf );
+            ResourceFactory.getResourceChangeScannerService().start();
+            ResourceFactory.getResourceChangeNotifierService().start();
+        }
         
         KnowledgeAgentConfiguration aconf = KnowledgeAgentFactory.newKnowledgeAgentConfiguration(); // implementation = org.drools.agent.impl.KnowledgeAgentConfigurationImpl
 
@@ -253,11 +278,17 @@ public class BaseKnowledgeSessionBean {
             - will create a single KnowledgeBase and always refresh that same instance
         */
         aconf.setProperty("drools.agent.newInstance", "false");
+        if (droolsResourceScannerIntervalValue < 0) {
+            aconf.setProperty("drools.agent.scanResources", Boolean.FALSE.toString());
+            aconf.setProperty("drools.agent.scanDirectories", Boolean.FALSE.toString());
+            aconf.setProperty("drools.agent.monitorChangeSetEvents", Boolean.FALSE.toString());
+        }
+
 
         /*  -- Knowledge Agent provides automatic loading, caching and re-loading of resources
             -- the knowledge agent can update or rebuild this knowledge base as the resources it uses are changed
         */
-        KnowledgeAgent kagent = KnowledgeAgentFactory.newKnowledgeAgent("Guvnor default", aconf);
+        kagent = KnowledgeAgentFactory.newKnowledgeAgent("Guvnor default", aconf);
         StringReader sReader = guvnorUtils.createChangeSet();
         try {
             guvnorChangeSet = IOUtils.toString(sReader);
@@ -279,10 +310,10 @@ public class BaseKnowledgeSessionBean {
     }
     
     public void rebuildKnowledgeBaseViaKnowledgeBuilder() {
-        guvnorProps = new Properties();
         try {
-            KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
             if(guvnorUtils.guvnorExists()) {
+            	guvnorProps = new Properties();
+            	KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
                 guvnorProps.load(BaseKnowledgeSessionBean.class.getResourceAsStream("/jbpm.console.properties"));
                 StringBuilder guvnorSBuilder = new StringBuilder();
                 guvnorSBuilder.append(guvnorProps.getProperty(GuvnorConnectionUtils.GUVNOR_PROTOCOL_KEY));
@@ -302,8 +333,17 @@ public class BaseKnowledgeSessionBean {
                         log.error("rebuildKnowledgeBaseViaKnowledgeBuilder() returned following exception when querying package = "+pkg+" : "+y);
                     }
                }
+               kbase = kbuilder.newKnowledgeBase();
+            }else {
+            	StringBuilder sBuilder = new StringBuilder();
+                sBuilder.append(guvnorUtils.getGuvnorProtocol());
+                sBuilder.append("://");
+                sBuilder.append(guvnorUtils.getGuvnorHost());
+                sBuilder.append("/");
+                sBuilder.append(guvnorUtils.getGuvnorSubdomain());
+                sBuilder.append("/rest/packages/");
+                throw new ConnectException("createKnowledgeBase() cannot connect to guvnor at URL : " + sBuilder.toString());
             }
-            kbase = kbuilder.newKnowledgeBase();
         }catch(Exception x){
             throw new RuntimeException(x);
         }
@@ -750,13 +790,17 @@ public class BaseKnowledgeSessionBean {
         return sBuffer.toString();
     }
     
+    private static final List<Integer> NON_ROLLBACK_TX = Arrays.asList(new Integer[]{
+            javax.transaction.Status.STATUS_NO_TRANSACTION,
+            javax.transaction.Status.STATUS_ROLLEDBACK
+    });
     protected void rollbackTrnx() {
         try {
-            if(uTrnx.getStatus() == javax.transaction.Status.STATUS_ACTIVE)
+            if(!NON_ROLLBACK_TX.contains(uTrnx.getStatus())) {
                 uTrnx.rollback();
-        }catch(Exception e) {
-            e.printStackTrace();
+            }
+        } catch(Exception e) {
+            log.error(e.getMessage() + " - at: " + (e.getStackTrace() == null ? null : e.getStackTrace()[0]));
         }
     }
-  
 }
