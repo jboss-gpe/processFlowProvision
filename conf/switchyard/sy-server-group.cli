@@ -34,12 +34,13 @@ batch
 /profile=full/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=entries,value=["java:/RemoteConnectionFactory"])
 /profile=full/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=ha,value=true)
 /profile=full/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=reconnect-attempts,value=-1)
+##################################################################################################################################
 
 
 
 
 
-/profile=full/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=formatter,value=%d{HH:mm:ss,SSS} %-5p [%c] %s%E%n)
+#/profile=full/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=formatter,value=%d{HH:mm:ss,SSS} %-5p [%c] %s%E%n)
 /profile=full/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=append,value=false)
 /profile=full/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=level,value=TRACE)
 
