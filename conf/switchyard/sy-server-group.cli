@@ -1,19 +1,63 @@
 batch
 
-/profile=default/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=formatter,value=%d{HH:mm:ss,SSS} %-5p [%c] %s%E%n)
-/profile=default/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=append,value=false)
-/profile=default/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=level,value=TRACE)
+###################################       configure full profile to support hosting of MDB          #######################################
+# use full profile for switchyard because still need hornetq remote resource adaptor functionality
+# which, needs hornetq subsystem as per:  https://community.jboss.org/message/756775
+/profile=full/subsystem=messaging/hornetq-server=default/:write-attribute(name=persistence-enabled,value=false)
+/profile=full/subsystem=messaging/hornetq-server=default/:undefine-attribute(name=journal-file-size)
+/profile=full/subsystem=messaging/hornetq-server=default/:undefine-attribute(name=journal-min-files)
+/profile=full/subsystem=messaging/hornetq-server=default/address-setting=#/:remove
+/profile=full/subsystem=messaging/hornetq-server=default/security-setting=#/:remove
+/profile=full/subsystem=messaging/hornetq-server=default/connection-factory=InVmConnectionFactory/:remove
+/profile=full/subsystem=messaging/hornetq-server=default/in-vm-acceptor=in-vm/:remove
+/profile=full/subsystem=messaging/hornetq-server=default/in-vm-connector=in-vm/:remove
+/profile=full/subsystem=messaging/hornetq-server=default/remote-acceptor=netty-throughput/:remove
+/profile=full/subsystem=messaging/hornetq-server=default/remote-acceptor=netty/:remove
+/profile=full/subsystem=messaging/hornetq-server=default/remote-connector=netty-throughput/:remove
+
+#  define a discovery-group for the messaging subcomponent of the full profile
+#  both hornetq-ra.rar as well as JMS connection factories will use this discovery-group rather than lookup via static IPs
+/profile=full/subsystem=messaging/hornetq-server=default/discovery-group=dg-group1/:add(socket-binding=messaging-group,refresh-timeout=10000)
+
+# change pooled connection factory to use discovery-group rather than immediately using a netty connectory
+/profile=full/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:undefine-attribute(name=connector)
+/profile=full/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=discovery-group-name,value=dg-group1)
+
+# configure hornetq-ra for HA behavior
+/profile=full/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=ha,value=true)
+/profile=full/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=reconnect-attempts,value=-1)
+/profile=full/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=failover-on-server-shutdown,value=true)
+
+# configure JMS connection factory avialable internally to beans;  ensure it uses correct discovery group and is HA
+/profile=full/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:undefine-attribute(name=connector)
+/profile=full/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=discovery-group-name,value=dg-group1)
+/profile=full/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=entries,value=["java:/RemoteConnectionFactory"])
+/profile=full/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=ha,value=true)
+/profile=full/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=reconnect-attempts,value=-1)
+
+
+
+
+
+/profile=full/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=formatter,value=%d{HH:mm:ss,SSS} %-5p [%c] %s%E%n)
+/profile=full/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=append,value=false)
+/profile=full/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=level,value=TRACE)
 
 # trace level logging of org.switchyard.transform.TransformerRegistryLoader to view loaded transforms
-/profile=default/subsystem=logging/logger=org.switchyard.transform.TransformerRegistryLoader/:add(category=org.switchyard.transform.TransformerRegistryLoader,level=TRACE,use-parent-handlers=true)
+/profile=full/subsystem=logging/logger=org.switchyard.transform.TransformerRegistryLoader/:add(category=org.switchyard.transform.TransformerRegistryLoader,level=TRACE,use-parent-handlers=true)
 
 # trace level logging of org.switchyard.component.soap view inbound soap
-/profile=default/subsystem=logging/logger=org.switchyard.component.soap.InboundHandler/:add(category=org.switchyard.component.soap.InboundHandler,level=TRACE,use-parent-handlers=true)
+/profile=full/subsystem=logging/logger=org.switchyard.component.soap.InboundHandler/:add(category=org.switchyard.component.soap.InboundHandler,level=TRACE,use-parent-handlers=true)
 
 # DEBUG level logging of org.switchyard.internal.ExchangeImpl to view message traffic
-/profile=default/subsystem=logging/logger=org.switchyard.internal.ExchangeImpl/:add(category=org.switchyard.internal.ExchangeImpl,level=DEBUG,use-parent-handlers=true)
+/profile=full/subsystem=logging/logger=org.switchyard.internal.ExchangeImpl/:add(category=org.switchyard.internal.ExchangeImpl,level=DEBUG,use-parent-handlers=true)
 
 # create sy.core server group and start
-/server-group=${sy.core.group}/:add(profile=default,socket-binding-group=standard-sockets)
+/server-group=${sy.core.group}/:add(profile=full,socket-binding-group=full-sockets)
+
+# set hornetq specific system properties that reference broker discovery groups
+/server-group=${sy.core.group}/system-property=jboss.messaging.group.address/:add(value=${jboss.messaging.group.address},boot-time=true)
+/server-group=${sy.core.group}/system-property=jboss.messaging.group.port/:add(value=${jboss.messaging.group.port},boot-time=true)
+
 
 run-batch

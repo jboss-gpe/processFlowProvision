@@ -47,6 +47,9 @@ batch
 /server-group=${pfp.core.group}/system-property=jbpm.conf.dir/:add(value=${jbpm.conf.dir},boot-time=true)
 /server-group=${pfp.core.group}/system-property=drools.session.template.path/:add(value=${drools.session.template.path},boot-time=true)
 
+/server-group=${pfp.core.group}/system-property=jboss.messaging.group.address/:add(value=${jboss.messaging.group.address},boot-time=true)
+/server-group=${pfp.core.group}/system-property=jboss.messaging.group.port/:add(value=${jboss.messaging.group.port},boot-time=true)
+
 deploy ${temp.pfp.services.dir}/processFlow-knowledgeSessionService.jar --name=processFlow-knowledgeSessionService.jar --server-groups=${pfp.core.group}
 deploy ${temp.pfp.services.dir}/processFlow-taskService.jar --name=processFlow-taskService.jar --server-groups=${pfp.core.group}
 deploy ${temp.pfp.services.dir}/processFlow-bamService.jar --name=processFlow-bamService.jar --server-groups=${pfp.core.group}
