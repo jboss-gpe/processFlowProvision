@@ -19,32 +19,19 @@ createSoftLinksToWebArchives() {
     cd $OPENSHIFT_REPO_DIR/deployments
     echo -en "createSoftLinksToWebArchives() will now create soft links \n";
 
-    if [ -e ${console.server.name} ]
-    then
-        rm ${console.server.name}
-    fi
+    # remove any stale links or status files referencing the brms web archives
+    rm *war*
+
     ln -s ~/${openshift.jboss.cartridge.type}/tmp/deployments/${console.server.name}
     touch ${console.server.name}.dodeploy
 
 
-    if [ -e ${console.name} ]
-    then
-        rm ${console.name}
-    fi
     ln -s ~/${openshift.jboss.cartridge.type}/tmp/deployments/${console.name}
     touch ${console.name}.dodeploy
 
-    if [ -e ${designer.name} ]
-    then
-        rm ${designer.name}
-    fi
     ln -s ~/${openshift.jboss.cartridge.type}/tmp/deployments/${designer.name}
     touch ${designer.name}.dodeploy
 
-    if [ -e ${guvnor.name} ]
-    then
-        rm ${guvnor.name}
-    fi
     ln -s ~/${openshift.jboss.cartridge.type}/tmp/deployments/${guvnor.name}
     touch ${guvnor.name}.dodeploy
 }

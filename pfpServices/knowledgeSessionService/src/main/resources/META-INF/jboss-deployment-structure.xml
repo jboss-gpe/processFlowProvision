@@ -2,6 +2,7 @@
     <deployment>
         <dependencies>
             <module name="org.jboss.processFlow" />
+            <module name="org.codehaus.jackson.jackson-mapper-asl" />
         </dependencies>
     </deployment>
 

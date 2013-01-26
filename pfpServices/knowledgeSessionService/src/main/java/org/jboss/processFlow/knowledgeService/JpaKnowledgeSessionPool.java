@@ -235,7 +235,7 @@ public class JpaKnowledgeSessionPool implements IKnowledgeSessionPool {
         EntityManager em = emf.createEntityManager();
         try {
             Session session = (Session) em.getDelegate();
-			SessionProcessXref xref = (SessionProcessXref) session
+            SessionProcessXref xref = (SessionProcessXref) session
                     .createQuery("SELECT xref FROM SessionProcessXref xref where xref.processInstanceId=:pInstanceId")
                     .setLockMode("xref", LockMode.PESSIMISTIC_WRITE)
                     .setParameter("pInstanceId", pInstanceId)

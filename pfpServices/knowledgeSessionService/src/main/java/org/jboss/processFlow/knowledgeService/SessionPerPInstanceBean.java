@@ -22,6 +22,7 @@
 
 package org.jboss.processFlow.knowledgeService;
 
+import java.io.StringWriter;
 import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,18 +32,16 @@ import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
 import javax.enterprise.inject.Default;
-import javax.persistence.*;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.drools.SystemEventListenerFactory;
 import org.drools.core.util.DelegatingSystemEventListener;
 import org.drools.KnowledgeBaseFactory;
 import org.drools.agent.impl.PrintStreamSystemEventListener;
 import org.drools.command.SingleSessionCommandService;
 import org.drools.command.impl.CommandBasedStatefulKnowledgeSession;
-import org.drools.common.AbstractWorkingMemory;
-import org.drools.common.InternalKnowledgeRuntime;
 import org.drools.event.process.ProcessCompletedEvent;
 import org.drools.event.process.ProcessEventListener;
 import org.drools.event.process.ProcessNodeLeftEvent;
@@ -54,14 +53,12 @@ import org.drools.logger.KnowledgeRuntimeLogger;
 import org.drools.logger.KnowledgeRuntimeLoggerFactory;
 import org.drools.persistence.jpa.JPAKnowledgeService;
 import org.drools.persistence.jpa.JpaJDKTimerService;
-import org.drools.persistence.jpa.processinstance.JPAWorkItemManager;
 import org.drools.persistence.jpa.processinstance.JPAWorkItemManagerFactory;
 import org.drools.runtime.KnowledgeSessionConfiguration;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.Environment;
 import org.drools.runtime.process.ProcessInstance;
 import org.drools.runtime.process.WorkItemHandler;
-import org.jbpm.persistence.processinstance.ProcessInstanceInfo;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
@@ -456,6 +453,8 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
      *- at completion of the process instance (or arrival at a wait state), the StatefulKnowledgeSession will be disposed
      *- bean managed transaction demarcation is used by this method IOT dispose of the ksession *AFTER* the transaction has committed
      *- otherwise, this method will fail due to implementation of JBRULES-1880
+     *
+     * - will return null if problems arise
      *</pre>
      */
     public Map<String, Object> startProcessAndReturnId(String processId, Map<String, Object> parameters) {
@@ -465,116 +464,96 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
         ProcessInstance pInstance = null;
         Map<String, Object> returnMap = new HashMap<String, Object>();
         try {
-        	try {
-                uTrnx.begin();
-                ksession = getStatefulKnowledgeSession(processId);
-                ksessionId = ksession.getId();
-                addExtrasToStatefulKnowledgeSession(ksession);
-                sBuilder.append("startProcessAndReturnId()\tsessionId :  "+ksessionId+" : process = "+processId);
-                
-                if(parameters != null) {
-                    pInstance = ksession.startProcess(processId, parameters);
-                } else {
-                    pInstance = ksession.startProcess(processId);
-                }
-                uTrnx.commit();
-                returnMap.put(IKnowledgeSessionService.PROCESS_INSTANCE_ID, pInstance.getId());
-                returnMap.put(IKnowledgeSessionService.PROCESS_INSTANCE_STATE, pInstance.getState());
-                returnMap.put(IKnowledgeSessionService.KSESSION_ID, ksessionId);
-        	}finally {
-        		if(ksession != null){
-                    disposeStatefulKnowledgeSessionAndExtras(ksessionId);
-        		}
-        	}
+            uTrnx.begin();
+            ksession = getStatefulKnowledgeSession(processId);
+            ksessionId = ksession.getId();
+            addExtrasToStatefulKnowledgeSession(ksession);
+            sBuilder.append("startProcessAndReturnId()\tsessionId :  "+ksessionId+" : process = "+processId);
 
+            if(parameters != null) {
+                pInstance = ksession.startProcess(processId, parameters);
+            } else {
+                pInstance = ksession.startProcess(processId);
+            }
+
+            // now always return back to client the latest (possibly modified) pInstance variables
+            // thank you  Jano Kasarda
+            Map<String, Object> variables = ((WorkflowProcessInstanceImpl) pInstance).getVariables();
+            for (String key : variables.keySet()) {
+                returnMap.put(key, variables.get(key));
+            }
+            uTrnx.commit();
+            returnMap.put(IKnowledgeSessionService.PROCESS_INSTANCE_ID, pInstance.getId());
+            returnMap.put(IKnowledgeSessionService.PROCESS_INSTANCE_STATE, pInstance.getState());
+            returnMap.put(IKnowledgeSessionService.KSESSION_ID, ksessionId);
+        }catch(Throwable x){
+            rollbackTrnx();
+            return null;
+        }finally {
+            if(ksession != null){
+                disposeStatefulKnowledgeSessionAndExtras(ksessionId);
+            }
+        }
+
+        try {
             uTrnx.begin();
             sessionPool.setProcessInstanceId(ksessionId, pInstance.getId());
             uTrnx.commit();
-
-            sBuilder.append(" : pInstanceId = "+pInstance.getId()+" : now completed");
-            log.info(sBuilder.toString());
-            return returnMap;
-        } catch(RuntimeException x) {
+        }catch(Exception x){
+            x.printStackTrace();
             rollbackTrnx();
-            log.error(x, x);
-            return null;
-        } catch(Exception x) {
-        	rollbackTrnx();
-        	log.error(x, x);
-            return null;
         }
+
+        sBuilder.append(" : pInstanceId = "+pInstance.getId()+" : now completed");
+        log.info(sBuilder.toString());
+        return returnMap;
     }
 
-    /**
-     *completeWorkItem
-     *<pre>
-     *- notifies process engine to complete a work item and continue execution of next node in process instance
-     *- this method operates within scope of container managed transaction
-     *- can no longer dispose knowledge session within scope of this transaction due to side effects from fix for JBRULES-1880
-     *- subsequently, it's expected that a client will invoke 'disposeStatefulKnowledgeSessionAndExtras' after this JTA trnx has been committed
-     *
-     * if ksessionId param is passed, then pInstanceId param can be null
-     * otherwise, if ksessionId param is not passed, then pInstanceId param is mandatory
-     *</pre>
-     */
-    public void completeWorkItem(Long workItemId, Map<String, Object> pInstanceVariables, Long pInstanceId, Integer ksessionId) {
-        StatefulKnowledgeSession ksession = null;
-        try {
-            if(ksessionId == null)
-                ksessionId = sessionPool.getSessionId(pInstanceId);
-            
-            ksession = loadStatefulKnowledgeSessionAndAddExtras(ksessionId);
-            ksession.getWorkItemManager().completeWorkItem(workItemId, pInstanceVariables);
-        } catch(RuntimeException x) {
-            throw x;
-        }catch(Exception x) {
-            throw new RuntimeException(x);
-        }
-    }
+   
 
     public void signalEvent(String signalType, Object signalValue, Long processInstanceId, Integer ksessionId) {
         StatefulKnowledgeSession ksession = null;
         try {
-        	try {
-        		uTrnx.begin();
+            try {
+                uTrnx.begin();
 
-        		// always go to the database to ensure row-level pessimistic lock for each process instance
-        		ksessionId = sessionPool.getSessionId(processInstanceId);
-
-
-        		//due to ksession.dispose() needing to be outside trnx, ksessionId could still be temporarily in kWrapperHash 
-        		//want to avoid calling loadStatefulKnowledgeSessionAndExtras until ksessionId has been removed from kWrapperHash
-        		boolean goodToGo=true;
-        		for(int x=0; x < 10; x++){
-        			if(kWrapperHash.containsKey(ksessionId)) {
-        				log.info("signalEvent() found ksession in cache for ksessionId = " +ksessionId+" :  will sleep");
-        				try {Thread.sleep(100);} catch(Exception t){t.printStackTrace();}
-        				goodToGo = false;
-        			}else {
-        				goodToGo = true;
-        				break;
-        			}
-        		}
-        		if(!goodToGo)
-        			throw new RuntimeException("signalEvent() the following ksession continues to be in use: "+ksessionId);
+                // always go to the database to ensure row-level pessimistic lock for each process instance
+                ksessionId = sessionPool.getSessionId(processInstanceId);
 
 
-        		ksession = this.loadStatefulKnowledgeSessionAndAddExtras(ksessionId);
+                //due to ksession.dispose() needing to be outside trnx, ksessionId could still be temporarily in kWrapperHash 
+                //want to avoid calling loadStatefulKnowledgeSessionAndExtras until ksessionId has been removed from kWrapperHash
+                boolean goodToGo=true;
+                for(int x=0; x < 10; x++){
+                    if(kWrapperHash.containsKey(ksessionId)) {
+                        log.info("signalEvent() found ksession in cache for ksessionId = " +ksessionId+" :  will sleep");
+                        try {Thread.sleep(100);} catch(Exception t){t.printStackTrace();}
+                        goodToGo = false;
+                    }else {
+                        goodToGo = true;
+                        break;
+                    }
+                }
+                if(!goodToGo)
+                    throw new RuntimeException("signalEvent() the following ksession continues to be in use: "+ksessionId);
 
-        		StringBuilder sBuilder = new StringBuilder("signalEvent() \n\tksession = "+ksessionId+"\n\tprocessInstanceId = "+processInstanceId+"\n\tsignalType="+signalType);
-        		// sometimes signalValue can be huge (as in if passing large JSON/xml strings )
-        		if(enableLog) {
-        			sBuilder.append("\n\tsignalValue="+signalValue);
-        		}
-        		log.info(sBuilder.toString());
 
-        		ProcessInstance pInstance = ksession.getProcessInstance(processInstanceId);
-        		pInstance.signalEvent(signalType, signalValue);
-        		uTrnx.commit();
-        	}finally {
-        		if(ksession != null)
-        			disposeStatefulKnowledgeSessionAndExtras(ksessionId);
-        	}
+                ksession = this.loadStatefulKnowledgeSessionAndAddExtras(ksessionId);
+
+                StringBuilder sBuilder = new StringBuilder("signalEvent() \n\tksession = "+ksessionId+"\n\tprocessInstanceId = "+processInstanceId+"\n\tsignalType="+signalType);
+                // sometimes signalValue can be huge (as in if passing large JSON/xml strings )
+                if(enableLog) {
+                    sBuilder.append("\n\tsignalValue="+signalValue);
+                }
+                log.info(sBuilder.toString());
+
+                ProcessInstance pInstance = ksession.getProcessInstance(processInstanceId);
+                pInstance.signalEvent(signalType, signalValue);
+                uTrnx.commit();
+            }finally {
+                if(ksession != null)
+                    disposeStatefulKnowledgeSessionAndExtras(ksessionId);
+            }
         } catch(RuntimeException x) {
             log.error("signalEvent() exception thrown.  signalType = "+signalType+" : pInstanceId = "+processInstanceId+" : ksessionId ="+ksessionId);
             rollbackTrnx();
@@ -589,120 +568,202 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
     public void abortProcessInstance(Long processInstanceId, Integer ksessionId) {
         StatefulKnowledgeSession ksession = null;
         try {
-        	try {
-        		uTrnx.begin();
-        		if(ksessionId == null)
-        			ksessionId = sessionPool.getSessionId(processInstanceId);
+            try {
+                uTrnx.begin();
+                if(ksessionId == null)
+                    ksessionId = sessionPool.getSessionId(processInstanceId);
 
-        		ksession = loadStatefulKnowledgeSessionAndAddExtras(ksessionId);
-        		ksession.abortProcessInstance(processInstanceId);
-        		sessionPool.markAsReturned(ksessionId);
-        		uTrnx.commit();
-        	}finally {
-        			if(ksession != null)
-        				disposeStatefulKnowledgeSessionAndExtras(ksessionId);
-        		}
+                ksession = loadStatefulKnowledgeSessionAndAddExtras(ksessionId);
+                ksession.abortProcessInstance(processInstanceId);
+                sessionPool.markAsReturned(ksessionId);
+                uTrnx.commit();
+            }finally {
+                if(ksession != null)
+                    disposeStatefulKnowledgeSessionAndExtras(ksessionId);
+            }
         } catch(RuntimeException x) {
             rollbackTrnx();
             throw x;
         }catch(Exception x) {
             rollbackTrnx();
             throw new RuntimeException(x);
-        } finally {
         }
-    }
-
-    public String printActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId) {
-        Map<String,Object> vHash = getActiveProcessInstanceVariables(processInstanceId, ksessionId);
-        StringBuilder sBuilder = new StringBuilder();
-        if(vHash.size() == 0){
-            sBuilder.append("no process instance variables for :\n\tprocessInstanceId = ");
-            sBuilder.append(processInstanceId);
-        }
-        for (Map.Entry<?, ?> entry: vHash.entrySet()) {
-            sBuilder.append("\n");
-            sBuilder.append(entry.getKey());
-            sBuilder.append(" : ");
-            sBuilder.append(entry.getValue());
-        }
-        return sBuilder.toString();
     }
     
-    public Map<String, Object> getActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId) {
-        return getActiveProcessInstanceVariables(processInstanceId, ksessionId, true);
-    }
-    public Map<String, Object> getActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId, Boolean disposeKsession) {
-        StatefulKnowledgeSession ksession = null;
-        try {
-            if(ksessionId == null)
-                ksessionId = sessionPool.getSessionId(processInstanceId);
-
-            ksession = loadStatefulKnowledgeSessionAndAddExtras(ksessionId);
-            ProcessInstance processInstance = ksession.getProcessInstance(processInstanceId);
-            if (processInstance != null) {
-                Map<String, Object> variables = ((WorkflowProcessInstanceImpl) processInstance).getVariables();
-                if (variables == null) {
-                    return new HashMap<String, Object>();
-                }
-                // filter out null values
-                Map<String, Object> result = new HashMap<String, Object>();
-                for (Map.Entry<String, Object> entry: variables.entrySet()) {
-                    if (entry.getValue() != null) {
-                        result.put(entry.getKey(), entry.getValue());
-                    }
-                }
-                return result;
-            } else {
-                throw new IllegalArgumentException("Could not find process instance " + processInstanceId);
-            }
-        } catch(Exception x) {
-            throw new RuntimeException(x);
-        } finally {
-            if(ksession != null && disposeKsession)
-                disposeStatefulKnowledgeSessionAndExtras(ksessionId);
-        }
-    }
-
-    public void setProcessInstanceVariables(Long processInstanceId, Map<String, Object> variables, Integer ksessionId) {
-        setProcessInstanceVariables(processInstanceId, variables, ksessionId, true);
-    }
-    public void setProcessInstanceVariables(Long processInstanceId, Map<String, Object> variables, Integer ksessionId, Boolean disposeKsession) {
-        StatefulKnowledgeSession ksession = null;
-        try {
-            if(ksessionId == null)
-                ksessionId = sessionPool.getSessionId(processInstanceId);
-
-            ksession = loadStatefulKnowledgeSessionAndAddExtras(ksessionId);
-            ProcessInstance processInstance = ksession.getProcessInstance(processInstanceId);
-            if (processInstance != null) {
-                VariableScopeInstance variableScope = (VariableScopeInstance)((org.jbpm.process.instance.ProcessInstance) processInstance).getContextInstance(VariableScope.VARIABLE_SCOPE);
-                if (variableScope == null) {
-                    throw new IllegalArgumentException("Could not find variable scope for process instance " + processInstanceId);
-                }
-                for (Map.Entry<String, Object> entry: variables.entrySet()) {
-                    variableScope.setVariable(entry.getKey(), entry.getValue());
-                }
-            } else {
-                throw new IllegalArgumentException("Could not find process instance " + processInstanceId);
-            }
-        } finally {
-            if(ksession != null && disposeKsession)
-                disposeStatefulKnowledgeSessionAndExtras(ksessionId);
-        }
-    }
-
     public void upgradeProcessInstance(long processInstanceId, String processId, Map<String, Long> nodeMapping) {
         StatefulKnowledgeSession ksession = null;
         Integer ksessionId = 0;
         try {
-            ksessionId = sessionPool.getSessionId(processInstanceId);
-            ksession = loadStatefulKnowledgeSessionAndAddExtras(ksessionId);
-            WorkflowProcessInstanceUpgrader.upgradeProcessInstance(ksession, processInstanceId, processId, nodeMapping);
-        } finally {
-            if(ksession != null)
-                disposeStatefulKnowledgeSessionAndExtras(ksessionId);
+            try {
+                uTrnx.begin();
+                ksessionId = sessionPool.getSessionId(processInstanceId);
+                ksession = loadStatefulKnowledgeSessionAndAddExtras(ksessionId);
+                WorkflowProcessInstanceUpgrader.upgradeProcessInstance(ksession, processInstanceId, processId, nodeMapping);
+                uTrnx.commit();
+            }finally {
+                if(ksession != null)
+                    disposeStatefulKnowledgeSessionAndExtras(ksessionId);
+            }
+        } catch(Exception x) {
+            rollbackTrnx();
+            throw new RuntimeException(x);
         }
     }
+    
+    public String printActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId) {
+        Map<String,Object> vHash = null;
+        try {
+            try {
+                uTrnx.begin();
+                if(ksessionId == null)
+                    ksessionId = sessionPool.getSessionId(processInstanceId);
+
+                vHash = getActiveProcessInstanceVariables(processInstanceId, ksessionId);
+                uTrnx.commit();
+            }finally {
+                disposeStatefulKnowledgeSessionAndExtras(ksessionId);
+            }
+        }catch(Exception x) {
+            rollbackTrnx();
+            throw new RuntimeException(x);
+        }
+        if(vHash.size() == 0)
+            log.error("printActiveProcessInstanceVariables() no process instance variables for :\n\tprocessInstanceId = "+processInstanceId);
+        
+        StringWriter sWriter = null;
+        try {
+            sWriter = new StringWriter();
+            ObjectMapper jsonMapper = new ObjectMapper();
+            jsonMapper.writeValue(sWriter, vHash);
+            return sWriter.toString();
+        }catch(Exception x){
+            throw new RuntimeException(x);
+        }finally {
+            if(sWriter != null) {
+                try { sWriter.close();  }catch(Exception x){x.printStackTrace();}
+            }
+        }
+    }
+    
+    public Map<String, Object> beanManagedGetActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId) {
+        Map<String,Object> vHash = null;
+        try {
+            try {
+                uTrnx.begin();
+                if(ksessionId == null)
+                    ksessionId = sessionPool.getSessionId(processInstanceId);
+
+                vHash = getActiveProcessInstanceVariables(processInstanceId, ksessionId);
+                uTrnx.commit();
+            }finally {
+                disposeStatefulKnowledgeSessionAndExtras(ksessionId);
+            }
+            return vHash;
+        }catch(Exception x) {
+            rollbackTrnx();
+            throw new RuntimeException(x);
+        }
+    }
+    
+    public void beanManagedSetProcessInstanceVariables(Long processInstanceId, Map<String, Object> variables, Integer ksessionId) {
+        try {
+            try {
+                uTrnx.begin();
+                if(ksessionId == null)
+                    ksessionId = sessionPool.getSessionId(processInstanceId);
+
+                setProcessInstanceVariables(processInstanceId, variables, ksessionId);
+                uTrnx.commit();
+            }finally {
+                disposeStatefulKnowledgeSessionAndExtras(ksessionId);
+            }
+        }catch(Exception x) {
+            rollbackTrnx();
+            throw new RuntimeException(x);
+        }
+    }
+    
+    public void beanManagedCompleteWorkItem(Long workItemId, Map<String, Object> pInstanceVariables, Long pInstanceId, Integer ksessionId) {
+        try {
+            try {
+                uTrnx.begin();
+                if(ksessionId == null)
+                    ksessionId = sessionPool.getSessionId(pInstanceId);
+
+                completeWorkItem(workItemId, pInstanceVariables, pInstanceId, ksessionId);
+                uTrnx.commit();
+            }finally {
+                disposeStatefulKnowledgeSessionAndExtras(ksessionId);
+            }
+        }catch(Exception x) {
+            rollbackTrnx();
+            throw new RuntimeException(x);
+        }
+    }
+    
+    
+    
+    // notifies process engine to complete a work item and continue execution of next node in process instance
+    // can no longer dispose knowledge session within scope of this transaction due to side effects from fix for JBRULES-1880
+    // subsequently, it's expected that a client will invoke 'disposeStatefulKnowledgeSessionAndExtras' after this JTA trnx has been committed
+    public void completeWorkItem(Long workItemId, Map<String, Object> pInstanceVariables, Long pInstanceId, Integer ksessionId) {
+        if(ksessionId == null)
+            ksessionId = sessionPool.getSessionId(pInstanceId);
+            
+        StatefulKnowledgeSession ksession = loadStatefulKnowledgeSessionAndAddExtras(ksessionId);
+        ksession.getWorkItemManager().completeWorkItem(workItemId, pInstanceVariables);
+    }
+    
+    // NOTE:   this function loads but does NOT dispose the ksession.  
+    // you'll need invoke from a calling function that controls trnxs and disposes the session
+    // can no longer dispose knowledge session within scope of this transaction due to side effects from fix for JBRULES-1880
+    public Map<String, Object> getActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId) {
+        if(ksessionId == null)
+            ksessionId = sessionPool.getSessionId(processInstanceId);
+
+        StatefulKnowledgeSession ksession = loadStatefulKnowledgeSessionAndAddExtras(ksessionId);
+        ProcessInstance processInstance = ksession.getProcessInstance(processInstanceId);
+        Map<String, Object> result = new HashMap<String, Object>();
+        if (processInstance != null) {
+            Map<String, Object> variables = ((WorkflowProcessInstanceImpl) processInstance).getVariables();
+            if (variables == null) {
+                return new HashMap<String, Object>();
+            }
+            // filter out null values
+            for (Map.Entry<String, Object> entry: variables.entrySet()) {
+                if (entry.getValue() != null) {
+                    result.put(entry.getKey(), entry.getValue());
+                }
+            }
+        } else {
+            log.error("getActiveProcessInstanceVariables() :  Could not find process instance " + processInstanceId);
+        }
+        return result;
+    }
+    
+    // NOTE:   this function loads but does NOT dispose the ksession.  
+    // you'll need invoke from a calling function that controls trnxs and disposes the session
+    // can no longer dispose knowledge session within scope of this transaction due to side effects from fix for JBRULES-1880
+    public void setProcessInstanceVariables(Long processInstanceId, Map<String, Object> variables, Integer ksessionId) {
+        if(ksessionId == null)
+            ksessionId = sessionPool.getSessionId(processInstanceId);
+
+        StatefulKnowledgeSession ksession = loadStatefulKnowledgeSessionAndAddExtras(ksessionId);
+        ProcessInstance processInstance = ksession.getProcessInstance(processInstanceId);
+        if (processInstance != null) {
+            VariableScopeInstance variableScope = (VariableScopeInstance)((org.jbpm.process.instance.ProcessInstance) processInstance).getContextInstance(VariableScope.VARIABLE_SCOPE);
+            if (variableScope == null) {
+                throw new IllegalArgumentException("Could not find variable scope for process instance " + processInstanceId);
+            }
+            for (Map.Entry<String, Object> entry: variables.entrySet()) {
+                variableScope.setVariable(entry.getKey(), entry.getValue());
+            }
+        } else {
+            throw new IllegalArgumentException("Could not find process instance " + processInstanceId);
+        }
+    }
+
+    
 }
 
 class KnowledgeSessionWrapper {

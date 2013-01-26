@@ -59,9 +59,7 @@ public interface KnowledgeSessionServiceMXBean {
      * <guvnor.protocol>://<guvnor.host>/<guvnorsubdomain>/rest/packages/<guvnor.package>/assets
      *
      */
-    public String getAllProcessesInPackage(String pkgName);
-
-    public String                   printActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId);
+    public String getAllProcessesInPackage(String pkgName) throws ConnectException;
 
     /**
      * returns a snapshot of all KnowledgeSessions and the state that each session is currently in 

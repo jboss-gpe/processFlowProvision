@@ -79,6 +79,20 @@ public class KSessionHttp {
         ResponseBuilder builder = Response.ok(kBaseContent);
         return builder.build();
     }
+    
+    /**
+     * sample usage :
+     *  curl -X GET -HAccept:text/plain $HOSTNAME:8330/knowledgeService/processInstance/variables/1?ksessionId=1
+     *  curl -X GET -HAccept:text/plain http://pfpcore-jbride0.rhcloud.com/knowledgeService/processInstance/variables/1?ksessionId=1
+     */
+    @GET
+    @Path("/processInstance/variables/{pInstanceId: .*}/")
+    public Response printActiveProcessInstanceVariables(@PathParam("pInstanceId")final Long pInstanceId,
+                                                        @QueryParam("ksessionId")final Integer ksessionId){
+        String kBaseContent = kProxy.printActiveProcessInstanceVariables(pInstanceId, ksessionId);
+        ResponseBuilder builder = Response.ok(kBaseContent);
+        return builder.build();
+    }
 
     /**
      * sample usage :
@@ -110,8 +124,8 @@ public class KSessionHttp {
                                 ) {
         ResponseBuilder builder = Response.ok();
         try {
-        	String[] signalData = signalPayload.split("\\$");
-        	Map<String, String> signalMap = new HashMap<String, String>();
+            String[] signalData = signalPayload.split("\\$");
+            Map<String, String> signalMap = new HashMap<String, String>();
             for(int t = 1; t< signalData.length; t++) {
                 signalMap.put(signalData[t], signalData[t+1]);
                 t++;

@@ -118,7 +118,7 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
     public void addProcessToKnowledgeBase(File bpmnFile) {
         kBean.addProcessToKnowledgeBase(bpmnFile);
     }
-    public String getAllProcessesInPackage(String pkgName){
+    public String getAllProcessesInPackage(String pkgName) throws ConnectException {
         return kBean.getAllProcessesInPackage(pkgName);
     }
     public String printKnowledgeBaseContent() {
@@ -166,8 +166,8 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
     
 
  
-/******************************************************************************
- *************              Process Instance Management              *********/
+/***********************************************************************************************************
+ *************              Process Instance Management   :    BEAN MANAGED TRANSACTIONS           *********/
     
     /**
      *startProcessAndReturnId
@@ -207,8 +207,50 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
             return kBean.startProcessAndReturnId(processId, pInstanceVariables);
         }
     }
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+    public void signalEvent(String signalType, Object signalValue, Long processInstanceId, Integer ksessionId) {
+        kBean.signalEvent(signalType, signalValue, processInstanceId, ksessionId);
+    }
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+    public void abortProcessInstance(Long processInstanceId, Integer ksessionId) {
+        kBean.abortProcessInstance(processInstanceId, ksessionId);
+    }
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+    public void upgradeProcessInstance(long processInstanceId, String processId, Map<String, Long> nodeMapping) {
+        kBean.upgradeProcessInstance(processInstanceId, processId, nodeMapping);
+    }
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+    public String printActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId) {
+        return kBean.printActiveProcessInstanceVariables(processInstanceId, ksessionId);
+    }
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+    public Map<String, Object> beanManagedGetActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId){
+        return kBean.beanManagedGetActiveProcessInstanceVariables(processInstanceId, ksessionId);
+    }
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+    public void beanManagedSetProcessInstanceVariables(Long processInstanceId, Map<String, Object> variables, Integer ksessionId){
+        kBean.beanManagedSetProcessInstanceVariables(processInstanceId, variables, ksessionId);
+    }
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+    public void beanManagedCompleteWorkItem(Long workItemId, Map<String, Object> pInstanceVariables, Long pInstanceId, Integer ksessionId){
+        kBean.beanManagedCompleteWorkItem(workItemId, pInstanceVariables, pInstanceId, ksessionId);
+    }
+/*****************************************************************************************************************************/
     
-
+    
+    
+    
+    
+/***********************************************************************************************************
+ *************         Process Instance Management   :    CONTAINER MANAGED TRANSACTIONS           *********/
+    public Map<String, Object> getActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId) {
+        return kBean.getActiveProcessInstanceVariables(processInstanceId, ksessionId);
+    }
+    
+    public void setProcessInstanceVariables(Long processInstanceId, Map<String, Object> variables, Integer ksessionId) {
+        kBean.setProcessInstanceVariables(processInstanceId, variables, ksessionId);
+    }
+    
     /**
      * completeWorkItem
      * <pre>
@@ -241,31 +283,5 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
         } else {
             kBean.completeWorkItem(workItemId, pInstanceVariables, pInstanceId, ksessionId);
         }
-    }
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public void signalEvent(String signalType, Object signalValue, Long processInstanceId, Integer ksessionId) {
-        kBean.signalEvent(signalType, signalValue, processInstanceId, ksessionId);
-    }
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public void abortProcessInstance(Long processInstanceId, Integer ksessionId) {
-        kBean.abortProcessInstance(processInstanceId, ksessionId);
-    }
-    public Map<String, Object> getActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId, Boolean disposeKsession) {
-        return kBean.getActiveProcessInstanceVariables(processInstanceId, ksessionId, disposeKsession);
-    }
-    public Map<String, Object> getActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId) {
-        return kBean.getActiveProcessInstanceVariables(processInstanceId, ksessionId);
-    }
-    public void setProcessInstanceVariables(Long processInstanceId,Map<String, Object> variables, Integer ksessionId,Boolean disposeKsession) {
-        kBean.setProcessInstanceVariables(processInstanceId, variables, ksessionId, disposeKsession);
-    }
-    public void setProcessInstanceVariables(Long processInstanceId, Map<String, Object> variables, Integer ksessionId) {
-        kBean.setProcessInstanceVariables(processInstanceId, variables, ksessionId);
-    }
-    public String printActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId) {
-        return kBean.printActiveProcessInstanceVariables(processInstanceId, ksessionId);
-    }
-    public void upgradeProcessInstance(long processInstanceId, String processId, Map<String, Long> nodeMapping) {
-        kBean.upgradeProcessInstance(processInstanceId, processId, nodeMapping);
     }
 }

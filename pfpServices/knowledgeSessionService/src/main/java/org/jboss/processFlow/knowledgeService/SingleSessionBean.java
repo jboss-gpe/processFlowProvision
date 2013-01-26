@@ -212,7 +212,7 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
         this.registerFailHumanTaskWorkItemHandler(ksession);
         this.registerEmailWorkItemHandler(ksession);
         
-        //1.5 register any addition workItemHandlers defined in drools.session.template
+        //1.5 register any additional workItemHandlers defined in drools.session.template
         SessionTemplate sTemplate = newSessionTemplate();
         if(sTemplate != null){
             for(Map.Entry<String, ?> entry : sTemplate.getWorkItemHandlers().entrySet()){
@@ -365,6 +365,7 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
     public Map<String, Object> startProcessAndReturnId(String processId, Map<String, Object> parameters) {
         StringBuilder sBuilder = new StringBuilder();
         Integer ksessionId = ksession.getId();
+        Map<String, Object> returnMap = new HashMap<String, Object>();
         try {
             uTrnx.begin();
             sBuilder.append("startProcessAndReturnId()\tsessionId :  "+ksessionId+" : process = "+processId);
@@ -374,8 +375,14 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
             } else {
                 pInstance = ksession.startProcess(processId);
             }
+
+            // now always return back to client the latest (possibly modified) pInstance variables
+            // thank you  Jano Kasarda
+            Map<String, Object> variables = ((WorkflowProcessInstanceImpl) pInstance).getVariables();
+            for (String key : variables.keySet()) {
+                returnMap.put(key, variables.get(key));
+            }
             uTrnx.commit();
-            Map<String, Object> returnMap = new HashMap<String, Object>();
             returnMap.put(IKnowledgeSessionService.PROCESS_INSTANCE_ID, pInstance.getId());
             returnMap.put(IKnowledgeSessionService.KSESSION_ID, ksessionId);
             sBuilder.append(" : pInstanceId = "+pInstance.getId()+" : now completed");
@@ -507,11 +514,15 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
         WorkflowProcessInstanceUpgrader.upgradeProcessInstance(ksession, processInstanceId, processId, nodeMapping);
     }
 
-    public Map<String, Object> getActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId, Boolean disposeKsession) {
+    public Map<String, Object> beanManagedGetActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId) {
         return this.getActiveProcessInstanceVariables(processInstanceId, ksessionId);
     }
 
-    public void setProcessInstanceVariables(Long processInstanceId,Map<String, Object> variables, Integer ksessionId,Boolean disposeKsession) {
+    public void beanManagedSetProcessInstanceVariables(Long processInstanceId, Map<String, Object> variables, Integer ksessionId) {
         this.setProcessInstanceVariables(processInstanceId, variables, ksessionId);
+    }
+
+    public void beanManagedCompleteWorkItem(Long workItemId, Map<String, Object> pInstanceVariables, Long pInstanceId, Integer ksessionId) {
+        this.completeWorkItem(workItemId, pInstanceVariables, pInstanceId, ksessionId);
     }
 }

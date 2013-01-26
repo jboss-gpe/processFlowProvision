@@ -28,9 +28,11 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -47,6 +49,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
 import javax.persistence.Query;
+import javax.transaction.NotSupportedException;
+import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.Transaction;
@@ -90,6 +94,8 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
     public static final String LOCAL_JTA = "local-JTA";
     public static final String RESOURCE_LOCAL = "RESOURCE_LOCAL";
     public static final String TASK_BY_TASK_ID = "TaskByTaskId";
+    public static final String GROUP="group";
+    public static final String USER="user";
 
     private static final Logger log = Logger.getLogger("HumanTaskService");
 
@@ -107,6 +113,59 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
 
     private PfpTaskEventSupport eventSupport;
     private TaskService taskService;
+    private Set<String> tempOrgEntitySet = new HashSet<String>();
+    
+    
+    // brms5.3.1 bombs and does not recover from concurrent clients attempting to add tasks with same OrganizationalEntity objects at the same time
+    // this functionality prevents the following error from occuring:  
+    //        ERROR: duplicate key value violates unique constraint "organizationalentity_pkey"
+    // by:  org.jbpm.task.service.TaskServiceSession.addUserFromCallbackOperation(TaskServiceSession.java:1512) [jbpm-human-task-5.3.1.BRMS.jar:5.3.1.BRMS]
+    private void checkAndSetTempOrgEntitySet(OrganizationalEntity orgObj) {
+        String id = orgObj.getId();
+        if(tempOrgEntitySet.contains(id))
+            return;
+        synchronized(tempOrgEntitySet){
+            if(!tempOrgEntitySet.contains(id)){
+                TaskServiceSession taskSession = null;
+                try {
+                    taskSession = taskService.createSession();
+                    if(orgObj instanceof User)
+                        taskSession.addUser((User)orgObj);
+                    else
+                        taskSession.addGroup((Group)orgObj);
+                }catch (Exception e) {
+                    throw new RuntimeException(e);
+                }finally {
+                    if(taskSession != null)
+                        taskSession.dispose();
+                }
+                log.info("addTask() adding following userId to tempOrgEntitySet to avoid possible duplicate entry complaints:  "+id);
+                try{Thread.sleep(1000);}catch(Exception x){x.printStackTrace();}
+                tempOrgEntitySet.add(id);
+            }
+        }
+    }
+    private void checkAndSetTempOrgEntitySet(String id, String type) {
+        if(!tempOrgEntitySet.contains(id)){
+            OrganizationalEntity orgObj = null;
+            if(GROUP.equals(type)){
+                orgObj = new Group(id);
+            }else {
+                orgObj = new User(id);
+            }
+            checkAndSetTempOrgEntitySet(orgObj);
+        }
+    }
+    private void checkAndSetListOfOrgEntities(List<String> ids, String type){
+        for(String id : ids){
+            checkAndSetTempOrgEntitySet(id, type);
+        }
+    }
+    private void checkAndSetListOfOrgEntities(List<OrganizationalEntity> orgObjs){
+        for(OrganizationalEntity orgObj : orgObjs){
+            checkAndSetTempOrgEntitySet(orgObj);
+        }
+    }
 
 
     /**
@@ -119,6 +178,10 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
      */ 
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public long addTask(Task taskObj, ContentData cData) throws CannotAddTaskException {
+        OrganizationalEntity orgOBj = taskObj.getTaskData().getCreatedBy();
+        checkAndSetTempOrgEntitySet(orgOBj);
+        checkAndSetListOfOrgEntities(taskObj.getPeopleAssignments().getPotentialOwners());
+   
         TaskServiceSession taskSession = null;
         try {
             taskSession = taskService.createSession();
@@ -671,6 +734,8 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
     
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public List<TaskSummary> getTasksAssignedAsPotentialOwnerByStatusByGroup(String userId, List<String> groupIds, List<Status> statuses, String language, Integer firstResult, Integer maxResults){
+        this.checkAndSetListOfOrgEntities(groupIds, GROUP);
+        this.checkAndSetTempOrgEntitySet(userId, USER);
         TaskServiceSession taskSession = null;
         try {
             taskSession = taskService.createSession();
@@ -730,7 +795,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
 
     @PostConstruct
     public void start() throws Exception {
-        // 0)  set properites for UserGroupCallbackManager
+        // 0)  set properties for UserGroupCallbackManager
         UserGroupCallbackManager callbackMgr = UserGroupCallbackManager.getInstance();
         callbackMgr.setCallback(new org.jboss.processFlow.tasks.identity.PFPUserGroupCallback());        
         callbackMgr.setProperty("disable.all.groups", "true");
@@ -762,6 +827,18 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
             }
         }
 
+        EntityManager eManager = null;
+        try {
+            eManager = humanTaskEMF.createEntityManager();
+            Query queryObj = eManager.createQuery("from User");
+            List<User> userList = queryObj.getResultList();
+            for(User userObj : userList){
+                this.tempOrgEntitySet.add(userObj.getId());
+            }
+            log.info("start() just populated tempOrgEntitySet with following # of orgentity users found in DB: "+userList.size());
+        }finally {
+        }
+        
         jtaTaskService  = new TaskService(jtaHumanTaskEMF, sEventListener, deadlineHandler);
         
         /**   1)  since TaskService is using a RESOURCE-LOCAL EMF (for performance reasons), jbpm assumes it can define its own trnx boundaries
@@ -775,6 +852,8 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
         } catch(Exception x) {
             throw new RuntimeException(x);
         }
+        
+        
     }
 
     @PreDestroy

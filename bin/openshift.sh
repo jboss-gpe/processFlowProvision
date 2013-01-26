@@ -286,23 +286,13 @@ executeCommandsAcrossAllAccounts() {
         git_url=${git_url:0:$urlLength}
         echo -en "\n*********   git_url = $git_url\t$totalLength\t$urlLength    **************\n"
 
-        localFile=target/lib/brmsUnzip/jboss-brms.war/WEB-INF/classes/org/drools/guvnor/server/configurations/ApplicationPreferencesInitializer.class
-        remoteFile=jbosseap-6.0/tmp/deployments/jboss-brms.war/WEB-INF/classes/org/drools/guvnor/server/configurations/ApplicationPreferencesInitializer.class
-        scp $localFile $git_url:$remoteFile
-        ssh $git_url "ls -l $remoteFile"
+        #localFile=target/lib/brmsUnzip/jboss-brms.war/WEB-INF/classes/org/drools/guvnor/server/configurations/ApplicationPreferencesInitializer.class
+        #remoteFile=jbosseap-6.0/tmp/deployments/jboss-brms.war/WEB-INF/classes/org/drools/guvnor/server/configurations/ApplicationPreferencesInitializer.class
+        #scp $localFile $git_url:$remoteFile
+        #ssh $git_url "ls -l $remoteFile"
         echo -en "\n"
 
-        localFile=target/lib/brmsUnzip/jboss-brms.war/WEB-INF/classes/org/drools/guvnor/client/configurations/ApplicationPreferences.class
-        remoteFile=jbosseap-6.0/tmp/deployments/jboss-brms.war/WEB-INF/classes/org/drools/guvnor/client/configurations/ApplicationPreferences.class
-        scp $localFile $git_url:$remoteFile
-        ssh $git_url "ls -l $remoteFile"
-        echo -en "\n"
-
-        localFile=target/lib/brmsUnzip/binaries/droolsjbpm-ide-common-5.3.1.BRMS.jar
-        remoteFile=jbosseap-6.0/tmp/pfpModules/org/jboss/processFlow/brmsExtras/main/droolsjbpm-ide-common-5.3.1.BRMS.jar
-        scp $localFile $git_url:$remoteFile
-        ssh $git_url "ls -l $remoteFile; app_ctl.sh restart"
-        echo -en "\n"
+        ssh $git_url "ls -l jbosseap-6.0/jbosseap-6.0/standalone/log/boot.log; cd jbosseap-6.0/jbosseap-6.0/standalone/deployments/; rm *war*; app_ctl.sh stop; app_ctl.sh start"
 
         ((t++))
     done

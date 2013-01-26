@@ -171,7 +171,9 @@ public class BaseKnowledgeSessionBean {
     protected Properties guvnorProps;
     protected String taskCleanUpImpl;
     protected String templateString;
-    protected boolean sessionTemplateInstantiationAlreadyBombed = false;
+    private int sessionTemplateInstantiationAttempts = 0;
+    private Object templateStringLockObj = new Object();
+    private Object sessionTemplateInstantiationLock = new Object();
     
     /* static variable because :
      *   1)  TaskService is a thread-safe object
@@ -237,8 +239,8 @@ public class BaseKnowledgeSessionBean {
             return;
         
         if(kagent != null) {
-        	kagent.dispose();
-        	kagent = null;
+            kagent.dispose();
+            kagent = null;
         }
 
         // investigate:  List<String> guvnorPackages = guvnorUtils.getBuiltPackageNames();
@@ -309,11 +311,18 @@ public class BaseKnowledgeSessionBean {
         kbase = kagent.getKnowledgeBase();
     }
     
+    /*
+     * intention of this function is to create a knowledgeBase without a strict dependency on guvnor
+     * will still query guvnor for packages but will continue on even if problems communicating with guvnor exists
+     * this function could be of use in those scenarious where guvnor is not accessible
+     * knowledgeBase can subsequently be populated via one of the addProcessToKnowledgeBase(....) functions
+     * in all cases, the knowledgeBase created by this function will NOT be registered with a knowledgeAgent that receives updates from guvnor
+     */
     public void rebuildKnowledgeBaseViaKnowledgeBuilder() {
+        guvnorProps = new Properties();
         try {
+            KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
             if(guvnorUtils.guvnorExists()) {
-            	guvnorProps = new Properties();
-            	KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
                 guvnorProps.load(BaseKnowledgeSessionBean.class.getResourceAsStream("/jbpm.console.properties"));
                 StringBuilder guvnorSBuilder = new StringBuilder();
                 guvnorSBuilder.append(guvnorProps.getProperty(GuvnorConnectionUtils.GUVNOR_PROTOCOL_KEY));
@@ -333,17 +342,8 @@ public class BaseKnowledgeSessionBean {
                         log.error("rebuildKnowledgeBaseViaKnowledgeBuilder() returned following exception when querying package = "+pkg+" : "+y);
                     }
                }
-               kbase = kbuilder.newKnowledgeBase();
-            }else {
-            	StringBuilder sBuilder = new StringBuilder();
-                sBuilder.append(guvnorUtils.getGuvnorProtocol());
-                sBuilder.append("://");
-                sBuilder.append(guvnorUtils.getGuvnorHost());
-                sBuilder.append("/");
-                sBuilder.append(guvnorUtils.getGuvnorSubdomain());
-                sBuilder.append("/rest/packages/");
-                throw new ConnectException("createKnowledgeBase() cannot connect to guvnor at URL : " + sBuilder.toString());
             }
+            kbase = kbuilder.newKnowledgeBase();
         }catch(Exception x){
             throw new RuntimeException(x);
         }
@@ -374,7 +374,17 @@ public class BaseKnowledgeSessionBean {
         log.info("addProcessToKnowledgeBase() just added the following bpmn2 process definition to the kbase: "+bpmnFile.getName());
     }
     
-    public String getAllProcessesInPackage(String pkgName){
+    public String getAllProcessesInPackage(String pkgName) throws ConnectException{
+        if(!guvnorUtils.guvnorExists()) {
+            StringBuilder sBuilder = new StringBuilder();
+            sBuilder.append(guvnorUtils.getGuvnorProtocol());
+            sBuilder.append("://");
+            sBuilder.append(guvnorUtils.getGuvnorHost());
+            sBuilder.append("/");
+            sBuilder.append(guvnorUtils.getGuvnorSubdomain());
+            sBuilder.append("/rest/packages/");
+            throw new ConnectException("createKnowledgeBase() cannot connect to guvnor at URL : "+sBuilder.toString()); 
+        }
         List<String> processes = guvnorUtils.getAllProcessesInPackage(pkgName);
         StringBuilder sBuilder = new StringBuilder("getAllProcessesInPackage() pkgName = "+pkgName);
         if(processes.isEmpty()){
@@ -421,41 +431,57 @@ public class BaseKnowledgeSessionBean {
     }
     
     protected SessionTemplate newSessionTemplate() {
-        if(sessionTemplateInstantiationAlreadyBombed)
-            return null;
-        
+        //looking for session.templte on local file system
         if(templateString == null){
-            String droolsSessionTemplatePath = System.getProperty(DROOLS_SESSION_TEMPLATE_PATH);
-            if(StringUtils.isNotEmpty(droolsSessionTemplatePath)){
-                File droolsSessionTemplate = new File(droolsSessionTemplatePath);
-                if(!droolsSessionTemplate.exists()) {
-                    throw new RuntimeException("newSessionTemplate() drools session template not found at : "+droolsSessionTemplatePath);
-                }else {
-                    FileInputStream fStream = null;
-                    try {
-                        fStream = new FileInputStream(droolsSessionTemplate);
-                        templateString = IOUtils.toString(fStream);
+            synchronized(templateStringLockObj){
+                if(templateString == null){
+                    String droolsSessionTemplatePath = System.getProperty(DROOLS_SESSION_TEMPLATE_PATH);
+                    if(StringUtils.isNotEmpty(droolsSessionTemplatePath)){
+                        File droolsSessionTemplate = new File(droolsSessionTemplatePath);
+                        if(!droolsSessionTemplate.exists()) {
+                            throw new RuntimeException("newSessionTemplate() drools session template not found at : "+droolsSessionTemplatePath);
+                        }else {
+                            FileInputStream fStream = null;
+                            try {
+                                fStream = new FileInputStream(droolsSessionTemplate);
+                                templateString = IOUtils.toString(fStream);
 
-                    }catch(IOException x){
-                        x.printStackTrace();
-                    }finally {
-                        if(fStream != null) {
-                            try {fStream.close(); }catch(Exception x){x.printStackTrace();}
+                            }catch(IOException x){
+                                x.printStackTrace();
+                            }finally {
+                                if(fStream != null) {
+                                    try {fStream.close(); }catch(Exception x){x.printStackTrace();}
+                                }
+                            }
                         }
+                    }else {
+                        throw new RuntimeException("newSessionTemplate() following property must be defined : "+DROOLS_SESSION_TEMPLATE_PATH);
                     }
                 }
-            }else {
-                throw new RuntimeException("newSessionTemplate() following property must be defined : "+DROOLS_SESSION_TEMPLATE_PATH);
             }
         }
+        if(sessionTemplateInstantiationAttempts == -1)
+            return null;
+        if(sessionTemplateInstantiationAttempts == 0){
+            synchronized(sessionTemplateInstantiationLock){
+                if(sessionTemplateInstantiationAttempts == -1)
+                    return null;
+                return parseSessionTemplateString();
+            }
+        }
+        return parseSessionTemplateString();
+    }
+    private SessionTemplate parseSessionTemplateString() {
         ParserConfiguration pconf = new ParserConfiguration();
         pconf.addImport("SessionTemplate", SessionTemplate.class);
         ParserContext context = new ParserContext(pconf);
         Serializable s = MVEL.compileExpression(templateString.trim(), context);
         try {
-            return (SessionTemplate)MVEL.executeExpression(s);
+            SessionTemplate sTemplate = (SessionTemplate)MVEL.executeExpression(s);
+            sessionTemplateInstantiationAttempts = 1;
+            return sTemplate;
         }catch(Throwable x){
-            sessionTemplateInstantiationAlreadyBombed = true;
+            sessionTemplateInstantiationAttempts = -1;
             x.printStackTrace();
             log.error("newSessionTemplate() following exception thrown \n\t"+x.getLocalizedMessage()+"\n : with session template string = \n\n"+templateString);
             return null;

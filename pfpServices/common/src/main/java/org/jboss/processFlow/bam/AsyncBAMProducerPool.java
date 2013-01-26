@@ -42,7 +42,7 @@ public final class AsyncBAMProducerPool implements PoolableObjectFactory {
     private AsyncBAMProducerPool() {
     }
 
-    public static AsyncBAMProducerPool getInstance() {
+    public synchronized static AsyncBAMProducerPool getInstance() {
         if(singleton == null) {
             // 0)  grab JMS objects
             try {
@@ -69,7 +69,7 @@ public final class AsyncBAMProducerPool implements PoolableObjectFactory {
             producerPool.setMaxIdle(poolMaxIdle);
             producerPool.setMaxActive(-1);
             producerPool.setLifo(false);
-
+            log.info("getInstance() just created AsyncBAMProducerPool ");
         }
         return singleton;
     }

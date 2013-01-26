@@ -115,11 +115,11 @@ public interface IKnowledgeSession extends IBaseKnowledgeSession {
     public void rebuildKnowledgeBaseViaKnowledgeAgent() throws ConnectException;
 
     /**
-     * rebuild KnowledgeBase via instantiation of a KnowledgeBuilder
-     * use in conjunction with various guvnor.* properties include in META-INF/jbpm-console.properties of the knowledgeSessionService implementation artifact
-     *
-     * should see a similar log statement from guvnor as follows:
-     *      INFO  [PackageAssembler] Following assets have been included in package build: simpleHumanTask, defaultemailicon, defaultlogicon, WorkDefinitions, pfpFailTask, pfpSkipTask, task_skip_by_signalIntermediateEvent, simpleTask-taskform, nominateAndAwardBonusTask-taskform, simpleTask-image, pInstance_terminate_by_signalIntermediateEvent
+     * intention of this function is to create a knowledgeBase without a strict dependency on guvnor
+     * will still query guvnor for packages but will continue on even if problems communicating with guvnor exists
+     * this function could be of use in those scenarious where guvnor is not accessible
+     * knowledgeBase can subsequently be populated via one of the addProcessToKnowledgeBase(....) functions
+     * in all cases, the knowledgeBase created by this function will NOT be registered with a knowledgeAgent that receives updates from guvnor
      */
     public void rebuildKnowledgeBaseViaKnowledgeBuilder();
     
@@ -139,7 +139,7 @@ public interface IKnowledgeSession extends IBaseKnowledgeSession {
      * <guvnor.protocol>://<guvnor.host>/<guvnorsubdomain>/rest/packages/<guvnor.package>/assets
      *
      */
-    public String getAllProcessesInPackage(String pkgName);
+    public String getAllProcessesInPackage(String pkgName) throws ConnectException;
 
     /**
      *retrieve a list of all Process definition objects that the KnowledgeBase is currently aware of
@@ -166,9 +166,7 @@ public interface IKnowledgeSession extends IBaseKnowledgeSession {
     
     public String                   printActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId);
     public Map<String, Object>      getActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId);
-    public Map<String, Object>      getActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId, Boolean disposeKsession);
-    public void                     setProcessInstanceVariables(Long processInstanceId, Map<String, Object> variables, Integer ksessionId );
-    public void                     setProcessInstanceVariables(Long processInstanceId, Map<String, Object> variables, Integer ksessionId, Boolean disposeKsession );
+    public void                     setProcessInstanceVariables(Long processInstanceId, Map<String, Object> variables, Integer ksessionId);
 
     /**
      * returns a snapshot of all KnowledgeSessions and the state that each session is currently in 
@@ -186,5 +184,9 @@ public interface IKnowledgeSession extends IBaseKnowledgeSession {
      * for details, please see:  http://docs.jboss.org/jbpm/v5.1/userguide/ch05.html#d0e1768
      */
     public void upgradeProcessInstance(long processInstanceId, String processId, Map<String, Long> nodeMapping);
+    
+    public Map<String, Object> beanManagedGetActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId);
+    public void beanManagedSetProcessInstanceVariables(Long processInstanceId, Map<String, Object> variables, Integer ksessionId);
+    public void beanManagedCompleteWorkItem(Long workItemId, Map<String, Object> pInstanceVariables, Long pInstanceId, Integer ksessionId);
 
 }
