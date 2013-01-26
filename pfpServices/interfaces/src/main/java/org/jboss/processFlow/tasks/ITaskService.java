@@ -116,6 +116,8 @@ public interface ITaskService {
      * changes task status :  Ready --> Reserved
      */
     public void claimTask(Long taskId, String idRef, String userId, List<String> roles) throws TaskException;
+    
+    public TaskSummary guaranteedClaimTaskAssignedAsPotentialOwnerByStatusByGroup(String userId, List<String> groupIds, List<Status> statuses, String language, Integer firstResult, Integer maxResults);
 
     /**
      * changes task status :  Reserved --> Completed

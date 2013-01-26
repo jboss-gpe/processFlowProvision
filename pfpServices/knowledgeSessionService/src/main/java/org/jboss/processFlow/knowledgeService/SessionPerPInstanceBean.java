@@ -270,8 +270,10 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
     public void disposeStatefulKnowledgeSessionAndExtras(Integer sessionId) {
         try {
             KnowledgeSessionWrapper kWrapper = ((KnowledgeSessionWrapper)kWrapperHash.get(sessionId));
-            if(kWrapper == null)
-                throw new RuntimeException("disposeStatefulKnowledgeSessionAndExtras() no ksessionWrapper found with sessionId = "+sessionId);
+            if(kWrapper == null){
+                log.error("disposeStatefulKnowledgeSessionAndExtras() no ksessionWrapper found with sessionId = "+sessionId);
+                return;
+            }
             
             kWrapper.dispose();
             kWrapperHash.remove(sessionId);

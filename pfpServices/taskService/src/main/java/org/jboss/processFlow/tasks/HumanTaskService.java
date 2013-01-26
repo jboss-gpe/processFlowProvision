@@ -114,6 +114,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
     private PfpTaskEventSupport eventSupport;
     private TaskService taskService;
     private Set<String> tempOrgEntitySet = new HashSet<String>();
+    private boolean enableLog = true;
     
     
     // brms5.3.1 bombs and does not recover from concurrent clients attempting to add tasks with same OrganizationalEntity objects at the same time
@@ -240,6 +241,24 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
             if(taskSession != null)
                 taskSession.dispose();
         }
+    }
+    
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+    public TaskSummary guaranteedClaimTaskAssignedAsPotentialOwnerByStatusByGroup(String userId, List<String> groupIds, List<Status> statuses, String language, Integer firstResult, Integer maxResults){
+        List<TaskSummary> taskList = this.getTasksAssignedAsPotentialOwnerByStatusByGroup(userId, groupIds, statuses, language, firstResult, maxResults);
+        TaskSummary claimedTask = null;
+        for(TaskSummary tObj : taskList){
+            try {
+                this.claimTask(tObj.getId(), userId, userId, groupIds);
+                claimedTask = tObj;
+                break;
+            }catch(org.jbpm.task.service.PermissionDeniedException x){
+                if(enableLog){
+                    log.error("guaranteedClaimTaskAssignedAsPotentialOwnerByStatusByGroup() PermissionDeniedException for taskId = "+tObj.getId());
+                }
+            }
+        }
+        return claimedTask;
     }
     
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
