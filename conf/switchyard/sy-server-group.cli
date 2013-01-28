@@ -19,7 +19,7 @@ batch
 #  both hornetq-ra.rar as well as JMS connection factories will use this discovery-group rather than lookup via static IPs
 /profile=full/subsystem=messaging/hornetq-server=default/discovery-group=dg-group1/:add(socket-binding=messaging-group,refresh-timeout=10000)
 
-# change pooled connection factory to use discovery-group rather than immediately using a netty connectory
+# change pooled connection factory to use discovery-group rather than immediately using a netty connector
 /profile=full/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:undefine-attribute(name=connector)
 /profile=full/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=discovery-group-name,value=dg-group1)
 
