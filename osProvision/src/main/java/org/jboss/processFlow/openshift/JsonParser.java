@@ -60,6 +60,7 @@ public class JsonParser {
          XPathExpression expression = xpath.compile("/openshiftAccounts/account");
          NodeList accountsList = (NodeList)expression.evaluate(accountDetailsDoc, XPathConstants.NODESET);
          StringBuffer warningBuf = new StringBuffer();
+         XPathExpression findPFPExpression = xpath.compile("//account/pfpCore");
          for(int p=0; p < accountsList.getLength(); p++){
              Node accountNameNode = accountsList.item(p);
              warningBuf.append("\n\t\t"+accountNameNode.getNodeValue());
@@ -67,6 +68,8 @@ public class JsonParser {
              accountNameNode.appendChild(sshElement);
              Node sshNode = accountDetailsDoc.createTextNode("this is the sshUrl");
              sshElement.appendChild(sshNode);
+             Node existingChildNode = (Node)findPFPExpression.evaluate(accountNameNode, XPathConstants.NODE);
+             log.info("existingChildNode = "+existingChildNode);
          }
          // Use a Transformer for output
          TransformerFactory tFactory = TransformerFactory.newInstance();

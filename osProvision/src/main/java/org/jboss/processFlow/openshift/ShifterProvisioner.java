@@ -166,6 +166,8 @@ public class ShifterProvisioner {
     private static boolean dumpDirCreated = false;
     private static Document accountDetailsDoc = null;
     private static NodeList accountsList =null;
+    private static XPathExpression findPFPExpression = null;
+    private static XPathExpression findBRMSWebsExpression = null;
 
     public static void main(String args[] ) throws Exception{
         RegisterBuiltin.register(ResteasyProviderFactory.getInstance());
@@ -180,6 +182,8 @@ public class ShifterProvisioner {
         //xpath.setNamespaceContext(new AccountNameSpaceContext());
         XPathExpression expression = xpath.compile("/openshiftAccounts/account");
         accountsList = (NodeList)expression.evaluate(accountDetailsDoc, XPathConstants.NODESET);
+        findPFPExpression = xpath.compile("//account/pfpCore");
+        findBRMSWebsExpression = xpath.compile("//account/brmsWebs");
         if(refreshDomain) {
             StringBuffer warningBuf = new StringBuffer("\n\nDANGER:  you have requested to re-provision(aka: annihilate) the following Openshift account(s):\n");
             for(int p=0; p < accountsList.getLength(); p++){
@@ -223,10 +227,13 @@ public class ShifterProvisioner {
         ExecutorService execObj = Executors.newFixedThreadPool(accountsList.getLength());
         for(int t=0; t<accountsList.getLength(); t++){
             Node accountNode = accountsList.item(t);
+            Node existingChildNode = (Node)findPFPExpression.evaluate(accountNode, XPathConstants.NODE);
+            if(existingChildNode != null){
+            	accountNode.removeChild(existingChildNode);
+            	log.info("provisionAccounts() scrubbing existing pfpCore for accountNode = "+accountNode.getChildNodes().item(1).getTextContent());
+            }
             Runnable shifterProvisioner = new ProvisionerThread(accountNode);
             execObj.execute(shifterProvisioner);
-            //ProvisionerThread shifterProvisioner = new ProvisionerThread(accountNode);
-            //shifterProvisioner.run();
         }
         execObj.shutdown();
         execObj.awaitTermination(1200, TimeUnit.MINUTES);
@@ -246,15 +253,11 @@ public class ShifterProvisioner {
         private String body = null;
         private XPath xpath = null;
         private Node accountNode = null;
-        private XPathExpression findPFPExpression = null;
-        private XPathExpression findBRMSWebsExpression = null;
         
         public ProvisionerThread(Node accountNode) throws Exception {
             this.accountNode = accountNode;
             XPathFactory xpathF = XPathFactory.newInstance();
             xpath = xpathF.newXPath();
-            findPFPExpression = xpath.compile("/account/pfpCore");
-            findBRMSWebsExpression = xpath.compile("/account/brmsWebs");
             this.accountId = accountNode.getChildNodes().item(1).getTextContent();
             this.password = accountNode.getChildNodes().item(3).getTextContent();
             this.domainId = accountNode.getChildNodes().item(5).getTextContent();
@@ -358,6 +361,7 @@ public class ShifterProvisioner {
                 httpRequest.setHeader("Accept", "*/*");
                 HttpResponse dResponse = httpClient.execute(httpRequest);
                 checkResponse(DELETE_DOMAIN, dResponse);
+                Thread.sleep(5000);
             }
             
             // 3) create a new domain using the openshift domainId (which must be unique across all openshift)
@@ -397,15 +401,7 @@ public class ShifterProvisioner {
              Node appNode = accountDetailsDoc.createTextNode(appUrl);
              appUrlElement.appendChild(appNode);
              
-             Node existingChildNode = null;
-             if(PFP_CORE.equals(appName))
-                 existingChildNode = (Node)findPFPExpression.evaluate(accountNode, XPathConstants.NODE);
-             else
-                 existingChildNode = (Node)findBRMSWebsExpression.evaluate(accountNode, XPathConstants.NODE);
-             if(existingChildNode != null)
-                 accountNode.replaceChild(appNameElement, existingChildNode);
-             else
-                 accountNode.appendChild(appNameElement);
+             accountNode.appendChild(appNameElement);
              return appNameElement;
         }
         private void dumpResponseToFile(String fileName) throws Exception {
