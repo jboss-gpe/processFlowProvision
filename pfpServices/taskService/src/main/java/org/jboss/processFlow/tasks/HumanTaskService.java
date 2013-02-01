@@ -49,8 +49,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
 import javax.persistence.Query;
-import javax.transaction.NotSupportedException;
-import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.Transaction;
@@ -61,7 +59,6 @@ import org.drools.SystemEventListenerFactory;
 import org.jbpm.task.*;
 import org.jbpm.task.service.UserGroupCallbackManager;
 import org.jbpm.task.event.TaskEventListener;
-import org.jbpm.task.event.TaskEventSupport;
 import org.jbpm.task.query.TaskSummary;
 import org.jbpm.task.service.CannotAddTaskException;
 import org.jbpm.task.service.ContentData;
@@ -474,6 +471,9 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
             taskSession = taskService.createSession();
 
             String userId = ITaskService.ADMINISTRATOR;
+            User actualOwner = taskObj.getTaskData().getActualOwner();
+            if(actualOwner != null)
+            	userId = actualOwner.getId();
             taskSession.taskOperation(Operation.Skip, taskObj.getId(), userId, null, null, null);
             eventSupport.fireTaskSkipped(taskObj.getId(), userId);
         }catch(RuntimeException x) {

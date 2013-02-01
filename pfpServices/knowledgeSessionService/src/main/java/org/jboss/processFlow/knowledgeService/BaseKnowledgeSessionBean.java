@@ -727,9 +727,6 @@ public class BaseKnowledgeSessionBean {
                 createKnowledgeBaseViaKnowledgeAgentOrBuilder();
             for (KnowledgePackage kpackage: kbase.getKnowledgePackages()) {
                 for(Process processObj : kpackage.getProcesses()){
-                    Long pVersion = 0L;
-                    if(!StringUtils.isEmpty(processObj.getVersion()))
-                        pVersion = Long.parseLong(processObj.getVersion());
                     result.add(getProcess(processObj.getId()));
                 }
             }
@@ -742,8 +739,13 @@ public class BaseKnowledgeSessionBean {
                 createKnowledgeBaseViaKnowledgeAgentOrBuilder();
             Process processObj = kbase.getProcess(processId);
             Long pVersion = 0L;
-            if(!StringUtils.isEmpty(processObj.getVersion()))
-                pVersion = Long.parseLong(processObj.getVersion());
+            if(!StringUtils.isEmpty(processObj.getVersion())) {
+                try {
+                    pVersion = Long.parseLong(processObj.getVersion());
+                } catch(NumberFormatException x) {
+                    log.error("getProcess() processId = "+processId+" : process versions must be of type long. the following is invalid: "+processObj.getVersion());
+                }
+            }
             SerializableProcessMetaData spObj = new SerializableProcessMetaData(processObj.getId(), processObj.getName(), pVersion, processObj.getPackageName());
             if (processObj instanceof org.drools.definition.process.WorkflowProcess) {
                 Node[] nodes = ((WorkflowProcess)processObj).getNodes();
