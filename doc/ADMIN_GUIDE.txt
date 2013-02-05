@@ -636,15 +636,15 @@ openshift provisioning
 
   - implementation approach
     - PFP is a client to one or more remote openshift accounts
-    - PFP uses account information provided in a xml file to provision an empty 'pfpCore' and 'brmsWebs' applications (based on the jbosseap-6.0 cartridge) of those accounts
+    - PFP uses account information provided in an xml file to provision an empty 'pfpCore' application (based on the jbosseap-6.0 cartridge) of those accounts
     - PFP does so using the REST API exposed by Openshift as documented here :  
             http://docs.redhat.com/docs/en-US/OpenShift/2.0/html-single/REST_API_Guide/#chap-API_Guide-Add_Domain
-    - the provisioning of multipe openshift accounts with empty applications can happen in parrellel
+    - the provisioning of multipe openshift accounts with empty applications can happen in parellel
     - after each account has been provisioned with the empty pfpCore and brmsWebs applications, PFP then customizes each app with BRMS related components via ssh, rsync and git
 
   - pre-requisites : (applicable to both the public openshift as well as an internal Origin PaaS)
     1)  create one or more accounts with the following
-        a)  gear allocation requirement per account : 6
+        a)  gear allocation requirement per account : 3
         b)  account needs acces to "medium" sized gears
         c)  accountId needs to be unique across all of public openshift (accountId will be used as openshift domain name)
         d)  accountId can not contain any special characters
