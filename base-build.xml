@@ -261,7 +261,7 @@
     </target>
 
     <target name="resolve.local.or.openshift.properties" >
-        <echo message="resolve.local.or.openshift.properties:  is.deployment.local = ${is.deployment.local}" />
+        <!--echo message="resolve.local.or.openshift.properties:  is.deployment.local = ${is.deployment.local}" / -->
         <if>
             <equals arg1="${is.deployment.local}" arg2="false" />
             <then>
@@ -391,11 +391,11 @@
     <target name="filter" depends="resolve.local.or.openshift.properties" >
         <fail unless="source.dir" message="filter:  need to pass 'source.dir' property" />
         <fail unless="dest.dir" message="filter:  need to pass 'dest.dir' property" />
-        <echo message="filter:  source.dir = ${source.dir} :  dest.dir = ${dest.dir}" />
+        <!--echo message="filter:  source.dir = ${source.dir} :  dest.dir = ${dest.dir}" / -->
         <if>
             <isset property="file.name"/>
             <then>
-                <copy file="${source.dir}/${file.name}" toDir="${dest.dir}" overwrite="true" preservelastmodified="true">
+                <copy file="${source.dir}/${file.name}" toDir="${dest.dir}" overwrite="true" preservelastmodified="true" verbose="false">
                     <filterchain>
                         <expandproperties/>
                     </filterchain>

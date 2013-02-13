@@ -1,6 +1,7 @@
 processFlowProvision (aka:  PFP)
 
 JA Bride
+curl -b cookies -L -d "j_username=USER&j_password=PASSWORD" http://localhost:8080/business-central-server/j_security_check 
 
 
 ASSUMPTIONS

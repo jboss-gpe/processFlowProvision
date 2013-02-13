@@ -1,15 +1,6 @@
 batch
 
-/host=master/server-config=server-one/:stop(server=server-one,blocking=true)
-/host=master/server-config=server-one/:remove
-
-/host=master/server-config=server-two/:stop(server=server-two,blocking=true)
-/host=master/server-config=server-two/:remove
-
-/server-group=other-server-group/:stop-servers
-/host=master/server-config=server-three/:remove
 /server-group=other-server-group/:remove
-
 
 /profile=full-ha/subsystem=datasources/data-source=ExampleDS/:disable
 /profile=full-ha/subsystem=datasources/data-source=ExampleDS/:remove

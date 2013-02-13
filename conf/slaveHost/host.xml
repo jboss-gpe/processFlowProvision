@@ -1,0 +1,85 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<!--
+   manual steps:
+     1)  cp -r $JBOSS_HOME/domain $JBOSS_HOME/domain-${organization.name}
+     2)  cp <path.to.this.file> $JBOSS_HOME/domain-${organization.name}/configuration/host.xml
+     3)  copy syModules, pfpModules and gpseModules to $JBOSS_HOME
+
+   eap6 server startup:  
+       export JBOSS_MODULEPATH=$JBOSS_HOME/modules:$JBOSS_HOME/pfpModules:$JBOSS_HOME/syModules:$JBOSS_HOME/gpseModules
+       $JBOSS_HOME/bin/domain.sh -b=$HOSTNAME -bmanagement=$HOSTNAME -Djboss.domain.base.dir=domain-gpse -Djboss.domain.master.address=192.168.122.1 -Djboss.domain.master.port=9999
+-->
+
+<!-- JA Bride:  ensure name value is unique across cluster, thus use hostname of VM -->
+<host name="${slave.hostname}" xmlns="urn:jboss:domain:1.3">
+
+    <management>
+        <security-realms>
+            <security-realm name="ManagementRealm">
+                <server-identities>
+                     <!-- JA Bride in process-controller server, a management user was added of:   eap6cluster1 / brms
+                          this following is the base64 encoding of the password "brms" as per :   http://www.motobit.com/util/base64-decoder-encoder.asp
+                     -->
+                     <secret value="${management.realm.base64.passcode}"/>
+                </server-identities>
+
+                <authentication>
+                    <properties path="mgmt-users.properties" relative-to="jboss.domain.config.dir"/>
+                </authentication>
+            </security-realm>
+        </security-realms>
+        <management-interfaces>
+            <native-interface security-realm="ManagementRealm">
+                <socket interface="management" port="${jboss.management.native.port:9999}"/>
+            </native-interface>
+        </management-interfaces>
+    </management>
+
+    <domain-controller>
+       <remote host="${jboss.domain.master.address}" port="${jboss.domain.master.port:9999}" security-realm="ManagementRealm"/>
+    </domain-controller>
+
+    <interfaces>
+        <interface name="management">
+            <inet-address value="${jboss.bind.address.management:127.0.0.1}"/>
+        </interface>
+        <interface name="public">
+           <inet-address value="${jboss.bind.address:127.0.0.1}"/>
+        </interface>
+    </interfaces>
+
+    <jvms>
+   	   <jvm name="default">
+            <heap size="64m" max-size="256m"/>
+            <permgen size="256m" max-size="256m"/>
+              <jvm-options>
+                  <option value="-server"/>
+              </jvm-options>
+         </jvm>
+   	</jvms>
+
+    <servers>
+        <!-- JA Bride:  copied from master host.xml -->
+    	<server name="pfp-core-0" group="gpse-core-group" auto-start="false">
+    	    <jvm name="pfp-core-0" env-classpath-ignored="false">
+    	        <heap size="128m" max-size="512m"/>
+    	        <permgen size="64m" max-size="256m"/>
+    	        <jvm-options>
+    	            <option value="-Xrunjdwp:transport=dt_socket,address=8791,server=y,suspend=n"/>
+    	        </jvm-options>
+    	    </jvm>
+    	    <socket-bindings port-offset="250"/>
+        </server>
+    	<server name="sy-core-0" group="sy-core-group" auto-start="false">
+    	    <jvm name="sy-core-0" env-classpath-ignored="false">
+    	        <heap size="128m" max-size="512m"/>
+    	        <permgen size="64m" max-size="256m"/>
+    	        <jvm-options>
+    	            <option value="-Xrunjdwp:transport=dt_socket,address=8891,server=y,suspend=n"/>
+    	        </jvm-options>
+    	    </jvm>
+    	    <socket-bindings port-offset="275"/>
+        </server>
+    </servers>
+</host>

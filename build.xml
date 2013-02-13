@@ -25,6 +25,32 @@
         </antcall>
         <antcall target="provision.jboss.with.jdbc" />
     </target>
+
+    <target name="refresh.slave.hosts" >
+        <for list="${org.jboss.eap.host.list}" param="hostAddress">
+            <sequential>
+                <var name="hostAddress" value="@{hostAddress}" />
+                <if>
+                    <not><equals arg1="${hostAddress}" arg2="master" /></not>
+                    <then>
+                        <echo message="refresh.slave.hosts() hostAddress = ${hostAddress}" />
+                        <!--
+                            0)  verify network connectivity to remote host
+                            1)  unzip jboss in remote host
+                            2)  copy slave host.xml
+                                - attempt to use generic userId for communication back to parent process controller (rather than userId equivalent to hostname)
+                            3)  copy application-roles.properties and application-users.properties
+                            4)  may need to generate management user for each host in master node (depending on step #2)
+                            5)  rsync modules
+                            6)  export modulepath environment variable
+                            7)  start remote host
+                        -->
+                    </then>
+                </if>
+            </sequential>
+        </for>
+    </target>
+
     <target name="checkServersAndProjectLib">
         <available file="${JBOSS_HOME}/jboss-modules.jar" property="defaultServerExists" />
         <fail unless="defaultServerExists" message="${JBOSS_HOME}/jboss-modules.jar doesn't exist! .... please fix your $JBOSS_HOME environment variable!!" />
@@ -65,6 +91,7 @@
             <param name="file.name" value="domain.xml"/>
             <param name="dest.dir" value="${jboss.home}/${jboss.domain.base.dir}/configuration"/>
         </antcall>
+        <copy file="conf/jboss/${community.or.supported}/host.xml" todir="${jboss.home}/${jboss.domain.base.dir}/configuration" overwrite="true" verbose="true" />
     </target>
 
     <target name="provision.jboss.with.jdbc" >
@@ -548,23 +575,28 @@
                     <param name="cli.to.filter.and.execute" value="pfp-server-group.cli"/>
                     <param name="cli.fail.on.error" value="true"/>
                 </antcall>
-                <for list="${pfp.core.server.number.list}" param="serverNum">
+                <for list="${org.jboss.eap.host.list}" param="hostAddress">
                     <sequential>
-                        <var name="pfp.core.server.id" value="pfp-core-@{serverNum}" />
-                        <math result="pfp.core.port.increment" operand1="100" operation="*" operand2="@{serverNum}" datatype="int" />
-                        <math result="pfp.core.port.offset" operand1="${pfp.core.base.port.offset}" operation="+" operand2="${pfp.core.port.increment}" datatype="int" />
-                        <math result="pfp.core.debugger.port" operand1="${pfp.core.base.debugger.port}" operation="+" operand2="${pfp.core.port.increment}" datatype="int" />
-                        <var name="server.specific.hibernate.hbm2ddl.auto" value="validate" />
-                        <if>
-                            <equals arg1="${pfp.core.server.id}" arg2="pfp-core-0" />
-                            <then><var name="server.specific.hibernate.hbm2ddl.auto" value="${hibernate.hbm2ddl.auto}" /></then>
-                        </if>
-                        <echo message="pfp.core.server.id=${pfp.core.server.id} : pfp.core.port.offset=${pfp.core.port.offset} : pfp.core.debugger.port = ${pfp.core.debugger.port}  : server.specific.hibernate.hbm2ddl.auto = ${server.specific.hibernate.hbm2ddl.auto} " />
-                        <antcall target="cli.batch">
-                            <param name="cli.source.dir" value="conf/pfp"/>
-                            <param name="cli.to.filter.and.execute" value="pfp-server-up.cli"/>
-                            <param name="cli.fail.on.error" value="true"/>
-                        </antcall>
+                        <var name="hostAddress" value="@{hostAddress}" />
+                        <for list="${pfp.core.server.number.list}" param="serverNum">
+                            <sequential>
+                              <var name="pfp.core.server.id" value="pfp-core-@{serverNum}" />
+                              <math result="pfp.core.port.increment" operand1="100" operation="*" operand2="@{serverNum}" datatype="int" />
+                              <math result="pfp.core.port.offset" operand1="${pfp.core.base.port.offset}" operation="+" operand2="${pfp.core.port.increment}" datatype="int" />
+                              <math result="pfp.core.debugger.port" operand1="${pfp.core.base.debugger.port}" operation="+" operand2="${pfp.core.port.increment}" datatype="int" />
+                              <var name="server.specific.hibernate.hbm2ddl.auto" value="validate" />
+                              <if>
+                                <equals arg1="${pfp.core.server.id}" arg2="pfp-core-0" />
+                                <then><var name="server.specific.hibernate.hbm2ddl.auto" value="${hibernate.hbm2ddl.auto}" /></then>
+                              </if>
+                              <echo message="hostAddress=${hostAddress}  : pfp.core.server.id=${pfp.core.server.id} : pfp.core.port.offset=${pfp.core.port.offset} : pfp.core.debugger.port = ${pfp.core.debugger.port}  : server.specific.hibernate.hbm2ddl.auto = ${server.specific.hibernate.hbm2ddl.auto} " />
+                              <antcall target="cli.batch">
+                                <param name="cli.source.dir" value="conf/pfp"/>
+                                <param name="cli.to.filter.and.execute" value="pfp-server-up.cli"/>
+                                <param name="cli.fail.on.error" value="true"/>
+                              </antcall>
+                            </sequential>
+                        </for>
                     </sequential>
                 </for>
             </then>
@@ -592,18 +624,23 @@
                     <param name="cli.to.filter.and.execute" value="sy-server-group.cli"/>
                     <param name="cli.fail.on.error" value="true"/>
                 </antcall>
-                <for list="${sy.core.server.number.list}" param="serverNum">
+                <for list="${org.jboss.eap.host.list}" param="hostAddress">
                     <sequential>
-                        <var name="sy.core.server.id" value="sy-core-@{serverNum}" />
-                        <math result="sy.core.port.increment" operand1="100" operation="*" operand2="@{serverNum}" datatype="int" />
-                        <math result="sy.core.port.offset" operand1="${sy.core.base.port.offset}" operation="+" operand2="${sy.core.port.increment}" datatype="int" />
-                        <math result="sy.core.debugger.port" operand1="${sy.core.base.debugger.port}" operation="+" operand2="${sy.core.port.increment}" datatype="int" />
-                        <echo message="sy.core.server.id=${sy.core.server.id} : sy.core.port.offset=${sy.core.port.offset} : sy.core.debugger.port = ${sy.core.debugger.port}" />
-                        <antcall target="cli.batch">
-                            <param name="cli.source.dir" value="conf/switchyard"/>
-                            <param name="cli.to.filter.and.execute" value="sy-server-up.cli"/>
-                            <param name="cli.fail.on.error" value="true"/>
-                        </antcall>
+                        <var name="hostAddress" value="@{hostAddress}" />
+                          <for list="${sy.core.server.number.list}" param="serverNum">
+                            <sequential>
+                                <var name="sy.core.server.id" value="sy-core-@{serverNum}" />
+                                <math result="sy.core.port.increment" operand1="100" operation="*" operand2="@{serverNum}" datatype="int" />
+                                <math result="sy.core.port.offset" operand1="${sy.core.base.port.offset}" operation="+" operand2="${sy.core.port.increment}" datatype="int" />
+                                <math result="sy.core.debugger.port" operand1="${sy.core.base.debugger.port}" operation="+" operand2="${sy.core.port.increment}" datatype="int" />
+                                <echo message="sy.core.server.id=${sy.core.server.id} : sy.core.port.offset=${sy.core.port.offset} : sy.core.debugger.port = ${sy.core.debugger.port}" />
+                                <antcall target="cli.batch">
+                                    <param name="cli.source.dir" value="conf/switchyard"/>
+                                    <param name="cli.to.filter.and.execute" value="sy-server-up.cli"/>
+                                    <param name="cli.fail.on.error" value="true"/>
+                                </antcall>
+                            </sequential>
+                        </for>
                     </sequential>
                 </for>
             </then>
@@ -742,6 +779,7 @@
         </if>
         <antcall target="apply.BZ887847" />
         <antcall target="refresh.master" />
+        <antcall target="refresh.slave.hosts" />
         <antcall target="local.provision.brms.webs">
             <param name="refresh.master" value="false"/>
         </antcall>
