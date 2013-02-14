@@ -38,12 +38,11 @@
                             0)  verify network connectivity to remote host
                             1)  unzip jboss in remote host
                             2)  copy slave host.xml
+                            3)  rsync modules, slave host.xml, application-roles.properties and application-users.properties
                                 - attempt to use generic userId for communication back to parent process controller (rather than userId equivalent to hostname)
-                            3)  copy application-roles.properties and application-users.properties
-                            4)  may need to generate management user for each host in master node (depending on step #2)
-                            5)  rsync modules
-                            6)  export modulepath environment variable
-                            7)  start remote host
+                                - may need to generate management user for each host in master node (depending on step #2)
+                            4)  export modulepath environment variable
+                            5)  start remote host
                         -->
                     </then>
                 </if>
@@ -67,7 +66,7 @@
     <!-- create a clone of the JBoss EAP 'domain' config and name it the value of ${jboss.domain.base.dir} -->
     <target name="clone.jboss" >
         <if>
-            <not><available file="${jboss.home}" /></not>
+            <not><available file="${jboss.home}/domain/configuration/domain.xml" /></not>
             <then>
                 <if>
                     <equals arg1="${community.or.supported}" arg2="community" />
@@ -77,7 +76,7 @@
                     </then>
                     <else>
                         <get src="${eap6.download.url}" dest="${install.home}/lib/"  skipexisting="true" />
-                        <unzip src="${install.home}/lib/${eap6.name}.zip" dest="${jboss.home}/.." />
+                        <unzip src="${install.home}/lib/${eap6.name}" dest="${jboss.home}/.." />
                     </else>
                 </if>
             </then>
@@ -314,8 +313,10 @@
 
     <target name="addUserRoleConfigs" >
         <fail unless="config.path" message="addUserRoleConfigs:  need to pass 'config.path' property" />
-        <copy file="conf/jboss/application-roles.properties" todir="${config.path}" verbose="true" overwrite="true" />
-        <copy file="conf/jboss/application-users.properties" todir="${config.path}" verbose="true" overwrite="true" />
+        <copy file="conf/jboss/application-roles.properties" todir="${temp.jboss.dir}/domain-${organization.name}/configuration" verbose="true" overwrite="true" />
+        <copy file="conf/jboss/application-users.properties" todir="${temp.jboss.dir}/domain-${organization.name}/configuration" verbose="true" overwrite="true" />
+        <copy file="${temp.jboss.dir}/domain-${organization.name}/configuration/application-roles.properties" todir="${config.path}" verbose="true" overwrite="true" />
+        <copy file="${temp.jboss.dir}/domain-${organization.name}/configuration/application-users.properties" todir="${config.path}" verbose="true" overwrite="true" />
         <copy file="conf/jboss/mgmt-users.properties" todir="${config.path}" verbose="true" overwrite="true" />
     </target>
 
@@ -396,9 +397,9 @@
 
     <target name="configure.sy.modules" >
         <antcall target="download.and.unzip.sy.deployer" />
-        <move todir="${sy.module.path}" >
-            <fileset dir="${temp.sy.dir}/modules" />
-        </move>
+        <copy todir="${sy.module.path}" >
+            <fileset dir="${temp.jboss.dir}/syModules" />
+        </copy>
     </target>
 
     <target name="configure.jboss.modules" >
@@ -734,7 +735,10 @@
 
     <target name="download.and.unzip.sy.deployer">
         <get src="${switchyard.deployer.download.url}" dest="${install.home}/lib/"  skipexisting="true" />
-        <unzip src="${install.home}/lib/switchyard.deployer.zip" dest="${temp.sy.dir}" />
+        <unzip src="${install.home}/lib/switchyard.deployer.zip" dest="${temp.jboss.dir}" />
+        <move todir="${temp.jboss.dir}/syModules" >
+            <fileset dir="${temp.jboss.dir}/modules" />
+        </move>
     </target>
     <target name="download.drools.guvnor">
         <get src="${drools.guvnor.url}" dest="${install.home}/lib/guvnor-distribution-wars-${drools.guvnor.version}-jboss-as-7.0.war"  skipexisting="true" />
