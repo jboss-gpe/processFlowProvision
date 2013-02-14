@@ -48,6 +48,15 @@ do
         -sleepSec=*)
             sleepSec=`echo $var | cut -f2 -d\=`
             ;;
+        -serverIpAddr=*)
+            serverIpAddr=`echo $var | cut -f2 -d\=` 
+            ;;
+        -port=*)
+            port=`echo $var | cut -f2 -d\=` 
+            ;;
+        -orgName=*)
+            orgName=`echo $var | cut -f2 -d\=` 
+            ;;
     esac
 done
 
@@ -131,11 +140,75 @@ executeCli() {
     fi
 }
 
+# ./bin/local.jboss.domain.sh refreshSlaveHosts -serverIpAddr=eap6cluster1 -orgName=gpse
+refreshSlaveHosts() {
+    echo -en "refreshSlaveHosts() serverIpAddr = $serverIpAddr : orgName=$orgName\n"
+    #  0)  verify network connectivity to remote host
+    port=22;
+    checkRemotePort;
+    if [ $socketIsOpen -ne 0 ]; then
+        exit 1
+    fi
+
+    # 1)  kill any existing java processes on remote node  
+    ssh jboss@$serverIpAddr 'for jProc in `ps -C java -o pid=`;
+        do
+            echo -en "about to kill java process id = $jProc\n"
+            kill -9 $jProc
+        done
+    '
+    # 2) scp .bashrc with module path env variable 
+    scp conf/shell/slavebashrc jboss@$serverIpAddr:/home/jboss/.bashrc
+
+    # 3)  blow away existing eap
+    ssh jboss@$serverIpAddr 'mkdir -p ~/jbossProjects/downloads; rm -rf $JBOSS_HOME'
+
+    # 4)  scp and  unzip jboss in remote host
+    remoteZip=$(ssh jboss@$serverIpAddr "ls ~/jbossProjects/downloads/jboss-eap-6.0.1.zip")
+    if [ "x$remoteZip" == "x" ]; then
+        scp target/lib/jboss-eap-6.0.1.zip jboss@$serverIpAddr:/home/jboss/jbossProjects/downloads
+    fi
+
+    # 5)  clone domain root and rename to domain-$orgName
+    ssh jboss@$serverIpAddr "unzip ~/jbossProjects/downloads/jboss-eap-6.0.1.zip -d /opt; cp -r /opt/jboss-eap-6.0/domain /opt/jboss-eap-6.0/domain-$orgName"
+
+    # 6) rsync modules, slave host.xml, application-roles.properties and application-users.properties
+    rsync -avz target/jboss/* jboss@$serverIpAddr:/opt/jboss-eap-6.0
+
+        #                            - attempt to use generic userId for communication back to parent process controller (rather than userId equivalent to hostname)
+        #                            - may need to generate management user for each host in master node (depending on step #2)
+
+    # 7)  start remote host
+    ssh jboss@$serverIpAddr "cd /opt/jboss-eap-6.0; nohup ./bin/domain.sh -b=$serverIpAddr -Djboss.domain.base.dir=domain-$orgName -Djboss.domain.master.address=$HOSTNAME -Djboss.domain.master.port=9999 &"
+}
+
+# Test remote host:port availability (TCP-only as UDP does not reply)
+function checkRemotePort() {
+    echo "checkRemotePort"
+    (echo >/dev/tcp/$serverIpAddr/$port) &>/dev/null
+    if [ $? -eq 0 ]; then
+        echo -en "\n$serverIpAddr:$port is open."
+        socketIsOpen=0
+    else
+        echo -en "\n$serverIpAddr:$port is closed."
+        socketIsOpen=1
+    fi
+}
+
+function killJavaProcesses() {
+    for jProc in `ps -C java -o pid=`;
+    do
+        echo -en "about to kill java process id = $jProc\n"
+        kill -9 $jProc
+    done
+}
+
+
 case "$1" in
-    start|stop|restart|executeCli)
+    start|stop|restart|executeCli|refreshSlaveHosts|killJavaProcesses)
         $1
         ;;
     *)
-    echo 1>&2 $"Usage: $0 {start|stop|restart|executeAddUser|executeCli}"
+    echo 1>&2 $"Usage: $0 {start|stop|restart|executeAddUser|executeCli|refreshSlaveHosts|killJavaProcesses}"
     exit 1
 esac
