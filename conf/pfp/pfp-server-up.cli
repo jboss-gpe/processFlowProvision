@@ -1,13 +1,13 @@
 batch
-/host=${hostAddress}/server-config=${pfp.core.server.id}:add(auto-start=false,group=${pfp.core.group})
-/host=${hostAddress}/server-config=${pfp.core.server.id}/jvm=${pfp.core.server.id}/:add(env-classpath-ignored=false,heap-size=128m,max-heap-size=512m,permgen-size=64m,max-permgen-size=256m)
-/host=${hostAddress}/server-config=${pfp.core.server.id}/jvm=${pfp.core.server.id}/:write-attribute(name=jvm-options,value=["-Xrunjdwp:transport=dt_socket,address=${pfp.core.debugger.port},server=y,suspend=n"])
-/host=${hostAddress}/server-config=${pfp.core.server.id}/:write-attribute(name=socket-binding-port-offset,value=${pfp.core.port.offset})
+/host=${serverIpAddr}/server-config=${pfp.core.server.id}:add(auto-start=false,group=${pfp.core.group})
+/host=${serverIpAddr}/server-config=${pfp.core.server.id}/jvm=${pfp.core.server.id}/:add(env-classpath-ignored=false,heap-size=128m,max-heap-size=512m,permgen-size=64m,max-permgen-size=256m)
+/host=${serverIpAddr}/server-config=${pfp.core.server.id}/jvm=${pfp.core.server.id}/:write-attribute(name=jvm-options,value=["-Xrunjdwp:transport=dt_socket,address=${pfp.core.debugger.port},server=y,suspend=n"])
+/host=${serverIpAddr}/server-config=${pfp.core.server.id}/:write-attribute(name=socket-binding-port-offset,value=${pfp.core.port.offset})
 
 # JBAS014803: Duplicate resource [(\"system-property\" => \"hibernate.hbm2ddl.auto\")]
-#/host=${hostAddress}/server-config=${pfp.core.server.id}/system-property=hibernate.hbm2ddl.auto/:add(value=${server.specific.hibernate.hbm2ddl.auto},boot-time=false)
+#/host=${serverIpAddr}/server-config=${pfp.core.server.id}/system-property=hibernate.hbm2ddl.auto/:add(value=${server.specific.hibernate.hbm2ddl.auto},boot-time=false)
 
-/host=${hostAddress}/server-config=${pfp.core.server.id}/:start(server=${pfp.core.server.id},blocking=true)
+/host=${serverIpAddr}/server-config=${pfp.core.server.id}/:start(server=${pfp.core.server.id},blocking=true)
 run-batch
 
-# /host=${hostAddress}/server-config=${pfp.core.server.id}/system-property=hibernate.hbm2ddl.auto/:write-attribute(name=value,value=${server.specific.hibernate.hbm2ddl.auto})
+# /host=${serverIpAddr}/server-config=${pfp.core.server.id}/system-property=hibernate.hbm2ddl.auto/:write-attribute(name=value,value=${server.specific.hibernate.hbm2ddl.auto})

@@ -179,7 +179,7 @@ refreshSlaveHosts() {
         #                            - may need to generate management user for each host in master node (depending on step #2)
 
     # 7)  start remote host
-    ssh jboss@$serverIpAddr "cd /opt/jboss-eap-6.0; nohup ./bin/domain.sh -b=$serverIpAddr -Djboss.domain.base.dir=domain-$orgName -Djboss.domain.master.address=$HOSTNAME -Djboss.domain.master.port=9999 &"
+    ssh jboss@$serverIpAddr "cd /opt/jboss-eap-6.0; nohup ./bin/domain.sh -b=$serverIpAddr -Djboss.domain.base.dir=domain-$orgName -Djboss.domain.master.address=$HOSTNAME -Djboss.domain.master.port=9999 > eap.log 2>&1 &"
 }
 
 # Test remote host:port availability (TCP-only as UDP does not reply)

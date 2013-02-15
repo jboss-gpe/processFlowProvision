@@ -26,7 +26,7 @@
         <antcall target="provision.jboss.with.jdbc" />
     </target>
 
-    <target name="refresh.slave.hosts" >
+    <target name="refresh.slave.hosts" depends="setClasspath" >
         <for list="${org.jboss.eap.host.list}" param="serverIpAddr">
             <sequential>
                 <var name="serverIpAddr" value="@{serverIpAddr}" />
@@ -34,6 +34,14 @@
                     <not><equals arg1="${serverIpAddr}" arg2="master" /></not>
                     <then>
                         <echo message="refresh.slave.hosts() serverIpAddr = ${serverIpAddr}" />
+                        <java fork="yes" classname="org.jboss.processFlow.util.GeneratePasswordHash" failonerror="true">
+                            <sysproperty key="USER_ID" value="${serverIpAddr}" />
+                            <sysproperty key="REALM" value="ManagementRealm" />
+                            <sysproperty key="PASSWORD" value="${jboss.admin.password}" />
+                            <sysproperty key="MGT_USERS_PROPS_FILE" value="${jboss.home}/${jboss.domain.base.dir}/configuration/mgmt-users.properties" />
+                            <sysproperty key="log4j.configuration" value="file:${development.base}/conf/test/log4j.xml" />
+                            <classpath refid="classpath"/>
+                        </java>
                         <antcall target="filter">
                             <param name="source.dir" value="conf/jboss/${community.or.supported}/slave"/>
                             <param name="dest.dir" value="${temp.jboss.dir}/domain-${organization.name}/configuration"/>
