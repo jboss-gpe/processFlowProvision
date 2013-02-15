@@ -432,11 +432,20 @@
                     <param name="dest.dir" value="${temp.jboss.dir}/pfpModules"/>
                 </antcall>
                 <if><equals arg1="${jdbc.module.name}" arg2="postgresql" />
-                    <then><copy overwrite="true" verbose="true" file="${postgresql.jdbc.lib.path}" todir="${pfp.module.path}/org/postgresql/jdbc/main" /></then></if>
+                    <then>
+                        <copy overwrite="true" verbose="true" file="${postgresql.jdbc.lib.path}" todir="${temp.jboss.dir}/pfpModules/org/postgresql/jdbc/main" />
+                        <copy overwrite="true" verbose="true" file="${postgresql.jdbc.lib.path}" todir="${pfp.module.path}/org/postgresql/jdbc/main" />
+                    </then></if>
                 <if><equals arg1="${jdbc.module.name}" arg2="mysql" />
-                    <then><copy overwrite="true" verbose="true" file="${mysql.jdbc.lib.path}" todir="${pfp.module.path}/com/mysql/jdbc/main" /></then></if>
+                    <then>
+                        <copy overwrite="true" verbose="true" file="${mysql.jdbc.lib.path}" todir="${temp.jboss.dir}/pfpModules/com/mysql/jdbc/main" />
+                        <copy overwrite="true" verbose="true" file="${mysql.jdbc.lib.path}" todir="${pfp.module.path}/com/mysql/jdbc/main" />
+                    </then></if>
                 <if><equals arg1="${jdbc.module.name}" arg2="oracle" />
-                    <then><copy overwrite="true" verbose="true" file="${oracle.jdbc.lib.path}" todir="${pfp.module.path}/com/oracle/jdbc/main" /></then></if>
+                    <then>
+                        <copy overwrite="true" verbose="true" file="${oracle.jdbc.lib.path}" todir="${temp.jboss.dir}/pfpModules/com/oracle/jdbc/main" />
+                        <copy overwrite="true" verbose="true" file="${oracle.jdbc.lib.path}" todir="${pfp.module.path}/com/oracle/jdbc/main" />
+                    </then></if>
                 <if><equals arg1="${jdbc.module.name}" arg2="h2" />
                     <then><echo message="configure.jboss.modules() h2 driver already in eap6.*" /></then></if>
             </then>
