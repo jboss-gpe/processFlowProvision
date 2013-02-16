@@ -357,6 +357,10 @@
            <arg value="-node=master"/>
            <arg value="-jbossHome=${jboss.home}"/>
         </exec>
+        <exec executable="bash" failonerror="true" dir="." >
+           <arg value="${development.base}/bin/local.jboss.domain.sh"/>
+           <arg value="killJavaProcesses"/>
+        </exec>
     </target>
     <target name="local.start.master">
         <var name="jbossModulePath" value="${jboss.home}/modules:${pfp.module.path}:${sy.module.path}" />

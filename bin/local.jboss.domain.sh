@@ -195,11 +195,23 @@ function checkRemotePort() {
     fi
 }
 
+
 function killJavaProcesses() {
     for jProc in `ps -C java -o pid=`;
     do
-        echo -en "about to kill java process id = $jProc\n"
-        kill -9 $jProc
+        pInfo=$(ps -p $jProc -f)
+        if [[ $pInfo =~ .*ant.jar.* ]];
+        then
+            echo -en "\nkillJavaProcesses() will not kill ant process = $jProc\n"
+        else
+            if [[ $pInfo =~ .*org.eclipse.equinox.launcher.* ]];
+            then
+                echo -en "\nkillJavaProcesses() will not kill eclipse process = $jProc\n"
+            else
+                echo -en "killJavaProcesses() about to kill java process id = $jProc\n"
+                kill -9 $jProc
+            fi
+        fi
     done
 }
 
