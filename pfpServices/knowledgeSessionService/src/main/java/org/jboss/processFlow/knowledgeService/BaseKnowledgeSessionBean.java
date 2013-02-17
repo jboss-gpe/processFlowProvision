@@ -439,7 +439,8 @@ public class BaseKnowledgeSessionBean {
                     if(StringUtils.isNotEmpty(droolsSessionTemplatePath)){
                         File droolsSessionTemplate = new File(droolsSessionTemplatePath);
                         if(!droolsSessionTemplate.exists()) {
-                            throw new RuntimeException("newSessionTemplate() drools session template not found at : "+droolsSessionTemplatePath);
+                            log.error("newSessionTemplate() drools session template not found at : "+droolsSessionTemplatePath);
+                            sessionTemplateInstantiationAttempts = -1;
                         }else {
                             FileInputStream fStream = null;
                             try {

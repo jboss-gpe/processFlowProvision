@@ -489,6 +489,7 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
             returnMap.put(IKnowledgeSessionService.PROCESS_INSTANCE_STATE, pInstance.getState());
             returnMap.put(IKnowledgeSessionService.KSESSION_ID, ksessionId);
         }catch(Throwable x){
+        	x.printStackTrace();
             rollbackTrnx();
             return null;
         }finally {

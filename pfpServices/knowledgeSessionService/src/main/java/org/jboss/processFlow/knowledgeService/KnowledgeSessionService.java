@@ -43,6 +43,7 @@ import org.drools.runtime.process.ProcessInstance;
 import org.jboss.processFlow.knowledgeService.IBaseKnowledgeSession;
 import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
 import org.jboss.processFlow.knowledgeService.KnowledgeSessionServiceMXBean;
+import org.jboss.processFlow.util.MessagingUtil;
 import org.jbpm.persistence.processinstance.ProcessInstanceInfo;
 
 import org.apache.log4j.Logger;
@@ -66,12 +67,13 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
     private static Logger log = Logger.getLogger("KnowledgeSessionService");
     @Inject
     private IKnowledgeSessionBean kBean;
+    @javax.annotation.Resource (name="java:/RemoteConnectionFactory") ConnectionFactory cFactory;
     
     protected ObjectName objectName;
     protected MBeanServer platformMBeanServer;
 
-    private final String cFactoryName = "/ConnectionFactory";
-    private final String gwDObjName = "queue/processFlow.knowledgeSessionQueue";
+    private final String cFactoryName = "/RemoteConnectionFactory";
+    private final String gwDObjName = "jms/processFlow.knowledgeSessionQueue";
     private Destination gwDObj = null;
     private Connection connectionObj = null;
     
@@ -83,11 +85,8 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
             platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
             platformMBeanServer.registerMBean(this, objectName);
 
-            jndiContext = new InitialContext();
-            ConnectionFactory cFactory = (ConnectionFactory)jndiContext.lookup(cFactoryName);
             connectionObj = cFactory.createConnection();
-            gwDObj = (Destination)jndiContext.lookup(gwDObjName);
-            jndiContext.close(); 
+            gwDObj = (Destination)MessagingUtil.grabJMSObject(gwDObjName, false);
         } catch(Exception x) {
             throw new RuntimeException(x);
         }

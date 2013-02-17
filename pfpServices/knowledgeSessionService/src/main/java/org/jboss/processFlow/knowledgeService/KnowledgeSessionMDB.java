@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 @MessageDriven(name="KnowledgeSessionMDB", activationConfig = {
     @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
-    @ActivationConfigProperty(propertyName = "destination", propertyValue="java:/queue/processFlow.knowledgeSessionQueue")
+    @ActivationConfigProperty(propertyName = "destination", propertyValue="jms/processFlow.knowledgeSessionQueue")
 })
 public class KnowledgeSessionMDB implements MessageListener {
     
@@ -41,7 +41,7 @@ public class KnowledgeSessionMDB implements MessageListener {
     IKnowledgeSessionService kProxy;
     
     @Resource MessageDrivenContext mCtx;
-    @Resource(name="java:/ConnectionFactory") ConnectionFactory cFactory;
+    @Resource(name="java:/RemoteConnectionFactory") ConnectionFactory cFactory;
     
     @PostConstruct
     void init() throws JMSException{

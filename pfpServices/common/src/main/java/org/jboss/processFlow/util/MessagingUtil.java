@@ -22,6 +22,7 @@
 
 package org.jboss.processFlow.util;
 
+import java.util.Properties;
 import javax.naming.InitialContext;
 import javax.naming.Context;
 import javax.jms.ConnectionFactory;
@@ -36,17 +37,27 @@ public class MessagingUtil {
         String cFactoryName = System.getProperty("org.jboss.processFlow.messaging.connectionFactory");
         if(cFactoryName == null) {
             log.warn("system property not set :  org.jboss.processFlow.messaging.connectionFactory ... will set to default:  ConnectionFactory");
-            cFactoryName="ConnectionFactory";
+            cFactoryName="RemoteConnectionFactory";
         }
 
         return (ConnectionFactory)grabJMSObject(cFactoryName);
     }
 
     public static Object grabJMSObject(String jndiName) throws Exception {
+        return grabJMSObject(jndiName, true);
+    }
+    public static Object grabJMSObject(String jndiName, boolean isLocal) throws Exception {
         Context jndiContext = null;
         try {
+            if(!isLocal) {
+                Properties env = new Properties();
+                env.put(Context.INITIAL_CONTEXT_FACTORY, "org.jboss.naming.remote.client.InitialContextFactory");
+                env.put(Context.PROVIDER_URL, "remote://"+"zareason"+":"+4547);
+                jndiContext = new InitialContext(env);
+            }else {
                 jndiContext = new InitialContext();
-                return jndiContext.lookup(jndiName);
+            }
+            return jndiContext.lookup(jndiName);
         } finally {
             if(jndiContext != null)
                 jndiContext.close();

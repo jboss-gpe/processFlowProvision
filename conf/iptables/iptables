@@ -8,6 +8,9 @@
 -A INPUT -p icmp -j ACCEPT
 -A INPUT -i lo -j ACCEPT
 
+#brmsWebs - http.port
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 8080 -j ACCEPT
+
 # Hornetq messaging and messaging-throughput ports
 -A INPUT -m state --state NEW -m tcp -p tcp --dport 5545 -j ACCEPT
 -A INPUT -m state --state NEW -m tcp -p tcp --dport 5555 -j ACCEPT
@@ -18,9 +21,6 @@
 #EAP6.0 management
 -A INPUT -m state --state NEW -m tcp -p tcp --dport 9999 -j ACCEPT
 -A INPUT -m state --state NEW -m tcp -p tcp --dport 9990 -j ACCEPT
-
-#brmsWebs - http.port   :   8080 + 150 = 8230
--A INPUT -m state --state NEW -m tcp -p tcp --dport 8230 -j ACCEPT
 
 #pfpCore0 - remoting:   4447 + 250 = 4697
 -A INPUT -m state --state NEW -m tcp -p tcp --dport 4697 -j ACCEPT

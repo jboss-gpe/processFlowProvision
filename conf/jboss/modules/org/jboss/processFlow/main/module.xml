@@ -33,6 +33,9 @@
         <module name="javax.transaction.api" />
         <module name="javax.jms.api" />
 
+        <module name="org.jboss.remote-naming" export="true" />
+        <module name="org.hornetq" export="true" />
+
         <module name="org.drools" export="true" slot="5" />
         <module name="org.jbpm" export="true" slot="5" >
             <imports>

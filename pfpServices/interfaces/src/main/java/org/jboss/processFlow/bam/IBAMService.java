@@ -30,7 +30,8 @@ import org.jbpm.process.audit.ProcessInstanceLog;
 public interface IBAMService {
     public static final String BAM_SERVICE_JNDI = "ejb:/processFlow-bamService//BAMService!org.jboss.processFlow.bam.IBAMService";
     public static final String BAM_SERVICE_PROVIDER_URL = "org.jboss.processFlow.bam.BAM_SERVICE_PROVIDER_URL";
-    public static final String BAM_QUEUE = "java:/queue/processFlow.asyncWorkingMemoryLogger";
+    public static final String LOCAL_BAM_QUEUE = "java:/queue/processFlow.asyncWorkingMemoryLogger";
+    public static final String BAM_QUEUE = "jms/processFlow.asyncWorkingMemoryLogger";
     public static final String ASYNC_BAM_PRODUCER="org.jboss.processFlow.bam.AsyncBAMProducer";
 
     public void flushBam() throws Exception;
