@@ -197,6 +197,7 @@ function checkRemotePort() {
 
 
 function killJavaProcesses() {
+    sleep 2;
     for jProc in `ps -C java -o pid=`;
     do
         pInfo=$(ps -p $jProc -f)
