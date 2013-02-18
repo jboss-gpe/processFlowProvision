@@ -49,7 +49,6 @@
             <property name="org.jboss.processFlow.drools.resource.scanner.interval" value="${org.jboss.processFlow.drools.resource.scanner.interval}"/>
             <property name="org.jboss.processFlow.bam.queue" value="${org.jboss.processFlow.bam.queue}"/>
             <property name="org.jboss.processFlow.messagingProvider" value="${org.jboss.processFlow.messagingProvider}"/>
-            <property name="org.jboss.processFlow.messaging.connectionFactory" value="${org.jboss.processFlow.messaging.connectionFactory}"/>
             <property name="hibernate.hbm2ddl.auto" value="${hibernate.hbm2ddl.auto}"/>
             <property name="hibernate.jdbc.batch_size" value="${hibernate.jdbc.batch_size}"/>
             <property name="hibernate.cache.use_second_level_cache" value="${hibernate.cache.use_second_level_cache}"/>
@@ -503,6 +502,9 @@
 						</connectors>
 						<entries>
 							<entry name="java:jboss/exported/jms/RemoteConnectionFactory" />
+
+                                                        <!-- JA Bride:  added additional entry to match name used in non OSE environment -->
+							<entry name="java:/RemoteConnectionFactory" />
 						</entries>
 					</connection-factory>
 					<pooled-connection-factory name="hornetq-ra">
@@ -520,11 +522,13 @@
                                 <jms-destinations>
                                     <jms-queue name="processFlow.asyncWorkingMemoryLogger">
                                         <entry name="queue/processFlow.asyncWorkingMemoryLogger"/>
+                                        <entry name="jms/processFlow.asyncWorkingMemoryLogger"/>
                                         <entry name="java:jboss/exported/jms/processFlow.asyncWorkingMemoryLogger"/>
                                         <durable>true</durable>
                                     </jms-queue>
                                     <jms-queue name="processFlow.knowledgeSessionQueue">
                                         <entry name="queue/processFlow.knowledgeSessionQueue"/>
+                                        <entry name="jms/processFlow.knowledgeSessionQueue"/>
                                         <entry name="java:jboss/exported/jms/processFlow.knowledgeSessionQueue"/>
                                         <durable>true</durable>
                                     </jms-queue>

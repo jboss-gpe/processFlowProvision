@@ -48,7 +48,7 @@ public final class AsyncBAMProducerPool implements PoolableObjectFactory {
             try {
                 ConnectionFactory cFactory = MessagingUtil.grabConnectionFactory();
                 connectObj = cFactory.createConnection();
-                dQueue = (Destination)MessagingUtil.grabJMSObject(IBAMService.BAM_QUEUE, false);
+                dQueue = (Destination)MessagingUtil.grabJMSObject(IBAMService.BAM_QUEUE);
             } catch(Exception x) {
                 throw new RuntimeException(x);
             }

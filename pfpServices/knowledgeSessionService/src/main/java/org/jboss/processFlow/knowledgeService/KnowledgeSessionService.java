@@ -67,12 +67,11 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
     private static Logger log = Logger.getLogger("KnowledgeSessionService");
     @Inject
     private IKnowledgeSessionBean kBean;
-    @javax.annotation.Resource (name="java:/RemoteConnectionFactory") ConnectionFactory cFactory;
+    @javax.annotation.Resource (name=MessagingUtil.CONNECTION_FACTORY_JNDI_NAME) ConnectionFactory cFactory;
     
     protected ObjectName objectName;
     protected MBeanServer platformMBeanServer;
 
-    private final String cFactoryName = "/RemoteConnectionFactory";
     private final String gwDObjName = "jms/processFlow.knowledgeSessionQueue";
     private Destination gwDObj = null;
     private Connection connectionObj = null;
@@ -86,7 +85,7 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
             platformMBeanServer.registerMBean(this, objectName);
 
             connectionObj = cFactory.createConnection();
-            gwDObj = (Destination)MessagingUtil.grabJMSObject(gwDObjName, false);
+            gwDObj = (Destination)MessagingUtil.grabJMSObject(gwDObjName);
         } catch(Exception x) {
             throw new RuntimeException(x);
         }

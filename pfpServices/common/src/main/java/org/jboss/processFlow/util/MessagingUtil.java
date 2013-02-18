@@ -31,28 +31,32 @@ import org.apache.log4j.Logger;
 
 public class MessagingUtil {
 
+    public static final String CONNECTION_FACTORY_JNDI_NAME="java:/RemoteConnectionFactory";
+    public static final String JBOSS_REMOTING_HOST_NAME="org.jboss.remoting.host.name";
+    public static final String JBOSS_REMOTING_PORT="org.jboss.remoting.port";
+    public static final String IS_HORNETQ_LOCAL="org.jboss.processFlow.is.hornetq.local";
+
     private static Logger log = Logger.getLogger("MessagingUtil");
+    private static boolean isHornetqLocal = true;
 
     public static ConnectionFactory grabConnectionFactory() throws Exception {
-        String cFactoryName = System.getProperty("org.jboss.processFlow.messaging.connectionFactory");
-        if(cFactoryName == null) {
-            log.warn("system property not set :  org.jboss.processFlow.messaging.connectionFactory ... will set to default:  ConnectionFactory");
-            cFactoryName="RemoteConnectionFactory";
-        }
-
-        return (ConnectionFactory)grabJMSObject(cFactoryName);
+        return (ConnectionFactory)grabJMSObject(CONNECTION_FACTORY_JNDI_NAME);
     }
 
     public static Object grabJMSObject(String jndiName) throws Exception {
-        return grabJMSObject(jndiName, true);
-    }
-    public static Object grabJMSObject(String jndiName, boolean isLocal) throws Exception {
         Context jndiContext = null;
         try {
-            if(!isLocal) {
+            if(!isHornetqLocal) {
+                String jbossRemotingHostName = System.getProperty(JBOSS_REMOTING_HOST_NAME);
+                if(jbossRemotingHostName == null)
+                    throw new RuntimeException("grabJMSObject() system property not set : "+JBOSS_REMOTING_HOST_NAME);
+                String jbossRemotingPort = System.getProperty(JBOSS_REMOTING_PORT);
+                if(jbossRemotingPort == null)
+                    throw new RuntimeException("grabJMSObject() system property not set : "+JBOSS_REMOTING_PORT);
+
                 Properties env = new Properties();
                 env.put(Context.INITIAL_CONTEXT_FACTORY, "org.jboss.naming.remote.client.InitialContextFactory");
-                env.put(Context.PROVIDER_URL, "remote://"+"zareason"+":"+4547);
+                env.put(Context.PROVIDER_URL, "remote://"+jbossRemotingHostName+":"+jbossRemotingPort);
                 jndiContext = new InitialContext(env);
             }else {
                 jndiContext = new InitialContext();

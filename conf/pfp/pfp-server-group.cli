@@ -76,7 +76,8 @@ batch
 
 /server-group=${pfp.core.group}/system-property=org.jboss.processFlow.bam.queue/:add(value=${org.jboss.processFlow.bam.queue},boot-time=true)
 /server-group=${pfp.core.group}/system-property=org.jboss.processFlow.messagingProvider/:add(value=${org.jboss.processFlow.messagingProvider},boot-time=true)
-/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.messaging.connectionFactory/:add(value=${org.jboss.processFlow.messaging.connectionFactory},boot-time=true)
+/server-group=${pfp.core.group}/system-property=org.jboss.remoting.host.name/:add(value=${org.jboss.remoting.host.name},boot-time=true)
+/server-group=${pfp.core.group}/system-property=org.jboss.remoting.port/:add(value=${org.jboss.remoting.port},boot-time=true)
 
 # enabled until JBAS014803: Duplicate resource [(\"system-property\" => \"hibernate.hbm2ddl.auto\")] problem is corrected in pfp-core-server.cli
 /server-group=${pfp.core.group}/system-property=hibernate.hbm2ddl.auto/:add(value=${hibernate.hbm2ddl.auto},boot-time=true)
