@@ -1,5 +1,8 @@
 batch
 
+###  TRACE logging of hornetq client
+#/profile=pfpCore/subsystem=logging/logger=org.hornetq.core.client.impl/:add(category=org.hornetq.core.client.impl,level=TRACE,use-parent-handlers=true)
+
 ### non-XA datasource connection pools to jbpm and jbpm_bam databases
 /profile=pfpCore/subsystem=datasources/data-source=jbpm-core-cp:add(jndi-name=java:jboss/datasources/jbpm-core-cp,connection-url=${jbpm_connection_url},driver-class=${jbpm_driver_class},driver-name=${jdbc.module.name},user-name=${jbpm_db_user},password=${jbpm_db_password},pool-name=jbpm-core_ds_pool,max-pool-size=50,min-pool-size=10)
 /profile=pfpCore/subsystem=datasources/data-source=jbpm-core-cp:enable()
@@ -78,6 +81,7 @@ batch
 /server-group=${pfp.core.group}/system-property=org.jboss.processFlow.messagingProvider/:add(value=${org.jboss.processFlow.messagingProvider},boot-time=true)
 /server-group=${pfp.core.group}/system-property=org.jboss.remoting.host.name/:add(value=${org.jboss.remoting.host.name},boot-time=true)
 /server-group=${pfp.core.group}/system-property=org.jboss.remoting.port/:add(value=${org.jboss.remoting.port},boot-time=true)
+/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.is.hornetq.inVm/:add(value=${org.jboss.processFlow.is.hornetq.inVm},boot-time=true)
 
 # enabled until JBAS014803: Duplicate resource [(\"system-property\" => \"hibernate.hbm2ddl.auto\")] problem is corrected in pfp-core-server.cli
 /server-group=${pfp.core.group}/system-property=hibernate.hbm2ddl.auto/:add(value=${hibernate.hbm2ddl.auto},boot-time=true)

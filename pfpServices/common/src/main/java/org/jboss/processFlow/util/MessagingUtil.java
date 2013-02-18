@@ -34,10 +34,10 @@ public class MessagingUtil {
     public static final String CONNECTION_FACTORY_JNDI_NAME="java:/RemoteConnectionFactory";
     public static final String JBOSS_REMOTING_HOST_NAME="org.jboss.remoting.host.name";
     public static final String JBOSS_REMOTING_PORT="org.jboss.remoting.port";
-    public static final String IS_HORNETQ_LOCAL="org.jboss.processFlow.is.hornetq.local";
+    public static final String IS_HORNETQ_INVM="org.jboss.processFlow.is.hornetq.inVm";
 
     private static Logger log = Logger.getLogger("MessagingUtil");
-    private static boolean isHornetqLocal = true;
+    private static boolean isHornetqInVm = true;
 
     public static ConnectionFactory grabConnectionFactory() throws Exception {
         return (ConnectionFactory)grabJMSObject(CONNECTION_FACTORY_JNDI_NAME);
@@ -46,7 +46,8 @@ public class MessagingUtil {
     public static Object grabJMSObject(String jndiName) throws Exception {
         Context jndiContext = null;
         try {
-            if(!isHornetqLocal) {
+        	isHornetqInVm = Boolean.parseBoolean(System.getProperty(IS_HORNETQ_INVM, Boolean.TRUE.toString()));
+            if(!isHornetqInVm) {
                 String jbossRemotingHostName = System.getProperty(JBOSS_REMOTING_HOST_NAME);
                 if(jbossRemotingHostName == null)
                     throw new RuntimeException("grabJMSObject() system property not set : "+JBOSS_REMOTING_HOST_NAME);

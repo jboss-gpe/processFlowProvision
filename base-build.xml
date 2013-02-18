@@ -232,7 +232,7 @@
             <param name="file.name" value="${cli.to.filter.and.execute}"/>
             <param name="dest.dir" value="${dest.dir}"/>
         </antcall>
-        <echo message="***** cli.batch :  about to execute following batch script = ${build.dir}/${cli.to.filter.and.execute} : cli.fail.on.error = ${cli.fail.on.error} : jbossCliXmx = ${jbossCliXmx}"/>
+        <echo message="***** cli.batch :  about to execute following batch script = ${dest.dir}/${cli.to.filter.and.execute} : cli.fail.on.error = ${cli.fail.on.error} : jbossCliXmx = ${jbossCliXmx}"/>
         <exec executable="${development.base}/bin/local.jboss.domain.sh" failonerror="${cli.fail.on.error}" >
             <arg value="executeCli"/>
             <arg value="-jbossHome=${jboss.home}"/>
@@ -283,6 +283,7 @@
                 <property name="org.jboss.processFlow.remoting.ejb.receiver" value="${local.org.jboss.processFlow.remoting.ejb.receiver}"/>
                 <property name="org.jboss.remoting.host.name" value="${os.hostname}"/>
                 <property name="org.jboss.remoting.port" value="${hornetq.remoting.port}"/>
+                <property name="org.jboss.processFlow.is.hornetq.inVm" value="false"/>
             </else>
         </if>
     </target>

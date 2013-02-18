@@ -30,13 +30,5 @@ batch
 /profile=full-ha/subsystem=messaging/hornetq-server=default/jms-queue=${org.jboss.processFlow.bam.queue}/:add(entries=["queue/${org.jboss.processFlow.bam.queue}","java:jboss/exported/jms/${org.jboss.processFlow.bam.queue}"],durable=true)
 /profile=full-ha/subsystem=messaging/hornetq-server=default/address-setting=jms.queue.${org.jboss.processFlow.bam.queue}/:add(address-full-policy=PAGE,dead-letter-address=jms.queue.DLQ,last-value-queue=false,max-size-bytes=10485760,page-size-bytes=1048576,send-to-dla-on-no-route=false,message-redistribution=0)
 
-run-batch
-
-batch
 /server-group=hornetq.ha.group/:add(profile=full-ha,socket-binding-group=full-sockets)
-/host=${serverIpAddr}/server-config=hornetq-ha/:add(auto-start=false,group=hornetq.ha.group)
-/host=${serverIpAddr}/server-config=hornetq-ha/jvm=hornetq-ha/:add(env-classpath-ignored=false,heap-size=128m,max-heap-size=512m,permgen-size=64m,max-permgen-size=256m)
-/host=${serverIpAddr}/server-config=hornetq-ha/:write-attribute(name=socket-binding-port-offset,value=${hornetq.group.port.offset})
-/host=${serverIpAddr}/server-config=hornetq-ha/:start(server=hornetq-ha,blocking=true)
 run-batch
-

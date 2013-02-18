@@ -12,9 +12,9 @@ batch
 
 
 # trace level logging of org.jboss.modules module
-#/profile=full-ha/subsystem=logging/logger=org.jboss.modules/:add(category=org.jboss.modules,level=TRACE,use-parent-handlers=true)
+#/profile=full/subsystem=logging/logger=org.jboss.modules/:add(category=org.jboss.modules,level=TRACE,use-parent-handlers=true)
 
 ### enable trace level logging of the org.jboss.security.* package
-#/profile=full-ha/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=level,value=TRACE)
-#/profile=full-ha/subsystem=logging/logger=org.jboss.security/:add(category=org.jboss.security,level=TRACE,use-parent-handlers=true)
+#/profile=full/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=level,value=TRACE)
+#/profile=full/subsystem=logging/logger=org.jboss.security/:add(category=org.jboss.security,level=TRACE,use-parent-handlers=true)
 run-batch
