@@ -821,10 +821,10 @@
         <antcall target="local.provision.pfp.core">
             <param name="refresh.master" value="false"/>
         </antcall>
-        <!--antcall target="local.provision.switchyard">
+        <antcall target="local.provision.switchyard">
             <param name="refresh.master" value="false"/>
         </antcall>
-        <antcall target="create.temp.client.dir" / -->
+        <antcall target="create.temp.client.dir" />
         <echo message="you may find executing the following will be helpful to diagnose your environment :" />
         <echo message="    curl -X PUT -HAccept:text/plain ${os.hostname}:8330/knowledgeService/kbase               :   refresh kBase in PFP's kSessionService" />
         <echo message="    curl -X GET -HAccept:text/plain ${os.hostname}:8330/knowledgeService/kbase/content       :   view contents of kbase" />
