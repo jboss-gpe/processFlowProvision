@@ -39,19 +39,33 @@ public class MessagingUtil {
     private static Logger log = Logger.getLogger("MessagingUtil");
     private static boolean isHornetqInVm = true;
 
+    
+    // 22 Feb 2013
+    // all lookups for ConnectionFactory (both in an OSE and non OSE environment should be to local JNDI
     public static ConnectionFactory grabConnectionFactory() throws Exception {
-        return (ConnectionFactory)grabJMSObject(CONNECTION_FACTORY_JNDI_NAME);
+    	Context jndiContext = null;
+    	try {
+    		jndiContext = new InitialContext();
+    		return (ConnectionFactory)jndiContext.lookup(CONNECTION_FACTORY_JNDI_NAME);
+    	}finally {
+    		if(jndiContext != null)
+                jndiContext.close();
+    	}
     }
 
+    // 22 Feb 2013
+    // until i can figure out how to bind to local jndi a reference to a remote destination, all lookups for destinations will be to that remote hornetq broker
     public static Object grabJMSObject(String jndiName) throws Exception {
         Context jndiContext = null;
+        String jbossRemotingHostName = null;
+        String jbossRemotingPort = null;
         try {
         	isHornetqInVm = Boolean.parseBoolean(System.getProperty(IS_HORNETQ_INVM, Boolean.TRUE.toString()));
             if(!isHornetqInVm) {
-                String jbossRemotingHostName = System.getProperty(JBOSS_REMOTING_HOST_NAME);
+                jbossRemotingHostName = System.getProperty(JBOSS_REMOTING_HOST_NAME);
                 if(jbossRemotingHostName == null)
                     throw new RuntimeException("grabJMSObject() system property not set : "+JBOSS_REMOTING_HOST_NAME);
-                String jbossRemotingPort = System.getProperty(JBOSS_REMOTING_PORT);
+                jbossRemotingPort = System.getProperty(JBOSS_REMOTING_PORT);
                 if(jbossRemotingPort == null)
                     throw new RuntimeException("grabJMSObject() system property not set : "+JBOSS_REMOTING_PORT);
 
@@ -63,6 +77,9 @@ public class MessagingUtil {
                 jndiContext = new InitialContext();
             }
             return jndiContext.lookup(jndiName);
+        } catch(javax.naming.NamingException x){
+        	log.error("grabJMSObject() isHornetqInVm="+isHornetqInVm+" : remotingHostName="+jbossRemotingHostName+" : remotingPort="+jbossRemotingPort+" : jndiName="+jndiName);
+        	throw x;
         } finally {
             if(jndiContext != null)
                 jndiContext.close();
