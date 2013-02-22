@@ -6,6 +6,15 @@ echo "** inside pre_start_jbosseap-6.0 "
 export JAVA_OPTS="-client -Xmx664m -XX:MaxPermSize=256m -XX:+AggressiveOpts -Dorg.jboss.resolver.warning=true -Djava.net.preferIPv4Stack=true -Dfile.encoding=UTF-8 -Djava.net.preferIPv4Stack=true -Djboss.node.name=${OPENSHIFT_GEAR_DNS} -Djgroups.bind_addr=${OPENSHIFT_INTERNAL_IP}"
 export JBOSS_MODULEPATH_ADD=$JBOSS_MODULEPATH:$HOME/${openshift.jboss.cartridge.type}/tmp/pfpModules:$HOME/${openshift.jboss.cartridge.type}/tmp/gpseModules
 
+killExistingJavaProcesses() {
+    for jProc in `ps -C java -o pid=`;
+    do
+        echo -en "about to kill java process id = $jProc\n"
+        kill -9 $jProc
+    done
+}
+
+
 cleanRuntime() {
     if [ -e $HOME/${openshift.jboss.cartridge.type}/${openshift.jboss.cartridge.type}/standalone/log/server.log ]
     then
@@ -36,5 +45,6 @@ createSoftLinksToWebArchives() {
     touch ${guvnor.name}.dodeploy
 }
 
+killExistingJavaProcesses
 cleanRuntime
 createSoftLinksToWebArchives

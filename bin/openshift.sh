@@ -271,9 +271,26 @@ bounceMultipleKBase() {
     done
 }
 
+printDigResults() {
+    if [ "x$osAccountDetailsFileLocation" = "x" ]; then
+        osAccountDetailsFileLocation=$HOME/redhat/openshift/openshift_account_details.xml
+    fi
+    t=1
+    echo -en "dig results as follows:\n\n\n" > dig_results.txt
+    for git_url in `xmlstarlet sel -t -n -m '//openshiftAccounts/account[*]/pfpCore' -v 'git_url' -n $osAccountDetailsFileLocation`; 
+    do 
+        git_url=${git_url:39}
+        totalLength=${#git_url}
+        urlLength=$(($totalLength-19))
+        git_url=${git_url:0:$urlLength}
+        echo -en "git_url = $git_url\n"
+        echo -en "git_url = $git_url\n" >> dig_results.txt
+        dig +short $git_url >> dig_results.txt
+        echo -en "\n\n" >> dig_results.txt
+    done
+}
+
 executeCommandsAcrossAllAccounts() {
-    reloadUri="knowledgeService/kbase"
-    getContentUri="knowledgeService/kbase/content"
     if [ "x$osAccountDetailsFileLocation" = "x" ]; then
         osAccountDetailsFileLocation=$HOME/redhat/openshift/openshift_account_details.xml
     fi
@@ -305,10 +322,10 @@ executeCommandsAcrossAllAccounts() {
 
 
 case "$1" in
-    startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|provisionAccountsWithPFP|bounceMultipleAccounts|bounceMultipleKBase|executeCommandsAcrossAllAccounts)
+    startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|provisionAccountsWithPFP|bounceMultipleAccounts|bounceMultipleKBase|executeCommandsAcrossAllAccounts|printDigResults)
         $1
         ;;
     *)
-    echo 1>&2 $"Usage: $0 {startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|provisionAccountsWithPFP|bounceMultipleAccounts|bounceMultipleKBase|executeCommandsAcrossAllAccounts}"
+    echo 1>&2 $"Usage: $0 {startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|provisionAccountsWithPFP|bounceMultipleAccounts|bounceMultipleKBase|executeCommandsAcrossAllAccounts|printDigResults}"
     exit 1
 esac

@@ -198,5 +198,11 @@
            <arg value="-remoteDir=/tmp" />
         </exec> 
     </target>
+    <target name="openshift.provision.accounts.with.pfp" description="" >
+        <exec executable="bash" failonerror="true" dir="." >
+           <arg value="${development.base}/bin/openshift.sh"/>
+           <arg value="provisionAccountsWithPFP"/>
+        </exec> 
+    </target>
 
 </project>
