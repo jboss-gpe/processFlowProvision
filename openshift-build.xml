@@ -165,7 +165,7 @@
             <else><echo message="openshiftPrep() found ${jboss.home}" /></else>
         </if>
     </target>
-    <target name="openshift.provision.accounts.with.pfp" description="" >
+    <target name="openshift.provision.accounts.with.brms" description="" >
         <exec executable="bash" failonerror="true" dir="." >
            <arg value="${development.base}/bin/openshift.sh"/>
            <arg value="provisionAccountsWithPFP"/>
