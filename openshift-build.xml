@@ -71,6 +71,29 @@
         </if>
     </target>
 
+    <target name="openshift.provision.brms.webs" >
+        <!-- rsync to exploded web archives to :  ${openshift.jboss.cartridge.type}/tmp/deployments
+            this directory will not get blown away when executing 'git push' on openshift app
+        -->
+        <exec executable="bash" failonerror="true" dir="." >
+           <arg value="${development.base}/bin/openshift.sh"/>
+           <arg value="openshiftRsync"/>
+           <arg value="-localDir=${temp.brmsWebs.dir}/${guvnor.name}/*"/>
+           <arg value="-sshUrl=${openshift.pfpCore.ssh.url}"/>
+           <arg value="-remoteDir=${openshift.jboss.cartridge.type}/tmp/deployments/${guvnor.name}"/>
+           <arg value="-rsyncDelete=true"/>
+        </exec>
+        <exec executable="bash" failonerror="true" dir="." >
+           <arg value="${development.base}/bin/openshift.sh"/>
+           <arg value="openshiftRsync"/>
+           <arg value="-localDir=${temp.brmsWebs.dir}/${designer.name}/*"/>
+           <arg value="-sshUrl=${openshift.pfpCore.ssh.url}"/>
+           <arg value="-remoteDir=${openshift.jboss.cartridge.type}/tmp/deployments/${designer.name}"/>
+           <arg value="-rsyncDelete=true"/>
+        </exec>
+    </target>
+
+
     <target name="openshift.bounce.pfpCore" description="" >
         <antcall target="openshift.stop.jboss" >
             <param name="ssh.url" value="${openshift.pfpCore.ssh.url}"/>
@@ -157,10 +180,7 @@
                 <antcall target="pfp.clean" />
                 <mkdir dir="${install.home}/lib" />
                 <antcall target="clone.jboss" />
-                <antcall target="local.deploy.jboss.modules" />
-                <antcall target="addUserRoleConfigs" >
-                    <param name="config.path" value="${jboss.home}/${jboss.domain.base.dir}/configuration" />
-                </antcall>
+                <antcall target="configure.jboss.modules" />
             </then>
             <else><echo message="openshiftPrep() found ${jboss.home}" /></else>
         </if>
