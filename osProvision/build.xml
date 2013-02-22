@@ -19,7 +19,7 @@
         </java>
     </target>
 
-    <target name="openshiftPrep" depends="setClasspath" >
+    <target name="openshiftPrep" depends="setClasspath,openshift.provision.prep" >
         <var name="subproject.name" value="osProvision" />
         <var name="subproject.build" value="${subproject.name}/target" />
         <path id="sub.classpath" >
@@ -29,7 +29,6 @@
 
         <!--property name="openshift.cp" refid="sub.classpath" />
         <echo message="sub.classpath = ${openshift.cp}" / --> 
-
     </target>
     <target name="openshiftClean" depends="openshiftPrep" >
         <delete dir="${subproject.build}" />

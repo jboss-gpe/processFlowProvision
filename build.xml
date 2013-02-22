@@ -548,9 +548,14 @@
         <copy todir="${pfp.module.path}" overwrite="true" >
             <fileset dir="${temp.jboss.dir}/pfpModules" />
         </copy>
-        <antcall target="configure.sy.modules" >
-            <param name="non.openshift.environment" value="true"/>
-        </antcall>
+        <if>
+            <equals arg1="${org.jboss.processFlow.provision.switchyard}" arg2="true" />
+            <then>
+                    <antcall target="configure.sy.modules" >
+                        <param name="non.openshift.environment" value="true"/>
+                    </antcall>
+            </then>
+        </if>
     </target>
 
     <target name="resolve.droolsjbpm.dependencies" >

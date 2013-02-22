@@ -196,8 +196,6 @@ provisionAccountsWithPFP() {
     checkLocalJDKVersion
 
     cd $JBOSS_PROJECTS/processFlowProvision
-    ant pfp.clean
-    ant configure.jboss.modules
 
     if [ "x$osAccountDetailsFileLocation" = "x" ]; then
         osAccountDetailsFileLocation=$HOME/redhat/openshift/openshift_account_details.xml

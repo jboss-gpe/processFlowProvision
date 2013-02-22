@@ -109,6 +109,7 @@ public class ShifterProvisioner {
     public static final String OPENSHIFT_BRMS_WEBS_APP_SIZE="openshift.brmsWebs.app.size";
     public static final String OPENSHIFT_PFP_CORE_APP_SIZE="openshift.pfpCore.app.size";
     public static final String OPENSHIFT_PFP_CORE_SCALED_APP="openshift.pfpCore.scaled.app";
+    public static final String OPENSHIFT_APPEND_DATE_TO_ACCOUNT_DETAILS_FILE="openshift.append.date.to.account.details.file";
     public static final String ACCOUNT_ID = "accountId";
     public static final String PASSWORD = "password";
     public static final String DOMAIN_ID = "domain_id";
@@ -168,6 +169,7 @@ public class ShifterProvisioner {
     private static NodeList accountsList =null;
     private static XPathExpression findPFPExpression = null;
     private static XPathExpression findBRMSWebsExpression = null;
+    private static boolean appendDateToAccountDetailsFiles=false;
 
     public static void main(String args[] ) throws Exception{
         RegisterBuiltin.register(ResteasyProviderFactory.getInstance());
@@ -211,7 +213,9 @@ public class ShifterProvisioner {
         DateFormat dFormat = new SimpleDateFormat("MM-dd-yyyy");
 
         DOMSource source = new DOMSource(accountDetailsDoc);
-        File xmlFile = new File(openshiftAccountDetailsFile+"."+dFormat.format(new Date()));
+        if(appendDateToAccountDetailsFiles)
+            openshiftAccountDetailsFile = openshiftAccountDetailsFile+"."+dFormat.format(new Date());
+        File xmlFile = new File(openshiftAccountDetailsFile);
         FileOutputStream foStream = new FileOutputStream(xmlFile);
         StreamResult result = new StreamResult(foStream);
         transformer.transform(source, result);
@@ -644,6 +648,8 @@ public class ShifterProvisioner {
         if(props.getProperty(DUMP_RESPONSE_TO_FILE) != null)
             dumpResponseToFile = Boolean.parseBoolean(props.getProperty(DUMP_RESPONSE_TO_FILE));
 
+        appendDateToAccountDetailsFiles = Boolean.parseBoolean(props.getProperty(OPENSHIFT_APPEND_DATE_TO_ACCOUNT_DETAILS_FILE, "false"));
+
         StringBuilder sBuilder = new StringBuilder("setProps() props = ");
         sBuilder.append("\n\topenshiftRestURI = "+openshiftRestURI);
         sBuilder.append("\n\tpenshiftAccountDetailsFile = "+openshiftAccountDetailsFile);
@@ -656,6 +662,7 @@ public class ShifterProvisioner {
         sBuilder.append("\n\topenshiftPfpCoreScaledApp = "+openshiftPfpCoreScaledApp);
         sBuilder.append("\n\tdumpResponseToFile = "+dumpResponseToFile);
         sBuilder.append("\n\topenshift.dump.dir = "+openshiftDumpDir);
+        sBuilder.append("\n\tappendDateToAccountDetailsFiles = "+appendDateToAccountDetailsFiles);
         log.info(sBuilder.toString());
     }
 }

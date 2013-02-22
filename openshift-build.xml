@@ -10,7 +10,7 @@
         pass following parameters to this target :
         1)  bounce.servers  :   optional 
     -->
-    <target name="openshift.provision.pfp.core" >
+    <target name="openshift.provision.pfp.core" depends="openshift.provision.prep" >
         <delete dir="${openshift.pfpCore.app.location}" />
         <mkdir dir="${openshift.app.dir}" />
         <exec executable="git" failonerror="true" >
@@ -71,42 +71,12 @@
         </if>
     </target>
 
-    <target name="openshift.provision.brms.webs" >
-        <!-- rsync to exploded web archives to :  ${openshift.jboss.cartridge.type}/tmp/deployments
-            this directory will not get blown away when executing 'git push' on openshift app
-        -->
-        <exec executable="bash" failonerror="true" dir="." >
-           <arg value="${development.base}/bin/openshift.sh"/>
-           <arg value="openshiftRsync"/>
-           <arg value="-localDir=${temp.brmsWebs.dir}/${guvnor.name}/*"/>
-           <arg value="-sshUrl=${openshift.pfpCore.ssh.url}"/>
-           <arg value="-remoteDir=${openshift.jboss.cartridge.type}/tmp/deployments/${guvnor.name}"/>
-           <arg value="-rsyncDelete=true"/>
-        </exec> 
-        <exec executable="bash" failonerror="true" dir="." >
-           <arg value="${development.base}/bin/openshift.sh"/>
-           <arg value="openshiftRsync"/>
-           <arg value="-localDir=${temp.brmsWebs.dir}/${designer.name}/*"/>
-           <arg value="-sshUrl=${openshift.pfpCore.ssh.url}"/>
-           <arg value="-remoteDir=${openshift.jboss.cartridge.type}/tmp/deployments/${designer.name}"/>
-           <arg value="-rsyncDelete=true"/>
-        </exec> 
-    </target>
-
     <target name="openshift.bounce.pfpCore" description="" >
         <antcall target="openshift.stop.jboss" >
             <param name="ssh.url" value="${openshift.pfpCore.ssh.url}"/>
         </antcall>
         <antcall target="openshift.start.jboss" >
             <param name="ssh.url" value="${openshift.pfpCore.ssh.url}"/>
-        </antcall>
-    </target>
-    <target name="openshift.bounce.brmsWebs" description="" >
-        <antcall target="openshift.stop.jboss" >
-            <param name="ssh.url" value="${openshift.brmsWebs.ssh.url}"/>
-        </antcall>
-        <antcall target="openshift.start.jboss" >
-            <param name="ssh.url" value="${openshift.brmsWebs.ssh.url}"/>
         </antcall>
     </target>
 
@@ -127,27 +97,6 @@
         </exec> 
     </target>
 
-    <target name="openshift.deploy.brms.webs" >
-        <fail unless="ssh.url" message="os.deploy.brms.webs:  need to pass 'ssh.url' property" />
-        <fail unless="remote.deployments.dir" message="os.deploy.brms.webs:  need to pass 'remote.deployments.dir' property" />
-        <antcall target="create.brms.webs" />
-        <exec executable="bash" failonerror="true" dir="." >
-           <arg value="${development.base}/bin/openshift.sh"/>
-           <arg value="copyFileToRemote"/>
-           <arg value="-sshUrl=${ssh.url}"/>
-           <arg value="-localDir=${temp.deployments.dir}"/>
-           <arg value="-file=${designer.name}"/>
-           <arg value="-remoteDir=${remote.deployments.dir}"/>
-        </exec> 
-        <exec executable="bash" failonerror="true" dir="." >
-           <arg value="${development.base}/bin/openshift.sh"/>
-           <arg value="copyFileToRemote"/>
-           <arg value="-sshUrl=${ssh.url}"/>
-           <arg value="-localDir=${temp.deployments.dir}"/>
-           <arg value="-file=${guvnor.name}"/>
-           <arg value="-remoteDir=${remote.deployments.dir}"/>
-        </exec> 
-    </target>
     <target name="openshift.refreshGuvnor" >
         <fail unless="ssh.url" message="os.refreshGuvnor:  need to pass 'ssh.url' property" />
         <fail unless="os.data.dir" message="os.refreshGuvnor:  need to pass 'os.data.dir' property" />
@@ -197,6 +146,24 @@
            <arg value="-file=processFlowProvision.sql" />
            <arg value="-remoteDir=/tmp" />
         </exec> 
+    </target>
+    <target name="openshift.provision.prep" >
+        <if>
+            <not><available file="${jboss.home}" type="dir" /></not>
+            <then>
+                <antcall target="unzip.brms.deployable" />
+                <antcall target="apply.BZ887847" />
+                <antcall target="local.stop.master"  />
+                <antcall target="pfp.clean" />
+                <mkdir dir="${install.home}/lib" />
+                <antcall target="clone.jboss" />
+                <antcall target="local.deploy.jboss.modules" />
+                <antcall target="addUserRoleConfigs" >
+                    <param name="config.path" value="${jboss.home}/${jboss.domain.base.dir}/configuration" />
+                </antcall>
+            </then>
+            <else><echo message="openshiftPrep() found ${jboss.home}" /></else>
+        </if>
     </target>
     <target name="openshift.provision.accounts.with.pfp" description="" >
         <exec executable="bash" failonerror="true" dir="." >
