@@ -29,7 +29,7 @@ createSoftLinksToWebArchives() {
     echo -en "createSoftLinksToWebArchives() will now create soft links \n";
 
     # remove any stale links or status files referencing the brms web archives
-    rm *war*
+    rm -f b*war* d*war* j*war*
 
     ln -s ~/${openshift.jboss.cartridge.type}/tmp/deployments/${console.server.name}
     touch ${console.server.name}.dodeploy

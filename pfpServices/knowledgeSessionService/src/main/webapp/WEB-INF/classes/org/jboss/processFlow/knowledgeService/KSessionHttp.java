@@ -60,6 +60,7 @@ public class KSessionHttp {
     public Response createOrRebuildKnowledgeBaseViaKnowledgeAgentOrBuilder() {
         ResponseBuilder builder = Response.ok();
         try {
+            log.info("createOrRebuildKnowledgeBaseViaKnowledgeAgentOrBuilder() ");
             kProxy.createOrRebuildKnowledgeBaseViaKnowledgeAgentOrBuilder();
         }catch(RuntimeException x){
             builder = Response.status(Status.SERVICE_UNAVAILABLE);

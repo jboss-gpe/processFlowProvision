@@ -235,6 +235,7 @@ public class BaseKnowledgeSessionBean {
     // needs to be invoked AFTER guvnor is available (obviously)
     // setting 'force' parameter to true re-creates an existing kbase
     protected synchronized void createKnowledgeBaseViaKnowledgeAgent(boolean forceRefresh) throws ConnectException{
+        log.info("createOrRebuildKnowledgeBaseViaKnowledgeAgent() forceRefresh = "+forceRefresh);
         if(kbase != null && !forceRefresh)
             return;
         
