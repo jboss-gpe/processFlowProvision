@@ -309,6 +309,7 @@ public class BaseKnowledgeSessionBean {
             - a knowledge base is also serializable, allowing for it to be stored
         */
         kbase = kagent.getKnowledgeBase();
+        log.info("createKnowledgeBaseViaKnowledgeAgent() just refreshed kBase via knowledgeAgent");
     }
     
     /*
