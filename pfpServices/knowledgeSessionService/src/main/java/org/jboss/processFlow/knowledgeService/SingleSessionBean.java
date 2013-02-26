@@ -99,7 +99,6 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
     public void start() throws Exception {
         if(System.getProperty("org.jboss.processFlow.drools.resource.scanner.interval") != null)
             droolsResourceScannerInterval = System.getProperty("org.jboss.processFlow.drools.resource.scanner.interval");
-        log.info("start() drools guvnor scanner interval = "+droolsResourceScannerInterval);
 
         taskCleanUpImpl = System.getProperty(IKnowledgeSessionService.TASK_CLEAN_UP_PROCESS_EVENT_LISTENER_IMPL);
 
@@ -111,7 +110,10 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
         ksconfigProperties.put("drools.processInstanceManagerFactory", "org.jbpm.persistence.processinstance.JPAProcessInstanceManagerFactory");
         ksconfigProperties.setProperty( "drools.workItemManagerFactory", JPAWorkItemManagerFactory.class.getName() );
         ksconfigProperties.put("drools.processSignalManagerFactory", "org.jbpm.persistence.processinstance.JPASignalManagerFactory");
-        ksconfigProperties.setProperty( "drools.timerService", JpaJDKTimerService.class.getName() );
+
+        String timerService = System.getProperty("drools.timerService", JpaJDKTimerService.class.getName());
+        ksconfigProperties.setProperty( "drools.timerService", timerService);
+        log.info("start() drools guvnor scanner interval = "+droolsResourceScannerInterval+" : timerService = "+timerService);
 
         guvnorUtils = new GuvnorConnectionUtils();
 

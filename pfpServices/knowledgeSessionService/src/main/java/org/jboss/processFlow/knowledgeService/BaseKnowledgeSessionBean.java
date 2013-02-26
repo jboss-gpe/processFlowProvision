@@ -712,7 +712,7 @@ public class BaseKnowledgeSessionBean {
         // 2) very important that a unique 'Environment' is created per StatefulKnowledgeSession
         Environment ksEnv = createKnowledgeSessionEnvironment();
 
-        // Nick: always instantiate new ksconfig to make it threadlocal bo bapass the ConcurrentModificationExcepotion
+        // Nick: always instantiate new ksconfig to make it threadlocal to bypass the ConcurrentModificationExcepotion
         KnowledgeSessionConfiguration ksConfig = KnowledgeBaseFactory.newKnowledgeSessionConfiguration(ksconfigProperties);
 
         // 3) instantiate StatefulKnowledgeSession
