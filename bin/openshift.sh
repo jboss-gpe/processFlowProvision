@@ -190,8 +190,11 @@ checkLocalJDKVersion() {
     fi
 }
 
+# iterates through accounts in ${openshift.account.details.file.location}, and sets appropriate RSA public key and namespace on each account
+setRSAkeyAndNamespaceOnAccounts() {
+}
 
-# loops through accounts in ${openshift.account.details.file.location}, creates an Ant property file invokes the 'openshift.provision.both' target
+# iterates through accounts in ${openshift.account.details.file.location}, creates an Ant property file invokes the 'openshift.provision.both' target
 provisionAccountsWithPFP() {
     checkLocalJDKVersion
 
@@ -218,7 +221,7 @@ provisionAccountsWithPFP() {
         # will now set 'is.deployment.local' to false .... this property will only exist in an openshift deployment
         echo -n "is.deployment.local=false" >> target/openshiftAccount.properties
 
-        ant openshift.provision.pfp.core -Dbounce.servers=false
+        # ant openshift.provision.pfp.core -Dbounce.servers=false
         ((t++))
 
         cd $JBOSS_PROJECTS/workshops/BusinessLogicDevelopmentWorkshop/BLDW-openshift-provision
@@ -320,10 +323,10 @@ executeCommandsAcrossAllAccounts() {
 
 
 case "$1" in
-    startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|provisionAccountsWithPFP|bounceMultipleAccounts|bounceMultipleKBase|executeCommandsAcrossAllAccounts|printDigResults)
+    startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|setRSAkeyAndNamespaceOnAccounts|provisionAccountsWithPFP|bounceMultipleAccounts|bounceMultipleKBase|executeCommandsAcrossAllAccounts|printDigResults)
         $1
         ;;
     *)
-    echo 1>&2 $"Usage: $0 {startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|provisionAccountsWithPFP|bounceMultipleAccounts|bounceMultipleKBase|executeCommandsAcrossAllAccounts|printDigResults}"
+    echo 1>&2 $"Usage: $0 {startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|setRSAkeyAndNamespaceOnAccounts|provisionAccountsWithPFP|bounceMultipleAccounts|bounceMultipleKBase|executeCommandsAcrossAllAccounts|printDigResults}"
     exit 1
 esac
