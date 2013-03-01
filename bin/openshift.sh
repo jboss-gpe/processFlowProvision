@@ -54,6 +54,9 @@ do
         -rsyncDelete=*)
             rsyncDelete=`echo $var | cut -f2 -d\=`
             ;;
+        -rsaPublicKeyPath=*)
+            rsaPublicKeyPath=`echo $var | cut -f2 -d\=`
+            ;;
     esac
 done
 
@@ -191,8 +194,30 @@ checkLocalJDKVersion() {
 }
 
 # iterates through accounts in ${openshift.account.details.file.location}, and sets appropriate RSA public key and namespace on each account
+# usage example:
+#   ./bin/openshift.sh setRSAkeyAndNamespaceOnAccounts -rsaPublicKeyPath=/home/jbride/.ssh/os_training.pub   
+#
+# note: if failures occur (for whatever reason), function will simply iterate to next account listed in ${openshift.account.details.file.location}
 setRSAkeyAndNamespaceOnAccounts() {
-    checkLocalJDKVersion
+    
+    echo -en "\nsetRSAkeyAndNamespaceOnAccounts() -rsaPublicKeyPath = $rsaPublicKeyPath\n"; 
+    cd $JBOSS_PROJECTS/processFlowProvision
+
+    if [ "x$osAccountDetailsFileLocation" = "x" ]; then
+        osAccountDetailsFileLocation=$HOME/redhat/openshift/openshift_account_details.xml
+    fi
+    echo openshift.account.details.file.location = $osAccountDetailsFileLocation
+    t=1
+    for domainId in `xmlstarlet sel -t -n -m '//openshiftAccounts/account' -v 'domainId' -n $osAccountDetailsFileLocation`; 
+    do
+        eval accountId=\"`xmlstarlet sel -t -n -m '//openshiftAccounts/account['$t']' -v 'accountId' -n $osAccountDetailsFileLocation` \"
+        eval password=\"`xmlstarlet sel -t -n -m '//openshiftAccounts/account['$t']' -v 'password' -n $osAccountDetailsFileLocation` \"
+        echo -en "\naccountId = $accountId \t:password = $password\t: domainId = $domainId\n"; 
+        ((t++))
+        rhc sshkey add bldw $rsaPublicKeyPath -l $accountId -p $password
+
+        rhc domain create $domainId -l $accountId -p $password
+    done
 }
 
 # iterates through accounts in ${openshift.account.details.file.location}, creates an Ant property file invokes the 'openshift.provision.both' target
@@ -246,7 +271,6 @@ bounceMultipleAccounts() {
         eval accountId=\"`xmlstarlet sel -t -n -m '//openshiftAccounts/account['$t']' -v 'accountId' -n $osAccountDetailsFileLocation` \"
         eval password=\"`xmlstarlet sel -t -n -m '//openshiftAccounts/account['$t']' -v 'password' -n $osAccountDetailsFileLocation` \"
         echo -en "\naccountId = $accountId \t:password = $password\n"; 
-        rhc app restart -a brmsWebs -l $accountId -p $password
         rhc app restart -a pfpCore -l $accountId -p $password
         ((t++))
     done

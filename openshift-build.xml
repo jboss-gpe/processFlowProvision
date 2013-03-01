@@ -192,4 +192,12 @@
         </exec> 
     </target>
 
+    <target name="openshift.set.RSA.key.and.namespace.on.accounts" description="" >
+        <exec executable="bash" failonerror="true" dir="." >
+           <arg value="${development.base}/bin/openshift.sh"/>
+           <arg value="setRSAkeyAndNamespaceOnAccounts"/>
+           <arg value="-rsaPublicKeyPath=${rsa.public.key.path}"/>
+        </exec> 
+    </target>
+
 </project>
