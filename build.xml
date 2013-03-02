@@ -173,7 +173,7 @@
     </target>
 
     <!-- re-create guvnor filesystem and copy over repository.xml -->
-    <target name="local.refresh.guvnor" description="" >
+    <target name="local.refresh.guvnor" >
         <delete dir="${local.guvnor.repo.location}" />
         <mkdir dir="${local.guvnor.repo.location}" />
     </target>
@@ -385,7 +385,7 @@
     </target>
 
     <!-- Install Eclipse plugins -->
-    <target name="local.install.drools-eclipse.into.eclipse" description="">
+    <target name="local.install.drools-eclipse.into.eclipse" >
         <get src="${drools.eclipse.url}" dest="${install.home}/lib/org.drools.updatesite-${drools.eclipse.version}-assembly.zip"  skipexisting="true" />
         <mkdir dir="${eclipse.home}/drools-update-site"/>
         <unzip src="${install.home}/lib/org.drools.updatesite-${drools.eclipse.version}-assembly.zip" dest="${eclipse.home}/drools-update-site" />
@@ -596,7 +596,7 @@
         1) org.jboss.processFlow.provision.pfpCore
         2) refresh.master (optional)
     -->
-    <target name="local.provision.pfp.core" description="if domain is not already running and/or needs to be refreshed :  -Drefresh.master=true ">
+    <target name="local.provision.pfp.core">
         <if>
             <equals arg1="${org.jboss.processFlow.provision.pfpCore}" arg2="true" />
             <then>
@@ -647,7 +647,7 @@
         1) org.jboss.processFlow.provision.switchyard
         2) refresh.master (optional)
     -->
-    <target name="local.provision.switchyard" description="if domain is not already running and/or needs to be refreshed :  -Drefresh.master=true ">
+    <target name="local.provision.switchyard">
         <if>
             <equals arg1="${org.jboss.processFlow.provision.switchyard}" arg2="true" />
             <then>
@@ -692,7 +692,7 @@
         1) org.jboss.processFlow.provision.brmsWebs (optional)
         2) refresh.master (optional)
     -->
-    <target name="local.provision.brms.webs" description="if domain is not already running and/or needs to be refreshed :  -Drefresh.master=true ">
+    <target name="local.provision.brms.webs">
         <if>
             <equals arg1="${org.jboss.processFlow.provision.brmsWebs}" arg2="true" />
             <then>
@@ -836,7 +836,7 @@
         <echo message="    curl -X GET -HAccept:text/plain ${os.hostname}:8330/knowledgeService/workItemHandlers    :   view all registerd workItemHandlers with kSessions" />
         
     </target>
-    <target name="pfp.distro" depends="" description="" >
+    <target name="pfp.distro" depends="" >
         <property name="distro.name" value="processFlow-bin-${brms.major.version}-${brms.minor.version}" />
         <property name="base.name" value="processFlowProvision" />
 

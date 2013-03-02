@@ -86,7 +86,7 @@
 
 
 
-    <target name="print.classpath" description="" depends="setClasspath" >
+    <target name="pfp.print.classpath" description="" depends="setClasspath" >
         <pathconvert pathsep="${line.separator}|   |-- "
              property="echo.classpath"
              refid="classpath">

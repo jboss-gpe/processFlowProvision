@@ -10,7 +10,7 @@
             <classpath refid="sub.classpath"/>
         </java>
     </target>
-    <target name="openshift.json.parser" depends="openshiftCompile" description="">
+    <target name="openshift.json.parser" depends="openshiftCompile" >
         <java fork="yes" classname="org.jboss.processFlow.openshift.JsonParser" failonerror="true">
             <sysproperty key="log4j.configuration" value="file:conf/test/log4j.xml" />
             <sysproperty key="openshift.account.details.file.location" value="${openshift.account.details.file.location}.test" />
