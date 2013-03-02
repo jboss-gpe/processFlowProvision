@@ -9,6 +9,7 @@ batch
 
 # turn off security since usually brokers are already on secure network
 /profile=full-ha/subsystem=messaging/hornetq-server=default/:write-attribute(name=security-enabled,value=false)
+/profile=full-ha/subsystem=messaging/hornetq-server=default/:write-attribute(name=persistence-enabled,value=${message.persistence.enabled})
 
 # 10 May 2012:  clebert> jbride_:  in terms of :
 #        journal-directory
