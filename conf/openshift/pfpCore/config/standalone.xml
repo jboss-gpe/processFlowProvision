@@ -49,7 +49,7 @@
             <property name="org.jboss.processFlow.drools.resource.scanner.interval" value="${org.jboss.processFlow.drools.resource.scanner.interval}"/>
             <property name="org.jboss.processFlow.bam.queue" value="${org.jboss.processFlow.bam.queue}"/>
             <property name="org.jboss.processFlow.messagingProvider" value="${org.jboss.processFlow.messagingProvider}"/>
-            <!--property name="hibernate.hbm2ddl.auto" value="${hibernate.hbm2ddl.auto}"/ -->
+            <property name="hibernate.hbm2ddl.auto" value="${hibernate.hbm2ddl.auto}"/>
             <property name="hibernate.jdbc.batch_size" value="${hibernate.jdbc.batch_size}"/>
             <property name="hibernate.cache.use_second_level_cache" value="${hibernate.cache.use_second_level_cache}"/>
             <property name="hibernate.dialect" value="${hibernate.dialect}"/>
