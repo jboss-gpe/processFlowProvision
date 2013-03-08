@@ -43,14 +43,14 @@ public class MessagingUtil {
     // 22 Feb 2013
     // all lookups for ConnectionFactory (both in an OSE and non OSE environment should be to local JNDI
     public static ConnectionFactory grabConnectionFactory() throws Exception {
-    	Context jndiContext = null;
-    	try {
-    		jndiContext = new InitialContext();
-    		return (ConnectionFactory)jndiContext.lookup(CONNECTION_FACTORY_JNDI_NAME);
-    	}finally {
-    		if(jndiContext != null)
+        Context jndiContext = null;
+        try {
+            jndiContext = new InitialContext();
+            return (ConnectionFactory)jndiContext.lookup(CONNECTION_FACTORY_JNDI_NAME);
+        }finally {
+            if(jndiContext != null)
                 jndiContext.close();
-    	}
+        }
     }
 
     // 22 Feb 2013
@@ -60,7 +60,7 @@ public class MessagingUtil {
         String jbossRemotingHostName = null;
         String jbossRemotingPort = null;
         try {
-        	isHornetqInVm = Boolean.parseBoolean(System.getProperty(IS_HORNETQ_INVM, Boolean.TRUE.toString()));
+            isHornetqInVm = Boolean.parseBoolean(System.getProperty(IS_HORNETQ_INVM, Boolean.TRUE.toString()));
             if(!isHornetqInVm) {
                 jbossRemotingHostName = System.getProperty(JBOSS_REMOTING_HOST_NAME);
                 if(jbossRemotingHostName == null)
@@ -78,8 +78,8 @@ public class MessagingUtil {
             }
             return jndiContext.lookup(jndiName);
         } catch(javax.naming.NamingException x){
-        	log.error("grabJMSObject() isHornetqInVm="+isHornetqInVm+" : remotingHostName="+jbossRemotingHostName+" : remotingPort="+jbossRemotingPort+" : jndiName="+jndiName);
-        	throw x;
+            log.error("grabJMSObject() isHornetqInVm="+isHornetqInVm+" : remotingHostName="+jbossRemotingHostName+" : remotingPort="+jbossRemotingPort+" : jndiName="+jndiName);
+            throw x;
         } finally {
             if(jndiContext != null)
                 jndiContext.close();

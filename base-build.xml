@@ -104,11 +104,14 @@
             2) generate.java.doc (optional: defaults to false)
             3) include.resources (optional: defaults to true)
             4) project.path.property (optional: defaults to empty)
+            4) src.path (optional: defaults to src/main/java)
     -->
     <target name="jar" depends="setClasspath">
         <fail unless="jar.name" message="jar:  need to pass 'jar.name' property" />
         <mkdir dir="${build.dir}/META-INF" />
-        <javac debug="true" srcdir="src/main/java" destdir="${build.dir}" >
+        <if><not><isset property="src.path"/></not>
+        <then><property name="src.path" value="src/main/java" /></then></if>
+        <javac debug="true" srcdir="${src.path}" destdir="${build.dir}" >
             <classpath refid="classpath" />
         </javac>
         <if>

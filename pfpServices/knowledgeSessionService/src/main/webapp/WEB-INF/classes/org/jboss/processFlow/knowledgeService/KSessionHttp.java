@@ -137,6 +137,34 @@ public class KSessionHttp {
         }
         return builder.build();
     }
+    
+    /**
+     * purpose      : provide a REST API for invoking kSessionService.completeWorkItem(..) that allows for a payload in the HttpRequest body
+     *                business-central-service REST API does not expose an equivalent function
+     * sample usage :
+     *  curl -X PUT -HAccept:text/plain $HOSTNAME:8330/knowledgeService/rs/process/tokens/1/transition?signalType=test
+     *  curl -X PUT -HAccept:text/plain http://pfpcore-jbride0.rhcloud.com/knowledgeService/rs/process/tokens/1/1/complete
+     */
+    @PUT
+    @Path("/rs/process/tokens/{pInstanceId: .*}/{workItemId: .*}/complete")
+    public Response completeWorkItem(@PathParam("pInstanceId")final Long pInstanceId,
+                                @PathParam("workItemId")final Long workItemId,
+                                final String payload
+                                ) {
+        ResponseBuilder builder = Response.ok();
+        try {
+            String[] signalData = payload.split("\\$");
+            Map<String, Object> signalMap = new HashMap<String, Object>();
+            for(int t = 1; t< signalData.length; t++) {
+                signalMap.put(signalData[t], signalData[t+1]);
+                t++;
+            }
+            kProxy.beanManagedCompleteWorkItem(workItemId, signalMap, pInstanceId, null);
+        }catch(RuntimeException x){
+            builder = Response.status(Status.SERVICE_UNAVAILABLE);
+        }
+        return builder.build();
+    }
 
     /**
      * sample usage :
