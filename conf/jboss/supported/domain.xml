@@ -39,6 +39,14 @@
         <!-- IPv4 is not required, but setting this helps avoid unintended use of IPv6 -->
         <property name="java.net.preferIPv4Stack" value="true"/>
     </system-properties>
+
+    <!-- JA Bride -->
+    <paths>
+        <path path="${brick1.path}" name="brick1"/>
+        <path path="${brick2.path}" name="brick2"/>
+        <path path="${brick3.path}" name="brick3"/>
+    </paths>
+
     <profiles>
         <profile name="default">
             <subsystem xmlns="urn:jboss:domain:logging:1.1">
@@ -1461,10 +1469,10 @@
                     <journal-min-files>2</journal-min-files>
 
                     <!-- JA Bride:  apparently can not set the following attributes via CLI since these setting need to be available as the server boots -->
-                    <journal-directory path="${journal.path.relative.to.user.home}" relative-to="user.home" />
-                    <paging-directory path="${paging.path.relative.to.user.home}" relative-to="user.home" />
-                    <large-messages-directory path="${large.messages.path.relative.to.user.home}" relative-to="user.home" />
-                    <bindings-directory path="${binding.path.relative.to.user.home}" relative-to="user.home" />
+                    <journal-directory path="${journal.path.relative.to.brick}" relative-to="brick1" />
+                    <paging-directory path="${paging.path.relative.to.brick}" relative-to="brick2" />
+                    <large-messages-directory path="${large.messages.path.relative.to.brick}" relative-to="brick3" />
+                    <bindings-directory path="${binding.path.relative.to.brick}" relative-to="brick3" />
 
 
                     <connectors>

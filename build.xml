@@ -819,10 +819,10 @@
         <antcall target="apply.BZ887847" />
         <antcall target="refresh.master" />
         <antcall target="refresh.slave.hosts" />
+        <antcall target="local.provision.hornetq" />
         <antcall target="local.provision.brms.webs">
             <param name="refresh.master" value="false"/>
         </antcall>
-        <antcall target="local.provision.hornetq" />
         <antcall target="local.provision.pfp.core">
             <param name="refresh.master" value="false"/>
         </antcall>
