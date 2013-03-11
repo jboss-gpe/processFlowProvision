@@ -37,6 +37,11 @@ public class KSessionHttp {
     IKnowledgeSessionService kProxy;
 
     private Logger log = LoggerFactory.getLogger("KSessionHttp");
+    private boolean enableLog = true;
+
+    public KSessionHttp() {
+        enableLog = Boolean.parseBoolean(System.getProperty("org.jboss.enableLog", "true"));
+    }
     
     /**
      * sample usage :
@@ -131,6 +136,8 @@ public class KSessionHttp {
                 signalMap.put(signalData[t], signalData[t+1]);
                 t++;
             }
+            if(enableLog)
+                log.info("signalEvent() contents of signalMap as follows :\n"+signalMap);
             kProxy.signalEvent(signalType, signalMap, pInstanceId, ksessionId);
         }catch(RuntimeException x){
             builder = Response.status(Status.SERVICE_UNAVAILABLE);
@@ -153,13 +160,15 @@ public class KSessionHttp {
                                 ) {
         ResponseBuilder builder = Response.ok();
         try {
-            String[] signalData = payload.split("\\$");
-            Map<String, Object> signalMap = new HashMap<String, Object>();
-            for(int t = 1; t< signalData.length; t++) {
-                signalMap.put(signalData[t], signalData[t+1]);
+            String[] payloadData = payload.split("\\$");
+            Map<String, Object> payloadMap = new HashMap<String, Object>();
+            for(int t = 1; t< payloadData.length; t++) {
+                payloadMap.put(payloadData[t], payloadData[t+1]);
                 t++;
             }
-            kProxy.beanManagedCompleteWorkItem(workItemId, signalMap, pInstanceId, null);
+            if(enableLog)
+                log.info("completeWorkItem() contents of payloadMap as follows :\n"+payloadMap);
+            kProxy.beanManagedCompleteWorkItem(workItemId, payloadMap, pInstanceId, null);
         }catch(RuntimeException x){
             builder = Response.status(Status.SERVICE_UNAVAILABLE);
         }
