@@ -231,6 +231,10 @@ provisionAccountsWithPFP() {
     fi
     echo openshift.account.details.file.location = $osAccountDetailsFileLocation
     t=1
+
+    # prior to looping, delete osProvision/target to trigger a rebuild of all of PFP
+    rm -rf osProvision/target
+
     echo -en "\n\nprovisionAccountsWithPFP() BEGIN in 5 seconds\n\n"
     sleep 5 
     date1=$(date +"%s")
