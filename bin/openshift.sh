@@ -232,15 +232,24 @@ provisionAccountsWithPFP() {
     echo openshift.account.details.file.location = $osAccountDetailsFileLocation
     t=1
 
-    # prior to looping, delete osProvision/target to trigger a rebuild of all of PFP
-    rm -rf osProvision/target
+    # prior to looping, delete target/pfp/services to trigger a rebuild of all of PFP
+    rm -rf target/pfp/services
 
     echo -en "\n\nprovisionAccountsWithPFP() BEGIN in 5 seconds\n\n"
     sleep 5 
     date1=$(date +"%s")
     for i in `xmlstarlet sel -t -n -m '//openshiftAccounts/account' -v 'domainId' -n $osAccountDetailsFileLocation`; 
     do 
-        echo -en "\n\nprovisionAccountsWithPFP() ***** now provisioning: $i\n\n"; 
+        echo -en "\n\nprovisionAccountsWithPFP() ***** now provisioning: $i with brms/pfp :  log can be found in /tmp/$i.log\n\n"; 
+        if ant openshift.provision.pfp.core -Dbounce.servers=false > /tmp/$i.log 2>&1
+        then
+            echo "just provisioned $i with brms/pfp"
+        else
+            echo "ERROR :  please review /tmp/$i.log"
+            exit 1
+        fi
+
+        # create openshiftAccount.properties file used by bldw provisioning
         echo -n "" > target/openshiftAccount.properties
         xmlstarlet sel -t -n -m '//openshiftAccounts/account['$t']' -n \
         -o 'openshift.domain.name=' -v "domainId" -n \
@@ -251,12 +260,17 @@ provisionAccountsWithPFP() {
         # will now set 'is.deployment.local' to false .... this property will only exist in an openshift deployment
         echo -n "is.deployment.local=false" >> target/openshiftAccount.properties
 
-        ant openshift.provision.pfp.core -Dbounce.servers=false
-        ((t++))
-
+        echo -en "\n\nprovisionAccountsWithPFP() ***** now provisioning: $i with bldw :  log can be found in /tmp/$i.bldw.log\n\n"; 
         cd $JBOSS_PROJECTS/workshops/BusinessLogicDevelopmentWorkshop/BLDW-openshift-provision
-        ant
+        if ant > /tmp/$i.bldw.log 2>&1
+        then
+            echo "just provisioned $i with bldw"
+        else
+            echo "ERROR :  please review /tmp/$i.bldw.log"
+            exit 1
+        fi
     	cd $JBOSS_PROJECTS/processFlowProvision
+        ((t++))
     done
 
     date2=$(date +"%s")

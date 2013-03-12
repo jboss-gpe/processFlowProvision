@@ -104,8 +104,9 @@ stop() {
         node=master
     fi
 
-    echo -en $"stopping following jboss node: $node\t: at $hostName:$cliPort\n"
+    echo -en $"stopping following jboss node: $node\t: at $hostName:$cliPort\t : jbossHome = $jbossHome\n"
     cd $jbossHome
+    chmod 755 $jbossHome/bin/*.sh
     ./bin/jboss-cli.sh --connect --controller=$hostName:$cliPort --command=/host=$node:shutdown
     echo
     sleep 3

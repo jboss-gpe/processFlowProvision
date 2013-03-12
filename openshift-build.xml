@@ -172,7 +172,7 @@
     </target>
     <target name="openshift.provision.prep" >
         <if>
-            <not><available file="osProvision/${build.dir}" type="dir" /></not>
+            <not><available file="${temp.pfp.services.dir}" type="dir" /></not>
             <then>
                 <antcall target="unzip.brms.deployable" />
                 <antcall target="apply.BZ887847" />
@@ -182,7 +182,7 @@
                 <antcall target="clone.jboss" />
                 <antcall target="configure.jboss.modules" />
             </then>
-            <else><echo message="openshiftPrep() found osProvision/${build.dir}" /></else>
+            <else><echo message="openshiftPrep() found ${temp.pfp.services.dir} ... no need to rebuild" /></else>
         </if>
     </target>
     <target name="openshift.provision.accounts.with.brms" description="" >
