@@ -122,6 +122,7 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
     private Logger log = Logger.getLogger(SessionPerPInstanceBean.class);
     private AsyncBAMProducerPool bamProducerPool=null;
     private IKnowledgeSessionPool sessionPool;
+    
 /******************************************************************************
  **************        Singleton Lifecycle Management                     *********/
     @PostConstruct
@@ -142,8 +143,7 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
 
         String timerService = System.getProperty("drools.timerService", JpaJDKTimerService.class.getName());
         ksconfigProperties.setProperty( "drools.timerService", timerService);
-        log.info("start() drools guvnor scanner interval = "+droolsResourceScannerInterval+" : timerService = "+timerService);
-
+        
         guvnorUtils = new GuvnorConnectionUtils();
 
         // instantiate kSession pool
@@ -156,10 +156,10 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
                 sessionPool = new InMemoryKnowledgeSessionPool();
             }
 
-            String logString = System.getProperty("org.jboss.enableLog");
-            if(logString != null)
-                enableLog = Boolean.parseBoolean(logString);
-
+            enableLog = Boolean.parseBoolean(System.getProperty("org.jboss.enableLog", "TRUE"));
+            kAgentRefreshHours = Integer.parseInt(System.getProperty("org.jboss.processFlow.kAgentRefreshHours", "12"));
+            kAgentMonitor = Boolean.parseBoolean(System.getProperty("org.jboss.processFlow.kAgentMonitor", "TRUE"));
+            
             if(System.getProperty(IKnowledgeSessionService.SPACE_DELIMITED_PROCESS_EVENT_LISTENERS) != null)
                 processEventListeners = System.getProperty(IKnowledgeSessionService.SPACE_DELIMITED_PROCESS_EVENT_LISTENERS).split("\\s");
 
@@ -186,6 +186,20 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
         }catch(Exception x){
             x.printStackTrace();
         }
+        StringBuilder logBuilder = new StringBuilder();
+        logBuilder.append("start() ksession props as follows :\n\tdrools guvnor scanner interval = ");
+        logBuilder.append(droolsResourceScannerInterval);
+        logBuilder.append("\n\ttimerService = ");
+        logBuilder.append(timerService);
+        logBuilder.append("\n\ttaskCleanUpImpl = ");
+        logBuilder.append(taskCleanUpImpl);
+        logBuilder.append("\n\tenableLog = ");
+        logBuilder.append(enableLog);
+        logBuilder.append("\n\tkAgentMonitor = ");
+        logBuilder.append(kAgentMonitor);
+        logBuilder.append("\n\tkAgentRefreshHours = ");
+        logBuilder.append(kAgentRefreshHours);
+        log.info(logBuilder.toString());
     }
   
     @PreDestroy 
@@ -248,9 +262,7 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
         }
         
         //0) initialise knowledge base if it hasn't already been done so
-        if(kbase == null){
-            createKnowledgeBaseViaKnowledgeAgentOrBuilder();
-        }
+        checkKAgentAndBaseHealth();
 
         //1) very important that a unique 'Environment' is created per StatefulKnowledgeSession
         Environment ksEnv = createKnowledgeSessionEnvironment();
@@ -491,7 +503,7 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
             returnMap.put(IKnowledgeSessionService.PROCESS_INSTANCE_STATE, pInstance.getState());
             returnMap.put(IKnowledgeSessionService.KSESSION_ID, ksessionId);
         }catch(Throwable x){
-        	x.printStackTrace();
+            x.printStackTrace();
             rollbackTrnx();
             return null;
         }finally {

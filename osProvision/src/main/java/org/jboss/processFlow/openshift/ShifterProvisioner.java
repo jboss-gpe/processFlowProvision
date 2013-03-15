@@ -233,8 +233,8 @@ public class ShifterProvisioner {
             Node accountNode = accountsList.item(t);
             Node existingChildNode = (Node)findPFPExpression.evaluate(accountNode, XPathConstants.NODE);
             if(existingChildNode != null){
-            	accountNode.removeChild(existingChildNode);
-            	log.info("provisionAccounts() scrubbing existing pfpCore for accountNode = "+accountNode.getChildNodes().item(1).getTextContent());
+                accountNode.removeChild(existingChildNode);
+                log.info("provisionAccounts() scrubbing existing pfpCore for accountNode = "+accountNode.getChildNodes().item(1).getTextContent());
             }
             Runnable shifterProvisioner = new ProvisionerThread(accountNode);
             execObj.execute(shifterProvisioner);

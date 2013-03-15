@@ -161,6 +161,9 @@ public class BaseKnowledgeSessionBean {
 
     protected KnowledgeBase kbase = null;
     protected KnowledgeAgent kagent = null;
+    protected boolean kAgentMonitor = true;
+    protected long lastKAgentRefresh;
+    protected int kAgentRefreshHours = 12;
     protected SystemEventListener originalSystemEventListener = null;
     protected DroolsManagementAgent kmanagement = null;
     protected GuvnorConnectionUtils guvnorUtils = null;
@@ -206,6 +209,16 @@ public class BaseKnowledgeSessionBean {
         return env;
     }
     
+    protected void checkKAgentAndBaseHealth() {
+        long kAgentRefreshLapsedTime = System.currentTimeMillis() - lastKAgentRefresh;
+        long kAgentRefreshMillis = 1000*60*kAgentRefreshHours;
+        if(kbase == null || (kAgentMonitor && (kAgentRefreshLapsedTime > kAgentRefreshMillis))){
+            log.info("checkKAgentAndBaseHealth() will now refresh kbase and kagent.  lapsed time "+kAgentRefreshLapsedTime+" is greater than "+kAgentRefreshMillis);
+            kbase = null;
+            createKnowledgeBaseViaKnowledgeAgentOrBuilder();
+        }
+    }
+    
     public void createKnowledgeBaseViaKnowledgeAgentOrBuilder() {
         try {
             this.createKnowledgeBaseViaKnowledgeAgent();
@@ -219,7 +232,7 @@ public class BaseKnowledgeSessionBean {
         try {
             this.createKnowledgeBaseViaKnowledgeAgent(true);
         }catch(ConnectException x){
-            log.warn("createKnowledgeBaseViaKnowledgeAgentOrBuilder() can not create a kbase via a kagent due to a connection problem with guvnor ... will now create kbase via knowledgeBuilder");
+            log.warn("createOrRebuildKnowledgeBaseViaKnowledgeAgentOrBuilder() can not create a kbase via a kagent due to a connection problem with guvnor ... will now create kbase via knowledgeBuilder");
             rebuildKnowledgeBaseViaKnowledgeBuilder();
         }
     }
@@ -310,6 +323,7 @@ public class BaseKnowledgeSessionBean {
             - a knowledge base is also serializable, allowing for it to be stored
         */
         kbase = kagent.getKnowledgeBase();
+        lastKAgentRefresh = System.currentTimeMillis();
         log.info("createKnowledgeBaseViaKnowledgeAgent() just refreshed kBase via knowledgeAgent");
     }
     
@@ -334,18 +348,23 @@ public class BaseKnowledgeSessionBean {
                 guvnorSBuilder.append(guvnorProps.getProperty(GuvnorConnectionUtils.GUVNOR_SUBDOMAIN_KEY));
                 String guvnorURI = guvnorSBuilder.toString();
                 List<String> packages = guvnorUtils.getPackageNames();
-                for(String pkg : packages){
-                    GuvnorRestApi guvnorRestApi = new GuvnorRestApi(guvnorURI);
-                    try {
-                        InputStream binaryPackage = guvnorRestApi.getBinaryPackage(pkg);
-                        kbuilder.add(new InputStreamResource(binaryPackage), ResourceType.PKG);
-                        guvnorRestApi.close();
-                    } catch(java.io.IOException y) {
-                        log.error("rebuildKnowledgeBaseViaKnowledgeBuilder() returned following exception when querying package = "+pkg+" : "+y);
+                if(packages.size() > 0){
+                    for(String pkg : packages){
+                        GuvnorRestApi guvnorRestApi = new GuvnorRestApi(guvnorURI);
+                        try {
+                            InputStream binaryPackage = guvnorRestApi.getBinaryPackage(pkg);
+                            kbuilder.add(new InputStreamResource(binaryPackage), ResourceType.PKG);
+                            guvnorRestApi.close();
+                        } catch(java.io.IOException y) {
+                            log.error("rebuildKnowledgeBaseViaKnowledgeBuilder() returned following exception when querying package = "+pkg+" : "+y);
+                        }
                     }
-               }
+                }else {
+                    log.warn("rebuildKnowledgeBaseViaKnowledgeBuilder() no packages returned from Guvnor");
+                }
             }
             kbase = kbuilder.newKnowledgeBase();
+            log.info("rebuildKnowledgeBaseViaKnowledgeBuilder() just created kbase via KnowledgeBase");
         }catch(Exception x){
             throw new RuntimeException(x);
         }
@@ -353,8 +372,7 @@ public class BaseKnowledgeSessionBean {
    
     // compile a process into a package and add it to the knowledge base 
     public void addProcessToKnowledgeBase(Process processObj, Resource resourceObj) {
-        if(kbase == null)
-            rebuildKnowledgeBaseViaKnowledgeBuilder();
+        checkKAgentAndBaseHealth();
        
         PackageBuilder packageBuilder = new PackageBuilder();
         ProcessBuilderImpl processBuilder = new ProcessBuilderImpl( packageBuilder );
@@ -363,17 +381,20 @@ public class BaseKnowledgeSessionBean {
         List<KnowledgePackage> kpackages = new ArrayList<KnowledgePackage>();
         kpackages.add( new KnowledgePackageImp( packageBuilder.getPackage() ) );
         kbase.addKnowledgePackages(kpackages);
-        log.info("addProcessToKnowledgeBase() just added the following bpmn2 process definition to the kbase: "+processObj.getId());
+        log.info("addProcessToKnowledgeBase() just added process obj to the kbase with Id : "+processObj.getId());
     }
 
     public void addProcessToKnowledgeBase(File bpmnFile) {
-        if(kbase == null)
-            rebuildKnowledgeBaseViaKnowledgeBuilder();
+        checkKAgentAndBaseHealth();
 
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         kbuilder.add(ResourceFactory.newFileResource(bpmnFile), ResourceType.BPMN2);
         kbase.addKnowledgePackages(kbuilder.getKnowledgePackages());
-        log.info("addProcessToKnowledgeBase() just added the following bpmn2 process definition to the kbase: "+bpmnFile.getName());
+        if( !kbuilder.hasErrors() ) {
+            log.info("addProcessToKnowledgeBase() just added the following bpmn2 process definition to the kbase: "+bpmnFile.getName());
+        } else {
+            log.error("addProcessToKnowledgeBase() following errors occurred when adding bpmn2 process definition : "+bpmnFile.getName()+"\n\t"+kbuilder.getErrors().toString() );
+        }
     }
     
     public String getAllProcessesInPackage(String pkgName) throws ConnectException{
@@ -401,8 +422,7 @@ public class BaseKnowledgeSessionBean {
     }
     
     public String printKnowledgeBaseContent() {
-        if(kbase == null)
-            createKnowledgeBaseViaKnowledgeAgentOrBuilder();
+        checkKAgentAndBaseHealth();
 
         StringBuilder sBuilder = new StringBuilder();
         sBuilder.append("guvnor changesets:\n\t");
@@ -725,9 +745,8 @@ public class BaseKnowledgeSessionBean {
     /******************************************************************************
     *************              Process Definition Management              *********/
         public List<SerializableProcessMetaData> retrieveProcesses() throws Exception {
+            checkKAgentAndBaseHealth();
             List<SerializableProcessMetaData> result = new ArrayList<SerializableProcessMetaData>();
-            if(kbase == null)
-                createKnowledgeBaseViaKnowledgeAgentOrBuilder();
             for (KnowledgePackage kpackage: kbase.getKnowledgePackages()) {
                 for(Process processObj : kpackage.getProcesses()){
                     result.add(getProcess(processObj.getId()));
@@ -738,8 +757,7 @@ public class BaseKnowledgeSessionBean {
         }
 
         public SerializableProcessMetaData getProcess(String processId) {
-            if(kbase == null)
-                createKnowledgeBaseViaKnowledgeAgentOrBuilder();
+            checkKAgentAndBaseHealth();
             Process processObj = kbase.getProcess(processId);
             Long pVersion = 0L;
             if(!StringUtils.isEmpty(processObj.getVersion())) {

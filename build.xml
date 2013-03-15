@@ -56,6 +56,7 @@
                 </if>
             </sequential>
         </for>
+        <sleep seconds="5"/> <!-- sleep 5 seconds in case slave hosts need extra time to start -->
     </target>
 
     <target name="checkServersAndProjectLib">
@@ -578,7 +579,7 @@
         <antcall target="cli.batch">
             <param name="cli.source.dir" value="conf/hornetq/"/>
             <param name="cli.to.filter.and.execute" value="hornetq-config-group.cli"/>
-            <param name="cli.fail.on.error" value="false"/>
+            <param name="cli.fail.on.error" value="true"/>
         </antcall>
         <for list="${org.jboss.eap.host.list}" param="serverIpAddr">
             <sequential>
@@ -586,7 +587,7 @@
                 <antcall target="cli.batch">
                     <param name="cli.source.dir" value="conf/hornetq/"/>
                     <param name="cli.to.filter.and.execute" value="hornetq-config-server.cli"/>
-                    <param name="cli.fail.on.error" value="false"/>
+                    <param name="cli.fail.on.error" value="true"/>
                 </antcall>
             </sequential>
         </for>
@@ -819,10 +820,10 @@
         <antcall target="apply.BZ887847" />
         <antcall target="refresh.master" />
         <antcall target="refresh.slave.hosts" />
-        <antcall target="local.provision.hornetq" />
         <antcall target="local.provision.brms.webs">
             <param name="refresh.master" value="false"/>
         </antcall>
+        <antcall target="local.provision.hornetq" />
         <antcall target="local.provision.pfp.core">
             <param name="refresh.master" value="false"/>
         </antcall>
@@ -831,9 +832,9 @@
         </antcall>
         <antcall target="create.temp.client.dir" />
         <echo message="you may find executing the following will be helpful to diagnose your environment :" />
-        <echo message="    curl -X PUT -HAccept:text/plain ${os.hostname}:8330/knowledgeService/kbase               :   refresh kBase in PFP's kSessionService" />
-        <echo message="    curl -X GET -HAccept:text/plain ${os.hostname}:8330/knowledgeService/kbase/content       :   view contents of kbase" />
-        <echo message="    curl -X GET -HAccept:text/plain ${os.hostname}:8330/knowledgeService/workItemHandlers    :   view all registerd workItemHandlers with kSessions" />
+        <echo message="    curl -v -X PUT -HAccept:text/plain ${os.hostname}:8330/knowledgeService/kbase               :   refresh kBase in PFP's kSessionService" />
+        <echo message="    curl -v -X GET -HAccept:text/plain ${os.hostname}:8330/knowledgeService/kbase/content       :   view contents of kbase" />
+        <echo message="    curl -v -X GET -HAccept:text/plain ${os.hostname}:8330/knowledgeService/workItemHandlers    :   view all registerd workItemHandlers with kSessions" />
         
     </target>
     <target name="pfp.distro" depends="" >

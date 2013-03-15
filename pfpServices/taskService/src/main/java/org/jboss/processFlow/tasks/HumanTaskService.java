@@ -473,7 +473,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
             String userId = ITaskService.ADMINISTRATOR;
             User actualOwner = taskObj.getTaskData().getActualOwner();
             if(actualOwner != null)
-            	userId = actualOwner.getId();
+                userId = actualOwner.getId();
             taskSession.taskOperation(Operation.Skip, taskObj.getId(), userId, null, null, null);
             eventSupport.fireTaskSkipped(taskObj.getId(), userId);
         }catch(RuntimeException x) {

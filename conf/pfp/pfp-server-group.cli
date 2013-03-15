@@ -1,5 +1,9 @@
 batch
 
+/profile=pfpCore/subsystem=datasources/data-source=ExampleDS/:disable
+/profile=pfpCore/subsystem=datasources/data-source=ExampleDS/:remove
+/profile=pfpCore/subsystem=ejb3/:write-attribute(name=enable-statistics,value=true)
+
 ###  TRACE logging of hornetq client
 #/profile=pfpCore/subsystem=logging/logger=org.hornetq.core.client.impl/:add(category=org.hornetq.core.client.impl,level=TRACE,use-parent-handlers=true)
 
@@ -65,6 +69,8 @@ batch
 /server-group=${pfp.core.group}/system-property=org.jboss.processFlow.tasks.DeadlineHandler/:add(value=${org.jboss.processFlow.tasks.DeadlineHandler},boot-time=true)
 /server-group=${pfp.core.group}/system-property=org.jboss.processFlow.tasks.TaskEventListeners/:add(value=${org.jboss.processFlow.tasks.TaskEventListeners},boot-time=true)
 /server-group=${pfp.core.group}/system-property=org.jboss.processFlow.task.enableIntelligentMapping/:add(value=${org.jboss.processFlow.task.enableIntelligentMapping},boot-time=true)
+/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.kAgentMonitor/:add(value=${org.jboss.processFlow.kAgentMonitor},boot-time=true)
+/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.kAgentRefreshHours/:add(value=${org.jboss.processFlow.kAgentRefreshHours},boot-time=true)
 
 /server-group=${pfp.core.group}/system-property=org.jboss.processFlow.KnowledgeSessionPool/:add(value=${org.jboss.processFlow.KnowledgeSessionPool},boot-time=true)
 /server-group=${pfp.core.group}/system-property=org.jboss.processFlow.statefulKnowledge.enableKnowledgeRuntimeLogger/:add(value=${org.jboss.processFlow.statefulKnowledge.enableKnowledgeRuntimeLogger},boot-time=true)

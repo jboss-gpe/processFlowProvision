@@ -19,7 +19,7 @@ public class GeneratePasswordHash {
         String password = System.getProperty(PASSWORD);
         File mgtUsersPropsFile = new File(System.getProperty("MGT_USERS_PROPS_FILE"));
         if(!mgtUsersPropsFile.exists())
-        	throw new RuntimeException("main() following file not found : "+System.getProperty("MGT_USERS_PROPS_FILE"));
+            throw new RuntimeException("main() following file not found : "+System.getProperty("MGT_USERS_PROPS_FILE"));
 
         // given userId and realm, generate a random password and run it through a hash generator 
         String adminHash = new UsernamePasswordHashUtil().generateHashedHexURP(userId, "ManagementRealm", password.toCharArray());

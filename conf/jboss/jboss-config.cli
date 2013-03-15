@@ -2,13 +2,11 @@ batch
 
 /server-group=other-server-group/:remove
 
-/profile=full-ha/subsystem=datasources/data-source=ExampleDS/:disable
-/profile=full-ha/subsystem=datasources/data-source=ExampleDS/:remove
-/profile=full-ha/subsystem=ejb3/:write-attribute(name=enable-statistics,value=true)
-
-# set the periodic-rotating-file-handler log level to TRACE for both profiles used by PFP
+# set the periodic-rotating-file-handler log level to TRACE for all profiles used by PFP
 /profile=default/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=level,value=TRACE)
+/profile=full/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=level,value=TRACE)
 /profile=full-ha/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=level,value=TRACE)
+/profile=pfpCore/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=level,value=TRACE)
 
 
 # trace level logging of org.jboss.modules module
