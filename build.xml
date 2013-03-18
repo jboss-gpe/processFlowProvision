@@ -742,7 +742,7 @@
                     <available file="${build.dir}" type="dir" />
                     <then>
                         <delete includeemptydirs="true">
-                            <fileset dir="${build.dir}" excludes="lib/**/*" />
+                            <fileset dir="${build.dir}" excludes="lib/**/*,openshiftAccount.properties" />
                         </delete>
                     </then>
                 </if>

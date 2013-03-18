@@ -240,15 +240,6 @@ provisionAccountsWithPFP() {
     date1=$(date +"%s")
     for i in `xmlstarlet sel -t -n -m '//openshiftAccounts/account' -v 'domainId' -n $osAccountDetailsFileLocation`; 
     do 
-        echo -en "\n\nprovisionAccountsWithPFP() ***** now provisioning: $i with brms/pfp :  log can be found in /tmp/$i.log\n\n"; 
-        if ant openshift.provision.pfp.core -Dbounce.servers=false > /tmp/$i.log 2>&1
-        then
-            echo "just provisioned $i with brms/pfp"
-        else
-            echo "ERROR :  please review /tmp/$i.log"
-            exit 1
-        fi
-
         # create openshiftAccount.properties file used by bldw provisioning
         echo -n "" > target/openshiftAccount.properties
         xmlstarlet sel -t -n -m '//openshiftAccounts/account['$t']' -n \
@@ -259,6 +250,15 @@ provisionAccountsWithPFP() {
 
         # will now set 'is.deployment.local' to false .... this property will only exist in an openshift deployment
         echo -n "is.deployment.local=false" >> target/openshiftAccount.properties
+
+        echo -en "\n\nprovisionAccountsWithPFP() ***** now provisioning: $i with brms/pfp :  log can be found in /tmp/$i.log\n\n"; 
+        if ant openshift.provision.pfp.core -Dbounce.servers=false > /tmp/$i.log 2>&1
+        then
+            echo "just provisioned $i with brms/pfp"
+        else
+            echo "ERROR :  please review /tmp/$i.log"
+            exit 1
+        fi
 
         echo -en "\n\nprovisionAccountsWithPFP() ***** now provisioning: $i with bldw :  log can be found in /tmp/$i.bldw.log\n\n"; 
         cd $JBOSS_PROJECTS/workshops/BusinessLogicDevelopmentWorkshop/BLDW-openshift-provision
