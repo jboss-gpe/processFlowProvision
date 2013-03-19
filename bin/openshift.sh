@@ -57,6 +57,9 @@ do
         -rsaPublicKeyPath=*)
             rsaPublicKeyPath=`echo $var | cut -f2 -d\=`
             ;;
+        -bldwProvisionProjectLocation=*)
+            bldwProvisionProjectLocation=`echo $var | cut -f2 -d\=`
+            ;;
     esac
 done
 
@@ -229,7 +232,10 @@ provisionAccountsWithPFP() {
     if [ "x$osAccountDetailsFileLocation" = "x" ]; then
         osAccountDetailsFileLocation=$HOME/redhat/openshift/openshift_account_details.xml
     fi
-    echo openshift.account.details.file.location = $osAccountDetailsFileLocation
+    if [ "x$bldwProvisionProjectLocation" = "x" ]; then
+        bldwProvisionProjectLocation=$JBOSS_PROJECTS/workshops/BusinessLogicDevelopmentWorkshop/BLDW-openshift-provision
+    fi
+    echo openshift.account.details.file.location = $osAccountDetailsFileLocation    :  bldwProvisionProjectLocation = $bldwProvisionProjectLocation
     t=1
 
     # prior to looping, delete target/pfp/services to trigger a rebuild of all of PFP
@@ -240,6 +246,16 @@ provisionAccountsWithPFP() {
     date1=$(date +"%s")
     for i in `xmlstarlet sel -t -n -m '//openshiftAccounts/account' -v 'domainId' -n $osAccountDetailsFileLocation`; 
     do 
+        # ensure that openshift.accounts.details.xml has appropriate information for this account
+        eval pfpCoreUserHash=\"`xmlstarlet sel -t -n -m '//openshiftAccounts/account['$t']' -v 'pfpCore/uuid' -n $osAccountDetailsFileLocation` \"
+        if [ "x$pfpCoreUserHash" = "x " ]; 
+            then
+                echo "pfpCore/uuid for account $i in $osAccountDetailsFileLocation is empty.  have you executed:  ant openshift.provision.empty.accounts  ?";
+                exit 1;
+            else
+                echo "openshift.pfpCore.user.hash for account $i in $osAccountDetailsFileLocation is:$pfpCoreUserHash:";
+        fi
+
         # create openshiftAccount.properties file used by bldw provisioning
         echo -n "" > target/openshiftAccount.properties
         xmlstarlet sel -t -n -m '//openshiftAccounts/account['$t']' -n \
@@ -248,6 +264,7 @@ provisionAccountsWithPFP() {
         -o 'openshift.pfpCore.internal.ip=' -v "pfpCore/internal_ip" -n \
         $osAccountDetailsFileLocation >> target/openshiftAccount.properties
 
+        
         # will now set 'is.deployment.local' to false .... this property will only exist in an openshift deployment
         echo -n "is.deployment.local=false" >> target/openshiftAccount.properties
 
@@ -261,7 +278,7 @@ provisionAccountsWithPFP() {
         fi
 
         echo -en "\n\nprovisionAccountsWithPFP() ***** now provisioning: $i with bldw :  log can be found in /tmp/$i.bldw.log\n\n"; 
-        cd $JBOSS_PROJECTS/workshops/BusinessLogicDevelopmentWorkshop/BLDW-openshift-provision
+        cd $bldwProvisionProjectLocation
         if ant > /tmp/$i.bldw.log 2>&1
         then
             echo "just provisioned $i with bldw"

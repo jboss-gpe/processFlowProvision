@@ -13,6 +13,7 @@
     <target name="openshift.provision.pfp.core" depends="openshift.provision.prep" >
         <delete dir="${openshift.pfpCore.app.location}" />
         <mkdir dir="${openshift.app.dir}" />
+        <echo message="executing following command:  git clone -o ${openshift.domain.name} ${openshift.pfpCore.git.url} ${openshift.pfpCore.app.location}" />
         <exec executable="git" failonerror="true" >
            <arg value="clone"/>
            <arg value="-o"/>
@@ -189,6 +190,7 @@
         <exec executable="bash" failonerror="true" dir="." >
            <arg value="${development.base}/bin/openshift.sh"/>
            <arg value="provisionAccountsWithPFP"/>
+           <arg value="-bldwProvisionProjectLocation=${bldw.provision.project.location}"/>
         </exec> 
     </target>
 
