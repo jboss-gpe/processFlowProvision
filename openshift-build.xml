@@ -200,4 +200,11 @@
         </exec> 
     </target>
 
+    <target name="openshift.list.dig.results.for.each.account" description="" >
+        <exec executable="bash" failonerror="true" dir="." >
+           <arg value="${development.base}/bin/openshift.sh"/>
+           <arg value="listDigResultsForEachAccount"/>
+        </exec> 
+    </target>
+
 </project>

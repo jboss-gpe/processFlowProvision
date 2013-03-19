@@ -147,6 +147,10 @@ public class PFPAddHumanTaskHandler extends BasePFPTaskHandler implements WorkIt
             taskData.setActualOwner(adminUser);
         }
 
+        // JAB:  throw RuntimeException if createdBy has not been set
+        if(taskData.getCreatedBy() == null)
+            throw new RuntimeException("executeWorkItem() neither actorId nor groupId has been set for task = "+taskName);
+
         assignments.setPotentialOwners(potentialOwners);
         List<OrganizationalEntity> businessAdministrators = new ArrayList<OrganizationalEntity>();
         

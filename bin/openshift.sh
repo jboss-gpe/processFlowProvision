@@ -315,15 +315,16 @@ bounceMultipleKBase() {
     done
 }
 
-printDigResults() {
+listDigResultsForEachAccount() {
     if [ "x$osAccountDetailsFileLocation" = "x" ]; then
         osAccountDetailsFileLocation=$HOME/redhat/openshift/openshift_account_details.xml
     fi
     t=1
+    echo listDigResultsForEachAccount  : will write results to :  dig_results.txt
     echo -en "dig results as follows:\n\n\n" > dig_results.txt
     for git_url in `xmlstarlet sel -t -n -m '//openshiftAccounts/account[*]/pfpCore' -v 'git_url' -n $osAccountDetailsFileLocation`; 
     do 
-        git_url=${git_url:39}
+        git_url=${git_url:31}
         totalLength=${#git_url}
         urlLength=$(($totalLength-19))
         git_url=${git_url:0:$urlLength}
@@ -370,10 +371,10 @@ executeCommandsAcrossAllAccounts() {
 
 
 case "$1" in
-    startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|setRSAkeyAndNamespaceOnAccounts|provisionAccountsWithPFP|bounceMultipleAccounts|bounceMultipleKBase|executeCommandsAcrossAllAccounts|printDigResults)
+    startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|setRSAkeyAndNamespaceOnAccounts|provisionAccountsWithPFP|bounceMultipleAccounts|bounceMultipleKBase|executeCommandsAcrossAllAccounts|listDigResultsForEachAccount)
         $1
         ;;
     *)
-    echo 1>&2 $"Usage: $0 {startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|setRSAkeyAndNamespaceOnAccounts|provisionAccountsWithPFP|bounceMultipleAccounts|bounceMultipleKBase|executeCommandsAcrossAllAccounts|printDigResults}"
+    echo 1>&2 $"Usage: $0 {startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|setRSAkeyAndNamespaceOnAccounts|provisionAccountsWithPFP|bounceMultipleAccounts|bounceMultipleKBase|executeCommandsAcrossAllAccounts|listDigResultsForEachAccount}"
     exit 1
 esac
