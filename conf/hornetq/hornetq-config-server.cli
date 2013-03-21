@@ -1,5 +1,5 @@
 batch
-/host=${serverIpAddr}/server-config=hornetq-ha/:add(auto-start=false,group=hornetq.ha.group)
+/host=${serverIpAddr}/server-config=hornetq-ha/:add(auto-start=false,group=ha.group)
 /host=${serverIpAddr}/server-config=hornetq-ha/jvm=hornetq-ha/:add(env-classpath-ignored=false,heap-size=128m,max-heap-size=512m,permgen-size=64m,max-permgen-size=256m)
 /host=${serverIpAddr}/server-config=hornetq-ha/:write-attribute(name=socket-binding-port-offset,value=${hornetq.group.port.offset})
 /host=${serverIpAddr}/server-config=hornetq-ha/:start(server=hornetq-ha,blocking=true)

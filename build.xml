@@ -726,6 +726,7 @@
                 <fileset dir="pfpServices/bam" includes="build.xml"/>
                 <fileset dir="pfpServices/knowledgeSessionService" includes="build.xml"/>
                 <fileset dir="pfpServices/taskService" includes="build.xml"/>
+                <fileset dir="pfpServices/haTimerService" includes="build.xml"/>
                 <fileset dir="pfpServices/adminConsole" includes="build.xml"/>
                 <fileset dir="privateServiceTaskRepo" includes="build.xml"/>
             </subant>

@@ -19,7 +19,7 @@ import org.drools.time.impl.DefaultTimerJobFactoryManager;
 import org.drools.time.impl.TimerJobFactoryManager;
 import org.drools.time.impl.TimerJobInstance;
 
-public class WatcherTimerService implements TimerService, SessionClock, InternalSchedulerService, AcceptsTimerJobFactoryManager {
+public class ClusteredSingletonTimerService implements TimerService, SessionClock, InternalSchedulerService, AcceptsTimerJobFactoryManager {
 
     private AtomicLong                    idCounter = new AtomicLong();
     private TimerJobFactoryManager        jobFactoryManager = DefaultTimerJobFactoryManager.instance;
