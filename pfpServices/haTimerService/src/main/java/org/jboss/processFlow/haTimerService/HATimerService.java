@@ -40,7 +40,7 @@ import org.jboss.msc.value.InjectedValue;
  */
 public class HATimerService implements Service<String> {
     private static final Logger LOGGER = Logger.getLogger(HATimerService.class);
-    public static final ServiceName SINGLETON_SERVICE_NAME = ServiceName.JBOSS.append("quickstart", "ha", "singleton", "timer");
+    public static final ServiceName SINGLETON_SERVICE_NAME = ServiceName.JBOSS.append("processFlow", "ha", "singleton", "timer");
 
     /**
      * A flag whether the service is started.
@@ -63,30 +63,23 @@ public class HATimerService implements Service<String> {
 
     public void start(StartContext arg0) throws StartException {
         if (!started.compareAndSet(false, true)) {
-            throw new StartException("The service is still started!");
+            throw new StartException("start() the timer service is already started!");
         }
-        LOGGER.info("Start HASingleton timer service '" + this.getClass().getName() + "'");
+        LOGGER.info("start() starting HASingleton timer service '" + this.getClass().getName() + "'");
 
         this.nodeName = this.env.getValue().getNodeName();
-
-        try {
-            InitialContext ic = new InitialContext();
-            ((Scheduler) ic.lookup("global/jboss-as-cluster-ha-singleton-service/SchedulerBean!org.jboss.as.quickstarts.cluster.hasingleton.service.ejb.Scheduler")).initialize("HASingleton timer @" + this.nodeName + " " + new Date());
-        } catch (NamingException e) {
-            throw new StartException("Could not initialize timer", e);
-        }
     }
 
     public void stop(StopContext arg0) {
         if (!started.compareAndSet(true, false)) {
-            LOGGER.warn("The service '" + this.getClass().getName() + "' is not active!");
+            LOGGER.warn("stop() the timer service '" + this.getClass().getName() + "' is not active!");
         } else {
-            LOGGER.info("Stop HASingleton timer service '" + this.getClass().getName() + "'");
+            LOGGER.info("stop() HASingleton timer service '" + this.getClass().getName() + "'");
             try {
                 InitialContext ic = new InitialContext();
-                ((Scheduler) ic.lookup("global/jboss-as-cluster-ha-singleton-service/SchedulerBean!org.jboss.as.quickstarts.cluster.hasingleton.service.ejb.Scheduler")).stop();
+                ((ITimerServiceManagement) ic.lookup(ITimerServiceManagement.TIMER_SERVICE_MANAGEMENT_JNDI)).stop();
             } catch (NamingException e) {
-                LOGGER.error("Could not stop timer", e);
+                throw new RuntimeException(e);
             }
         }
     }

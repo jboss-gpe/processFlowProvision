@@ -16,13 +16,18 @@
  */
 package org.jboss.processFlow.haTimerService;
 
-/**
- * @author <a href="mailto:wfink@redhat.com">Wolf-Dieter Fink</a>
- */
-public interface Scheduler {
+import java.util.Date;
 
-    void initialize(String info);
+import javax.ejb.TimerConfig;
 
+public interface ITimerServiceManagement {
+    
+    public static final String TIMER_SERVICE_MANAGEMENT_JNDI = "ejb:/processFlow-haTimerService//TimerServiceManagementBean!org.jboss.processFlow.haTimerService.ITimerServiceManagement";
+    public static final String TIMER_SERVICE = "org.jboss.processFlow.ejb.ClusteredSingletonTimerService";
+
+    void createIntervalTimer(long initialDuration, long intervalDuration, TimerConfig timerConfig);
+    void createSingleActionTimer(Date expiration, TimerConfig timerConfig);
     void stop();
+    String sanityCheck();
 
 }

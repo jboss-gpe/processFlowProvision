@@ -1,6 +1,8 @@
 <jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.1">
     <deployment>
         <dependencies>
+            <module name="org.jboss.as.clustering.singleton" />
+            <module name="org.jboss.as.server" />
             <module name="org.jboss.processFlow" />
         </dependencies>
     </deployment>

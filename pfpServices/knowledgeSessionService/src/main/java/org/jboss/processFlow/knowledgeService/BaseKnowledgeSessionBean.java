@@ -34,6 +34,8 @@ import java.util.*;
 
 import javax.transaction.UserTransaction;
 import javax.annotation.PreDestroy;
+import javax.naming.Context;
+import javax.naming.InitialContext;
 import javax.persistence.*;
 
 import org.apache.log4j.Logger;
@@ -47,13 +49,17 @@ import org.drools.builder.KnowledgeBuilderFactory;
 import org.drools.builder.ResourceType;
 import org.drools.KnowledgeBase;
 import org.drools.KnowledgeBaseFactory;
+import org.drools.SystemEventListenerFactory;
 import org.drools.WorkingMemory;
 import org.drools.agent.KnowledgeAgentConfiguration;
 import org.drools.agent.KnowledgeAgent;
 import org.drools.agent.KnowledgeAgentFactory;
+import org.drools.agent.impl.PrintStreamSystemEventListener;
+import org.drools.command.SingleSessionCommandService;
 import org.drools.command.impl.CommandBasedStatefulKnowledgeSession;
 import org.drools.command.impl.KnowledgeCommandContext;
 import org.drools.compiler.PackageBuilder;
+import org.drools.core.util.DelegatingSystemEventListener;
 import org.drools.definition.process.Process;
 import org.drools.definitions.impl.KnowledgePackageImp;
 import org.drools.definition.KnowledgePackage;
@@ -65,6 +71,8 @@ import org.drools.io.*;
 import org.drools.io.impl.InputStreamResource;
 import org.drools.management.DroolsManagementAgent;
 import org.drools.persistence.jpa.JPAKnowledgeService;
+import org.drools.persistence.jpa.JpaJDKTimerService;
+import org.drools.persistence.jpa.processinstance.JPAWorkItemManagerFactory;
 import org.drools.runtime.KnowledgeSessionConfiguration;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.Environment;
@@ -76,8 +84,10 @@ import org.jbpm.integration.console.shared.GuvnorConnectionUtils;
 import org.jbpm.persistence.processinstance.ProcessInstanceInfo;
 import org.jbpm.task.service.TaskService;
 
+import org.jboss.processFlow.haTimerService.ITimerServiceManagement;
 import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
 import org.jboss.processFlow.tasks.ITaskService;
+import org.jboss.processFlow.util.LogSystemEventListener;
 import org.jboss.processFlow.workItem.WorkItemHandlerLifecycle;
 import org.mvel2.MVEL;
 import org.mvel2.ParserConfiguration;
@@ -189,6 +199,81 @@ public class BaseKnowledgeSessionBean {
 
     protected @PersistenceUnit(unitName=EMF_NAME)  EntityManagerFactory jbpmCoreEMF;
     protected @javax.annotation.Resource UserTransaction uTrnx;
+    
+    protected void start() throws Exception{
+        /*  - set KnowledgeBase properties
+         *  - the alternative to this programmatic approach is a 'META-INF/drools.session.conf' on the classpath
+         */
+         ksconfigProperties = new Properties();
+         ksconfigProperties.put("drools.commandService", SingleSessionCommandService.class.getName());
+         ksconfigProperties.put("drools.processInstanceManagerFactory", "org.jbpm.persistence.processinstance.JPAProcessInstanceManagerFactory");
+         ksconfigProperties.setProperty( "drools.workItemManagerFactory", JPAWorkItemManagerFactory.class.getName() );
+         ksconfigProperties.put("drools.processSignalManagerFactory", "org.jbpm.persistence.processinstance.JPASignalManagerFactory");
+         
+         if(System.getProperty("org.jboss.processFlow.drools.resource.scanner.interval") != null)
+             droolsResourceScannerInterval = System.getProperty("org.jboss.processFlow.drools.resource.scanner.interval");
+         
+         taskCleanUpImpl = System.getProperty(IKnowledgeSessionService.TASK_CLEAN_UP_PROCESS_EVENT_LISTENER_IMPL);
+
+         String timerService = System.getProperty("drools.timerService", JpaJDKTimerService.class.getName());
+         ksconfigProperties.setProperty( "drools.timerService", timerService);
+         if(timerService.equals(ITimerServiceManagement.TIMER_SERVICE)){
+             Context jndiContext = null;
+             try {
+                 Properties jndiProps = new Properties();
+                 jndiProps.put(javax.naming.Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
+                 jndiContext = new InitialContext(jndiProps);
+                 ITimerServiceManagement timerMgmt = (ITimerServiceManagement)jndiContext.lookup(ITimerServiceManagement.TIMER_SERVICE_MANAGEMENT_JNDI);
+                 log.info("start() found TimerServiceMgmt says : "+timerMgmt.sanityCheck());
+             }finally {
+                 if(jndiContext != null)
+                     jndiContext.close();
+             }
+         }
+         
+         guvnorUtils = new GuvnorConnectionUtils();
+         enableLog = Boolean.parseBoolean(System.getProperty("org.jboss.enableLog", "TRUE"));
+         
+         if(System.getProperty(IKnowledgeSessionService.SPACE_DELIMITED_PROCESS_EVENT_LISTENERS) != null)
+             processEventListeners = System.getProperty(IKnowledgeSessionService.SPACE_DELIMITED_PROCESS_EVENT_LISTENERS).split("\\s");
+
+         kAgentRefreshHours = Integer.parseInt(System.getProperty("org.jboss.processFlow.kAgentRefreshHours", "12"));
+         kAgentMonitor = Boolean.parseBoolean(System.getProperty("org.jboss.processFlow.kAgentMonitor", "TRUE"));
+         
+         enableKnowledgeRuntimeLogger = Boolean.parseBoolean(System.getProperty("org.jboss.processFlow.statefulKnowledge.enableKnowledgeRuntimeLogger", "TRUE"));
+    
+      // 2) set the Drools system event listener to our implementation ...
+         originalSystemEventListener = SystemEventListenerFactory.getSystemEventListener();
+         if (originalSystemEventListener == null || originalSystemEventListener instanceof DelegatingSystemEventListener) {
+             // We need to check for DelegatingSystemEventListener so we don't get a
+             // StackOverflowError when we set it back.  If it is a DelegatingSystemEventListener,
+             // we instead use what drools wraps by default, which is PrintStreamSystemEventListener.
+             // Refer to org.drools.impl.SystemEventListenerServiceImpl for more information.
+             originalSystemEventListener = new PrintStreamSystemEventListener();
+         }
+         SystemEventListenerFactory.setSystemEventListener(new LogSystemEventListener());
+         
+         programmaticallyLoadedWorkItemHandlers.put(ITaskService.HUMAN_TASK, Class.forName("org.jboss.processFlow.tasks.handlers.PFPAddHumanTaskHandler"));
+         programmaticallyLoadedWorkItemHandlers.put(ITaskService.SKIP_TASK, Class.forName("org.jboss.processFlow.tasks.handlers.PFPSkipTaskHandler"));
+         programmaticallyLoadedWorkItemHandlers.put(ITaskService.FAIL_TASK, Class.forName("org.jboss.processFlow.tasks.handlers.PFPFailTaskHandler"));
+         programmaticallyLoadedWorkItemHandlers.put(IKnowledgeSessionService.EMAIL, Class.forName("org.jboss.processFlow.email.PFPEmailWorkItemHandler"));
+    
+         StringBuilder logBuilder = new StringBuilder();
+         logBuilder.append("start() ksession props as follows :\n\tdrools guvnor scanner interval = ");
+         logBuilder.append(droolsResourceScannerInterval);
+         logBuilder.append("\n\ttimerService = ");
+         logBuilder.append(timerService);
+         logBuilder.append("\n\ttaskCleanUpImpl = ");
+         logBuilder.append(taskCleanUpImpl);
+         logBuilder.append("\n\tenableLog = ");
+         logBuilder.append(enableLog);
+         logBuilder.append("\n\tkAgentMonitor = ");
+         logBuilder.append(kAgentMonitor);
+         logBuilder.append("\n\tkAgentRefreshHours = ");
+         logBuilder.append(kAgentRefreshHours);
+         log.info(logBuilder.toString());
+    
+    }
     
     @PreDestroy
     public void destroy() throws Exception {

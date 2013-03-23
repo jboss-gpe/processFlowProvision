@@ -1,4 +1,4 @@
-package org.jboss.processFlow.zookeeper;
+package org.jboss.processFlow.ejb;
 
 import java.util.Collection;
 import java.util.Date;

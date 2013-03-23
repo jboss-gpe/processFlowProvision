@@ -17,6 +17,10 @@
 	<classpathentry kind="var" path="JBOSS_HOME/modules/javax/inject/api/main/javax.inject-1-redhat-2.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/modules/org/codehaus/jackson/jackson-core-asl/main/jackson-core-asl-1.9.2-redhat-2.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/modules/org/codehaus/jackson/jackson-mapper-asl/main/jackson-mapper-asl-1.9.2-redhat-2.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/modules/org/jboss/as/server/main/jboss-as-server-7.1.3.Final-redhat-4.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/modules/org/jboss/as/clustering/singleton/main/jboss-as-clustering-singleton-7.1.3.Final-redhat-4.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/modules/org/jboss/msc/main/jboss-msc-1.0.2.GA-redhat-2.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/modules/org/jboss/logging/main/jboss-logging-3.1.2.GA-redhat-1.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/pfpModules/org/mvel/mvel2/main/mvel2-2-2.1.3.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/pfpModules/org/drools/5/drools-core-5.3.1.BRMS-GA.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/pfpModules/org/drools/5/knowledge-api-5.3.1.BRMS-GA.jar"/>
@@ -31,6 +35,7 @@
 	<classpathentry kind="src" path="pfpServices/knowledgeSessionService/src/main/webapp/WEB-INF/classes"/>
 	<classpathentry kind="src" path="pfpServicesTest/src/main/webapp/WEB-INF/classes"/>
 	<classpathentry kind="src" path="pfpServicesTest/src/test/java"/>
+	<classpathentry kind="src" path="pfpServices/haTimerService/src/main/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-bam"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-bpmn2"/>
