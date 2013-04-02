@@ -7,11 +7,12 @@ export JAVA_OPTS="-client -Xmx664m -XX:MaxPermSize=256m -XX:+AggressiveOpts -Dor
 export JBOSS_MODULEPATH_ADD=$JBOSS_MODULEPATH:$HOME/${openshift.jboss.cartridge.type}/tmp/pfpModules:$HOME/${openshift.jboss.cartridge.type}/tmp/gpseModules
 
 printJvmCount() {
-    echo `date` > ~/${openshift.jboss.cartridge.type}/tmp/pre_start_jbosseap-6.0.log
+    mkdir -p ~/${openshift.jboss.cartridge.type}/tmp/log
+    echo `date` > ~/${openshift.jboss.cartridge.type}/tmp/log/pre_start_jbosseap-6.0.log
     for jProc in `ps -C java -o pid=`;
     do
-        echo "java process id = $jProc\n" >> ~/${openshift.jboss.cartridge.type}/tmp/pre_start_jbosseap-6.0.log
-    echo 
+        echo "java process id = $jProc\t" >> ~/${openshift.jboss.cartridge.type}/tmp/log/pre_start_jbosseap-6.0.log
+    done 
 }
 
 

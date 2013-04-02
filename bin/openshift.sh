@@ -372,14 +372,15 @@ executeCommandsAcrossAllAccounts() {
         echo -en "\n"
 
         #ssh $git_url "ls -l jbosseap-6.0/jbosseap-6.0/standalone/log/boot.log; cd jbosseap-6.0/jbosseap-6.0/standalone/deployments/; rm *war*; app_ctl.sh stop; app_ctl.sh start"
+        ssh $git_url "rm -rf  jbosseap-6.0/tmp/guvnor; app_ctl.sh stop;  app_ctl.sh start"
         #numJVMs=$(ssh $git_url "
         #    ps -aef | grep -c '\[Standalone\]'
         #")
         #echo -ne "num of JVMs = $numJVMs"
-        numJVMs=$(ssh $git_url "
-            ps -aef | grep -c '\/usr\/bin\/postgres'
-        ")
-        echo -ne "num of postgresql processes = $numJVMs"
+        #numJVMs=$(ssh $git_url "
+        #    ps -aef | grep -c '\/usr\/bin\/postgres'
+        #")
+        #echo -ne "num of postgresql processes = $numJVMs"
 
         ((t++))
     done

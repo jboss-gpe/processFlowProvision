@@ -1,3 +1,14 @@
 #!/bin/bash
 
 echo "** inside deploy"
+
+printJvmCount() {
+    mkdir -p ~/${openshift.jboss.cartridge.type}/tmp/log
+    echo `date` > ~/${openshift.jboss.cartridge.type}/tmp/log/deploy.log
+    for jProc in `ps -C java -o pid=`;
+    do
+        echo "java process id = $jProc\t" >> ~/${openshift.jboss.cartridge.type}/tmp/log/deploy.log
+    done
+}
+printJvmCount
+
