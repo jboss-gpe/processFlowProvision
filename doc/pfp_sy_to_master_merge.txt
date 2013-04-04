@@ -1,8 +1,0 @@
-1)  create separate module names/paths for drools/jbpm/mvel libraries that will not conflict between SY and existing master branch PFP
-    - 3 October:  
-        - initial approach was to unzip switchyard.deployer.zip into $JBOSS_HOME, as is
-        - however, why for example is there a common-collections.jar included that will subsequently over-ride existing from EAP6 ??
-        - probably need to provision sy using the modified standalone version ... will not use EAP 6
-    
-2)  create a domain managed "syCore" worker server
-    - use Switchyard's existing standalone.xml as a template
