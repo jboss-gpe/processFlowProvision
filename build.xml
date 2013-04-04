@@ -152,20 +152,9 @@
     <target name="unzip.brms.deployable">
         <antcall target="download.brms.deployable" />
         <if>
-            <not><available file="${temp.brms.unzip.dir}/${guvnor.name}" type="dir" /></not> 
+            <not><available file="${temp.brms.unzip.dir}/lib" type="dir" /></not> 
             <then>
                 <unzip src="${install.home}/lib/${brms.deployable.suffix}" dest="${temp.brms.unzip.dir}" />
-                <delete file="${temp.brms.unzip.dir}/modeshape.zip" />
-                <unzip src="${temp.brms.unzip.dir}/jboss-brms-engine.zip" dest="${temp.brms.unzip.dir}" />
-                <delete file="${temp.brms.unzip.dir}/jboss-brms-engine.zip" />
-                <unzip src="${temp.brms.unzip.dir}/jboss-jbpm-engine.zip" dest="${temp.brms.unzip.dir}" />
-                <delete file="${temp.brms.unzip.dir}/jboss-jbpm-engine.zip" />
-                <unzip src="${temp.brms.unzip.dir}/jboss-brms-manager-ee6.zip" dest="${temp.brms.unzip.dir}" />
-                <delete file="${temp.brms.unzip.dir}/jboss-brms-manager-ee6.zip" />
-
-                <!-- contains: "business-central.war",  "designer.war", "gwt-console-server.war" &  "jbpm-human-task.war" -->
-                <unzip src="${temp.brms.unzip.dir}/jboss-jbpm-console-ee6.zip" dest="${temp.brms.unzip.dir}" />
-                <delete file="${temp.brms.unzip.dir}/jboss-jbpm-console-ee6.zip" />
             </then>
             <else>
                 <echo message="${temp.brms.unzip.dir}/${guvnor.name} already located .... no need to unzip brms again" />
@@ -723,11 +712,8 @@
             <subant target="@{target}">
                 <fileset dir="pfpServices/interfaces" includes="build.xml"/>
                 <fileset dir="pfpServices/common" includes="build.xml"/>
-                <fileset dir="pfpServices/bam" includes="build.xml"/>
                 <fileset dir="pfpServices/knowledgeSessionService" includes="build.xml"/>
                 <fileset dir="pfpServices/taskService" includes="build.xml"/>
-                <fileset dir="pfpServices/haTimerService" includes="build.xml"/>
-                <fileset dir="pfpServices/adminConsole" includes="build.xml"/>
                 <fileset dir="privateServiceTaskRepo" includes="build.xml"/>
             </subant>
         </sequential>

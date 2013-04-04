@@ -74,7 +74,7 @@ public class KnowledgeSessionMDB implements MessageListener {
                 File bpmnFile = (File)oMessage.getObject();
                 if(bpmnFile == null)
                     throw new MessageFormatException("onMessage() need to include Object property with key = "+IKnowledgeSessionService.BPMN_FILE);
-                kProxy.addProcessToKnowledgeBase(bpmnFile);
+                kProxy.addAssetToRuntimeEnvironment(bpmnFile);
                 
                
             // START PROCESSS AND RETURN ID    
@@ -109,7 +109,7 @@ public class KnowledgeSessionMDB implements MessageListener {
                     throw new MessageFormatException("onMessage() need to include Int property with key = "+IKnowledgeSessionService.WORK_ITEM_ID);
                 if(pInstanceId == 0L)
                     throw new MessageFormatException("onMessage() need to include Long property with key = "+IKnowledgeSessionService.PROCESS_INSTANCE_ID);
-                kProxy.completeWorkItem(workItemId, pInstanceVariables, pInstanceId, ksessionId);
+                kProxy.completeWorkItem(workItemId, pInstanceVariables, pInstanceId);
                 
             
                 
@@ -123,7 +123,7 @@ public class KnowledgeSessionMDB implements MessageListener {
                     throw new MessageFormatException("onMessage() need to include Object property in body of message");
                 if(pInstanceId == 0L)
                     throw new MessageFormatException("onMessage() need to include Long property with key = "+IKnowledgeSessionService.PROCESS_INSTANCE_ID);
-                kProxy.signalEvent(type, eventData, pInstanceId, ksessionId);
+                kProxy.signalEvent(type, eventData, pInstanceId);
                 
                 
             }else

@@ -23,13 +23,6 @@
 package org.jboss.processFlow.knowledgeService;
 
 import java.net.ConnectException;
-import java.util.Map;
-import java.util.List;
-
-import org.drools.definition.process.Process;
-import org.drools.io.Resource;
-import org.drools.runtime.process.ProcessInstance;
-import org.jbpm.process.audit.ProcessInstanceLog;
 
 public interface KnowledgeSessionServiceMXBean {
 
@@ -65,11 +58,4 @@ public interface KnowledgeSessionServiceMXBean {
      * returns a snapshot of all KnowledgeSessions and the state that each session is currently in 
      */
     public String                   dumpSessionStatusInfo();
-
-    /**
-     * knowledgeSessionService may have a process event listener that sends events asynchroneously to a message broker
-     * these events will subsequently be stored in a business activity monitoring data wharehouse for future analysis
-     * this function lists the # of active and idle producers from a pool of JMS producers
-     */  
-    public String                   dumpBAMProducerPoolInfo();
 }

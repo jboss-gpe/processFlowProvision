@@ -49,14 +49,10 @@
         <path id="supported.classpath">
             <path refid="initial.classpath" />
             <path refid="project.classpath" />
-            <fileset dir="${temp.brms.unzip.dir}/binaries" />
+            <fileset dir="${temp.brms.unzip.dir}/lib" />
             <fileset dir="${temp.brms.unzip.dir}" >
                 <include name="*.jar" />
             </fileset>
-            <fileset dir="${temp.brms.unzip.dir}/${console.sub.domain}-server.war/WEB-INF/lib/" >
-                <include name="jbpm-gwt-*.jar" />
-                <include name="gwt-console-*.jar" />
-           </fileset>
         </path>
         <if>
             <equals arg1="${org.jboss.processFlow.provision.switchyard}" arg2="true" />

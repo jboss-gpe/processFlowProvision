@@ -25,6 +25,7 @@ package org.jboss.processFlow.knowledgeService;
 import java.io.File;
 import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
+import java.net.ConnectException;
 import java.util.*;
 
 import javax.annotation.PostConstruct;
@@ -76,7 +77,7 @@ import org.jboss.processFlow.util.MessagingUtil;
 @Startup
 @Lock(LockType.READ)
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
-public class KnowledgeSessionService implements IKnowledgeSession {
+public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSessionServiceMXBean {
     
 	public static final String EMF_NAME = "org.jbpm.persistence.jpa";
     private Logger log = Logger.getLogger("KnowledgeSessionService");
@@ -372,4 +373,39 @@ public class KnowledgeSessionService implements IKnowledgeSession {
 	private void dispose(KieSession kSession){
     	kSession.dispose();
     }
+
+	@Override
+	public String printWorkItemHandlers() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void rebuildKnowledgeBaseViaKnowledgeAgent() throws ConnectException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void rebuildKnowledgeBaseViaKnowledgeBuilder() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public String printKnowledgeBaseContent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getAllProcessesInPackage(String pkgName) throws ConnectException {
+		return null;
+	}
+
+	@Override
+	public String dumpSessionStatusInfo() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

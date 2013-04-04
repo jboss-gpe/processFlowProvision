@@ -23,13 +23,10 @@
 package org.jboss.processFlow.knowledgeService;
 
 import java.io.File;
-import java.net.ConnectException;
 
 import java.util.Map;
 import java.util.List;
 
-import org.drools.definition.process.Process;
-import org.drools.io.Resource;
 import org.jbpm.persistence.processinstance.ProcessInstanceInfo;
 
 /**

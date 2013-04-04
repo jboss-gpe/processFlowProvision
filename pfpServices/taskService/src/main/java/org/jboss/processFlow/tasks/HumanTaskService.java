@@ -22,24 +22,14 @@
 
 package org.jboss.processFlow.tasks;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.annotation.Resource;
-import javax.ejb.EJB;
 import javax.ejb.Lock;
 import javax.ejb.LockType;
 import javax.ejb.Remote;
@@ -48,26 +38,22 @@ import javax.ejb.Startup;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceUnit;
-import javax.persistence.Query;
-import javax.transaction.UserTransaction;
-import javax.transaction.TransactionManager;
-import javax.transaction.Transaction;
 
 import org.apache.log4j.Logger;
-
-import org.jbpm.services.task.utils.ContentMarshallerHelper;
-import org.jbpm.services.task.exception.*;
-
-import org.kie.internal.task.api.TaskService;
-import org.kie.internal.task.api.model.*;
-
-
-import org.jboss.processFlow.knowledgeService.IBaseKnowledgeSession;
 import org.jboss.processFlow.PFPBaseService;
-import org.jboss.processFlow.tasks.event.PfpTaskEventSupport;
+import org.jbpm.services.task.exception.IllegalTaskStateException;
+import org.jbpm.services.task.exception.PermissionDeniedException;
+import org.jbpm.services.task.exception.TaskException;
+import org.jbpm.services.task.utils.ContentMarshallerHelper;
+import org.kie.internal.task.api.TaskService;
+import org.kie.internal.task.api.model.Content;
+import org.kie.internal.task.api.model.ContentData;
+import org.kie.internal.task.api.model.I18NText;
+import org.kie.internal.task.api.model.OrganizationalEntity;
+import org.kie.internal.task.api.model.Status;
+import org.kie.internal.task.api.model.Task;
+import org.kie.internal.task.api.model.TaskSummary;
+import org.kie.internal.task.api.model.User;
 
 /**  
  *  JA Bride
