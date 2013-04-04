@@ -20,14 +20,14 @@
   ~ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
   ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
   -->
-<module xmlns="urn:jboss:module:1.1" name="org.jbpm" slot="5">
+<module xmlns="urn:jboss:module:1.1" name="org.jbpm" slot="${droolsjbpm.slot}">
     <resources>
+        <resource-root path="jbpm-human-task-core-${jBPM.version}.jar"/>
         <resource-root path="jbpm-bam-${jBPM.version}.jar"/>
         <resource-root path="jbpm-bpmn2-${jBPM.version}.jar"/>
         <resource-root path="jbpm-flow-${jBPM.version}.jar"/>
         <resource-root path="jbpm-flow-builder-${jBPM.version}.jar"/>
-        <resource-root path="jbpm-gwt-shared-${jBPM.version}.jar"/>
-        <resource-root path="jbpm-human-task-${jBPM.version}.jar"/>
+        <resource-root path="jbpm-human-task-workitems-${jBPM.version}.jar"/>
         <resource-root path="jbpm-persistence-jpa-${jBPM.version}.jar"/>
         <resource-root path="jbpm-workitems-${jBPM.version}.jar"/>
     </resources>
@@ -36,7 +36,7 @@
         <module name="org.apache.commons.pool" export="true" />
         <module name="org.apache.commons.lang" export="true" />
         <module name="org.apache.log4j" export="true" />
-        <module name="org.drools" export="true" slot="5" />
+        <module name="org.drools" export="true" slot="${droolsjbpm.slot}" />
         <module name="org.jbpm.configuration" export="true" />
     </dependencies>
 </module>

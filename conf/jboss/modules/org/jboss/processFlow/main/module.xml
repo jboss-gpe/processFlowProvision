@@ -36,8 +36,8 @@
         <module name="org.jboss.remote-naming" export="true" />
         <module name="org.hornetq" export="true" />
 
-        <module name="org.drools" export="true" slot="5" />
-        <module name="org.jbpm" export="true" slot="5" >
+        <module name="org.drools" export="true" slot="${droolsjbpm.slot}" />
+        <module name="org.jbpm" export="true" slot="${droolsjbpm.slot}" >
             <imports>
                 <!-- JA Bride: 9 July 2012 .... this doesn't seem to work -->
                 <include path="META-INF/Taskorm.xml"/>

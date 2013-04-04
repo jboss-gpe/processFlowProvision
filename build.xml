@@ -437,20 +437,17 @@
             <else><echo message="deploying to openshift:  postgresql/mysql/h2 modules already pre-configured" /></else>
         </if>
 
-        <copy file="lib/commons/commons-codec-1.5.jar" todir="${temp.jboss.dir}/pfpModules/org/apache/commons/codec/5" /> <!-- GuvnorConnectionUtils needs this version -->
-        <copy file="${deps.lib.path}/stringtemplate-${version.stringtemplate}.jar" todir="${temp.jboss.dir}/pfpModules/org/antlr/stringtemplate/main" />
-        <copy file="${deps.lib.path}/protobuf-java-${version.protobuf}.jar" todir="${temp.jboss.dir}/pfpModules/com/google/protobuf/main" />
         <copy file="${deps.lib.path}/antlr-runtime-${version.antlr}.jar" todir="${temp.jboss.dir}/pfpModules/org/antlr/antlr-runtime/main" />
         <copy file="${deps.lib.path}/ecj-${version.ecj}.jar" todir="${temp.jboss.dir}/pfpModules/org/eclipse/jdt/core/compiler/ecj/main" />
+        <copy file="${deps.lib.path}/jbpm-human-task-core-${jBPM.version}.jar" todir="${temp.jboss.dir}/pfpModules/org/jbpm/${droolsjbpm.slot}/" />
+        <copy file="${deps.lib.path}/mvel2-${version.mvel}.jar" todir="${temp.jboss.dir}/pfpModules/org/mvel/main" />
+        <copy file="${deps.lib.path}/protobuf-java-${version.protobuf}.jar" todir="${temp.jboss.dir}/pfpModules/com/google/protobuf/main" />
+        <copy file="${deps.lib.path}/stringtemplate-${version.stringtemplate}.jar" todir="${temp.jboss.dir}/pfpModules/org/antlr/stringtemplate/main" />
         <copy file="${deps.lib.path}/xstream-${version.xstream}.jar" todir="${temp.jboss.dir}/pfpModules/com/thoughtworks/xstream/main" />
         <copy file="${deps.lib.path}/xpp3_min-${version.xpp3_min}.jar" todir="${temp.jboss.dir}/pfpModules/com/thoughtworks/xstream/main" />
         <copy file="${deps.lib.path}/xmlpull-${version.xmlpull}.jar" todir="${temp.jboss.dir}/pfpModules/com/thoughtworks/xstream/main" />
-        <!--copy file="${deps.lib.path}/xml-apis-${version.xml.apis}.jar" todir="${temp.jboss.dir}/pfpModules/com/thoughtworks/xstream/main" / -->
         <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/${droolsjbpm.slot}/drools-compiler-${version.drools}.jar" >
             <fileset dir="${deps.lib.path}" ><include name="drools-compiler-*.jar" /></fileset>
-        </copy>
-        <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/${droolsjbpm.slot}/droolsjbpm-ide-common-${version.drools}.jar" >
-            <fileset dir="${deps.lib.path}" ><include name="droolsjbpm-ide-common-*.jar" /></fileset>
         </copy>
         <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/${droolsjbpm.slot}/drools-core-${version.drools}.jar" >
             <fileset dir="${deps.lib.path}" ><include name="drools-core-*.jar" /></fileset>
@@ -458,77 +455,50 @@
         <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/${droolsjbpm.slot}/drools-persistence-jpa-${version.drools}.jar" >
             <fileset dir="${deps.lib.path}" ><include name="drools-persistence-jpa-*.jar" /></fileset>
         </copy>
-        <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/${droolsjbpm.slot}/knowledge-api-${version.drools}.jar" >
-            <fileset dir="${deps.lib.path}" ><include name="knowledge-api-*.jar" /></fileset>
+        <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/${droolsjbpm.slot}/kie-api-${version.drools}.jar" >
+            <fileset dir="${deps.lib.path}" ><include name="kie-api-*.jar" /></fileset>
         </copy>
-        <!-- doesn't seem to exist in BRMS 5.3.1
-        <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/main/knowledge-internal-api-${version.drools}.jar" >
-            <fileset dir="${deps.lib.path}" ><include name="knowledge-internal-api-*.jar" /></fileset>
-        </copy -->
-        <copy tofile="${temp.jboss.dir}/pfpModules/org/mvel/mvel2/main/mvel2-${version.mvel}.jar" >
-            <fileset dir="${deps.lib.path}" ><include name="mvel2-*.jar" /></fileset>
+        <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/${droolsjbpm.slot}/kie-ci-${version.drools}.jar" >
+            <fileset dir="${deps.lib.path}" ><include name="kie-ci-*.jar" /></fileset>
         </copy>
-        <copy todir="${temp.jboss.dir}/pfpModules/org/jbpm/${droolsjbpm.slot}" >
-            <fileset dir="${jbpm.lib.path}" >
-                <include name="jbpm-*.jar" />
-                <exclude name="jbpm-human-task-hornetq-*.jar" />
-                <exclude name="jbpm-human-task-jms-*.jar" />
-                <exclude name="jbpm-human-task-mina-*.jar" />
-                <exclude name="jbpm-test-*.jar" />
-                <exclude name="jbpm-gwt-*.jar" />
-            </fileset>
+        <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/${droolsjbpm.slot}/kie-commons-data-${version.drools}.jar" >
+            <fileset dir="${deps.lib.path}" ><include name="kie-commons-data-*.jar" /></fileset>
         </copy>
+        <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/${droolsjbpm.slot}/kie-commons-io-${version.drools}.jar" >
+            <fileset dir="${deps.lib.path}" ><include name="kie-commons-io-*.jar" /></fileset>
+        </copy>
+        <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/${droolsjbpm.slot}/kie-commons-regex-${version.drools}.jar" >
+            <fileset dir="${deps.lib.path}" ><include name="kie-commons-regex-*.jar" /></fileset>
+        </copy>
+        <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/${droolsjbpm.slot}/kie-commons-validation-${version.drools}.jar" >
+            <fileset dir="${deps.lib.path}" ><include name="kie-commons-validation-*.jar" /></fileset>
+        </copy>
+        <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/${droolsjbpm.slot}/kie-internal-${version.drools}.jar" >
+            <fileset dir="${deps.lib.path}" ><include name="kie-internal-*.jar" /></fileset>
+        </copy>
+        <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/${droolsjbpm.slot}/kie-nio2-api-${version.drools}.jar" >
+            <fileset dir="${deps.lib.path}" ><include name="kie-nio2-api-*.jar" /></fileset>
+        </copy>
+        <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/${droolsjbpm.slot}/kie-nio2-fs-${version.drools}.jar" >
+            <fileset dir="${deps.lib.path}" ><include name="kie-nio2-fs-*.jar" /></fileset>
+        </copy>
+        <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/${droolsjbpm.slot}/kie-nio2-jgit-${version.drools}.jar" >
+            <fileset dir="${deps.lib.path}" ><include name="kie-nio2-jgit-*.jar" /></fileset>
+        </copy>
+        <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/${droolsjbpm.slot}/kie-nio2-model-${version.drools}.jar" >
+            <fileset dir="${deps.lib.path}" ><include name="kie-nio2-model-*.jar" /></fileset>
+        </copy>
+        <copy file="${temp.brms.unzip.dir}/jbpm-bam-${jBPM.version}.jar" todir="${temp.jboss.dir}/pfpModules/org/jbpm/${droolsjbpm.slot}/" />
+        <copy file="${temp.brms.unzip.dir}/jbpm-bpmn2-${jBPM.version}.jar" todir="${temp.jboss.dir}/pfpModules/org/jbpm/${droolsjbpm.slot}/" />
+        <copy file="${temp.brms.unzip.dir}/jbpm-flow-${jBPM.version}.jar" todir="${temp.jboss.dir}/pfpModules/org/jbpm/${droolsjbpm.slot}/" />
+        <copy file="${temp.brms.unzip.dir}/jbpm-flow-builder-${jBPM.version}.jar" todir="${temp.jboss.dir}/pfpModules/org/jbpm/${droolsjbpm.slot}/" />
+        <copy file="${temp.brms.unzip.dir}/jbpm-human-task-workitems-${jBPM.version}.jar" todir="${temp.jboss.dir}/pfpModules/org/jbpm/${droolsjbpm.slot}/" />
+        <copy file="${temp.brms.unzip.dir}/jbpm-persistence-jpa-${jBPM.version}.jar" todir="${temp.jboss.dir}/pfpModules/org/jbpm/${droolsjbpm.slot}/" />
+        <copy file="${temp.brms.unzip.dir}/jbpm-workitems-${jBPM.version}.jar" todir="${temp.jboss.dir}/pfpModules/org/jbpm/${droolsjbpm.slot}/" />
 
-
-        <if>
-            <equals arg1="${community.or.supported}" arg2="community" />
-            <then><var name="temp.gwt.path" value="${jbpm.source.dir}/jbpm-gwt/jbpm-gwt-shared/target/" /></then>
-            <else><var name="temp.gwt.path" value="${jbpm.lib.path}/business-central-server.war/WEB-INF/lib/" /></else>
-        </if>
-        <copy toDir="${temp.jboss.dir}/pfpModules/org/jbpm/${droolsjbpm.slot}" overwrite="true" >
-            <fileset dir="${temp.gwt.path}" >
-                <include name="jbpm-gwt-shared*.jar" />
-            </fileset>
-        </copy>
-        <copy toDir="${temp.brmsExtras.module.path}" overwrite="true" >
-            <fileset dir="${temp.gwt.path}" >
-                <include name="jbpm-gwt*.jar" />
-            </fileset>
-        </copy>
         <copy todir="${temp.jboss.dir}/pfpModules/org/jboss/processFlow/main" >
             <fileset dir="${temp.pfp.lib.dir}" />
         </copy>
-        <if>
-            <isset property="non.openshift.environment"/>
-            <then>
-                <antcall target="explode.guvnor.and.designer" >
-                    <param name="non.openshift.environment" value="true"/>
-                </antcall>
-            </then>
-            <else>
-                <antcall target="explode.guvnor.and.designer" />
-            </else>
-        </if>
-        <antcall target="explode.jbpm.gwt.console" />
-                <delete> 
-                    <fileset dir="${temp.brmsExtras.module.path}" >
-                        <include name="commons-collections*.jar" />
-                        <include name="log4j*.jar" />
-                        <include name="slf4j*.jar" />
-                        <exclude name="jbpm-gwt-*.jar" />
-                        <include name="jbpm*.jar" />
-                        <include name="drools-compiler*.jar" />
-                        <include name="drools-core*.jar" />
-                        <include name="google-collections*.jar" />
-                        <include name="gwt-servlet-2.0.4.jar" />
-                        <include name="hornetq*.jar" />
-                        <include name="knowledge-*.jar" />
-                        <include name="mvel-*.jar" />
-                        <include name="serializer-*.jar" />
-                        <include name="xalan-2.7.1.jar" />
-                        <include name="xstream-1.3.1.jar" />
-                    </fileset>
-                </delete>
     </target> 
 
     <target name="local.deploy.jboss.modules" >
@@ -746,7 +716,7 @@
             <fileset dir="${temp.pfp.lib.dir}" >
                 <include name="processFlow-interfaces*.jar" />
             </fileset>
-            <fileset dir="${jbpm.lib.path}" >
+            <fileset dir="${deps.lib.path}" >
                 <include name="jbpm-human-task-core*.jar" />
             </fileset>
             <fileset dir="${deps.lib.path}" >

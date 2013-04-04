@@ -17,7 +17,7 @@
   ~ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
   ~ MA  02110-1301, USA.
   -->
-<module xmlns="urn:jboss:module:1.1" name="org.drools" slot="5" >
+<module xmlns="urn:jboss:module:1.1" name="org.drools" slot="${droolsjbpm.slot}" >
     <resources>
         <resource-root path="drools-compiler-${version.drools}.jar"/>
         <resource-root path="droolsjbpm-ide-common-${version.drools}.jar"/>
@@ -46,7 +46,7 @@
         <module name="org.apache.commons.codec" export="true" slot="5" />
 
         <!-- otherwise :  java.lang.ClassNotFoundException: org.jbpm.bpmn2.BPMN2ProcessProviderImpl from [Module "org.drools:main" -->
-        <module name="org.jbpm" slot="5" />
+        <module name="org.jbpm" slot="${droolsjbpm.slot}" />
 
         <!-- otherwise :  java.lang.IllegalArgumentException: Timer service 'org.jboss.processFlow.ejb.ClusteredSingletonTimerService' not found -->
         <module name="org.jboss.processFlow" />
