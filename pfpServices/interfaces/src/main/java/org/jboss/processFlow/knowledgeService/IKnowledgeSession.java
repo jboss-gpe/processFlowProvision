@@ -83,6 +83,9 @@ public interface IKnowledgeSession extends IBaseKnowledgeSession {
     public static final String BPMN_FILE="bpmnFile";
     public static final String NODE_ID="nodeId";
     public static final String DELIVER_ASYNC="deliverAsync";
+    public static final String DEFAULT_SINGLETON = "default-singleton";
+    public static final String DEFAULT_PER_REQUEST = "default-per-request";
+    public static final String DEFAULT_PER_PINSTANCE = "default-per-pinstance";
 
     /**
      * printWorkItemHandlers
@@ -91,7 +94,7 @@ public interface IKnowledgeSession extends IBaseKnowledgeSession {
      * will include workItemHandlers loaded programmatically and via configuration
      * </pre>
      */
-    public String printWorkItemHandlers();
+    //public String printWorkItemHandlers();
 
 
     /**
@@ -102,8 +105,10 @@ public interface IKnowledgeSession extends IBaseKnowledgeSession {
      * @param id the id of the process instance
      * @param ksessionId the id of the KnowledgeSession that is managing the lifecycle of the process instance
      */
-    public void abortProcessInstance(Long processInstanceId, Integer ksessionId);
+    public void abortProcessInstance(Long processInstanceId);
 
+    public void addAssetToRuntimeEnvironment(File processFile);
+    
     /**
      * refreshKnowledgeBase and knowledgeAgent managed by PFP knowledgeSessionService
      * use in conjunction with various guvnor.* properties include in META-INF/jbpm-console.properties of the knowledgeSessionService implementation artifact
@@ -112,7 +117,7 @@ public interface IKnowledgeSession extends IBaseKnowledgeSession {
      *      INFO  [PackageAssembler] Following assets have been included in package build: simpleHumanTask, defaultemailicon, defaultlogicon, WorkDefinitions, pfpFailTask, pfpSkipTask, task_skip_by_signalIntermediateEvent, simpleTask-taskform, nominateAndAwardBonusTask-taskform, simpleTask-image, pInstance_terminate_by_signalIntermediateEvent
      * @throws ConnectException 
      */
-    public void rebuildKnowledgeBaseViaKnowledgeAgent() throws ConnectException;
+    //public void rebuildKnowledgeBaseViaKnowledgeAgent() throws ConnectException;
 
     /**
      * intention of this function is to create a knowledgeBase without a strict dependency on guvnor
@@ -121,34 +126,34 @@ public interface IKnowledgeSession extends IBaseKnowledgeSession {
      * knowledgeBase can subsequently be populated via one of the addProcessToKnowledgeBase(....) functions
      * in all cases, the knowledgeBase created by this function will NOT be registered with a knowledgeAgent that receives updates from guvnor
      */
-    public void rebuildKnowledgeBaseViaKnowledgeBuilder();
+    //public void rebuildKnowledgeBaseViaKnowledgeBuilder();
     
     
     /**
      * initial attempt is to create kbase via guvnor through a knowledgeAgent
      * if that fails, then fall back is to create kbase via knowledgeBuilder
      */
-    public void createOrRebuildKnowledgeBaseViaKnowledgeAgentOrBuilder();
+    //public void createOrRebuildKnowledgeBaseViaKnowledgeAgentOrBuilder();
     /**
      *return a snapshot of all process definitions that the KnowledgeBase is currently aware of
      */
-    public String printKnowledgeBaseContent();
+    //public String printKnowledgeBaseContent();
     
     /**
      * Uses GuvnorConnectionUtils to query guvnor for 'assets' of a particular package using the following URL convention:
      * <guvnor.protocol>://<guvnor.host>/<guvnorsubdomain>/rest/packages/<guvnor.package>/assets
      *
      */
-    public String getAllProcessesInPackage(String pkgName) throws ConnectException;
+    //public String getAllProcessesInPackage(String pkgName) throws ConnectException;
 
     /**
      *retrieve a list of all Process definition objects that the KnowledgeBase is currently aware of
      */
-    public List<SerializableProcessMetaData> retrieveProcesses() throws Exception ;
+    //public List<SerializableProcessMetaData> retrieveProcesses() throws Exception ;
 
-    public void addProcessToKnowledgeBase(Process processObj, Resource resourceObj);
+    //public void addProcessToKnowledgeBase(Process processObj, Resource resourceObj);
 
-    public void addProcessToKnowledgeBase(File bpmnFile);
+    //public void addProcessToKnowledgeBase(File bpmnFile);
 
     /**
      *getActiveProcessInstances
@@ -161,32 +166,28 @@ public interface IKnowledgeSession extends IBaseKnowledgeSession {
     public List<ProcessInstanceInfo> getActiveProcessInstances(Map<String,Object> queryCriteria);
     public String printActiveProcessInstances(Map<String,Object> queryCriteria);
 
-    public SerializableProcessMetaData getProcess(String processId);
-    public void                     removeProcess(String processId);
+    //public SerializableProcessMetaData getProcess(String processId);
+    //public void                     removeProcess(String processId);
     
-    public String                   printActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId);
-    public Map<String, Object>      getActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId);
-    public void                     setProcessInstanceVariables(Long processInstanceId, Map<String, Object> variables, Integer ksessionId);
+    public String                   printActiveProcessInstanceVariables(Long processInstanceId);
+    public Map<String, Object>      getActiveProcessInstanceVariables(Long processInstanceId);
+    public void                     setProcessInstanceVariables(Long processInstanceId, Map<String, Object> variables);
 
     /**
      * returns a snapshot of all KnowledgeSessions and the state that each session is currently in 
      */
-    public String                   dumpSessionStatusInfo();
+    //public String                   dumpSessionStatusInfo();
 
     /**
      * knowledgeSessionService may have a process event listener that sends events asynchroneously to a message broker
      * these events will subsequently be stored in a business activity monitoring data wharehouse for future analysis
      * this function lists the # of active and idle producers from a pool of JMS producers
      */  
-    public String                   dumpBAMProducerPoolInfo();
+    //public String                   dumpBAMProducerPoolInfo();
     
     /**
      * for details, please see:  http://docs.jboss.org/jbpm/v5.1/userguide/ch05.html#d0e1768
      */
     public void upgradeProcessInstance(long processInstanceId, String processId, Map<String, Long> nodeMapping);
-    
-    public Map<String, Object> beanManagedGetActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId);
-    public void beanManagedSetProcessInstanceVariables(Long processInstanceId, Map<String, Object> variables, Integer ksessionId);
-    public void beanManagedCompleteWorkItem(Long workItemId, Map<String, Object> pInstanceVariables, Long pInstanceId, Integer ksessionId);
 
 }

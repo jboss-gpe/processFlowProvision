@@ -66,7 +66,6 @@ public class KSessionHttp {
         ResponseBuilder builder = Response.ok();
         try {
             log.info("createOrRebuildKnowledgeBaseViaKnowledgeAgentOrBuilder() ");
-            kProxy.createOrRebuildKnowledgeBaseViaKnowledgeAgentOrBuilder();
         }catch(RuntimeException x){
             builder = Response.status(Status.SERVICE_UNAVAILABLE);
         }
@@ -81,8 +80,7 @@ public class KSessionHttp {
     @GET
     @Path("/kbase/content")
     public Response printKnowledgeBaseContent() {
-        String kBaseContent = kProxy.printKnowledgeBaseContent();
-        ResponseBuilder builder = Response.ok(kBaseContent);
+        ResponseBuilder builder = Response.ok("Not implemented");
         return builder.build();
     }
     
@@ -93,9 +91,8 @@ public class KSessionHttp {
      */
     @GET
     @Path("/processInstance/variables/{pInstanceId: .*}/")
-    public Response printActiveProcessInstanceVariables(@PathParam("pInstanceId")final Long pInstanceId,
-                                                        @QueryParam("ksessionId")final Integer ksessionId){
-        String kBaseContent = kProxy.printActiveProcessInstanceVariables(pInstanceId, ksessionId);
+    public Response printActiveProcessInstanceVariables(@PathParam("pInstanceId")final Long pInstanceId) {
+        String kBaseContent = kProxy.printActiveProcessInstanceVariables(pInstanceId);
         ResponseBuilder builder = Response.ok(kBaseContent);
         return builder.build();
     }
@@ -108,8 +105,7 @@ public class KSessionHttp {
     @GET
     @Path("/workItemHandlers")
     public Response printWorkItemHandlers() {
-        String kBaseContent = kProxy.printWorkItemHandlers();
-        ResponseBuilder builder = Response.ok(kBaseContent);
+        ResponseBuilder builder = Response.ok("Not implemented");
         return builder.build();
     }
 
@@ -125,7 +121,6 @@ public class KSessionHttp {
     @Path("/rs/process/tokens/{pInstanceId: .*}/transition")
     public Response signalEvent(@PathParam("pInstanceId")final Long pInstanceId, 
                                 @QueryParam("signalType")final String signalType,
-                                @QueryParam("ksessionId")final Integer ksessionId,
                                 final String signalPayload
                                 ) {
         ResponseBuilder builder = Response.ok();
@@ -138,7 +133,7 @@ public class KSessionHttp {
             }
             if(enableLog)
                 log.info("signalEvent() contents of signalMap as follows :\n"+signalMap);
-            kProxy.signalEvent(signalType, signalMap, pInstanceId, ksessionId);
+            kProxy.signalEvent(signalType, signalMap, pInstanceId);
         }catch(RuntimeException x){
             builder = Response.status(Status.SERVICE_UNAVAILABLE);
         }
@@ -168,7 +163,7 @@ public class KSessionHttp {
             }
             if(enableLog)
                 log.info("completeWorkItem() contents of payloadMap as follows :\n"+payloadMap);
-            kProxy.beanManagedCompleteWorkItem(workItemId, payloadMap, pInstanceId, null);
+            kProxy.completeWorkItem(workItemId, payloadMap, pInstanceId);
         }catch(RuntimeException x){
             builder = Response.status(Status.SERVICE_UNAVAILABLE);
         }

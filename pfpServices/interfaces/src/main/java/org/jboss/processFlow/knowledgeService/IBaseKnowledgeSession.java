@@ -51,9 +51,8 @@ public interface IBaseKnowledgeSession {
      * @param workItemId the id of the workItem that has completed
      * @param pInstanceVariables Map of any parameter results to be passed to process instance
      * @param processInstanceId
-     * @param ksessionId the id of the KnowledgeSession that is managing the lifecycle of the process instance (optional)
      */
-    public void completeWorkItem(Long workItemId, Map<String, Object> pInstanceVariables, Long processInstanceId, Integer ksessionId);
+    public void completeWorkItem(Long workItemId, Map<String, Object> pInstanceVariables, Long processInstanceId);
     
     
     /**
@@ -67,9 +66,6 @@ public interface IBaseKnowledgeSession {
      * @param signalType the type of event
      * @param signalPayload the data associated with this event
      * @param processInstanceId the id of the process instance that should be signaled
-     * @param ksessionId the id of the KnowledgeSession that is managing the lifecycle of the process instance
      */
-    public void signalEvent(String signalType, Object signalPayload, Long processInstanceId, Integer ksessionId);
-
-    public void disposeStatefulKnowledgeSessionAndExtras(Integer sessionId);
+    public void signalEvent(String signalType, Object signalPayload, Long processInstanceId);
 }

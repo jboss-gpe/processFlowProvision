@@ -22,18 +22,20 @@
 
 package org.jboss.processFlow.tasks;
 
+import java.io.Externalizable;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.task.OrganizationalEntity;
+/*import org.jbpm.task.OrganizationalEntity;
 import org.jbpm.task.Task;
 import org.jbpm.task.Status;
 import org.jbpm.task.Content;
-import org.jbpm.task.admin.TasksAdmin;
 import org.jbpm.task.query.TaskSummary;
 import org.jbpm.task.service.ContentData;
 import org.jbpm.task.service.TaskException;
-import org.jbpm.task.service.CannotAddTaskException;
+import org.jbpm.task.service.CannotAddTaskException;*/
+
+import org.kie.internal.task.api.model.*;
 
 /**
  *
@@ -103,6 +105,9 @@ public interface ITaskService {
     public static final String TASK_ID = "TASK_ID";
     public static final String TASK_STATUS="TASK_STATUS";
     public static final String DEADLINE_HANDLER = "org.jboss.processFlow.tasks.DeadlineHandler";
+    public static final String DOCUMENT_CONTENT = "documentContent";
+    public static final String OUTBOUND_CONTENT = "outboundContent";
+    public static final String FAULT_CONTENT = "faultContent";
 
     /**
      *creates a task with status of 'Ready'
@@ -110,12 +115,13 @@ public interface ITaskService {
      * NOTE : this operation will most likely will be invoked by a BRMS customer 'workItemHandler'
      *</pre>
      */
-    public long addTask(Task taskObj, ContentData cData) throws CannotAddTaskException;
+    public long addTask(Task taskObj, ContentData cData);
 
     /**
      * changes task status :  Ready --> Reserved
      */
-    public void claimTask(Long taskId, String idRef, String userId, List<String> roles) throws TaskException;
+    public void claimTask(Long taskId, String userId, List<String> roles);
+    public void claimNextAvailable(String userId, List<String> groupIds, String language);
     
     public TaskSummary guaranteedClaimTaskAssignedAsPotentialOwnerByStatusByGroup(String userId, List<String> groupIds, List<Status> statuses, String language, Integer firstResult, Integer maxResults);
 
@@ -134,7 +140,6 @@ public interface ITaskService {
      *  most remote clients will leverage the method signature that does not include the 'disposeKsession' parameter
      * </pre>
      */
-    public void completeTask(Long taskId, Map<String, Object> outboundTaskVars, String userId, boolean disposeKsession);
     public void completeTask(Long taskId, Map<String, Object> outboundTaskVars, String userId);
     
     /**
@@ -158,11 +163,18 @@ public interface ITaskService {
      * @param userId
      * @param faultName
      * @param disposeKsession
+     * 
+     *
+     * NOTE:  allows for a null userId ... in which case this implementation will use the actual owner of the task to execute the fail task operation
      */
-    public void failTask(Long taskId, Map<String, Object> outboundTaskVars, String userId, String faultName, boolean disposeKsession);
-    public void failTask(Long taskId, Map<String, Object> outboundTaskVars, String userId, String faultName);
+    public void failTask(Long taskId, Map<String, Object> outboundTaskVars, String userId);
 
-    public TaskSummary getTask(Long taskId);
+    /**
+     * 
+     * @param taskId
+     * @return Externalizable  :  specifically, instance of:  org.jbpm.task.query.TaskSummary
+     */
+    public Externalizable getTask(Long taskId);
 
     /**
      * Note:  returns a Hibernate lazy-loaded entity.  Subsequently client to this function
@@ -178,12 +190,9 @@ public interface ITaskService {
      * <pre>
      * NOTE:  underlying jbpm5 TaskServiceSession does not allow for outbound task variables with Operation.Skip
      *        will still use the "outboundTaskVars" passed in this function to populate process instance variables with completeWorkItem() invocation
-     * most remote clients will leverage the method signature that does not include the 'disposeKsession' parameter
      * </pre>
      */
-    public void skipTask(Long taskId, String userId, Map<String, Object> outboundTaskVars, boolean disposeKsession);
     public void skipTask(Long taskId, String userId, Map<String, Object> outboundTaskVars);
-    
     
     /**
      * invoked internally be PFPAddHumanTaskHandler
@@ -213,53 +222,36 @@ public interface ITaskService {
     public List<TaskSummary> getTasksAssignedAsPotentialOwnerByStatusByGroup(String userId, List<String> groupIds, List<Status> statuses, String language, Integer firstResult, Integer maxResults);
     public List<TaskSummary> getTasksAssignedAsPotentialOwnerByStatus(String userId, List<Status> statuses, String language, Integer firstResult, Integer maxResults);
 
-
-    /**
-     *getTasksByProcessInstance
-     *<pre>
-     *- NOTE:  Status taskStatus parameter is optional
-     *</pre>
-     */
-    public List<TaskSummary> getTasksByProcessInstance(Long processInstanceId, Status taskStatus);
+    public List<Long> getTasksByProcessInstance(Long processInstanceId);
 
 
     /**
-     * getTaskContent
-     * <pre>
-     *   to invoke this method, provide taskId and boolean dictating whether to return :
-     *      1)  inbound task variables   (true)
-     *               or
-     *      2)  outbound task variables  (false)
-     * <pre>
+     * 
+     * @param taskId
+     * @param contentType options:
+     * 		ITaskService.DOCUMENT_CONTENT
+     * 		ITaskService.OUTBOUND_CONTENT
+     * 		ITaskService.FAULT_CONTENT
+     * @return Map<String,Object> contentData
      */
-    public Map<String,Object> getTaskContent(Long taskId, Boolean inbound);
+    public Map<String,Object> getTaskContent(Long taskId, String contentType);
     
-    
-    /**
-     * setTaskContent
-     * <pre>
-     *   to invoke this method, provide jbpm5 Task, Map of task variables and boolean dictating whether to set these variables as :
-     *      1)  inbound task variables   (true)
-     *               or
-     *      2)  outbound task variables  (false)
-     * <pre>
-     */
-    public void setTaskContent(Task taskObj, Boolean inbound, Map<String, Object> taskContent);
+    public void addOutboundContent(Task taskObj, Map<String, Object> taskContent);
     
     
     /**
      * printTaskContent
      * @param taskId taskId
-     * @param inbound indicates whether to print inbound(true) or outbound(false) task variables
+     * @param contentType options:
+     * 		ITaskService.DOCUMENT_CONTENT
+     * 		ITaskService.OUTBOUND_CONTENT
+     * 		ITaskService.FAULT_CONTENT
      * @return
      */
-    public String printTaskContent(Long taskId, Boolean inbound);
+    public String printTaskContent(Long taskId, String contentType);
 
     public String getTaskName(Long taskId, String language);
-    public List<TaskSummary> getAssignedTasks(String userId, List<Status> statuses, String language);
-    public List query(String qlString, Integer size, Integer offset);
-    public Content getContent(Long contentId);
-    public Map populateHashWithTaskContent(Long contentId, String keyName);
+    public List<TaskSummary> getTasksOwned(String userId, List<Status> statuses, String language);
     public void releaseTask(Long taskId, String userId);
 
 }
