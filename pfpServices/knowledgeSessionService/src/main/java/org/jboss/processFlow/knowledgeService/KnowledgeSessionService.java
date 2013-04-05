@@ -79,7 +79,7 @@ import org.jboss.processFlow.util.MessagingUtil;
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSessionServiceMXBean {
     
-	public static final String EMF_NAME = "org.jbpm.persistence.jpa";
+    public static final String EMF_NAME = "org.jbpm.persistence.jpa";
     private Logger log = Logger.getLogger("KnowledgeSessionService");
     
     @Inject
@@ -112,16 +112,16 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
             gwDObj = (Destination)MessagingUtil.grabJMSObject(gwDObjName);
             
             rEnvironment = new DefaultRuntimeEnvironment(jbpmCoreEMF);
-            rEnvironment.setUserGroupCallback(new JBossUserGroupCallbackImpl("classpath:/usergroups.properties"));
+            //rEnvironment.setUserGroupCallback(new JBossUserGroupCallbackImpl("classpath:/usergroups.properties"));
             
             if(sessionMgmtStrategy.equals(IKnowledgeSessionService.DEFAULT_PER_PINSTANCE)){
-            	rManager = rmFactory.newPerProcessInstanceRuntimeManager(rEnvironment);
+                rManager = rmFactory.newPerProcessInstanceRuntimeManager(rEnvironment);
             }else if(sessionMgmtStrategy.equals(IKnowledgeSessionService.DEFAULT_PER_REQUEST)){
-            	rManager = rmFactory.newPerRequestRuntimeManager(rEnvironment);
+                rManager = rmFactory.newPerRequestRuntimeManager(rEnvironment);
             }else if (sessionMgmtStrategy.equals(IKnowledgeSessionService.DEFAULT_SINGLETON)){
-            	rManager = rmFactory.newSingletonRuntimeManager(rEnvironment);
+                rManager = rmFactory.newSingletonRuntimeManager(rEnvironment);
             }else {
-            	throw new RuntimeException("start() the following sessionMgmtStrategy is not valid : "+sessionMgmtStrategy);
+                throw new RuntimeException("start() the following sessionMgmtStrategy is not valid : "+sessionMgmtStrategy);
             }
         } catch(Exception x) {
             throw new RuntimeException(x);
@@ -139,7 +139,7 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
     }
     
     public void addAssetToRuntimeEnvironment(File processFile){
-    	rEnvironment.addAsset(ResourceFactory.newFileResource(processFile), ResourceType.BPMN2);
+        rEnvironment.addAsset(ResourceFactory.newFileResource(processFile), ResourceType.BPMN2);
     }
     
     /**
@@ -176,94 +176,94 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
                 }
             }
         } else {
-        	KieSession kSession = null;
-        	try {
-        		kSession = rManager.getRuntime(ProcessInstanceIdContext.get()).getKieSession();
-        		ProcessInstance pInstance = kSession.startProcess(processId, pInstanceVariables);
-        		
-        		Map<String, Object> returnMap = new HashMap<String, Object>();
-        		returnMap.put(IKnowledgeSessionService.PROCESS_INSTANCE_ID, pInstance.getId());
-        		returnMap.put(IKnowledgeSessionService.PROCESS_INSTANCE_STATE, pInstance.getState());
-        		returnMap.put(IKnowledgeSessionService.KSESSION_ID, kSession.getId());
-        		return returnMap;
-        	}finally {
-        		dispose(kSession);
-        	}
+            KieSession kSession = null;
+            try {
+                kSession = rManager.getRuntime(ProcessInstanceIdContext.get()).getKieSession();
+                ProcessInstance pInstance = kSession.startProcess(processId, pInstanceVariables);
+                
+                Map<String, Object> returnMap = new HashMap<String, Object>();
+                returnMap.put(IKnowledgeSessionService.PROCESS_INSTANCE_ID, pInstance.getId());
+                returnMap.put(IKnowledgeSessionService.PROCESS_INSTANCE_STATE, pInstance.getState());
+                returnMap.put(IKnowledgeSessionService.KSESSION_ID, kSession.getId());
+                return returnMap;
+            }finally {
+                dispose(kSession);
+            }
         }
     }
     
     public void signalEvent(String signalType, Object signalValue, Long processInstanceId) {
-    	KieSession kSession = null;
-    	try {
-    		kSession = rManager.getRuntime(ProcessInstanceIdContext.get(processInstanceId)).getKieSession();
-    		kSession.signalEvent(signalType, signalValue, processInstanceId);
-    	}finally {
-    		dispose(kSession);
-    	}
+        KieSession kSession = null;
+        try {
+            kSession = rManager.getRuntime(ProcessInstanceIdContext.get(processInstanceId)).getKieSession();
+            kSession.signalEvent(signalType, signalValue, processInstanceId);
+        }finally {
+            dispose(kSession);
+        }
     }
     
     /**
-	 * completeWorkItem
-	 * <pre>
-	 * this method will block until the existing process instance either completes or arrives at a wait state
-	 *
-	 * will deliver to KSessionManagement via JMS if inbound pInstanceVariables map contains an entry keyed by IKnowledgeSessionService.DELIVER_ASYNC
-	 * </pre>
-	 */ 
-	public void completeWorkItem(Long workItemId, Map<String, Object> pInstanceVariables, Long pInstanceId) {
-	    if(pInstanceVariables != null && pInstanceVariables.containsKey(IKnowledgeSessionService.DELIVER_ASYNC)) {
-	        Session sessionObj = null;
-	        try {
-	            pInstanceVariables.remove(IKnowledgeSessionService.DELIVER_ASYNC);
-	            sessionObj = connectionObj.createSession(false, Session.AUTO_ACKNOWLEDGE);
-	            MessageProducer m_sender = sessionObj.createProducer(gwDObj);
-	            ObjectMessage oMessage = sessionObj.createObjectMessage();
-	            oMessage.setObject((HashMap<String,Object>)pInstanceVariables);
-	            oMessage.setStringProperty(IKnowledgeSessionService.OPERATION_TYPE, IKnowledgeSessionService.COMPLETE_WORK_ITEM);
-	            oMessage.setLongProperty(IKnowledgeSessionService.WORK_ITEM_ID, workItemId);
-	            oMessage.setLongProperty(IKnowledgeSessionService.PROCESS_INSTANCE_ID, pInstanceId);
-	            m_sender.send(oMessage);
-	        } catch(JMSException x) {
-	            throw new RuntimeException(x);
-	        }finally {
-	            if(sessionObj != null) {
-	                try { sessionObj.close(); }catch(Exception x){ x.printStackTrace(); }
-	            }
-	        }
-	    } else {
-	    	KieSession kSession = null;
-	    	try {
-	    		kSession = rManager.getRuntime(ProcessInstanceIdContext.get(pInstanceId)).getKieSession();
-	    		kSession.getWorkItemManager().completeWorkItem(workItemId, pInstanceVariables);
-	    		kSession.dispose();
-	    	}finally {
-	    		dispose(kSession);
-	    	}
-	    }
-	}
+     * completeWorkItem
+     * <pre>
+     * this method will block until the existing process instance either completes or arrives at a wait state
+     *
+     * will deliver to KSessionManagement via JMS if inbound pInstanceVariables map contains an entry keyed by IKnowledgeSessionService.DELIVER_ASYNC
+     * </pre>
+     */ 
+    public void completeWorkItem(Long workItemId, Map<String, Object> pInstanceVariables, Long pInstanceId) {
+        if(pInstanceVariables != null && pInstanceVariables.containsKey(IKnowledgeSessionService.DELIVER_ASYNC)) {
+            Session sessionObj = null;
+            try {
+                pInstanceVariables.remove(IKnowledgeSessionService.DELIVER_ASYNC);
+                sessionObj = connectionObj.createSession(false, Session.AUTO_ACKNOWLEDGE);
+                MessageProducer m_sender = sessionObj.createProducer(gwDObj);
+                ObjectMessage oMessage = sessionObj.createObjectMessage();
+                oMessage.setObject((HashMap<String,Object>)pInstanceVariables);
+                oMessage.setStringProperty(IKnowledgeSessionService.OPERATION_TYPE, IKnowledgeSessionService.COMPLETE_WORK_ITEM);
+                oMessage.setLongProperty(IKnowledgeSessionService.WORK_ITEM_ID, workItemId);
+                oMessage.setLongProperty(IKnowledgeSessionService.PROCESS_INSTANCE_ID, pInstanceId);
+                m_sender.send(oMessage);
+            } catch(JMSException x) {
+                throw new RuntimeException(x);
+            }finally {
+                if(sessionObj != null) {
+                    try { sessionObj.close(); }catch(Exception x){ x.printStackTrace(); }
+                }
+            }
+        } else {
+            KieSession kSession = null;
+            try {
+                kSession = rManager.getRuntime(ProcessInstanceIdContext.get(pInstanceId)).getKieSession();
+                kSession.getWorkItemManager().completeWorkItem(workItemId, pInstanceVariables);
+                kSession.dispose();
+            }finally {
+                dispose(kSession);
+            }
+        }
+    }
 
-	public void upgradeProcessInstance(long processInstanceId, String processId, Map<String, Long> nodeMapping) {
-		KieSession kSession = null;
-		try {
-			kSession = rManager.getRuntime(ProcessInstanceIdContext.get(processInstanceId)).getKieSession();
-			WorkflowProcessInstanceUpgrader.upgradeProcessInstance(kSession, processInstanceId, processId, nodeMapping);
-		}finally {
-			dispose(kSession);
-		}
-	}
-
-	public void abortProcessInstance(Long processInstanceId) {
+    public void upgradeProcessInstance(long processInstanceId, String processId, Map<String, Long> nodeMapping) {
         KieSession kSession = null;
-    	try {
-    		kSession = rManager.getRuntime(ProcessInstanceIdContext.get(processInstanceId)).getKieSession();
-    		kSession.abortProcessInstance(processInstanceId);
-    	}finally {
-    		dispose(kSession);
-    	}
+        try {
+            kSession = rManager.getRuntime(ProcessInstanceIdContext.get(processInstanceId)).getKieSession();
+            WorkflowProcessInstanceUpgrader.upgradeProcessInstance(kSession, processInstanceId, processId, nodeMapping);
+        }finally {
+            dispose(kSession);
+        }
+    }
+
+    public void abortProcessInstance(Long processInstanceId) {
+        KieSession kSession = null;
+        try {
+            kSession = rManager.getRuntime(ProcessInstanceIdContext.get(processInstanceId)).getKieSession();
+            kSession.abortProcessInstance(processInstanceId);
+        }finally {
+            dispose(kSession);
+        }
     }
     
     @SuppressWarnings("unchecked")
-	public List<ProcessInstanceInfo> getActiveProcessInstances(Map<String, Object> queryCriteria) {
+    public List<ProcessInstanceInfo> getActiveProcessInstances(Map<String, Object> queryCriteria) {
         EntityManager psqlEm = null;
         List<ProcessInstanceInfo> results = null;
         StringBuilder sqlBuilder = new StringBuilder();
@@ -305,107 +305,107 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
     }
     
     public Map<String, Object> getActiveProcessInstanceVariables(Long processInstanceId){
-    	KieSession kSession = null;
-    	Map<String, Object> returnMap = new HashMap<String, Object>();
-    	try {
-    		kSession = rManager.getRuntime(ProcessInstanceIdContext.get(processInstanceId)).getKieSession();
-    		ProcessInstance pInstance = kSession.getProcessInstance(processInstanceId, Boolean.TRUE.booleanValue());
-    		if (pInstance != null) {
-    			Map<String, Object> variables = ((WorkflowProcessInstanceImpl) pInstance).getVariables();
-    			if (variables == null) {
-    				return returnMap;
-    			}
-    			// filter out null values
-    			for (Map.Entry<String, Object> entry: variables.entrySet()) {
-    				if (entry.getValue() != null) {
-    					returnMap.put(entry.getKey(), entry.getValue());
-    				}
-    			}
-    		} else {
-    			log.error("getActiveProcessInstanceVariables() :  Could not find process instance " + processInstanceId);
-    		}
-    	}finally {
-    		dispose(kSession);
-    	}
-    	return returnMap;
+        KieSession kSession = null;
+        Map<String, Object> returnMap = new HashMap<String, Object>();
+        try {
+            kSession = rManager.getRuntime(ProcessInstanceIdContext.get(processInstanceId)).getKieSession();
+            ProcessInstance pInstance = kSession.getProcessInstance(processInstanceId, Boolean.TRUE.booleanValue());
+            if (pInstance != null) {
+                Map<String, Object> variables = ((WorkflowProcessInstanceImpl) pInstance).getVariables();
+                if (variables == null) {
+                    return returnMap;
+                }
+                // filter out null values
+                for (Map.Entry<String, Object> entry: variables.entrySet()) {
+                    if (entry.getValue() != null) {
+                        returnMap.put(entry.getKey(), entry.getValue());
+                    }
+                }
+            } else {
+                log.error("getActiveProcessInstanceVariables() :  Could not find process instance " + processInstanceId);
+            }
+        }finally {
+            dispose(kSession);
+        }
+        return returnMap;
     }
     
     public void setProcessInstanceVariables(Long processInstanceId, Map<String, Object> variables){
-    	KieSession kSession = rManager.getRuntime(ProcessInstanceIdContext.get(processInstanceId)).getKieSession();
-    	ProcessInstance pInstance = kSession.getProcessInstance(processInstanceId, Boolean.TRUE.booleanValue());
-    	try {
-    		if (pInstance != null) {
-    			VariableScopeInstance variableScope = (VariableScopeInstance)((org.jbpm.process.instance.ProcessInstance) pInstance).getContextInstance(VariableScope.VARIABLE_SCOPE);
-    			if (variableScope == null) {
-    				throw new IllegalArgumentException("Could not find variable scope for process instance " + processInstanceId);
-    			}
-    			for (Map.Entry<String, Object> entry: variables.entrySet()) {
-    				variableScope.setVariable(entry.getKey(), entry.getValue());
-    			}
-    		} else {
-    			throw new IllegalArgumentException("Could not find process instance " + processInstanceId);
-    		}
-    	}finally{
-    		dispose(kSession);
-    	}
+        KieSession kSession = rManager.getRuntime(ProcessInstanceIdContext.get(processInstanceId)).getKieSession();
+        ProcessInstance pInstance = kSession.getProcessInstance(processInstanceId, Boolean.TRUE.booleanValue());
+        try {
+            if (pInstance != null) {
+                VariableScopeInstance variableScope = (VariableScopeInstance)((org.jbpm.process.instance.ProcessInstance) pInstance).getContextInstance(VariableScope.VARIABLE_SCOPE);
+                if (variableScope == null) {
+                    throw new IllegalArgumentException("Could not find variable scope for process instance " + processInstanceId);
+                }
+                for (Map.Entry<String, Object> entry: variables.entrySet()) {
+                    variableScope.setVariable(entry.getKey(), entry.getValue());
+                }
+            } else {
+                throw new IllegalArgumentException("Could not find process instance " + processInstanceId);
+            }
+        }finally{
+            dispose(kSession);
+        }
     }
     
     public String printActiveProcessInstanceVariables(Long processInstanceId) {
-		Map<String,Object> vHash = getActiveProcessInstanceVariables(processInstanceId);
-		if(vHash.size() == 0)
-	        log.error("printActiveProcessInstanceVariables() no process instance variables for :\n\tprocessInstanceId = "+processInstanceId);
-	    
-	    StringWriter sWriter = null;
-	    try {
-	        sWriter = new StringWriter();
-	        ObjectMapper jsonMapper = new ObjectMapper();
-	        jsonMapper.writeValue(sWriter, vHash);
-	        return sWriter.toString();
-	    }catch(Exception x){
-	        throw new RuntimeException(x);
-	    }finally {
-	        if(sWriter != null) {
-	            try { sWriter.close();  }catch(Exception x){x.printStackTrace();}
-	        }
-	    }
-	}
-
-	private void dispose(KieSession kSession){
-    	kSession.dispose();
+        Map<String,Object> vHash = getActiveProcessInstanceVariables(processInstanceId);
+        if(vHash.size() == 0)
+            log.error("printActiveProcessInstanceVariables() no process instance variables for :\n\tprocessInstanceId = "+processInstanceId);
+        
+        StringWriter sWriter = null;
+        try {
+            sWriter = new StringWriter();
+            ObjectMapper jsonMapper = new ObjectMapper();
+            jsonMapper.writeValue(sWriter, vHash);
+            return sWriter.toString();
+        }catch(Exception x){
+            throw new RuntimeException(x);
+        }finally {
+            if(sWriter != null) {
+                try { sWriter.close();  }catch(Exception x){x.printStackTrace();}
+            }
+        }
     }
 
-	@Override
-	public String printWorkItemHandlers() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    private void dispose(KieSession kSession){
+        kSession.dispose();
+    }
 
-	@Override
-	public void rebuildKnowledgeBaseViaKnowledgeAgent() throws ConnectException {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public String printWorkItemHandlers() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public void rebuildKnowledgeBaseViaKnowledgeBuilder() {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public void rebuildKnowledgeBaseViaKnowledgeAgent() throws ConnectException {
+        // TODO Auto-generated method stub
+        
+    }
 
-	@Override
-	public String printKnowledgeBaseContent() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public void rebuildKnowledgeBaseViaKnowledgeBuilder() {
+        // TODO Auto-generated method stub
+        
+    }
 
-	@Override
-	public String getAllProcessesInPackage(String pkgName) throws ConnectException {
-		return null;
-	}
+    @Override
+    public String printKnowledgeBaseContent() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public String dumpSessionStatusInfo() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String getAllProcessesInPackage(String pkgName) throws ConnectException {
+        return null;
+    }
+
+    @Override
+    public String dumpSessionStatusInfo() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

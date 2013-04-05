@@ -13,11 +13,6 @@
         <copy toDir="${build.dir}/META-INF/" overwrite="true" verbose="true" >
             <fileset dir="src/main/resources/META-INF" />
         </copy>
-        <antcall target="filter">
-            <param name="source.dir" value="src/main/resources/META-INF" />
-            <param name="file.name" value="beans.xml" />
-            <param name="dest.dir" value="${build.dir}/META-INF" />
-        </antcall>
         <jar jarfile="${build.dir}/processFlow-${ant.project.name}.jar" basedir="${build.dir}" />
         <copy file="${build.dir}/processFlow-${ant.project.name}.jar" toDir="${temp.pfp.services.dir}" overwrite="true" verbose="true" />
 
@@ -25,9 +20,9 @@
         <antcall target="clean" />
         <antcall target="jar" >
             <param name="jar.name" value="processFlow-${ant.project.name}" />
-            <param name="generate.java.doc" value="true" />
+            <param name="generate.java.doc" value="false" />
         </antcall>
-        <copy file="${build.dir}/processFlow-${ant.project.name}-javadoc.jar" toDir="${temp.client.dir}" overwrite="true" verbose="true" />
+        <!--copy file="${build.dir}/processFlow-${ant.project.name}-javadoc.jar" toDir="${temp.client.dir}" overwrite="true" verbose="true" / -->
 
         <!-- now create ksessionService war -->
         <antcall target="war" >

@@ -85,10 +85,10 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
     }
     
     public void claimTask(Long taskId, String userId, List<String> roles) throws TaskException {
-    	taskService.claim(taskId, userId, roles);
+        taskService.claim(taskId, userId, roles);
     }
     public void claimNextAvailable(String userId, List<String> groupIds, String language){
-    	taskService.claimNextAvailable(userId, groupIds, language);
+        taskService.claimNextAvailable(userId, groupIds, language);
     }
     
     public TaskSummary guaranteedClaimTaskAssignedAsPotentialOwnerByStatusByGroup(String userId, List<String> groupIds, List<Status> statuses, String language, Integer firstResult, Integer maxResults){
@@ -116,8 +116,8 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
     public void completeTask(Long taskId, Map<String, Object> outboundTaskVars, String userId) {
         Task taskObj = taskService.getTaskById(taskId);
         if(taskObj.getTaskData().getStatus() != Status.InProgress) {
-        	log.warn("completeTask() task with following id will be changed to status of InProgress: "+taskId);
-        	taskService.start(taskId, userId);
+            log.warn("completeTask() task with following id will be changed to status of InProgress: "+taskId);
+            taskService.start(taskId, userId);
         }
         taskService.complete(taskId, userId, outboundTaskVars);
     }
@@ -135,13 +135,13 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
             userId = taskObj.getTaskData().getActualOwner().getId();
         
         if(taskObj.getTaskData().getStatus() != Status.InProgress) {
-        	throw new PermissionDeniedException("failTask() will not attempt operation due to incorrect existing status of : "+taskObj.getTaskData().getStatus());
+            throw new PermissionDeniedException("failTask() will not attempt operation due to incorrect existing status of : "+taskObj.getTaskData().getStatus());
         }
         taskService.fail(taskId, userId, faultTaskVars);
     }
     
     public void nominateTask(final long taskId, String userId, final List<OrganizationalEntity> potentialOwners){
-    	taskService.nominate(taskId, userId, potentialOwners);
+        taskService.nominate(taskId, userId, potentialOwners);
     }
 
     public void releaseTask(Long taskId, String userId){
@@ -149,20 +149,20 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
     }
     
     public void skipTask(Long taskId, String userId, Map<String, Object> outboundTaskVars) {
-    	addOutboundContent(taskService.getTaskById(taskId), outboundTaskVars);
+        addOutboundContent(taskService.getTaskById(taskId), outboundTaskVars);
         taskService.skip(taskId, userId);
     }
 
     public void skipTaskByWorkItemId(Long workItemId){
-    	Task taskObj = getTaskByWorkItemId(workItemId);
-    	Status tStatus = taskObj.getTaskData().getStatus();
-    	if(tStatus == Status.Obsolete || tStatus == Status.Error || tStatus == Status.Failed) {
-    		log.error("skipTaskByWorkItemId() can not skip task since status is : "+tStatus.name());
-    	}
-    	String userId = ITaskService.ADMINISTRATOR;
-    	User actualOwner = taskObj.getTaskData().getActualOwner();
-    	if(actualOwner != null)
-    		userId = actualOwner.getId();
+        Task taskObj = getTaskByWorkItemId(workItemId);
+        Status tStatus = taskObj.getTaskData().getStatus();
+        if(tStatus == Status.Obsolete || tStatus == Status.Error || tStatus == Status.Failed) {
+            log.error("skipTaskByWorkItemId() can not skip task since status is : "+tStatus.name());
+        }
+        String userId = ITaskService.ADMINISTRATOR;
+        User actualOwner = taskObj.getTaskData().getActualOwner();
+        if(actualOwner != null)
+            userId = actualOwner.getId();
 
         taskService.skip(taskObj.getId(), userId);
     }
@@ -180,31 +180,31 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
      */
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public Externalizable getTask(Long taskId){
-    	Task taskObj = taskService.getTaskById(taskId);
-    	org.jbpm.task.query.TaskSummary tSummary = new org.jbpm.task.query.TaskSummary();
-    	tSummary.setActivationTime(taskObj.getTaskData().getExpirationTime());
-    	tSummary.setCreatedOn(taskObj.getTaskData().getCreatedOn());
-    	tSummary.setDescription(taskObj.getDescriptions().get(0).getText());
-    	tSummary.setExpirationTime(taskObj.getTaskData().getExpirationTime());
-    	tSummary.setId(taskObj.getId());
-    	tSummary.setName(taskObj.getNames().get(0).getText());
-    	tSummary.setPriority(taskObj.getPriority());
-    	tSummary.setProcessId(taskObj.getTaskData().getProcessId());
-    	tSummary.setProcessInstanceId(taskObj.getTaskData().getProcessInstanceId());
-    	tSummary.setSubject(taskObj.getSubjects().get(0).getText());
-    	
-    	org.jbpm.task.User actualOwner = new org.jbpm.task.User();
-    	actualOwner.setId(taskObj.getTaskData().getActualOwner().getId());
-    	tSummary.setActualOwner(actualOwner);
-    	
-    	org.jbpm.task.User createdOwner = new org.jbpm.task.User();
-    	createdOwner.setId(taskObj.getTaskData().getCreatedBy().getId());
-    	tSummary.setCreatedBy(createdOwner);
-    	
+        Task taskObj = taskService.getTaskById(taskId);
+        org.jbpm.task.query.TaskSummary tSummary = new org.jbpm.task.query.TaskSummary();
+        tSummary.setActivationTime(taskObj.getTaskData().getExpirationTime());
+        tSummary.setCreatedOn(taskObj.getTaskData().getCreatedOn());
+        tSummary.setDescription(taskObj.getDescriptions().get(0).getText());
+        tSummary.setExpirationTime(taskObj.getTaskData().getExpirationTime());
+        tSummary.setId(taskObj.getId());
+        tSummary.setName(taskObj.getNames().get(0).getText());
+        tSummary.setPriority(taskObj.getPriority());
+        tSummary.setProcessId(taskObj.getTaskData().getProcessId());
+        tSummary.setProcessInstanceId(taskObj.getTaskData().getProcessInstanceId());
+        tSummary.setSubject(taskObj.getSubjects().get(0).getText());
+        
+        org.jbpm.task.User actualOwner = new org.jbpm.task.User();
+        actualOwner.setId(taskObj.getTaskData().getActualOwner().getId());
+        tSummary.setActualOwner(actualOwner);
+        
+        org.jbpm.task.User createdOwner = new org.jbpm.task.User();
+        createdOwner.setId(taskObj.getTaskData().getCreatedBy().getId());
+        tSummary.setCreatedBy(createdOwner);
+        
         String statusString = taskObj.getTaskData().getStatus().toString();
-    	tSummary.setStatus(org.jbpm.task.Status.valueOf(statusString));
-    	
-    	return tSummary;
+        tSummary.setStatus(org.jbpm.task.Status.valueOf(statusString));
+        
+        return tSummary;
     }
     
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
@@ -220,23 +220,23 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
      */
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public String getTaskName(Long taskId, String language) throws IllegalTaskStateException {
-    	Task taskObj = taskService.getTaskById(taskId);
+        Task taskObj = taskService.getTaskById(taskId);
 
-    	Iterator<I18NText> iTasks = taskObj.getNames().iterator();
-    	while(iTasks.hasNext()){
-    		I18NText iObj = (I18NText)iTasks.next();
-    		if(iObj.getLanguage().equals(language))
-    			return iObj.getText();
-    	}
-    	throw new IllegalTaskStateException("getTaskName() can not find taskName for taskId = "+taskId+" : language = "+language);
+        Iterator<I18NText> iTasks = taskObj.getNames().iterator();
+        while(iTasks.hasNext()){
+            I18NText iObj = (I18NText)iTasks.next();
+            if(iObj.getLanguage().equals(language))
+                return iObj.getText();
+        }
+        throw new IllegalTaskStateException("getTaskName() can not find taskName for taskId = "+taskId+" : language = "+language);
     }
 
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-	public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, List<String> groupIds, String language) {
-	    return taskService.getTasksAssignedAsPotentialOwner(userId, groupIds, language);
-	}
+    public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, List<String> groupIds, String language) {
+        return taskService.getTasksAssignedAsPotentialOwner(userId, groupIds, language);
+    }
 
-	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public List<Long> getTasksByProcessInstance(Long processInstanceId) {
         return taskService.getTasksByProcessInstanceId(processInstanceId);
     }
@@ -267,70 +267,70 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
     }
     
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-	public Map<String,Object> getTaskContent(Long taskId, String contentType) {
-	    Task taskObj = taskService.getTaskById(taskId);
-	    long contentId = 0L;
-	    Map<String, Object> taskContent = null;
-	    if(ITaskService.DOCUMENT_CONTENT.equals(contentType)){
-	    	contentId = taskObj.getTaskData().getDocumentContentId();
-	    }else if(ITaskService.OUTBOUND_CONTENT.equals(contentType)){
-	    	contentId = taskObj.getTaskData().getOutputContentId();
-	    }else if(ITaskService.FAULT_CONTENT.equals(contentType)){
-	    	contentId = taskObj.getTaskData().getFaultContentId();
-	    }else{
-	    	throw new IllegalArgumentException("getTaskContent() invalid contentType = "+contentType);
-	    }
-	    List<Content> contentList = taskService.getAllContentByTaskId(taskId);
-	    for(Content cObj : contentList){
-	    	if(cObj.getId() == contentId)
-	    	    taskContent = (Map<String, Object>)ContentMarshallerHelper.unmarshall(cObj.getContent(), null);
-	    }
-	    return taskContent;
-	}
+    public Map<String,Object> getTaskContent(Long taskId, String contentType) {
+        Task taskObj = taskService.getTaskById(taskId);
+        long contentId = 0L;
+        Map<String, Object> taskContent = null;
+        if(ITaskService.DOCUMENT_CONTENT.equals(contentType)){
+            contentId = taskObj.getTaskData().getDocumentContentId();
+        }else if(ITaskService.OUTBOUND_CONTENT.equals(contentType)){
+            contentId = taskObj.getTaskData().getOutputContentId();
+        }else if(ITaskService.FAULT_CONTENT.equals(contentType)){
+            contentId = taskObj.getTaskData().getFaultContentId();
+        }else{
+            throw new IllegalArgumentException("getTaskContent() invalid contentType = "+contentType);
+        }
+        List<Content> contentList = taskService.getAllContentByTaskId(taskId);
+        for(Content cObj : contentList){
+            if(cObj.getId() == contentId)
+                taskContent = (Map<String, Object>)ContentMarshallerHelper.unmarshall(cObj.getContent(), null);
+        }
+        return taskContent;
+    }
 
-	public void addOutboundContent(Task taskObj, Map<String, Object> taskContent) {
-		taskService.addContent(taskObj.getId(), taskContent);
-	}
+    public void addOutboundContent(Task taskObj, Map<String, Object> taskContent) {
+        taskService.addContent(taskObj.getId(), taskContent);
+    }
 
-	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-	public String printTaskContent(Long taskId, String contentType) {
-	    Map<?,?> contentHash = getTaskContent(taskId, contentType);
-	    StringBuilder sBuilder = new StringBuilder("taskContent taskId = ");
-	    sBuilder.append(taskId);
-	    sBuilder.append("\t: contentType = ");
-	    sBuilder.append(contentType);
-	    for (Map.Entry<?, ?> entry: contentHash.entrySet()) {
-	        sBuilder.append("\n\tkey ="+entry.getKey()+"\t: value = "+entry.getValue());
-	    }
-	    return sBuilder.toString();
-	}
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+    public String printTaskContent(Long taskId, String contentType) {
+        Map<?,?> contentHash = getTaskContent(taskId, contentType);
+        StringBuilder sBuilder = new StringBuilder("taskContent taskId = ");
+        sBuilder.append(taskId);
+        sBuilder.append("\t: contentType = ");
+        sBuilder.append(contentType);
+        for (Map.Entry<?, ?> entry: contentHash.entrySet()) {
+            sBuilder.append("\n\tkey ="+entry.getKey()+"\t: value = "+entry.getValue());
+        }
+        return sBuilder.toString();
+    }
 
-	public void logTaskDetails(Task taskObj) {
-		StringBuilder sBuilder = new StringBuilder("completeTask()");
-	    long workItemId = taskObj.getTaskData().getWorkItemId();
-	    int ksessionIdFromTask = taskObj.getTaskData().getProcessSessionId(); 
-	    long documentContentId = taskObj.getTaskData().getDocumentContentId();
-	    long outputContentId = taskObj.getTaskData().getOutputContentId();
-	    long processInstanceId = taskObj.getTaskData().getProcessInstanceId();
-	
-	    sBuilder.append("\n\ttaskId = ");
-	    sBuilder.append(taskObj.getId());
-	    sBuilder.append("\n\tworkItemId = ");
-	    sBuilder.append(workItemId);
-	    sBuilder.append("\n\tvariables:  processInstance --> task :  documentContentId = ");
-	    sBuilder.append(documentContentId);
-	    sBuilder.append("\n\tvariables:  task --> processInstance :  outputContentId = ");
-	    sBuilder.append(outputContentId);
-	    sBuilder.append("\n\tprocessInstanceId = ");
-	    sBuilder.append(processInstanceId);
-	    sBuilder.append("\n\tksessionIdFromTask = ");
-	    sBuilder.append(ksessionIdFromTask);
-	    log.info(sBuilder.toString());
-	}
+    public void logTaskDetails(Task taskObj) {
+        StringBuilder sBuilder = new StringBuilder("completeTask()");
+        long workItemId = taskObj.getTaskData().getWorkItemId();
+        int ksessionIdFromTask = taskObj.getTaskData().getProcessSessionId(); 
+        long documentContentId = taskObj.getTaskData().getDocumentContentId();
+        long outputContentId = taskObj.getTaskData().getOutputContentId();
+        long processInstanceId = taskObj.getTaskData().getProcessInstanceId();
+    
+        sBuilder.append("\n\ttaskId = ");
+        sBuilder.append(taskObj.getId());
+        sBuilder.append("\n\tworkItemId = ");
+        sBuilder.append(workItemId);
+        sBuilder.append("\n\tvariables:  processInstance --> task :  documentContentId = ");
+        sBuilder.append(documentContentId);
+        sBuilder.append("\n\tvariables:  task --> processInstance :  outputContentId = ");
+        sBuilder.append(outputContentId);
+        sBuilder.append("\n\tprocessInstanceId = ");
+        sBuilder.append(processInstanceId);
+        sBuilder.append("\n\tksessionIdFromTask = ");
+        sBuilder.append(ksessionIdFromTask);
+        log.info(sBuilder.toString());
+    }
 
-	@PostConstruct
+    @PostConstruct
     public void start() throws Exception {
-    	log.info("start()");
+        log.info("start()");
     }
 
     @PreDestroy

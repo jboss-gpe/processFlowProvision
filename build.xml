@@ -157,7 +157,7 @@
                 <unzip src="${install.home}/lib/${brms.deployable.suffix}" dest="${temp.brms.unzip.dir}" />
             </then>
             <else>
-                <echo message="${temp.brms.unzip.dir}/${guvnor.name} already located .... no need to unzip brms again" />
+                <echo message="${temp.brms.unzip.dir}/lib already located .... no need to unzip brms again" />
             </else>
         </if>
     </target>
@@ -438,9 +438,10 @@
         </if>
 
         <copy file="${deps.lib.path}/antlr-runtime-${version.antlr}.jar" todir="${temp.jboss.dir}/pfpModules/org/antlr/antlr-runtime/main" />
+        <copy file="${deps.lib.path}/commons-codec-${version.codec}.jar" todir="${temp.jboss.dir}/pfpModules/org/apache/commons/codec/5/" />
         <copy file="${deps.lib.path}/ecj-${version.ecj}.jar" todir="${temp.jboss.dir}/pfpModules/org/eclipse/jdt/core/compiler/ecj/main" />
         <copy file="${deps.lib.path}/jbpm-human-task-core-${jBPM.version}.jar" todir="${temp.jboss.dir}/pfpModules/org/jbpm/${droolsjbpm.slot}/" />
-        <copy file="${deps.lib.path}/mvel2-${version.mvel}.jar" todir="${temp.jboss.dir}/pfpModules/org/mvel/main" />
+        <copy file="${deps.lib.path}/mvel2-${version.mvel}.jar" todir="${temp.jboss.dir}/pfpModules/org/mvel/mvel2/main" />
         <copy file="${deps.lib.path}/protobuf-java-${version.protobuf}.jar" todir="${temp.jboss.dir}/pfpModules/com/google/protobuf/main" />
         <copy file="${deps.lib.path}/stringtemplate-${version.stringtemplate}.jar" todir="${temp.jboss.dir}/pfpModules/org/antlr/stringtemplate/main" />
         <copy file="${deps.lib.path}/xstream-${version.xstream}.jar" todir="${temp.jboss.dir}/pfpModules/com/thoughtworks/xstream/main" />
@@ -495,6 +496,13 @@
         <copy file="${temp.brms.unzip.dir}/jbpm-human-task-workitems-${jBPM.version}.jar" todir="${temp.jboss.dir}/pfpModules/org/jbpm/${droolsjbpm.slot}/" />
         <copy file="${temp.brms.unzip.dir}/jbpm-persistence-jpa-${jBPM.version}.jar" todir="${temp.jboss.dir}/pfpModules/org/jbpm/${droolsjbpm.slot}/" />
         <copy file="${temp.brms.unzip.dir}/jbpm-workitems-${jBPM.version}.jar" todir="${temp.jboss.dir}/pfpModules/org/jbpm/${droolsjbpm.slot}/" />
+
+        <copy file="${temp.brms.unzip.dir}/droolsjbpm-knowledge-services-${jBPM.version}.jar" todir="${temp.jboss.dir}/pfpModules/org/jbpm/${droolsjbpm.slot}/" />
+        <copy file="${temp.brms.unzip.dir}/executor-services-${jBPM.version}.jar" todir="${temp.jboss.dir}/pfpModules/org/jbpm/${droolsjbpm.slot}/" />
+        <copy file="${temp.brms.unzip.dir}/form-services-${jBPM.version}.jar" todir="${temp.jboss.dir}/pfpModules/org/jbpm/${droolsjbpm.slot}/" />
+        <copy file="${temp.brms.unzip.dir}/jbpm-human-task-services-${jBPM.version}.jar" todir="${temp.jboss.dir}/pfpModules/org/jbpm/${droolsjbpm.slot}/" />
+        <copy file="${temp.brms.unzip.dir}/jbpm-runtime-manager-${jBPM.version}.jar" todir="${temp.jboss.dir}/pfpModules/org/jbpm/${droolsjbpm.slot}/" />
+        <copy file="${temp.brms.unzip.dir}/jbpm-shared-services-${jBPM.version}.jar" todir="${temp.jboss.dir}/pfpModules/org/jbpm/${droolsjbpm.slot}/" />
 
         <copy todir="${temp.jboss.dir}/pfpModules/org/jboss/processFlow/main" >
             <fileset dir="${temp.pfp.lib.dir}" />
@@ -774,7 +782,6 @@
             <equals arg1="${community.or.supported}" arg2="supported" />
             <then><antcall target="unzip.brms.deployable" /></then>
         </if>
-        <antcall target="apply.BZ887847" />
         <antcall target="refresh.master" />
         <antcall target="refresh.slave.hosts" />
         <antcall target="local.provision.brms.webs">
@@ -823,29 +830,5 @@
             <zipfileset dir="${temp.pfp.lib.dir}" prefix="${base.name}/${build.dir}/pfp/lib" />
             <zipfileset dir="${temp.pfp.services.dir}" prefix="${base.name}/${build.dir}/pfp/services" />
         </zip>
-    </target>
-
-    <target name="apply.BZ887847" >
-        <if>
-            <equals arg1="${org.jboss.process.apply.BZ887847}" arg2="true" />
-            <then>
-                <if><not><available file="${install.home}/lib/BZ887847.zip" /></not>
-                    <then>
-                        <fail message="need to download BZ887847.zip from: https://access.redhat.com/jbossnetwork/restricted/listSoftware.html?product=brms.  afterwards, copy to $PFP_HOME/target/lib directory" />
-                    </then>
-                </if>
-                <mkdir dir="${temp.brmsWebs.dir}" />
-                <unzip src="${install.home}/lib/BZ887847.zip" dest="${temp.brmsWebs.dir}" />
-                <copy file="${temp.brmsWebs.dir}/BZ887847/classes/org/drools/guvnor/server/configurations/ApplicationPreferencesInitializer.class"
-                      todir="${temp.brms.unzip.dir}/jboss-brms.war/WEB-INF/classes/org/drools/guvnor/server/configurations"
-                      overwrite="true" verbose="true" />
-                <copy file="${temp.brmsWebs.dir}/BZ887847/classes/org/drools/guvnor/client/configurations/ApplicationPreferences.class"
-                      todir="${temp.brms.unzip.dir}/jboss-brms.war/WEB-INF/classes/org/drools/guvnor/client/configurations"
-                      overwrite="true" verbose="true" />
-                <copy file="${temp.brmsWebs.dir}/BZ887847/lib/droolsjbpm-ide-common-5.3.1.BRMS-BZ_887847.jar"
-                      tofile="${temp.brms.unzip.dir}/binaries/droolsjbpm-ide-common-5.3.1.BRMS.jar" 
-                      overwrite="true" verbose="true" />
-            </then>
-        </if>
     </target>
 </project>

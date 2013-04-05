@@ -22,7 +22,6 @@
   -->
 <module xmlns="urn:jboss:module:1.1" name="org.jboss.processFlow">
     <resources>
-        <resource-root path="processFlow-bam-libs.jar"/>
         <resource-root path="processFlow-common.jar"/>
         <resource-root path="processFlow-interfaces.jar"/>
     </resources>

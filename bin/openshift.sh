@@ -341,7 +341,7 @@ listDigResultsForEachAccount() {
     echo -en "dig results as follows:\n\n\n" > dig_results.txt
     for git_url in `xmlstarlet sel -t -n -m '//openshiftAccounts/account[*]/pfpCore' -v 'git_url' -n $osAccountDetailsFileLocation`; 
     do 
-        git_url=${git_url:31}
+        git_url=${git_url#*@}
         totalLength=${#git_url}
         urlLength=$(($totalLength-19))
         git_url=${git_url:0:$urlLength}

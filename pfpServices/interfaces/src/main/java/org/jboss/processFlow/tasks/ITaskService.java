@@ -229,9 +229,9 @@ public interface ITaskService {
      * 
      * @param taskId
      * @param contentType options:
-     * 		ITaskService.DOCUMENT_CONTENT
-     * 		ITaskService.OUTBOUND_CONTENT
-     * 		ITaskService.FAULT_CONTENT
+     *         ITaskService.DOCUMENT_CONTENT
+     *         ITaskService.OUTBOUND_CONTENT
+     *         ITaskService.FAULT_CONTENT
      * @return Map<String,Object> contentData
      */
     public Map<String,Object> getTaskContent(Long taskId, String contentType);
@@ -243,9 +243,9 @@ public interface ITaskService {
      * printTaskContent
      * @param taskId taskId
      * @param contentType options:
-     * 		ITaskService.DOCUMENT_CONTENT
-     * 		ITaskService.OUTBOUND_CONTENT
-     * 		ITaskService.FAULT_CONTENT
+     *         ITaskService.DOCUMENT_CONTENT
+     *         ITaskService.OUTBOUND_CONTENT
+     *         ITaskService.FAULT_CONTENT
      * @return
      */
     public String printTaskContent(Long taskId, String contentType);

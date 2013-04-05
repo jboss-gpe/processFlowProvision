@@ -20,12 +20,19 @@
 <module xmlns="urn:jboss:module:1.1" name="org.drools" slot="${droolsjbpm.slot}" >
     <resources>
         <resource-root path="drools-compiler-${version.drools}.jar"/>
-        <resource-root path="droolsjbpm-ide-common-${version.drools}.jar"/>
         <resource-root path="drools-core-${version.drools}.jar"/>
         <resource-root path="drools-persistence-jpa-${version.drools}.jar"/>
-        <resource-root path="knowledge-api-${version.drools}.jar"/>
-        <!-- not available in BRMS 5.3.1 
-        <resource-root path="knowledge-internal-api-${version.drools}.jar"/ -->
+        <resource-root path="kie-api-${version.drools}.jar"/>
+        <resource-root path="kie-ci-${version.drools}.jar"/>
+        <resource-root path="kie-commons-data-${version.drools}.jar"/>
+        <resource-root path="kie-commons-io-${version.drools}.jar"/>
+        <resource-root path="kie-commons-regex-${version.drools}.jar"/>
+        <resource-root path="kie-commons-validation-${version.drools}.jar"/>
+        <resource-root path="kie-internal-${version.drools}.jar"/>
+        <resource-root path="kie-nio2-api-${version.drools}.jar"/>
+        <resource-root path="kie-nio2-fs-${version.drools}.jar"/>
+        <resource-root path="kie-nio2-jgit-${version.drools}.jar"/>
+        <resource-root path="kie-nio2-model-${version.drools}.jar"/>
     </resources>
     <dependencies>
         <module name="com.google.protobuf" export="true" />

@@ -30,6 +30,13 @@
         <resource-root path="jbpm-human-task-workitems-${jBPM.version}.jar"/>
         <resource-root path="jbpm-persistence-jpa-${jBPM.version}.jar"/>
         <resource-root path="jbpm-workitems-${jBPM.version}.jar"/>
+
+        <resource-root path="droolsjbpm-knowledge-services-${jBPM.version}.jar"/>
+        <resource-root path="executor-services-${jBPM.version}.jar"/>
+        <resource-root path="form-services-${jBPM.version}.jar"/>
+        <resource-root path="jbpm-human-task-services-${jBPM.version}.jar"/>
+        <resource-root path="jbpm-runtime-manager-${jBPM.version}.jar"/>
+        <resource-root path="jbpm-shared-services-${jBPM.version}.jar"/>
     </resources>
     <dependencies>
         <module name="org.apache.commons.io" export="true" />
