@@ -3,9 +3,9 @@
 batch
 
 # "default" profile is used by brmsWebs
-/profile=default/subsystem=datasources/jdbc-driver=postgresql/:add(driver-module-name=org.postgresql.jdbc,driver-xa-datasource-class-name=org.postgresql.xa.PGXADataSource,jdbc-compliant=false)
+/profile=default/subsystem=datasources/jdbc-driver=postgresql/:add(driver-name=postgresql,driver-module-name=org.postgresql.jdbc,driver-xa-datasource-class-name=org.postgresql.xa.PGXADataSource,jdbc-compliant=false)
 
 # "full-ha" profile is used by pfpCore
-/profile=pfpCore/subsystem=datasources/jdbc-driver=postgresql/:add(driver-module-name=org.postgresql.jdbc,driver-xa-datasource-class-name=org.postgresql.xa.PGXADataSource,jdbc-compliant=false)
+/profile=pfpCore/subsystem=datasources/jdbc-driver=postgresql/:add(driver-name=postgresql,driver-module-name=org.postgresql.jdbc,driver-xa-datasource-class-name=org.postgresql.xa.PGXADataSource,jdbc-compliant=false)
 
 run-batch

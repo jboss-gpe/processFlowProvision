@@ -708,3 +708,26 @@ openshift troubleshooting
             2)  curl
 
 
+server-group and server layout
+seems that there would be two different server groups with switchyard functionality.  it could look  as follows:
+
+
+    server-group name                         profile                       socket-binding-group                    socket-binding-port-offset
+
+---------------------------------------------------------------------------------------------------------------------------------------------------
+        ao-group                                    full                                full-sockets                                        225
+        bo-group                                    full                                full-sockets                                        275
+
+
+if sy.core.server.number.list=0 ,  then only one server jvm would be instantiated per server group on each operating system
+however, the following could be set for that property:  sy.core.server.number.list=0,1,2 
+the value of this property now dictates that there will be three server jvms per server-group on each operating system.
+line 670 of the build.xml indicates that between servers in the same server-group on the same operating system  the port-offset increments by 100.
+subsequently, port-off sets for each jvm server  would be as follows :
+
+
+    ao-group-0 :  225                           bo-group-0 :  275
+    ao-group-1 :  325                           bo-group-1 :  375
+    ao-group-2 :  425                           bo-group-2 :  475
+
+

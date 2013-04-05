@@ -6,6 +6,8 @@ batch
 
 # JBAS014803: Duplicate resource [(\"system-property\" => \"hibernate.hbm2ddl.auto\")]
 #/host=${serverIpAddr}/server-config=${pfp.core.server.id}/system-property=hibernate.hbm2ddl.auto/:add(value=${server.specific.hibernate.hbm2ddl.auto},boot-time=false)
+run-batch
 
+batch
 /host=${serverIpAddr}/server-config=${pfp.core.server.id}/:start(server=${pfp.core.server.id},blocking=true)
 run-batch
