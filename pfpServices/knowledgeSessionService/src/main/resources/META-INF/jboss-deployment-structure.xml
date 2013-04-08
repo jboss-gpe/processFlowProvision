@@ -3,6 +3,14 @@
         <dependencies>
             <module name="org.jboss.processFlow" />
             <module name="org.codehaus.jackson.jackson-mapper-asl" />
+
+            <module name="deployment.droolsjbpm-knowledge-services.jar" />
+            <module name="deployment.jbpm-runtime-manager.jar" />
+            <module name="deployment.executor-services.jar" />
+            <module name="deployment.form-services.jar" />
+            <module name="deployment.jbpm-human-task-services.jar" />
+            <module name="deployment.jbpm-runtime-manager.jar" />
+            <module name="deployment.jbpm-shared-services.jar" />
         </dependencies>
     </deployment>
 

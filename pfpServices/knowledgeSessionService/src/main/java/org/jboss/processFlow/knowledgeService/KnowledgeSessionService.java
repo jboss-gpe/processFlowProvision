@@ -52,7 +52,6 @@ import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.jbpm.runtime.manager.impl.DefaultRuntimeEnvironment;
 import org.jbpm.runtime.manager.impl.SimpleRuntimeEnvironment;
-import org.jbpm.services.task.identity.JBossUserGroupCallbackImpl;
 import org.jbpm.workflow.instance.WorkflowProcessInstanceUpgrader;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 
@@ -114,6 +113,7 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
             rEnvironment = new DefaultRuntimeEnvironment(jbpmCoreEMF);
             //rEnvironment.setUserGroupCallback(new JBossUserGroupCallbackImpl("classpath:/usergroups.properties"));
             
+            /*
             if(sessionMgmtStrategy.equals(IKnowledgeSessionService.DEFAULT_PER_PINSTANCE)){
                 rManager = rmFactory.newPerProcessInstanceRuntimeManager(rEnvironment);
             }else if(sessionMgmtStrategy.equals(IKnowledgeSessionService.DEFAULT_PER_REQUEST)){
@@ -123,8 +123,10 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
             }else {
                 throw new RuntimeException("start() the following sessionMgmtStrategy is not valid : "+sessionMgmtStrategy);
             }
+            */
         } catch(Exception x) {
             throw new RuntimeException(x);
+        }finally {
         }
     }
     
