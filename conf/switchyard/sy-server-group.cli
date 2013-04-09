@@ -41,7 +41,12 @@ batch
 
 #/profile=full/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=formatter,value=%d{HH:mm:ss,SSS} %-5p [%c] %s%E%n)
 /profile=full/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=append,value=false)
-/profile=full/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=level,value=TRACE)
+
+# trace level logging of any fault exceptions that could otherwise be buried in a handler
+/profile=full/subsystem=logging/logger=org.switchyard.bus.camel.audit.FaultProcessor/:add(category=org.switchyard.bus.camel.audit.FaultProcessor,level=TRACE,use-parent-handlers=true)
+
+# provides logging of which transformer is actually being used
+/profile=full/subsystem=logging/logger=org.switchyard.transform.TransformSequence/:add(category=org.switchyard.transform.TransformSequence,level=TRACE,use-parent-handlers=true)
 
 # trace level logging of org.switchyard.transform.TransformerRegistryLoader to view loaded transforms
 /profile=full/subsystem=logging/logger=org.switchyard.transform.TransformerRegistryLoader/:add(category=org.switchyard.transform.TransformerRegistryLoader,level=TRACE,use-parent-handlers=true)
@@ -49,7 +54,7 @@ batch
 # trace level logging of org.switchyard.component.soap view inbound soap
 /profile=full/subsystem=logging/logger=org.switchyard.component.soap.InboundHandler/:add(category=org.switchyard.component.soap.InboundHandler,level=TRACE,use-parent-handlers=true)
 
-# DEBUG level logging of org.switchyard.internal.ExchangeImpl to view message traffic
+# DEBUG level logging of org.switchyard.internal.ExchangeImpl to view message traffic :  equivalent can be set in switchyard.xml by selecting "Enable Message Trace" in SY eclipse plugin
 /profile=full/subsystem=logging/logger=org.switchyard.internal.ExchangeImpl/:add(category=org.switchyard.internal.ExchangeImpl,level=DEBUG,use-parent-handlers=true)
 
 # create sy.core server group and start
