@@ -370,7 +370,7 @@
         <jar jarfile="${guvnor.zipped}" basedir="${guvnor.target}" />
 
         <!-- TO-DO:  change the following to use executeCli function -->
-        <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
+        <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="true">
             <arg value="--connect"/>
             <arg value="--controller=${os.hostname}:${management.port}"/>
             <arg value="deploy ${guvnor.zipped} --name=${guvnor.name} --server-groups=brms-webs-group"/>
@@ -378,7 +378,7 @@
         <jar jarfile="${designer.zipped}" basedir="${designer.target}" />
 
         <!-- TO-DO:  change the following to use executeCli function -->
-        <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
+        <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="true">
             <arg value="--connect"/>
             <arg value="--controller=${os.hostname}:${management.port}"/>
             <arg value="deploy ${designer.zipped} --name=${designer.name} --server-groups=brms-webs-group"/>
@@ -820,10 +820,10 @@
         </if>
         <antcall target="apply.BZ887847" />
         <antcall target="refresh.master" />
-        <antcall target="refresh.slave.hosts" />
         <antcall target="local.provision.brms.webs">
             <param name="refresh.master" value="false"/>
         </antcall>
+        <antcall target="refresh.slave.hosts" />
         <antcall target="local.provision.hornetq" />
         <antcall target="local.provision.pfp.core">
             <param name="refresh.master" value="false"/>

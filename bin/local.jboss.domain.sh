@@ -202,7 +202,7 @@ function killJavaProcesses() {
     for jProc in `ps -C java -o pid=`;
     do
         pInfo=$(ps -p $jProc -f)
-        if [[ $pInfo =~ .*ant.jar.* ]];
+        if [[ $pInfo =~ .*ant.home.* ]];
         then
             echo -en "\nkillJavaProcesses() will not kill ant process = $jProc\n"
         else
