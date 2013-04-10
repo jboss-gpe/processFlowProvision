@@ -1,0 +1,10 @@
+batch
+/host=${serverIpAddr}/server-config=brms-webs:add(auto-start=false,group=brms-webs-group)
+/host=${serverIpAddr}/server-config=brms-webs/jvm=brms-webs/:add(max-heap-size=1536m,env-classpath-ignored=false,permgen-size=128m,max-permgen-size=512m,heap-size=128m)
+/host=${serverIpAddr}/server-config=brms-webs/jvm=brms-webs/:write-attribute(name=jvm-options,value=["-Xrunjdwp:transport=dt_socket,address=${brms.webs.group.debugger.port},server=y,suspend=n"])
+run-batch
+
+#this seems to fail everytime on a slave node using eap6.0.1
+batch
+/host=${serverIpAddr}/server-config=brms-webs/:write-attribute(name=socket-binding-port-offset,value=${brms.webs.port.offset})
+run-batch

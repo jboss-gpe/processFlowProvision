@@ -51,6 +51,7 @@
                             <arg value="refreshSlaveHosts" />
                             <arg value="-serverIpAddr=${serverIpAddr}" />
                             <arg value="-orgName=${organization.name}" />
+                            <arg value="-localGuvnorRepoLocation=${local.guvnor.repo.location}" />
                         </exec>
                     </then>
                 </if>
@@ -210,11 +211,17 @@
             <param name="file.name" value="components.xml"/>
             <param name="dest.dir" value="${guvnor.target}/WEB-INF"/>
         </antcall>
-        <!--antcall target="filter">
-            <param name="source.dir" value="conf/brmsWebs/drools-guvnor"/>
-            <param name="file.name" value="repository.xml"/>
-            <param name="dest.dir" value="${local.guvnor.repo.location}"/>
-        </antcall -->
+        <if>
+            <equals arg1="${org.jboss.processFlow.brmsWebs.clustered}" arg2="true" />
+            <then>
+                <antcall target="filter">
+                    <param name="source.dir" value="conf/brmsWebs/drools-guvnor"/>
+                    <param name="file.name" value="repository.xml"/>
+                    <param name="dest.dir" value="${local.guvnor.repo.location}"/>
+                </antcall>
+            </then>
+            <else><echo message="brmsWebs not clustered.  will just use default derby with filesystem persistence" /></else>
+        </if>
         <antcall target="filter">
             <param name="source.dir" value="conf/brmsWebs/drools-guvnor/WEB-INF/classes"/>
             <param name="dest.dir" value="${guvnor.target}/WEB-INF/classes"/>
@@ -351,38 +358,13 @@
     </target>
 
     <target name="local.deploy.jbpm.gwt.console" >
-        <!-- antcall target="install.reporting.into.jboss7" / -->
         <jar jarfile="${console.server.zipped}" basedir="${console.server.target}" />
-        <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="true">
-            <arg value="--connect"/>
-            <arg value="--controller=${os.hostname}:${management.port}"/>
-            <arg value="deploy ${console.server.zipped} --name=${console.server.name} --server-groups=brms-webs-group"/>
-        </exec>
         <jar jarfile="${console.zipped}" basedir="${console.target}" />
-        <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="true">
-            <arg value="--connect"/>
-            <arg value="--controller=${os.hostname}:${management.port}"/>
-            <arg value="deploy ${console.zipped} --name=${console.name} --server-groups=brms-webs-group"/>
-        </exec>
     </target>
 
     <target name="local.deploy.guvnor.designer" >
         <jar jarfile="${guvnor.zipped}" basedir="${guvnor.target}" />
-
-        <!-- TO-DO:  change the following to use executeCli function -->
-        <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="true">
-            <arg value="--connect"/>
-            <arg value="--controller=${os.hostname}:${management.port}"/>
-            <arg value="deploy ${guvnor.zipped} --name=${guvnor.name} --server-groups=brms-webs-group"/>
-        </exec>
         <jar jarfile="${designer.zipped}" basedir="${designer.target}" />
-
-        <!-- TO-DO:  change the following to use executeCli function -->
-        <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="true">
-            <arg value="--connect"/>
-            <arg value="--controller=${os.hostname}:${management.port}"/>
-            <arg value="deploy ${designer.zipped} --name=${designer.name} --server-groups=brms-webs-group"/>
-        </exec>
     </target>
 
     <!-- Install Eclipse plugins -->
@@ -549,14 +531,9 @@
         <copy todir="${pfp.module.path}" overwrite="true" >
             <fileset dir="${temp.jboss.dir}/pfpModules" />
         </copy>
-        <if>
-            <equals arg1="${org.jboss.processFlow.provision.switchyard}" arg2="true" />
-            <then>
-                    <antcall target="configure.sy.modules" >
-                        <param name="non.openshift.environment" value="true"/>
-                    </antcall>
-            </then>
-        </if>
+        <antcall target="configure.sy.modules" >
+            <param name="non.openshift.environment" value="true"/>
+        </antcall>
     </target>
 
     <target name="resolve.droolsjbpm.dependencies" >
@@ -572,6 +549,19 @@
              refid="droolsjbpm.deps.path">
         </pathconvert>
         <echo message="droolsjbpm-build-bootstrap-version = ${echo.droolsjbpm.deps.path} " />
+    </target> 
+
+    <target name="local.configure.core.services">
+        <for list="${org.jboss.eap.host.list}" param="serverIpAddr">
+            <sequential>
+                <var name="serverIpAddr" value="@{serverIpAddr}" />
+                <antcall target="cli.batch">
+                    <param name="cli.source.dir" value="conf/jboss/"/>
+                    <param name="cli.to.filter.and.execute" value="core-services-up.cli"/>
+                    <param name="cli.fail.on.error" value="true"/>
+                </antcall>
+            </sequential>
+        </for>
     </target> 
 
     <target name="local.provision.hornetq">
@@ -701,15 +691,35 @@
                     <equals arg1="${refresh.master}" arg2="true" />
                     <then><antcall target="refresh.master" /></then>
                 </if>
-                <!-- in clustered environment, needs to change to HA EJB ?  -->
+                <antcall target="local.deploy.guvnor.designer" />
+                <antcall target="local.deploy.jbpm.gwt.console" />
                 <math result="pfp.core.remoting.port" operand1="${base.remoting.port}" operation="+" operand2="${pfp.core.base.port.offset}" datatype="int" />
                 <antcall target="cli.batch">
                     <param name="cli.source.dir" value="conf/brmsWebs"/>
-                    <param name="cli.to.filter.and.execute" value="brmsWebs-config-up.cli"/>
+                    <param name="cli.to.filter.and.execute" value="brmsWebs-config-group.cli"/>
                     <param name="cli.fail.on.error" value="true"/>
                 </antcall> 
-                <antcall target="local.deploy.guvnor.designer" />
-                <antcall target="local.deploy.jbpm.gwt.console" />
+
+                <for list="${org.jboss.eap.host.list}" param="serverIpAddr">
+                    <sequential>
+                        <var name="serverIpAddr" value="@{serverIpAddr}" />
+                        <antcall target="cli.batch">
+                            <param name="cli.source.dir" value="conf/brmsWebs"/>
+                            <param name="cli.to.filter.and.execute" value="brmsWebs-config-server.cli"/>
+                            <param name="cli.fail.on.error" value="false"/>
+                        </antcall> 
+                        <if>
+                            <equals arg1="${org.jboss.processFlow.brmsWebs.clustered}" arg2="true" />
+                            <then>
+                                <antcall target="cli.batch">
+                                    <param name="cli.source.dir" value="conf/brmsWebs"/>
+                                    <param name="cli.to.filter.and.execute" value="brmsWebs-config-up.cli"/>
+                                    <param name="cli.fail.on.error" value="false"/>
+                                </antcall> 
+                            </then>
+                        </if>
+                    </sequential>
+                </for>
             </then>
             <else>
                 <echo message="local.provision.brms.webs:  org.jboss.processFlow.provision.brmsWebs = ${org.jboss.processFlow.provision.brmsWebs}" />
@@ -820,10 +830,8 @@
         </if>
         <antcall target="apply.BZ887847" />
         <antcall target="refresh.master" />
-        <antcall target="local.provision.brms.webs">
-            <param name="refresh.master" value="false"/>
-        </antcall>
         <antcall target="refresh.slave.hosts" />
+        <antcall target="local.configure.core.services" />
         <antcall target="local.provision.hornetq" />
         <antcall target="local.provision.pfp.core">
             <param name="refresh.master" value="false"/>
@@ -832,6 +840,9 @@
             <param name="refresh.master" value="false"/>
         </antcall>
         <antcall target="create.temp.client.dir" />
+        <antcall target="local.provision.brms.webs">
+            <param name="refresh.master" value="false"/>
+        </antcall>
         <echo message="you may find executing the following will be helpful to diagnose your environment :" />
         <echo message="    curl -v -X PUT -HAccept:text/plain ${os.hostname}:8330/knowledgeService/kbase               :   refresh kBase in PFP's kSessionService" />
         <echo message="    curl -v -X GET -HAccept:text/plain ${os.hostname}:8330/knowledgeService/kbase/content       :   view contents of kbase" />

@@ -20,6 +20,8 @@
         <property name="properties">
             <key>org.drools.repository.configurator</key><value>org.drools.repository.jackrabbit.JackrabbitRepositoryConfigurator</value>
             <!--  the root directory for the repo storage the directory must exist. -->
+
+            <!-- JA Bride:  setting location of guvnor repo at build time -->
             <key>repository.root.directory</key><value>${guvnor.repo.location}</value>
         </property>
 

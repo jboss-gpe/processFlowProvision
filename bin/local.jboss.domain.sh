@@ -57,6 +57,9 @@ do
         -orgName=*)
             orgName=`echo $var | cut -f2 -d\=` 
             ;;
+        -localGuvnorRepoLocation=*)
+            localGuvnorRepoLocation=`echo $var | cut -f2 -d\=` 
+            ;;
     esac
 done
 
@@ -143,7 +146,7 @@ executeCli() {
 
 # ./bin/local.jboss.domain.sh refreshSlaveHosts -serverIpAddr=eap6cluster1 -orgName=gpse
 refreshSlaveHosts() {
-    echo -en "refreshSlaveHosts() serverIpAddr = $serverIpAddr : orgName=$orgName\n"
+    echo -en "refreshSlaveHosts() serverIpAddr = $serverIpAddr : orgName=$orgName : localGuvnorRepoLocation=$localGuvnorRepoLocation\n"
     #  0)  verify network connectivity to remote host
     port=22;
     checkRemotePort;
@@ -161,8 +164,8 @@ refreshSlaveHosts() {
     # 2) scp .bashrc with module path env variable 
     scp conf/shell/slavebashrc jboss@$serverIpAddr:/home/jboss/.bashrc
 
-    # 3)  blow away existing eap
-    ssh jboss@$serverIpAddr 'mkdir -p ~/jbossProjects/downloads; rm -rf $JBOSS_HOME'
+    # 3)  blow away existing eap and make sure local guvnor filesystem exists
+    ssh jboss@$serverIpAddr "mkdir -p ~/jbossProjects/downloads; rm -rf $JBOSS_HOME; mkdir -p $localGuvnorRepoLocation"
 
     # 4)  scp and  unzip jboss in remote host
     remoteZip=$(ssh jboss@$serverIpAddr "ls ~/jbossProjects/downloads/jboss-eap-6.0.1.zip")
@@ -171,7 +174,7 @@ refreshSlaveHosts() {
     fi
 
     # 5)  clone domain root and rename to domain-$orgName
-    ssh jboss@$serverIpAddr "unzip ~/jbossProjects/downloads/jboss-eap-6.0.1.zip -d /opt; cp -r /opt/jboss-eap-6.0/domain /opt/jboss-eap-6.0/domain-$orgName"
+    ssh jboss@$serverIpAddr "rm -rf /opt/jboss-eap-6.0; unzip ~/jbossProjects/downloads/jboss-eap-6.0.1.zip -d /opt; cp -r /opt/jboss-eap-6.0/domain /opt/jboss-eap-6.0/domain-$orgName"
 
     # 6) rsync modules, slave host.xml, application-roles.properties and application-users.properties
     rsync -avz target/jboss/* jboss@$serverIpAddr:/opt/jboss-eap-6.0
@@ -179,7 +182,10 @@ refreshSlaveHosts() {
         #                            - attempt to use generic userId for communication back to parent process controller (rather than userId equivalent to hostname)
         #                            - may need to generate management user for each host in master node (depending on step #2)
 
-    # 7)  start remote host
+    # 7)  copy guvnor repository.xml for those environments that want clustered brmsWebs (won't hurt if not interersted in clustered brmsWebs)
+    scp $localGuvnorRepoLocation/repository.xml jboss@$serverIpAddr:$localGuvnorRepoLocation
+
+    # 8)  start remote host
     ssh jboss@$serverIpAddr "cd /opt/jboss-eap-6.0; nohup ./bin/domain.sh -b=$serverIpAddr -Djboss.domain.base.dir=domain-$orgName -Djboss.domain.master.address=$HOSTNAME -Djboss.domain.master.port=9999 > eap.log 2>&1 &"
 }
 

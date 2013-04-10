@@ -1,21 +1,13 @@
 batch
-
 /profile=pfpCore/subsystem=datasources/data-source=ExampleDS/:disable
 /profile=pfpCore/subsystem=datasources/data-source=ExampleDS/:remove
 /profile=pfpCore/subsystem=ejb3/:write-attribute(name=enable-statistics,value=true)
-
-
-# set up security and networking to invoke remote HA Timer Management service
-# set up ejb client side pre-reqs as per :  https://docs.jboss.org/author/display/AS71/EJB+invocations+from+a+remote+server+instance
-#/host=master/core-service=management/security-realm=ejb-security-realm:add()
-#/host=master/core-service=management/security-realm=ejb-security-realm/server-identity=secret:add(value="${pfp.core.remoting.base64.passcode}")
-/socket-binding-group=full-sockets/remote-destination-outbound-socket-binding=remote-ejb/:add(fixed-source-port=false, port=${hornetq.remoting.port},host=${pfp.core.host.name})
 run-batch
 
 
 batch
 # setup remote-outbound-connection called 'remote-ha-group-ejb-connection' and reference in jboss-ejb-client.xml
-/profile=pfpCore/subsystem=remoting/remote-outbound-connection=remote-ha-group-ejb-connection/:add(outbound-socket-binding-ref=remote-ejb,username=${pfp.core.remoting.user.name},security-realm=ejb-security-realm)
+/profile=pfpCore/subsystem=remoting/remote-outbound-connection=remote-ha-group-ejb-connection/:add(outbound-socket-binding-ref=remote-ejb,username=${pfp.core.remoting.user.name},security-realm=ha-timer-ejb-security-realm)
 /profile=pfpCore/subsystem=remoting/remote-outbound-connection=remote-ha-group-ejb-connection/property=SASL_POLICY_NOANONYMOUS:add(value=false)
 /profile=pfpCore/subsystem=remoting/remote-outbound-connection=remote-ha-group-ejb-connection/property=SSL_ENABLED:add(value=false)
 
@@ -64,6 +56,10 @@ batch
 /profile=pfpCore/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=entries,value=["java:/RemoteConnectionFactory"])
 /profile=pfpCore/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=ha,value=true)
 /profile=pfpCore/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=reconnect-attempts,value=-1)
+
+# define an ejb outbound socket binding (called "remote-ejb") to point to hornetq-ha server
+# allows remote invocation of any ha EJB service on hornetq-ha server from pfp-core servers
+/socket-binding-group=full-sockets/remote-destination-outbound-socket-binding=remote-ejb/:add(fixed-source-port=false, port=${hornetq.remoting.port},host=${pfp.core.host.name})
 
 ##################################################################################################################################
 

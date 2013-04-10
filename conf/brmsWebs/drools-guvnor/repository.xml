@@ -17,6 +17,14 @@
 -->
 <!DOCTYPE Repository PUBLIC "-//The Apache Software Foundation//DTD Jackrabbit 1.4//EN"
                             "http://jackrabbit.apache.org/dtd/repository-1.4.dtd">
+
+<!-- JA Bride:  using default derby database
+         modified for a potential cluster environment as per :
+        [1] https://access.redhat.com/knowledge/docs/en-US/JBoss_Enterprise_BRMS_Platform/5/html/BRMS_Administrator_Guide/Clustering_JBoss_BRMS_with_Jackrabbit2.html
+        [2] https://access.redhat.com/knowledge/solutions/200913
+        [3] https://access.redhat.com/knowledge/solutions/138283
+        [4/ https://access.redhat.com/knowledge/docs/en-US/JBoss_Enterprise_Application_Platform/6/html/Administration_and_Configuration_Guide/chap-HTTP_Clustering_and_Load_Balancing.html
+-->
 <!-- Example Repository Configuration File -->
 <Repository>
     <!--
@@ -140,4 +148,14 @@
         <param name="extractorPoolSize" value="2"/>
         <param name="supportHighlighting" value="true"/>
     </SearchIndex>
+
+    <Cluster id="01" syncDelay="2000">
+        <Journal class="org.apache.jackrabbit.core.journal.DatabaseJournal">
+            <param name="revision" value="${rep.home}/revision.log" />
+            <param name="driver" value="javax.naming.InitialContext"/>
+            <param name="url" value="java:/global/guvnor-cp"/>
+            <param name="schema" value="${guvnor_schema_type}"/>
+        </Journal>
+    </Cluster>
+
 </Repository>
