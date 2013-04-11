@@ -183,7 +183,7 @@ refreshSlaveHosts() {
         #                            - may need to generate management user for each host in master node (depending on step #2)
 
     # 7)  copy guvnor repository.xml for those environments that want clustered brmsWebs (won't hurt if not interersted in clustered brmsWebs)
-    scp $localGuvnorRepoLocation/repository.xml jboss@$serverIpAddr:$localGuvnorRepoLocation
+    scp target/brmsWebs/repository.xml jboss@$serverIpAddr:$localGuvnorRepoLocation
 
     # 8)  start remote host
     ssh jboss@$serverIpAddr "cd /opt/jboss-eap-6.0; nohup ./bin/domain.sh -b=$serverIpAddr -Djboss.domain.base.dir=domain-$orgName -Djboss.domain.master.address=$HOSTNAME -Djboss.domain.master.port=9999 > eap.log 2>&1 &"

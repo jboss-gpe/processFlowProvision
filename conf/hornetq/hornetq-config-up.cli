@@ -1,0 +1,5 @@
+batch
+/host=${serverIpAddr}/server-config=hornetq-ha/:write-attribute(name=socket-binding-port-offset,value=${hornetq.group.port.offset})
+/host=${serverIpAddr}/server-config=hornetq-ha/:start(server=hornetq-ha,blocking=true)
+run-batch
+

@@ -149,7 +149,8 @@
         <param name="supportHighlighting" value="true"/>
     </SearchIndex>
 
-    <Cluster id="01" syncDelay="2000">
+    <!-- JA Bride -->
+    <Cluster id="${serverIpAddr}" syncDelay="2000">
         <Journal class="org.apache.jackrabbit.core.journal.DatabaseJournal">
             <param name="revision" value="${rep.home}/revision.log" />
             <param name="driver" value="javax.naming.InitialContext"/>

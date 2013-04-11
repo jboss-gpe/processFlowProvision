@@ -284,8 +284,6 @@
                 <property name="guvnor.host" value="${os.hostname}:${brms.webs.http.port}"/>
                 <property name="guvnor.external.host" value="${guvnor.host}"/>
                 <property name="org.jboss.processFlow.remoting.ejb.receiver" value="${local.org.jboss.processFlow.remoting.ejb.receiver}"/>
-                <property name="org.jboss.remoting.host.name" value="${os.hostname}"/>
-                <property name="org.jboss.remoting.port" value="${hornetq.remoting.port}"/>
                 <property name="org.jboss.processFlow.is.hornetq.inVm" value="false"/>
             </else>
         </if>

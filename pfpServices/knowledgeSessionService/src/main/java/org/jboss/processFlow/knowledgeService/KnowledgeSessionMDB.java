@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 
 @MessageDriven(name="KnowledgeSessionMDB", activationConfig = {
     @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
-    @ActivationConfigProperty(propertyName = "destination", propertyValue="jms/processFlow.knowledgeSessionQueue")
+    @ActivationConfigProperty(propertyName = "destination", propertyValue="processFlow.knowledgeSessionQueue")
 })
 public class KnowledgeSessionMDB implements MessageListener {
     

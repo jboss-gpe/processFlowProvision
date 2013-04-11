@@ -3,7 +3,7 @@ batch
 /server-group=other-server-group/:remove
 
 # set the periodic-rotating-file-handler log level to TRACE for all profiles used by PFP
-/profile=default/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=level,value=TRACE)
+/profile=ha/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=level,value=TRACE)
 /profile=full/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=level,value=TRACE)
 /profile=full-ha/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=level,value=TRACE)
 /profile=pfpCore/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=level,value=TRACE)

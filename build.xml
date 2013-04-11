@@ -46,6 +46,11 @@
                             <param name="source.dir" value="conf/jboss/${community.or.supported}/slave"/>
                             <param name="dest.dir" value="${temp.jboss.dir}/domain-${organization.name}/configuration"/>
                         </antcall>
+                        <antcall target="filter">
+                            <param name="source.dir" value="conf/brmsWebs/drools-guvnor"/>
+                            <param name="file.name" value="repository.xml"/>
+                            <param name="dest.dir" value="${temp.brmsWebs.dir}"/>
+                        </antcall>
                         <exec executable="bash" failonerror="true" dir=".">
                             <arg value="bin/local.jboss.domain.sh" />
                             <arg value="refreshSlaveHosts" />
@@ -214,6 +219,7 @@
         <if>
             <equals arg1="${org.jboss.processFlow.brmsWebs.clustered}" arg2="true" />
             <then>
+                <property name="serverIpAddr" value="master" />
                 <antcall target="filter">
                     <param name="source.dir" value="conf/brmsWebs/drools-guvnor"/>
                     <param name="file.name" value="repository.xml"/>
@@ -228,7 +234,6 @@
         </antcall>
         <antcall target="filter">
             <param name="source.dir" value="conf/brmsWebs/drools-guvnor/WEB-INF"/>
-            <param name="file.name" value="jboss-web.xml"/>
             <param name="dest.dir" value="${guvnor.target}/WEB-INF"/>
         </antcall>
         <antcall target="filter">
@@ -454,10 +459,6 @@
         <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/${droolsjbpm.slot}/knowledge-api-${version.drools}.jar" >
             <fileset dir="${deps.lib.path}" ><include name="knowledge-api-*.jar" /></fileset>
         </copy>
-        <!-- doesn't seem to exist in BRMS 5.3.1
-        <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/main/knowledge-internal-api-${version.drools}.jar" >
-            <fileset dir="${deps.lib.path}" ><include name="knowledge-internal-api-*.jar" /></fileset>
-        </copy -->
         <copy tofile="${temp.jboss.dir}/pfpModules/org/mvel/mvel2/main/mvel2-${version.mvel}.jar" >
             <fileset dir="${deps.lib.path}" ><include name="mvel2-*.jar" /></fileset>
         </copy>
@@ -579,9 +580,15 @@
                     <param name="cli.to.filter.and.execute" value="hornetq-config-server.cli"/>
                     <param name="cli.fail.on.error" value="true"/>
                 </antcall>
+                <antcall target="cli.batch">
+                    <param name="cli.source.dir" value="conf/hornetq/"/>
+                    <param name="cli.to.filter.and.execute" value="hornetq-config-up.cli"/>
+                    <param name="cli.fail.on.error" value="true"/>
+                </antcall>
             </sequential>
         </for>
     </target>
+
     <!--
       pass following parameters to this target :
         1) org.jboss.processFlow.provision.pfpCore

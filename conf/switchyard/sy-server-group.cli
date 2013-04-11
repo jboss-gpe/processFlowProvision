@@ -39,6 +39,10 @@ batch
 
 
 
+### provide it a non-XA datasource connection pools to jbpm and jbpm_bam databases
+/profile=full/subsystem=datasources/data-source=jbpm-core-cp:add(jndi-name=java:jboss/datasources/jbpm-core-cp,connection-url=${jbpm_connection_url},driver-class=${jbpm_driver_class},driver-name=${jdbc.module.name},user-name=${jbpm_db_user},password=${jbpm_db_password},pool-name=jbpm-core_ds_pool,max-pool-size=5,min-pool-size=1)
+/profile=full/subsystem=datasources/data-source=jbpm-core-cp:enable()
+
 
 #/profile=full/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=formatter,value=%d{HH:mm:ss,SSS} %-5p [%c] %s%E%n)
 /profile=full/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=append,value=false)

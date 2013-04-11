@@ -87,14 +87,12 @@ public class BAMService implements IBAMService, MessageListener {
     private @Resource UserTransaction uTrnx;
     private @Resource(name="java:/TransactionManager") TransactionManager tMgr;
 
-    @Resource (name=MessagingUtil.CONNECTION_FACTORY_JNDI_NAME) ConnectionFactory cFactory;
-
-    //@Resource (mappedName = IBAMService.BAM_QUEUE) Destination queue;
-    //@Resource (name = "jms/processFlow.asyncWorkingMemoryLogger") Destination queue;
+    ConnectionFactory cFactory;
     Destination queue;
 
     @PostConstruct
     public void start() throws Exception {
+        cFactory = MessagingUtil.grabConnectionFactory();
         connectObj = cFactory.createConnection();
         connectObj.setExceptionListener(new ExceptionListener() {
             public void onException(final JMSException e) {
@@ -102,7 +100,7 @@ public class BAMService implements IBAMService, MessageListener {
             }
         });
 
-        queue = (Destination)MessagingUtil.grabJMSObject(IBAMService.BAM_QUEUE);
+        queue = (Destination)MessagingUtil.grabDestination(IBAMService.BAM_QUEUE);
         sessionObj = connectObj.createSession(true, Session.AUTO_ACKNOWLEDGE);
         MessageConsumer mConsumer = sessionObj.createConsumer(queue);
         mConsumer.setMessageListener(this);
