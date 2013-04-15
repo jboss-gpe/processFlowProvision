@@ -387,7 +387,7 @@
 				</transport>
 				<protocol type="TCPPING">
 					<property name="timeout">3000</property>
-					<property name="initial_hosts">${env.OPENSHIFT_JBOSS_CLUSTER}</property>
+					<property name="initial_hosts">${env.OPENSHIFT_JBOSSEAP_CLUSTER}</property>
 					<property name="port_range">0</property>
 					<property name="num_initial_members">1</property>
 				</protocol>
@@ -405,7 +405,7 @@
 				<protocol type="AUTH">
 					<property name="auth_class">org.jgroups.auth.MD5Token</property>
 					<property name="token_hash">SHA</property>
-					<property name="auth_value">${env.OPENSHIFT_JBOSS_CLUSTER}</property>
+					<property name="auth_value">${env.OPENSHIFT_JBOSSEAP_CLUSTER}</property>
 				</protocol>
 				<!--protocol type="pbcast.STATE_TRANSFER"/> <protocol type="pbcast.FLUSH"/ -->
 			</stack>

@@ -88,7 +88,7 @@ public class MessagingUtil {
                 return queue;
             }else {
                 jndiContext = new InitialContext();
-                return (Destination)jndiContext.lookup(jndiName);
+                return (Destination)jndiContext.lookup("jms/"+jndiName);
             }
         } catch(javax.naming.NamingException x){
             log.error("grabJMSObject() isHornetqInVm="+isHornetqInVm+" : remotingHostName="+brokerHostName+" : remotingPort="+brokerPort+" : jndiName="+jndiName);

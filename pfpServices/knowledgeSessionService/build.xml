@@ -18,6 +18,14 @@
             <param name="file.name" value="beans.xml" />
             <param name="dest.dir" value="${build.dir}/META-INF" />
         </antcall>
+        <if>
+            <equals arg1="${is.deployment.local}" arg2="false" />
+            <then>
+                <delete file="${build.dir}/META-INF/jboss-ejb-client.xml"/>
+            </then>
+            <else><echo message="is.deployment.local = ${is.deployment.local}" /></else>
+        </if>
+
         <jar jarfile="${build.dir}/processFlow-${ant.project.name}.jar" basedir="${build.dir}" />
         <copy file="${build.dir}/processFlow-${ant.project.name}.jar" toDir="${temp.pfp.services.dir}" overwrite="true" verbose="true" />
 
