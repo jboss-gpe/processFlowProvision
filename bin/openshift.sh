@@ -341,7 +341,7 @@ listDigResultsForEachAccount() {
     echo -en "dig results as follows:\n\n\n" > dig_results.txt
     for git_url in `xmlstarlet sel -t -n -m '//openshiftAccounts/account[*]/pfpCore' -v 'git_url' -n $osAccountDetailsFileLocation`; 
     do 
-        git_url=${git_url:31}
+        git_url=${git_url#*@}
         totalLength=${#git_url}
         urlLength=$(($totalLength-19))
         git_url=${git_url:0:$urlLength}
@@ -363,24 +363,28 @@ executeCommandsAcrossAllAccounts() {
         totalLength=${#git_url}
         urlLength=$(($totalLength-19))
         git_url=${git_url:0:$urlLength}
+        echo -en "\n"
         echo -en "\n*********   git_url = $git_url\t$totalLength\t$urlLength    **************\n"
 
         #localFile=target/lib/brmsUnzip/jboss-brms.war/WEB-INF/classes/org/drools/guvnor/server/configurations/ApplicationPreferencesInitializer.class
         #remoteFile=jbosseap-6.0/tmp/deployments/jboss-brms.war/WEB-INF/classes/org/drools/guvnor/server/configurations/ApplicationPreferencesInitializer.class
         #scp $localFile $git_url:$remoteFile
         #ssh $git_url "ls -l $remoteFile"
-        echo -en "\n"
 
         #ssh $git_url "ls -l jbosseap-6.0/jbosseap-6.0/standalone/log/boot.log; cd jbosseap-6.0/jbosseap-6.0/standalone/deployments/; rm *war*; app_ctl.sh stop; app_ctl.sh start"
-        ssh $git_url "rm -rf  jbosseap-6.0/tmp/guvnor; app_ctl.sh stop;  app_ctl.sh start"
-        #numJVMs=$(ssh $git_url "
-        #    ps -aef | grep -c '\[Standalone\]'
-        #")
-        #echo -ne "num of JVMs = $numJVMs"
-        #numJVMs=$(ssh $git_url "
-        #    ps -aef | grep -c '\/usr\/bin\/postgres'
-        #")
-        #echo -ne "num of postgresql processes = $numJVMs"
+        #ssh $git_url "rm -rf  jbosseap-6.0/tmp/guvnor; app_ctl.sh stop;  app_ctl.sh start"
+        numJVMs=$(ssh $git_url "
+            ps -aef | grep -c '\[Standalone\]'
+        ")
+        echo -ne "num of JVMs = $numJVMs"
+        numPostgresql=$(ssh $git_url "
+            ps -aef | grep -c '\/usr\/bin\/postgres'
+        ")
+        echo -ne "\nnum of postgresql processes = $numPostgresql"
+        timestamp=$(ssh $git_url "
+            ls -l jbosseap-6.0/jbosseap-6.0/standalone/log/boot.log
+        ")
+        echo -ne "\ntimestamp of server.log = $timestamp"
 
         ((t++))
     done
