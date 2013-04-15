@@ -18,12 +18,20 @@
             <param name="file.name" value="beans.xml" />
             <param name="dest.dir" value="${build.dir}/META-INF" />
         </antcall>
+
+        <!-- can't have jboss-ejb-client in an openshift environment -->
         <if>
             <equals arg1="${is.deployment.local}" arg2="false" />
             <then>
                 <delete file="${build.dir}/META-INF/jboss-ejb-client.xml"/>
             </then>
-            <else><echo message="is.deployment.local = ${is.deployment.local}" /></else>
+            <else>
+                <antcall target="filter">
+                    <param name="source.dir" value="src/main/resources/META-INF" />
+                    <param name="file.name" value="jboss-ejb-client.xml" />
+                    <param name="dest.dir" value="${build.dir}/META-INF" />
+                </antcall>
+            </else>
         </if>
 
         <jar jarfile="${build.dir}/processFlow-${ant.project.name}.jar" basedir="${build.dir}" />
