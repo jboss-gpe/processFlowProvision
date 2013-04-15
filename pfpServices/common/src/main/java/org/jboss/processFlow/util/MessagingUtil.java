@@ -29,6 +29,8 @@ import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 
 import org.hornetq.api.core.DiscoveryGroupConfiguration;
+import org.hornetq.api.core.UDPBroadcastGroupConfiguration;
+import org.hornetq.api.core.client.HornetQClient;
 import org.hornetq.api.jms.HornetQJMSClient;
 import org.hornetq.api.jms.JMSFactoryType;
 
@@ -57,7 +59,8 @@ public class MessagingUtil {
             if(brokerPort == null)
                 throw new RuntimeException("grabJMSObject() system property not set : "+JBOSS_MESSAGING_GROUP_PORT);
 
-            groupConfiguration = new DiscoveryGroupConfiguration(brokerHostName, Integer.parseInt(brokerPort));
+            UDPBroadcastGroupConfiguration udpCfg = new UDPBroadcastGroupConfiguration(brokerHostName, Integer.parseInt(brokerPort), null, -1);
+            groupConfiguration = new DiscoveryGroupConfiguration(HornetQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT, HornetQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT, udpCfg);
         }
     }
     

@@ -3,12 +3,12 @@
 batch
 
 # "ha" profile is used by brmsWebs
-/profile=ha/subsystem=datasources/jdbc-driver=postgresql/:add(driver-module-name=org.postgresql.jdbc,driver-xa-datasource-class-name=org.postgresql.xa.PGXADataSource,jdbc-compliant=false)
+/profile=ha/subsystem=datasources/jdbc-driver=postgresql/:add(driver-name=postgresql,driver-module-name=org.postgresql.jdbc,driver-xa-datasource-class-name=org.postgresql.xa.PGXADataSource,jdbc-compliant=false)
 
 # "full" profile is used by sy-core
-/profile=full/subsystem=datasources/jdbc-driver=postgresql/:add(driver-module-name=org.postgresql.jdbc,driver-xa-datasource-class-name=org.postgresql.xa.PGXADataSource,jdbc-compliant=false)
+/profile=full/subsystem=datasources/jdbc-driver=postgresql/:add(driver-name=postgresql,driver-module-name=org.postgresql.jdbc,driver-xa-datasource-class-name=org.postgresql.xa.PGXADataSource,jdbc-compliant=false)
 
 # "pfpCore" profile is used by pfpCore
-/profile=pfpCore/subsystem=datasources/jdbc-driver=postgresql/:add(driver-module-name=org.postgresql.jdbc,driver-xa-datasource-class-name=org.postgresql.xa.PGXADataSource,jdbc-compliant=false)
+/profile=pfpCore/subsystem=datasources/jdbc-driver=postgresql/:add(driver-name=postgresql,driver-module-name=org.postgresql.jdbc,driver-xa-datasource-class-name=org.postgresql.xa.PGXADataSource,jdbc-compliant=false)
 
 run-batch

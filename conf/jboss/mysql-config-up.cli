@@ -2,10 +2,13 @@
 
 batch
 
-# "default" profile is used by brmsWebs
-/profile=default/subsystem=datasources/jdbc-driver=mysql/:add(driver-module-name=com.mysql.jdbc,driver-xa-datasource-class-name=com.mysql.jdbc.jdbc2.optional.MysqlXADataSource,jdbc-compliant=false)
+# "ha" profile is used by brmsWebs
+/profile=ha/subsystem=datasources/jdbc-driver=mysql/:add(driver-name=mysql,driver-module-name=com.mysql.jdbc,driver-xa-datasource-class-name=com.mysql.jdbc.jdbc2.optional.MysqlXADataSource,jdbc-compliant=false)
 
-# "full-ha" profile is used by pfpCore
-/profile=pfpCore/subsystem=datasources/jdbc-driver=mysql/:add(driver-module-name=com.mysql.jdbc,driver-xa-datasource-class-name=com.mysql.jdbc.jdbc2.optional.MysqlXADataSource,jdbc-compliant=false)
+# "full" profile is used by sy-core
+/profile=full/subsystem=datasources/jdbc-driver=mysql/:add(driver-name=mysql,driver-module-name=com.mysql.jdbc,driver-xa-datasource-class-name=com.mysql.jdbc.jdbc2.optional.MysqlXADataSource,jdbc-compliant=false)
+
+# "pfpCore" profile is used by pfpCore
+/profile=pfpCore/subsystem=datasources/jdbc-driver=mysql/:add(driver-name=mysql,driver-module-name=com.mysql.jdbc,driver-xa-datasource-class-name=com.mysql.jdbc.jdbc2.optional.MysqlXADataSource,jdbc-compliant=false)
 
 run-batch

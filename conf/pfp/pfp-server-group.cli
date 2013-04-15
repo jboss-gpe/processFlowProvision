@@ -2,6 +2,9 @@ batch
 /profile=pfpCore/subsystem=datasources/data-source=ExampleDS/:disable
 /profile=pfpCore/subsystem=datasources/data-source=ExampleDS/:remove
 /profile=pfpCore/subsystem=ejb3/:write-attribute(name=enable-statistics,value=true)
+
+/profile=pfpCore/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:undefine-attribute(name=connector)
+/profile=pfpCore/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:undefine-attribute(name=connector)
 run-batch
 
 
@@ -42,16 +45,13 @@ batch
 /profile=pfpCore/subsystem=messaging/hornetq-server=default/discovery-group=dg-group1/:add(socket-binding=messaging-group,refresh-timeout=10000)
 
 # change pooled connection factory to use discovery-group rather than immediately using a netty connector
-/profile=pfpCore/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:undefine-attribute(name=connector)
 /profile=pfpCore/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=discovery-group-name,value=dg-group1)
 
  # configure hornetq-ra for HA behavior
 /profile=pfpCore/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=ha,value=true)
 /profile=pfpCore/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=reconnect-attempts,value=-1)
-/profile=pfpCore/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=failover-on-server-shutdown,value=true)
 
 #  # configure JMS connection factory avialable internally to beans;  ensure it uses correct discovery group and is HA
-/profile=pfpCore/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:undefine-attribute(name=connector)
 /profile=pfpCore/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=discovery-group-name,value=dg-group1)
 /profile=pfpCore/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=entries,value=["java:/RemoteConnectionFactory"])
 /profile=pfpCore/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=ha,value=true)
