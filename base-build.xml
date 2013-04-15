@@ -274,6 +274,7 @@
                 <property name="guvnor.host" value="${openshift.pfpCore.internal.ip}:8080"/>
                 <property name="guvnor.external.host" value="${openshift.pfpCore.uri}"/>
                 <property name="org.jboss.processFlow.remoting.ejb.receiver" value=""/>
+                <property name="org.jboss.processFlow.remoting.ha.group.ejb.receiver" value="" />
                 <property name="openshift.drools.session.template.path" 
                         value="${openshift.pfpCore.home.dir}/${openshift.jboss.cartridge.type}/${openshift.jboss.cartridge.type}/standalone/configuration/drools.session.template"/>
             </then>
@@ -284,6 +285,7 @@
                 <property name="guvnor.host" value="${os.hostname}:${brms.webs.http.port}"/>
                 <property name="guvnor.external.host" value="${guvnor.host}"/>
                 <property name="org.jboss.processFlow.remoting.ejb.receiver" value="${local.org.jboss.processFlow.remoting.ejb.receiver}"/>
+                <property name="org.jboss.processFlow.remoting.ha.group.ejb.receiver" value="${local.org.jboss.processFlow.remoting.ha.group.ejb.receiver}" />
                 <property name="org.jboss.processFlow.is.hornetq.inVm" value="false"/>
             </else>
         </if>

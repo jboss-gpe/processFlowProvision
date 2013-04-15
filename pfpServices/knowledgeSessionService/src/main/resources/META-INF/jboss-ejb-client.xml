@@ -2,7 +2,7 @@
     <client-context>
         <ejb-receivers>
             <!-- JA Bride:  references outbound connection for EJB traffic to ha-core defined in:  $PFP_HOME/conf/pfp/pfp-server-group.cli -->
-            <remoting-ejb-receiver outbound-connection-ref="remote-ha-group-ejb-connection"/>
+            ${org.jboss.processFlow.remoting.ha.group.ejb.receiver}
         </ejb-receivers>
     </client-context>
 </jboss-ejb-client>
