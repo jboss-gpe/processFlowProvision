@@ -716,7 +716,7 @@
                             <param name="cli.fail.on.error" value="false"/>
                         </antcall> 
                         <if>
-                            <equals arg1="${org.jboss.processFlow.brmsWebs.clustered}" arg2="true" />
+                            <equals arg1="${org.jboss.processFlow.brmsWebs.clustered}" arg2="master" />
                             <then>
                                 <antcall target="cli.batch">
                                     <param name="cli.source.dir" value="conf/brmsWebs"/>
@@ -724,6 +724,18 @@
                                     <param name="cli.fail.on.error" value="false"/>
                                 </antcall> 
                             </then>
+                            <else>
+                                <if>
+                                    <equals arg1="${org.jboss.processFlow.brmsWebs.clustered}" arg2="true" />
+                                    <then>
+                                        <antcall target="cli.batch">
+                                            <param name="cli.source.dir" value="conf/brmsWebs"/>
+                                            <param name="cli.to.filter.and.execute" value="brmsWebs-config-up.cli"/>
+                                            <param name="cli.fail.on.error" value="false"/>
+                                        </antcall> 
+                                    </then>
+                                </if>
+                            </else>
                         </if>
                     </sequential>
                 </for>
