@@ -30,9 +30,6 @@ do
         -jbossDomainBaseDir=*)
             jbossDomainBaseDir=`echo $var | cut -f2 -d\=` 
             ;;
-        -jbossModulePath=*)
-            jbossModulePath=`echo $var | cut -f2 -d\=` 
-            ;;
         -jbossCliXmx=*)
             jbossCliXmx=`echo $var | cut -f2 -d\=` 
             ;;
@@ -82,10 +79,7 @@ start() {
     if [ "x$domainConfig" = "x" ]; then
         domainConfig=domain.xml
     fi
-    if [ "x$jbossModulePath" != "x" ]; then
-        export JBOSS_MODULEPATH=$jbossModulePath
-    fi
-    echo -en $"Starting jboss daemon w/ following command line args: \n\tjboss.bind.address = $hostName\n\t-bmanagement = $hostName\n\tjboss.domain.base.dir= $jbossDomainBaseDir\n\tdomainConfig=$domainConfig\n\tsleepSec=$sleepSec\n\tJBOSS_MODULEPATH=$jbossModulePath\n"
+    echo -en $"Starting jboss daemon w/ following command line args: \n\tjboss.bind.address = $hostName\n\t-bmanagement = $hostName\n\tjboss.domain.base.dir= $jbossDomainBaseDir\n\tdomainConfig=$domainConfig\n\tsleepSec=$sleepSec\n"
     sleep 1 
     cd $jbossHome
     chmod 755 $jbossHome/bin/*.sh

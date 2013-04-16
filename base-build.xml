@@ -23,7 +23,7 @@
         <fileset dir="${temp.pfp.services.dir}" >
             <include name="processFlow*.jar" />
         </fileset>
-        <fileset dir="${jboss.home}/modules" >
+        <fileset dir="${jboss.home}/modules/system/layers/base" >
             <include name="**/*.jar" />
         </fileset>
         <fileset dir="${pfp.module.path}" >
@@ -63,7 +63,7 @@
             <then>
                 <path id="classpath">
                 <path refid="supported.classpath" />
-                <fileset dir="${sy.module.path}" ><include name="**/*.jar" /></fileset></path>
+                <fileset dir="${sy.module.path}" ><include name="org/switchyard/**/*.jar" /></fileset></path>
             </then>
             <else><path id="classpath"><path refid="supported.classpath" /></path></else>
         </if>

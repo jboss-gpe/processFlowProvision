@@ -388,9 +388,6 @@
 
     <target name="configure.sy.modules" >
         <antcall target="download.and.unzip.sy.deployer" />
-        <copy todir="${sy.module.path}" >
-            <fileset dir="${temp.jboss.dir}/syModules" />
-        </copy>
     </target>
 
     <target name="configure.jboss.modules" >
@@ -535,6 +532,8 @@
         <antcall target="configure.sy.modules" >
             <param name="non.openshift.environment" value="true"/>
         </antcall>
+        <!-- https://community.jboss.org/wiki/LayeredDistributionsAndModulePathOrganization -->
+        <copy todir="${jboss.home}/modules" file="conf/jboss/layers.conf" overwrite="true" />
     </target>
 
     <target name="resolve.droolsjbpm.dependencies" >
@@ -716,7 +715,7 @@
                             <param name="cli.fail.on.error" value="false"/>
                         </antcall> 
                         <if>
-                            <equals arg1="${org.jboss.processFlow.brmsWebs.clustered}" arg2="master" />
+                            <equals arg1="${serverIpAddr}" arg2="master" />
                             <then>
                                 <antcall target="cli.batch">
                                     <param name="cli.source.dir" value="conf/brmsWebs"/>
@@ -801,10 +800,7 @@
 
     <target name="download.and.unzip.sy.deployer">
         <get src="${switchyard.deployer.download.url}" dest="${install.home}/lib/"  skipexisting="true" />
-        <unzip src="${install.home}/lib/switchyard.deployer.zip" dest="${temp.jboss.dir}" />
-        <move todir="${temp.jboss.dir}/syModules" >
-            <fileset dir="${temp.jboss.dir}/modules" />
-        </move>
+        <unzip src="${install.home}/lib/${switchyard.zip.name}" dest="${jboss.home}/../" />
     </target>
     <target name="download.drools.guvnor">
         <get src="${drools.guvnor.url}" dest="${install.home}/lib/guvnor-distribution-wars-${drools.guvnor.version}-jboss-as-7.0.war"  skipexisting="true" />
