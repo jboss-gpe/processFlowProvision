@@ -8,7 +8,7 @@ fi
 # User specific aliases and functions
 
 JBOSS_PROJECTS=$HOME/jbossProjects
-JBOSS_HOME=/opt/jboss-eap-6.0
+JBOSS_HOME=/opt/jboss-eap-6.1
 JBOSS_MODULEPATH=$JBOSS_HOME/modules:$JBOSS_HOME/pfpModules:$JBOSS_HOME/syModules
 
 export JBOSS_PROJECTS JBOSS_HOME JBOSS_MODULEPATH

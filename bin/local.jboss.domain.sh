@@ -57,6 +57,12 @@ do
         -localGuvnorRepoLocation=*)
             localGuvnorRepoLocation=`echo $var | cut -f2 -d\=` 
             ;;
+        -eap6DownloadName=*)
+            eap6DownloadName=`echo $var | cut -f2 -d\=` 
+            ;;
+        -switchyardZipName=*)
+            switchyardZipName=`echo $var | cut -f2 -d\=` 
+            ;;
     esac
 done
 
@@ -140,7 +146,7 @@ executeCli() {
 
 # ./bin/local.jboss.domain.sh refreshSlaveHosts -serverIpAddr=eap6cluster1 -orgName=gpse
 refreshSlaveHosts() {
-    echo -en "refreshSlaveHosts() serverIpAddr = $serverIpAddr : orgName=$orgName : localGuvnorRepoLocation=$localGuvnorRepoLocation\n"
+    echo -en "refreshSlaveHosts() serverIpAddr = $serverIpAddr : orgName=$orgName : localGuvnorRepoLocation=$localGuvnorRepoLocation : eap6DownloadName=$eap6DownloadName : switchyardZipName=$switchyardZipName\n"
     #  0)  verify network connectivity to remote host
     port=22;
     checkRemotePort;
@@ -161,17 +167,17 @@ refreshSlaveHosts() {
     # 3)  blow away existing eap and make sure local guvnor filesystem exists
     ssh jboss@$serverIpAddr "mkdir -p ~/jbossProjects/downloads; rm -rf $JBOSS_HOME; mkdir -p $localGuvnorRepoLocation"
 
-    # 4)  scp and  unzip jboss in remote host
-    remoteZip=$(ssh jboss@$serverIpAddr "ls ~/jbossProjects/downloads/jboss-eap-6.0.1.zip")
+    # 4)  scp jboss to remote host
+    remoteZip=$(ssh jboss@$serverIpAddr "ls ~/jbossProjects/downloads/$eap6DownloadName")
     if [ "x$remoteZip" == "x" ]; then
-        scp target/lib/jboss-eap-6.0.1.zip jboss@$serverIpAddr:/home/jboss/jbossProjects/downloads
+        scp target/lib/$eap6DownloadName jboss@$serverIpAddr:/home/jboss/jbossProjects/downloads
     fi
 
-    # 5)  clone domain root and rename to domain-$orgName
-    ssh jboss@$serverIpAddr "rm -rf /opt/jboss-eap-6.0; unzip ~/jbossProjects/downloads/jboss-eap-6.0.1.zip -d /opt; cp -r /opt/jboss-eap-6.0/domain /opt/jboss-eap-6.0/domain-$orgName"
+    # 5)  unzip jboss, clone domain root and rename to domain-$orgName
+    ssh jboss@$serverIpAddr "rm -rf /opt/jboss-eap-6.1; unzip ~/jbossProjects/downloads/$eap6DownloadName -d /opt; cp -r /opt/jboss-eap-6.1/domain /opt/jboss-eap-6.1/domain-$orgName"
 
     # 6) rsync modules, slave host.xml, application-roles.properties and application-users.properties
-    rsync -avz target/jboss/* jboss@$serverIpAddr:/opt/jboss-eap-6.0
+    rsync -avz target/jboss/* jboss@$serverIpAddr:/opt/jboss-eap-6.1
 
         #                            - attempt to use generic userId for communication back to parent process controller (rather than userId equivalent to hostname)
         #                            - may need to generate management user for each host in master node (depending on step #2)
@@ -179,8 +185,17 @@ refreshSlaveHosts() {
     # 7)  copy guvnor repository.xml for those environments that want clustered brmsWebs (won't hurt if not interersted in clustered brmsWebs)
     scp target/brmsWebs/repository.xml jboss@$serverIpAddr:$localGuvnorRepoLocation
 
-    # 8)  start remote host
-    ssh jboss@$serverIpAddr "cd /opt/jboss-eap-6.0; nohup ./bin/domain.sh -b=$serverIpAddr -Djboss.domain.base.dir=domain-$orgName -Djboss.domain.master.address=$HOSTNAME -Djboss.domain.master.port=9999 > eap.log 2>&1 &"
+    # 8)  scp switchyard to  remote host
+    remoteSyZip=$(ssh jboss@$serverIpAddr "ls ~/jbossProjects/downloads/$switchyardZipName")
+    if [ "x$remoteSyZip" == "x" ]; then
+        scp target/lib/$switchyardZipName jboss@$serverIpAddr:/home/jboss/jbossProjects/downloads
+    fi
+
+    # 5)  unzip sy to $JBOSS_HOME
+    ssh jboss@$serverIpAddr "unzip ~/jbossProjects/downloads/$switchyardZipName -d /opt"
+
+    # 9)  start remote host
+    ssh jboss@$serverIpAddr "cd /opt/jboss-eap-6.1; nohup ./bin/domain.sh -b=$serverIpAddr -Djboss.domain.base.dir=domain-$orgName -Djboss.domain.master.address=$HOSTNAME -Djboss.domain.master.port=9999 > eap.log 2>&1 &"
 }
 
 # Test remote host:port availability (TCP-only as UDP does not reply)
