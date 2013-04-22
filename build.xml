@@ -567,7 +567,7 @@
         </for>
     </target> 
 
-    <target name="local.provision.hornetq">
+    <target name="local.provision.ha.jvms">
         <sleep seconds="2"/>
         <antcall target="cli.batch">
             <param name="cli.source.dir" value="conf/hornetq/"/>
@@ -577,16 +577,29 @@
         <for list="${org.jboss.eap.host.list}" param="serverIpAddr">
             <sequential>
                 <var name="serverIpAddr" value="@{serverIpAddr}" />
-                <antcall target="cli.batch">
-                    <param name="cli.source.dir" value="conf/hornetq/"/>
-                    <param name="cli.to.filter.and.execute" value="hornetq-config-server.cli"/>
-                    <param name="cli.fail.on.error" value="true"/>
-                </antcall>
-                <antcall target="cli.batch">
-                    <param name="cli.source.dir" value="conf/hornetq/"/>
-                    <param name="cli.to.filter.and.execute" value="hornetq-config-up.cli"/>
-                    <param name="cli.fail.on.error" value="true"/>
-                </antcall>
+                <for list="${ha.server.number.list}" param="serverNum">
+                  <sequential>
+                    <var name="ha.server.id" value="ha-@{serverNum}" />
+                    <math result="ha.port.increment" operand1="100" operation="*" operand2="@{serverNum}" datatype="int" />
+                    <math result="ha.port.offset" operand1="${hornetq.group.port.offset}" operation="+" operand2="${ha.port.increment}" datatype="int" />
+                    <var name="ha.server.id" value="ha-@{serverNum}" />
+                    <if>
+                        <equals arg1="${ha.server.id}" arg2="ha-0" />
+                        <then><var name="ha.block" value="true" /></then>
+                        <else><var name="ha.block" value="false" /></else>
+                    </if>
+                    <antcall target="cli.batch">
+                        <param name="cli.source.dir" value="conf/hornetq/"/>
+                        <param name="cli.to.filter.and.execute" value="hornetq-config-server.cli"/>
+                        <param name="cli.fail.on.error" value="true"/>
+                    </antcall>
+                        <antcall target="cli.batch">
+                        <param name="cli.source.dir" value="conf/hornetq/"/>
+                        <param name="cli.to.filter.and.execute" value="hornetq-config-up.cli"/>
+                        <param name="cli.fail.on.error" value="true"/>
+                    </antcall>
+                  </sequential>
+                </for>
             </sequential>
         </for>
     </target>
@@ -851,7 +864,7 @@
         <antcall target="refresh.master" />
         <antcall target="refresh.slave.hosts" />
         <antcall target="local.configure.core.services" />
-        <antcall target="local.provision.hornetq" />
+        <antcall target="local.provision.ha.jvms" />
         <antcall target="local.provision.pfp.core">
             <param name="refresh.master" value="false"/>
         </antcall>

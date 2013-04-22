@@ -457,7 +457,7 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
             rollbackTrnx();
         }
 
-        sBuilder.append(" : pInstanceId = "+pInstance.getId()+" : now completed");
+        sBuilder.append(" : pInstanceId = "+pInstance.getId()+" : function (not necessarily pInstance) now completed.  check the jbpm_bam db for status of pInstance");
         log.info(sBuilder.toString());
         return returnMap;
     }
