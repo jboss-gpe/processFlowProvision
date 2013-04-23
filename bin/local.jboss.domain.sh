@@ -191,10 +191,10 @@ refreshSlaveHosts() {
         scp target/lib/$switchyardZipName jboss@$serverIpAddr:/home/jboss/jbossProjects/downloads
     fi
 
-    # 5)  unzip sy to $JBOSS_HOME
+    # 9)  unzip sy to $JBOSS_HOME
     ssh jboss@$serverIpAddr "unzip ~/jbossProjects/downloads/$switchyardZipName -d /opt"
 
-    # 9)  start remote host
+    # 10)  start remote host
     ssh jboss@$serverIpAddr "cd /opt/jboss-eap-6.1; nohup ./bin/domain.sh -b=$serverIpAddr -Djboss.domain.base.dir=domain-$orgName -Djboss.domain.master.address=$HOSTNAME -Djboss.domain.master.port=9999 > eap.log 2>&1 &"
 }
 
