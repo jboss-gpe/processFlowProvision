@@ -55,13 +55,16 @@ batch
 /profile=full/subsystem=logging/logger=org.switchyard.transform.TransformSequence/:add(category=org.switchyard.transform.TransformSequence,level=TRACE,use-parent-handlers=true)
 
 # trace level logging of org.switchyard.transform.TransformerRegistryLoader to view loaded transforms
-/profile=full/subsystem=logging/logger=org.switchyard.transform.TransformerRegistryLoader/:add(category=org.switchyard.transform.TransformerRegistryLoader,level=TRACE,use-parent-handlers=true)
+#/profile=full/subsystem=logging/logger=org.switchyard.transform.TransformerRegistryLoader/:add(category=org.switchyard.transform.TransformerRegistryLoader,level=TRACE,use-parent-handlers=true)
 
 # trace level logging of org.switchyard.component.soap view inbound soap
 /profile=full/subsystem=logging/logger=org.switchyard.component.soap.InboundHandler/:add(category=org.switchyard.component.soap.InboundHandler,level=TRACE,use-parent-handlers=true)
 
 # DEBUG level logging of org.switchyard.internal.ExchangeImpl to view message traffic :  equivalent can be set in switchyard.xml by selecting "Enable Message Trace" in SY eclipse plugin
-/profile=full/subsystem=logging/logger=org.switchyard.internal.ExchangeImpl/:add(category=org.switchyard.internal.ExchangeImpl,level=DEBUG,use-parent-handlers=true)
+#/profile=full/subsystem=logging/logger=org.switchyard.internal.ExchangeImpl/:add(category=org.switchyard.internal.ExchangeImpl,level=DEBUG,use-parent-handlers=true)
+
+# FATAL level logging of org.hornetq.core.client to excessive logging :  HQ212039: Unexpected Netty Version was expecting 3.6.2.Final-c0d783c using 3.6.2.Final-redhat-1-c0d783c Version.ID
+/profile=full/subsystem=logging/logger=org.hornetq.core.client/:add(category=org.hornetq.core.client,level=FATAL,use-parent-handlers=true)
 
 # create sy.core server group and start
 /server-group=${sy.core.group}/:add(profile=full,socket-binding-group=full-sockets)
