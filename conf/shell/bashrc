@@ -5,11 +5,11 @@ if [ -f /etc/bashrc ]; then
 	. /etc/bashrc
 fi
 
-JAVA_HOME=/usr/lib/jvm/java-1.6.0
-JBOSS_PROJECTS=/opt/jbossProjects
+JAVA_HOME=/usr/lib/jvm/java-1.7.0
+JBOSS_PROJECTS=$HOME/jbossProjects
 PFP_HOME=$JBOSS_PROJECTS/processFlowProvision
-ANT_HOME=$JBOSS_PROJECTS/apache-ant-1.8.2
-JBOSS_HOME=$JBOSS_PROJECTS/jboss/jboss-eap-5.1/jboss-as
+ANT_HOME=$JBOSS_PROJECTS/apache-ant-1.9.0
+JBOSS_HOME=$JBOSS_PROJECTS/jboss/jboss-eap-6.0
 
 #ANT_OPTS="-Dhttps.proxyHost=<my.proxy.url> -Dhttps.proxyPort=8080 -Dhttp.proxyHost=<my.proxy.url> -Dhttp.proxyPort=8080"
 
@@ -20,7 +20,7 @@ PATH=$PATH:$JBOSS_HOME/bin
 PATH=$PATH:$ANT_HOME/bin
 PATH=$PATH:$PFP_HOME/processFlowProvision/bin
 
-GIT_COMPLETION_PATH="/home/jboss/.git_completion"
+GIT_COMPLETION_PATH="/etc/bash_completion.d/git"
 if [ -f "$GIT_COMPLETION_PATH" ]; then
    GIT_PS1_SHOWDIRTYSTATE=true
    . "$GIT_COMPLETION_PATH"
