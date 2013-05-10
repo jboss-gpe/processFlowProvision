@@ -170,9 +170,6 @@ INSTALL   :
 
 
     --  postgresql RDBMS
-            -- if using RHEL 5.5
-                (as root) :     yum install postgresql84\*
-                                yum install postgresql-jdbc
             -- if using Fedora 14/15/16 or RHEL 6
                 (as root) :     yum install postgresql
                                 yum install postgresql-server
@@ -180,26 +177,22 @@ INSTALL   :
 
             --  ensure that postgresql 'service' is on at runlevels 3,4 & 5 (RHEL 5.*, Fedora 14)
                 (as root) :     chkconfig --level 345 postgresql on
-            --  ensure that postgresql 'service' is automatically started at boot (Fedora 16)
-                (as root) :     systemctl enable postgresql.service
-
             --  change password of 'postgres' operating system user to 'postgres'
                 (as root) :      passwd postgres
           
-            --  start the postgresql service (RHEL 5 / Fedora 14)
+            --  ensure that postgresql 'service' is automatically started at boot (Fedora 16+)
+                (as root) :     systemctl enable postgresql.service
+                (as root) :     systemctl start postgresql.service
+
+            --  start the postgresql service (RHEL 6)
                 (as root) :     service postgresql initdb
                                 service postgresql start
-
-            --  start the postgresql service (RHEL 6 / Fedora 16)
-                (as postgres)   :   initdb -D /var/lib/pgsql/data
-                (as root)       :   systemctl start postgresql.service
 
             --  switch user to 'postgres' and create necessary databases
                 su - postgres
                 createdb jbpm
                 createdb jbpm_bam
                 createdb guvnor
-                createdb esb    (optional :  create the 'esb' database if your target runtime is an ESB)
             -- as 'postgres' user, modify socket that postgresql will listen on
                 -- modify the following configuration file  :   /var/lib/pgsql/data/postgresql.conf 
                 -- at the following property :                  listen_addresses = '*'
