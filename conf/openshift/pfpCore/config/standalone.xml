@@ -44,6 +44,8 @@
             <property name="org.jboss.processFlow.task.enableIntelligentMapping" value="${org.jboss.processFlow.task.enableIntelligentMapping}"/>
             <property name="org.jboss.processFlow.KnowledgeSessionPool" value="${org.jboss.processFlow.KnowledgeSessionPool}"/>
             <property name="org.jboss.processFlow.statefulKnowledge.enableKnowledgeRuntimeLogger" value="${org.jboss.processFlow.statefulKnowledge.enableKnowledgeRuntimeLogger}"/>
+            <property name="org.jboss.processFlow.kAgentMonitor" value="${org.jboss.processFlow.kAgentMonitor}"/>
+            <property name="org.jboss.processFlow.kAgentRefreshHours" value="${org.jboss.processFlow.kAgentRefreshHours}"/>
             <property name="space.delimited.process.event.listeners" value="${space.delimited.process.event.listeners}"/>
             <property name="task.clean.up.process.event.listener.impl" value="${task.clean.up.process.event.listener.impl}"/>
             <property name="org.jboss.processFlow.drools.resource.scanner.interval" value="${org.jboss.processFlow.drools.resource.scanner.interval}"/>
