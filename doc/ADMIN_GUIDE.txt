@@ -1,12 +1,11 @@
 processFlowProvision (aka:  PFP)
 
 JA Bride
-curl -b cookies -L -d "j_username=USER&j_password=PASSWORD" http://localhost:8080/business-central-server/j_security_check 
 
 
 ASSUMPTIONS
     - you are a RHCE (or equivalent in a Unix environment)
-    - you are installing on Fedora 17 or Red Hat Enterprise Linux (RHEL) 6.*
+    - you are installing on Fedora 17/18 or Red Hat Enterprise Linux (RHEL) 6.*
 
 
 OVERVIEW
@@ -28,14 +27,6 @@ OVERVIEW
             - there is a section towards the latter part of this document entitled:  "deploy BRMS runtime artifacts to JBoss EAP"
             - if provisioning a new BRMS environment, then this section explains the how to execute the ant script to do that
             - please ensure all of the previous steps outlined in this document have been completed prior to executing the ant script
-
-
-  - why doesn't PFP leverage BRMS Standalone rather than BRMS Deployable ?
-        - there are architectural decisions implemented in BRMS Standalone that are sufficient for a demo, but problably would not do well in production
-        - BRMS Deployable provides maximum flexibility by allowing a software team to embed supported Drools and jbpm5 libraries 
-          into a customer solution tailored toward their specific production requirements
-        - the PFP team has taken advantage of the flexibility provided by BRMS Deployable and built one example of an optimized, fully-featured and
-          easily administered BRMS production deployment.
 
 
 
@@ -60,7 +51,7 @@ INSTALL   :
 
 
     -- Red Hat Network (RHN)
-        NOTE:  this section is only applicable if environment to be built is either on Red Hat Enterprise Linux (RHEL) 5.* or 6.*
+        NOTE:  this section is only applicable if environment to be built is either on Red Hat Enterprise Linux (RHEL) 6.*
 
         -- RHN registration
                 -- set web proxy for rhn_register
@@ -69,20 +60,6 @@ INSTALL   :
                                         httpProxy=http://<my.proxy.url>:8080
                 -- (as root) :     rhn_register
 
-        --  RHN channel modifications
-                -- after system registration is complete, open any browser (from any computer) and log into http://rhn.redhat.com
-                -- select your system and then click 'Alter Channel Subscriptions".  Select the following channels and click 'change subscriptions'
-                    Base Channel
-                        * Red Hat Enterprise Linux (v. 5 for 64-bit x86_64)
-                    Release Channels for RHEL 5 for x86_64
-                        * RHEL Supplementary (v5 for x86_64)
-                    Additional Service Channels for RHEL 5 for x86_64
-                        * JBoss Application Platform (v 5.x) for x86_64
-                -- logout of Red Hat Network
-                -- NOTE:  this can be done programmatically.  Example as follows :
-                     yum install rhn-setup.noarch"  # to install rhn-channel
-                     rhn-channel -u <my rhn login> -p <my passwd> -a jb-ewp-5-x86_64-server-5-rpm 
-                     rhn-channel -u <my rhn login> -p <my passwd> -a rhel-x86_64-server-supplementary-5
 
         -- enable RHN Plugin
                 -- it is possible that the access to the RHN repository is disabled.
@@ -90,6 +67,9 @@ INSTALL   :
                 -- enable the RHN plugin in the following file :
                     /etc/yum/pluginconf.d/rhnplugin.conf
 
+
+        - update base operating system
+            - (as root) :   yum update -y
 
 
     -- Java Development Kit
@@ -554,6 +534,15 @@ in general, what does the PFP ant script do ???
    - after all the above are retrieved, your client will want to layer the play_red_big.png layer on top of the process image base layer
    - i have no idea how to do this programmatically
    - in the existing business-central web app, it's the javascript portion that figures this part out.
+
+
+why doesn't PFP leverage BRMS Standalone rather than BRMS Deployable ?
+        - there are architectural decisions implemented in BRMS Standalone that are sufficient for a demo, but problably would not do well in production
+        - BRMS Deployable provides maximum flexibility by allowing a software team to embed supported Drools and jbpm5 libraries 
+          into a customer solution tailored toward their specific production requirements
+        - the PFP team has taken advantage of the flexibility provided by BRMS Deployable and built one example of an optimized, fully-featured and
+          easily administered BRMS production deployment.
+
 
 
 
