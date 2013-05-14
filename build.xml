@@ -52,6 +52,9 @@
                             <arg value="refreshSlaveHosts" />
                             <arg value="-serverIpAddr=${serverIpAddr}" />
                             <arg value="-orgName=${organization.name}" />
+                            <arg value="-localGuvnorRepoLocation=${local.guvnor.repo.location}" />
+                            <arg value="-eap6DownloadName=${eap6.download.name}" />
+                            <arg value="-switchyardZipName=${switchyard.zip.name}" />
                         </exec>
                     </then>
                 </if>
@@ -314,34 +317,7 @@
         <copy file="conf/jboss/mgmt-users.properties" todir="${config.path}" verbose="true" overwrite="true" />
     </target>
 
-    <target name="install.reporting.into.jboss7" >
-        <antcall target="download.birt.as7" />
-        <delete dir="${org.jbpm.report.dir}" />
-        <mkdir dir="${org.jbpm.report.dir}/ReportEngine" />
-        <antcall target="filter">
-            <param name="source.dir" value="conf/brmsWebs/birt"/>
-            <param name="file.name" value="overall_activity.rptdesign"/>
-            <param name="dest.dir" value="${org.jbpm.report.dir}"/>
-        </antcall>
-        <unzip src="${install.home}/lib/birt-runtime-${birt.version}.zip" dest="${temp.brmsWebs.dir}"/>
-        <delete >
-            <fileset dir="${console.server.target}/WEB-INF/lib" >
-                <include name="report*.*" />
-            </fileset>
-        </delete>
-        <copy todir="${console.server.target}/WEB-INF/lib">
-            <fileset dir="${birt.target}/ReportEngine/lib">
-                <include name="**/*.jar"/>
-                <exclude name="org.apache.commons.codec*.jar"/>
-            </fileset>
-            <fileset dir="${install.home}/lib/reporting">
-                <include name="*.jar"/>
-            </fileset>
-        </copy>
-    </target>
-
     <target name="local.deploy.jbpm.gwt.console" >
-        <!-- antcall target="install.reporting.into.jboss7" / -->
         <jar jarfile="${console.server.zipped}" basedir="${console.server.target}" />
         <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="true">
             <arg value="--connect"/>
@@ -391,9 +367,6 @@
 
     <target name="configure.sy.modules" >
         <antcall target="download.and.unzip.sy.deployer" />
-        <copy todir="${sy.module.path}" >
-            <fileset dir="${temp.jboss.dir}/syModules" />
-        </copy>
     </target>
 
     <target name="configure.jboss.modules" >
@@ -403,7 +376,7 @@
         </if>
         <antcall target="filter">
             <param name="source.dir" value="conf/jboss/modules"/>
-            <param name="dest.dir" value="${temp.jboss.dir}/pfpModules"/>
+            <param name="dest.dir" value="${temp.pfp.modules.dir}"/>
         </antcall>
 
         <if>
@@ -415,21 +388,21 @@
                 <echo message="deploying following db modules locally:  ${jdbc.module.name}" />
                 <antcall target="filter">
                     <param name="source.dir" value="conf/${jdbc.module.name}/modules"/>
-                    <param name="dest.dir" value="${temp.jboss.dir}/pfpModules"/>
+                    <param name="dest.dir" value="${temp.pfp.modules.dir}"/>
                 </antcall>
                 <if><equals arg1="${jdbc.module.name}" arg2="postgresql" />
                     <then>
-                        <copy overwrite="true" verbose="true" file="${postgresql.jdbc.lib.path}" todir="${temp.jboss.dir}/pfpModules/org/postgresql/jdbc/main" />
+                        <copy overwrite="true" verbose="true" file="${postgresql.jdbc.lib.path}" todir="${temp.pfp.modules.dir}/org/postgresql/jdbc/main" />
                         <copy overwrite="true" verbose="true" file="${postgresql.jdbc.lib.path}" todir="${pfp.module.path}/org/postgresql/jdbc/main" />
                     </then></if>
                 <if><equals arg1="${jdbc.module.name}" arg2="mysql" />
                     <then>
-                        <copy overwrite="true" verbose="true" file="${mysql.jdbc.lib.path}" todir="${temp.jboss.dir}/pfpModules/com/mysql/jdbc/main" />
+                        <copy overwrite="true" verbose="true" file="${mysql.jdbc.lib.path}" todir="${temp.pfp.modules.dir}/com/mysql/jdbc/main" />
                         <copy overwrite="true" verbose="true" file="${mysql.jdbc.lib.path}" todir="${pfp.module.path}/com/mysql/jdbc/main" />
                     </then></if>
                 <if><equals arg1="${jdbc.module.name}" arg2="oracle" />
                     <then>
-                        <copy overwrite="true" verbose="true" file="${oracle.jdbc.lib.path}" todir="${temp.jboss.dir}/pfpModules/com/oracle/jdbc/main" />
+                        <copy overwrite="true" verbose="true" file="${oracle.jdbc.lib.path}" todir="${temp.pfp.modules.dir}/com/oracle/jdbc/main" />
                         <copy overwrite="true" verbose="true" file="${oracle.jdbc.lib.path}" todir="${pfp.module.path}/com/oracle/jdbc/main" />
                     </then></if>
                 <if><equals arg1="${jdbc.module.name}" arg2="h2" />
@@ -438,67 +411,73 @@
             <else><echo message="deploying to openshift:  postgresql/mysql/h2 modules already pre-configured" /></else>
         </if>
 
-        <copy file="${deps.lib.path}/antlr-runtime-${version.antlr}.jar" todir="${temp.jboss.dir}/pfpModules/org/antlr/antlr-runtime/main" />
-        <copy file="${deps.lib.path}/commons-codec-${version.codec}.jar" todir="${temp.jboss.dir}/pfpModules/org/apache/commons/codec/5/" />
-        <copy file="${deps.lib.path}/ecj-${version.ecj}.jar" todir="${temp.jboss.dir}/pfpModules/org/eclipse/jdt/core/compiler/ecj/main" />
-        <copy file="${deps.lib.path}/jbpm-human-task-core-${jBPM.version}.jar" todir="${temp.jboss.dir}/pfpModules/org/jbpm/${droolsjbpm.slot}/" />
-        <copy file="${deps.lib.path}/mvel2-${version.mvel}.jar" todir="${temp.jboss.dir}/pfpModules/org/mvel/mvel2/main" />
-        <copy file="${deps.lib.path}/protobuf-java-${version.protobuf}.jar" todir="${temp.jboss.dir}/pfpModules/com/google/protobuf/main" />
-        <copy file="${deps.lib.path}/stringtemplate-${version.stringtemplate}.jar" todir="${temp.jboss.dir}/pfpModules/org/antlr/stringtemplate/main" />
-        <copy file="${deps.lib.path}/xstream-${version.xstream}.jar" todir="${temp.jboss.dir}/pfpModules/com/thoughtworks/xstream/main" />
-        <copy file="${deps.lib.path}/xpp3_min-${version.xpp3_min}.jar" todir="${temp.jboss.dir}/pfpModules/com/thoughtworks/xstream/main" />
-        <copy file="${deps.lib.path}/xmlpull-${version.xmlpull}.jar" todir="${temp.jboss.dir}/pfpModules/com/thoughtworks/xstream/main" />
-        <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/${droolsjbpm.slot}/drools-compiler-${version.drools}.jar" >
+        <copy file="${deps.lib.path}/antlr-runtime-${version.antlr}.jar" todir="${temp.pfp.modules.dir}/org/antlr/antlr-runtime/main" />
+        <copy file="${deps.lib.path}/commons-vfs-${version.commons-vfs}.jar" todir="${temp.pfp.modules.dir}/org/apache/commons/vfs/main" />
+        <copy file="${deps.lib.path}/ecj-${version.ecj}.jar" todir="${temp.pfp.modules.dir}/org/eclipse/jdt/core/compiler/ecj/main" />
+        <copy file="${deps.lib.path}/mvel2-${version.mvel}.jar" todir="${temp.pfp.modules.dir}/org/mvel/mvel2/main" />
+        <copy file="${deps.lib.path}/freemarker-${version.freemarker}.jar" todir="${temp.pfp.modules.dir}/freemarker/main" />
+        <copy file="${deps.lib.path}/gson-${version.gson}.jar" todir="${temp.pfp.modules.dir}/com/google/gson/main" />
+        <copy file="${deps.lib.path}/lucene-analyzers-common-${version.lucene}.jar" todir="${temp.pfp.modules.dir}/org/apache/lucene/main" />
+        <copy file="${deps.lib.path}/lucene-core-${version.lucene}.jar" todir="${temp.pfp.modules.dir}/org/apache/lucene/main" />
+        <copy file="${deps.lib.path}/lucene-queries-${version.lucene}.jar" todir="${temp.pfp.modules.dir}/org/apache/lucene/main" />
+        <copy file="${deps.lib.path}/lucene-queryparser-${version.lucene}.jar" todir="${temp.pfp.modules.dir}/org/apache/lucene/main" />
+        <copy file="${deps.lib.path}/lucene-sandbox-${version.lucene}.jar" todir="${temp.pfp.modules.dir}/org/apache/lucene/main" />
+        <copy file="${deps.lib.path}/protobuf-java-${version.protobuf}.jar" todir="${temp.pfp.modules.dir}/com/google/protobuf/main" />
+        <copy file="${deps.lib.path}/seam-persistence-api-${version.seam}.jar" todir="${temp.pfp.modules.dir}/org/jboss/seam/main" />
+        <copy file="${deps.lib.path}/seam-persistence-${version.seam}.jar" todir="${temp.pfp.modules.dir}/org/jboss/seam/main" />
+        <copy file="${deps.lib.path}/seam-transaction-${version.seam}.jar" todir="${temp.pfp.modules.dir}/org/jboss/seam/main" />
+        <copy file="${deps.lib.path}/seam-transaction-api-${version.seam}.jar" todir="${temp.pfp.modules.dir}/org/jboss/seam/main" />
+        <copy file="${deps.lib.path}/solder-api-${version.solder}.jar" todir="${temp.pfp.modules.dir}/org/jboss/seam/main" />
+        <copy file="${deps.lib.path}/solder-logging-${version.solder}.jar" todir="${temp.pfp.modules.dir}/org/jboss/seam/main" />
+        <copy file="${deps.lib.path}/stringtemplate-${version.stringtemplate}.jar" todir="${temp.pfp.modules.dir}/org/antlr/stringtemplate/main" />
+        <copy file="${deps.lib.path}/xstream-${version.xstream}.jar" todir="${temp.pfp.modules.dir}/com/thoughtworks/xstream/main" />
+        <copy file="${deps.lib.path}/xpp3_min-${version.xpp3_min}.jar" todir="${temp.pfp.modules.dir}/com/thoughtworks/xstream/main" />
+        <copy file="${deps.lib.path}/xmlpull-${version.xmlpull}.jar" todir="${temp.pfp.modules.dir}/com/thoughtworks/xstream/main" />
+        <copy tofile="${temp.pfp.modules.dir}/org/drools/${droolsjbpm.slot}/drools-compiler-${version.drools}.jar" >
             <fileset dir="${deps.lib.path}" ><include name="drools-compiler-*.jar" /></fileset>
         </copy>
-        <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/${droolsjbpm.slot}/drools-core-${version.drools}.jar" >
+        <copy tofile="${temp.pfp.modules.dir}/org/drools/${droolsjbpm.slot}/drools-core-${version.drools}.jar" >
             <fileset dir="${deps.lib.path}" ><include name="drools-core-*.jar" /></fileset>
         </copy>
-        <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/${droolsjbpm.slot}/drools-persistence-jpa-${version.drools}.jar" >
+        <copy tofile="${temp.pfp.modules.dir}/org/drools/${droolsjbpm.slot}/drools-persistence-jpa-${version.drools}.jar" >
             <fileset dir="${deps.lib.path}" ><include name="drools-persistence-jpa-*.jar" /></fileset>
         </copy>
-        <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/${droolsjbpm.slot}/kie-api-${version.drools}.jar" >
+        <copy tofile="${temp.pfp.modules.dir}/org/drools/${droolsjbpm.slot}/kie-api-${version.drools}.jar" >
             <fileset dir="${deps.lib.path}" ><include name="kie-api-*.jar" /></fileset>
         </copy>
-        <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/${droolsjbpm.slot}/kie-ci-${version.drools}.jar" >
-            <fileset dir="${deps.lib.path}" ><include name="kie-ci-*.jar" /></fileset>
+        <copy tofile="${temp.pfp.modules.dir}/org/drools/${droolsjbpm.slot}/kie-commons-cdi-${version.drools}.jar" >
+            <fileset dir="${deps.lib.path}" ><include name="kie-commons-cdi-*.jar" /></fileset>
         </copy>
-        <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/${droolsjbpm.slot}/kie-commons-data-${version.drools}.jar" >
+        <copy tofile="${temp.pfp.modules.dir}/org/drools/${droolsjbpm.slot}/kie-commons-data-${version.drools}.jar" >
             <fileset dir="${deps.lib.path}" ><include name="kie-commons-data-*.jar" /></fileset>
         </copy>
-        <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/${droolsjbpm.slot}/kie-commons-io-${version.drools}.jar" >
+        <copy tofile="${temp.pfp.modules.dir}/org/drools/${droolsjbpm.slot}/kie-commons-io-${version.drools}.jar" >
             <fileset dir="${deps.lib.path}" ><include name="kie-commons-io-*.jar" /></fileset>
         </copy>
-        <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/${droolsjbpm.slot}/kie-commons-regex-${version.drools}.jar" >
+        <copy tofile="${temp.pfp.modules.dir}/org/drools/${droolsjbpm.slot}/kie-commons-regex-${version.drools}.jar" >
             <fileset dir="${deps.lib.path}" ><include name="kie-commons-regex-*.jar" /></fileset>
         </copy>
-        <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/${droolsjbpm.slot}/kie-commons-validation-${version.drools}.jar" >
+        <copy tofile="${temp.pfp.modules.dir}/org/drools/${droolsjbpm.slot}/kie-commons-validation-${version.drools}.jar" >
             <fileset dir="${deps.lib.path}" ><include name="kie-commons-validation-*.jar" /></fileset>
         </copy>
-        <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/${droolsjbpm.slot}/kie-internal-${version.drools}.jar" >
+        <copy tofile="${temp.pfp.modules.dir}/org/drools/${droolsjbpm.slot}/kie-internal-${version.drools}.jar" >
             <fileset dir="${deps.lib.path}" ><include name="kie-internal-*.jar" /></fileset>
         </copy>
-        <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/${droolsjbpm.slot}/kie-nio2-api-${version.drools}.jar" >
+        <copy tofile="${temp.pfp.modules.dir}/org/drools/${droolsjbpm.slot}/kie-nio2-api-${version.drools}.jar" >
             <fileset dir="${deps.lib.path}" ><include name="kie-nio2-api-*.jar" /></fileset>
         </copy>
-        <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/${droolsjbpm.slot}/kie-nio2-fs-${version.drools}.jar" >
-            <fileset dir="${deps.lib.path}" ><include name="kie-nio2-fs-*.jar" /></fileset>
-        </copy>
-        <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/${droolsjbpm.slot}/kie-nio2-jgit-${version.drools}.jar" >
-            <fileset dir="${deps.lib.path}" ><include name="kie-nio2-jgit-*.jar" /></fileset>
-        </copy>
-        <copy tofile="${temp.jboss.dir}/pfpModules/org/drools/${droolsjbpm.slot}/kie-nio2-model-${version.drools}.jar" >
+        <copy tofile="${temp.pfp.modules.dir}/org/drools/${droolsjbpm.slot}/kie-nio2-model-${version.drools}.jar" >
             <fileset dir="${deps.lib.path}" ><include name="kie-nio2-model-*.jar" /></fileset>
         </copy>
-        <copy file="${temp.brms.unzip.dir}/jbpm-bam-${jBPM.version}.jar" todir="${temp.jboss.dir}/pfpModules/org/jbpm/${droolsjbpm.slot}/" />
-        <copy file="${temp.brms.unzip.dir}/jbpm-bpmn2-${jBPM.version}.jar" todir="${temp.jboss.dir}/pfpModules/org/jbpm/${droolsjbpm.slot}/" />
-        <copy file="${temp.brms.unzip.dir}/jbpm-flow-${jBPM.version}.jar" todir="${temp.jboss.dir}/pfpModules/org/jbpm/${droolsjbpm.slot}/" />
-        <copy file="${temp.brms.unzip.dir}/jbpm-flow-builder-${jBPM.version}.jar" todir="${temp.jboss.dir}/pfpModules/org/jbpm/${droolsjbpm.slot}/" />
-        <copy file="${temp.brms.unzip.dir}/jbpm-human-task-workitems-${jBPM.version}.jar" todir="${temp.jboss.dir}/pfpModules/org/jbpm/${droolsjbpm.slot}/" />
-        <copy file="${temp.brms.unzip.dir}/jbpm-persistence-jpa-${jBPM.version}.jar" todir="${temp.jboss.dir}/pfpModules/org/jbpm/${droolsjbpm.slot}/" />
-        <copy file="${temp.brms.unzip.dir}/jbpm-workitems-${jBPM.version}.jar" todir="${temp.jboss.dir}/pfpModules/org/jbpm/${droolsjbpm.slot}/" />
+        <copy file="${temp.brms.unzip.dir}/jbpm-bam-${jBPM.version}.jar" todir="${temp.pfp.modules.dir}/org/jbpm/${droolsjbpm.slot}/" />
+        <copy file="${temp.brms.unzip.dir}/jbpm-bpmn2-${jBPM.version}.jar" todir="${temp.pfp.modules.dir}/org/jbpm/${droolsjbpm.slot}/" />
+        <copy file="${temp.brms.unzip.dir}/jbpm-flow-${jBPM.version}.jar" todir="${temp.pfp.modules.dir}/org/jbpm/${droolsjbpm.slot}/" />
+        <copy file="${temp.brms.unzip.dir}/jbpm-flow-builder-${jBPM.version}.jar" todir="${temp.pfp.modules.dir}/org/jbpm/${droolsjbpm.slot}/" />
+        <copy file="${temp.brms.unzip.dir}/jbpm-human-task-workitems-${jBPM.version}.jar" todir="${temp.pfp.modules.dir}/org/jbpm/${droolsjbpm.slot}/" />
+        <copy file="${temp.brms.unzip.dir}/jbpm-persistence-jpa-${jBPM.version}.jar" todir="${temp.pfp.modules.dir}/org/jbpm/${droolsjbpm.slot}/" />
+        <copy file="${temp.brms.unzip.dir}/jbpm-workitems-${jBPM.version}.jar" todir="${temp.pfp.modules.dir}/org/jbpm/${droolsjbpm.slot}/" />
 
-        <copy todir="${temp.jboss.dir}/pfpModules/org/jboss/processFlow/main" >
+        <copy todir="${temp.pfp.modules.dir}/org/jboss/processFlow/main" >
             <fileset dir="${temp.pfp.lib.dir}" />
         </copy>
     </target> 
@@ -531,16 +510,13 @@
             <param name="non.openshift.environment" value="true"/>
         </antcall>
         <copy todir="${pfp.module.path}" overwrite="true" >
-            <fileset dir="${temp.jboss.dir}/pfpModules" />
+            <fileset dir="${temp.pfp.modules.dir}" />
         </copy>
-        <if>
-            <equals arg1="${org.jboss.processFlow.provision.switchyard}" arg2="true" />
-            <then>
-                    <antcall target="configure.sy.modules" >
-                        <param name="non.openshift.environment" value="true"/>
-                    </antcall>
-            </then>
-        </if>
+        <antcall target="configure.sy.modules" >
+            <param name="non.openshift.environment" value="true"/>
+        </antcall>
+        <!-- https://community.jboss.org/wiki/LayeredDistributionsAndModulePathOrganization -->
+        <copy todir="${jboss.home}/modules" file="conf/jboss/layers.conf" overwrite="true" />
     </target>
 
     <target name="resolve.droolsjbpm.dependencies" >
@@ -558,7 +534,20 @@
         <echo message="droolsjbpm-build-bootstrap-version = ${echo.droolsjbpm.deps.path} " />
     </target> 
 
-    <target name="local.provision.hornetq">
+    <target name="local.configure.core.services">
+        <for list="${org.jboss.eap.host.list}" param="serverIpAddr">
+            <sequential>
+                <var name="serverIpAddr" value="@{serverIpAddr}" />
+                <antcall target="cli.batch">
+                    <param name="cli.source.dir" value="conf/jboss/"/>
+                    <param name="cli.to.filter.and.execute" value="core-services-up.cli"/>
+                    <param name="cli.fail.on.error" value="true"/>
+                </antcall>
+            </sequential>
+        </for>
+    </target> 
+
+    <target name="local.provision.ha.jvms">
         <sleep seconds="2"/>
         <antcall target="cli.batch">
             <param name="cli.source.dir" value="conf/hornetq/"/>
@@ -568,11 +557,29 @@
         <for list="${org.jboss.eap.host.list}" param="serverIpAddr">
             <sequential>
                 <var name="serverIpAddr" value="@{serverIpAddr}" />
-                <antcall target="cli.batch">
-                    <param name="cli.source.dir" value="conf/hornetq/"/>
-                    <param name="cli.to.filter.and.execute" value="hornetq-config-server.cli"/>
-                    <param name="cli.fail.on.error" value="true"/>
-                </antcall>
+                <for list="${ha.server.number.list}" param="serverNum">
+                  <sequential>
+                    <var name="ha.server.id" value="ha-@{serverNum}" />
+                    <math result="ha.port.increment" operand1="100" operation="*" operand2="@{serverNum}" datatype="int" />
+                    <math result="ha.port.offset" operand1="${hornetq.group.port.offset}" operation="+" operand2="${ha.port.increment}" datatype="int" />
+                    <var name="ha.server.id" value="ha-@{serverNum}" />
+                    <if>
+                        <equals arg1="${ha.server.id}" arg2="ha-0" />
+                        <then><var name="ha.block" value="true" /></then>
+                        <else><var name="ha.block" value="false" /></else>
+                    </if>
+                    <antcall target="cli.batch">
+                        <param name="cli.source.dir" value="conf/hornetq/"/>
+                        <param name="cli.to.filter.and.execute" value="hornetq-config-server.cli"/>
+                        <param name="cli.fail.on.error" value="true"/>
+                    </antcall>
+                        <antcall target="cli.batch">
+                        <param name="cli.source.dir" value="conf/hornetq/"/>
+                        <param name="cli.to.filter.and.execute" value="hornetq-config-up.cli"/>
+                        <param name="cli.fail.on.error" value="true"/>
+                    </antcall>
+                  </sequential>
+                </for>
             </sequential>
         </for>
     </target>
@@ -589,6 +596,20 @@
                     <equals arg1="${refresh.master}" arg2="true" />
                     <then><antcall target="refresh.master" /></then>
                 </if>
+                <antcall target="filter">
+                    <param name="source.dir" value="conf/pfp/bpms-pfp.ear"/>
+                    <param name="dest.dir" value="${temp.pfp.services.dir}/bpms-pfp.ear.work"/>
+                </antcall>
+                <zip destfile="${temp.pfp.services.dir}/bpms-pfp.ear">
+                    <zipfileset dir="${temp.pfp.services.dir}/bpms-pfp.ear.work" />
+                    <zipfileset dir="${temp.brms.unzip.dir}">
+                        <include name="droolsjbpm-knowledge-services-${jBPM.version}.jar" />
+                        <include name="form-services-${jBPM.version}.jar" />
+                        <include name="jbpm-human-task-services-${jBPM.version}.jar" />
+                        <include name="jbpm-runtime-manager-${jBPM.version}.jar" />
+                        <include name="jbpm-shared-services-${jBPM.version}.jar" />
+                    </zipfileset>
+                </zip>
                 <!--copy file="conf/pfp/default.session.template" tofile="${drools.session.template.path}" overwrite="true" / -->
                 <math result="hornetq.remoting.port" operand1="${base.remoting.port}" operation="+" operand2="${hornetq.group.port.offset}" datatype="int" />
                 <antcall target="cli.batch">
@@ -753,10 +774,7 @@
 
     <target name="download.and.unzip.sy.deployer">
         <get src="${switchyard.deployer.download.url}" dest="${install.home}/lib/"  skipexisting="true" />
-        <unzip src="${install.home}/lib/switchyard.deployer.zip" dest="${temp.jboss.dir}" />
-        <move todir="${temp.jboss.dir}/syModules" >
-            <fileset dir="${temp.jboss.dir}/modules" />
-        </move>
+        <unzip src="${install.home}/lib/${switchyard.zip.name}" dest="${jboss.home}/../" />
     </target>
     <target name="download.drools.guvnor">
         <get src="${drools.guvnor.url}" dest="${install.home}/lib/guvnor-distribution-wars-${drools.guvnor.version}-jboss-as-7.0.war"  skipexisting="true" />
@@ -801,10 +819,11 @@
         </if>
         <antcall target="refresh.master" />
         <antcall target="refresh.slave.hosts" />
+        <antcall target="local.configure.core.services" />
         <antcall target="local.provision.brms.webs">
             <param name="refresh.master" value="false"/>
         </antcall>
-        <antcall target="local.provision.hornetq" />
+        <antcall target="local.provision.ha.jvms" />
         <antcall target="local.provision.pfp.core">
             <param name="refresh.master" value="false"/>
         </antcall>

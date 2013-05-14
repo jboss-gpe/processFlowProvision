@@ -1,67 +1,7 @@
-batch
-
-# pfpServicesTest:  set up ejb client side pre-reqs as per :  https://docs.jboss.org/author/display/AS71/EJB+invocations+from+a+remote+server+instance
-# pfpServicesTest:  useful for demonstrating a container managed client invoking PFP core ejb services
-# NOTE:  the following 'ejb-security-realm' will be found in $JBOSS_HOME/default-pfp/configuration/host.xml
-/host=master/core-service=management/security-realm=ejb-security-realm:add()
-/host=master/core-service=management/security-realm=ejb-security-realm/server-identity=secret:add(value="${pfp.core.remoting.base64.passcode}")
-
-# define an ejb outbound socket binding (called "remote-ejb") to point to pfpCore server
-/socket-binding-group=standard-sockets/remote-destination-outbound-socket-binding=remote-ejb/:add(port=${pfp.core.remoting.port},host=${pfp.core.host.name},fixed-source-port=false)
-
-# pfpServicesTest:  enable TRACE logging of org.jboss.as.ee.structure to indicate whether client-side jboss-ejb-client.xml config is being parsed
-/profile=default/subsystem=logging/logger=org.jboss.as.ee.structure/:add(category=org.jboss.as.ee.structure,level=TRACE,use-parent-handlers=true)
-/profile=default/subsystem=logging/logger=org.jboss.bpm.report/:add(category=org.jboss.bpm.report,level=TRACE,use-parent-handlers=true)
-
- # skip excessive guvnor logging
-/profile=default/subsystem=logging/logger=org.apache.jackrabbit.core/:add(category=org.apache.jackrabbit.core.TransientRepository,level=WARN,use-parent-handlers=true)
-/profile=default/subsystem=logging/logger=org.drools.xml/:add(category=org.drools.xml.ExtensibleXmlParser,level=FATAL,use-parent-handlers=true)
-
-# configure brms-webs server group
-/server-group=brms-webs-group/:add(profile=default,socket-binding-group=standard-sockets,socket-binding-port-offset=${brms.webs.port.offset})
-/server-group=brms-webs-group/jvm=brms-webs/:add(max-heap-size=1536m,env-classpath-ignored=false,permgen-size=256m,max-permgen-size=512m,heap-size=512m)
-/server-group=brms-webs-group/jvm=brms-webs/:write-attribute(name=jvm-options,value=["-Xrunjdwp:transport=dt_socket,address=${brms.webs.group.debugger.port},server=y,suspend=n"])
-/host=master/server-config=brms-webs:add(auto-start=false,group=brms-webs-group)
-run-batch
-
-
-batch
-
-# start brms-webs server
-/host=master/server-config=brms-webs/:start(server=brms-webs,blocking=true)
-
-# using previously defined jdbc-driver, configure XA datasource for guvnor
-/profile=default/subsystem=datasources/xa-data-source=guvnor-cp-xa:add(jndi-name=java:/global/guvnor-cp-xa,driver-name=${jdbc.module.name},user-name=${guvnor_db_user},password=${guvnor_db_password},max-pool-size=5,min-pool-size=1,xa-datasource-class=${guvnor.xa.datasource.class})
-/profile=default/subsystem=datasources/xa-data-source=guvnor-cp-xa/xa-datasource-properties=ServerName/:add(value=${guvnor_db_ip})
-/profile=default/subsystem=datasources/xa-data-source=guvnor-cp-xa/xa-datasource-properties=DatabaseName/:add(value=guvnor)
-/profile=default/subsystem=datasources/xa-data-source=guvnor-cp-xa:enable()
-
-# using previously defined jdbc-driver, configure non-XA datasource for guvnor
-/profile=default/subsystem=datasources/data-source=guvnor-cp:add(jndi-name=java:/global/guvnor-cp,connection-url=${guvnor_connection_url},driver-class=${guvnor_driver_class},driver-name=${jdbc.module.name},user-name=${guvnor_db_user},password=${guvnor_db_password},pool-name=guvnor_ds_pool,max-pool-size=5,min-pool-size=1)
-/profile=default/subsystem=datasources/data-source=guvnor-cp:enable()
-
-### sy-core-group also uses the default profile, so provide it a non-XA datasource connection pools to jbpm and jbpm_bam databases
-/profile=default/subsystem=datasources/data-source=jbpm-core-cp:add(jndi-name=java:jboss/datasources/jbpm-core-cp,connection-url=${jbpm_connection_url},driver-class=${jbpm_driver_class},driver-name=${jdbc.module.name},user-name=${jbpm_db_user},password=${jbpm_db_password},pool-name=jbpm-core_ds_pool,max-pool-size=5,min-pool-size=1)
-/profile=default/subsystem=datasources/data-source=jbpm-core-cp:enable()
-
-# now that brms-webs is started, create a "remote-outbound-connection" which uses :
-#   1)  previously defined "remote-ejb" outbound-socket-binding
-#   2)  previously defined "ejb-security-realm"
-#   3)  the user name associated with the base64 hash defined in "ejb-security-realm"
-#
-#   NOTE:  in your 'client' server, include a jboss-ejb-client.xml config that references this 'remote-ejb-connection' defined here
-/profile=default/subsystem=remoting/remote-outbound-connection=remote-ejb-connection/:add(outbound-socket-binding-ref=remote-ejb,username=${pfp.core.remoting.user.name},security-realm=ejb-security-realm)
-/profile=default/subsystem=remoting/remote-outbound-connection=remote-ejb-connection/property=SASL_POLICY_NOANONYMOUS:add(value=false)
-/profile=default/subsystem=remoting/remote-outbound-connection=remote-ejb-connection/property=SSL_ENABLED:add(value=false)
-
-
-# add system property to support pfpServicesTest
-/host=master/server-config=brms-webs/system-property=org.jboss.processFlow.test.absolutePathToBpmn/:add(value=${org.jboss.processFlow.test.absolutePathToBpmn},boot-time=true)
-# add system property to birt reporting
-/host=master/server-config=brms-webs/system-property=org.jbpm.report.engine.dir/:add(value=${org.jbpm.report.dir},boot-time=true)
-run-batch
-
-# add system property such that jbpm5 bpm-console TaskFormDispatcher can find brms-webs
-/host=master/server-config=brms-webs/system-property=jbpm.conf.dir/:add(value=${jbpm.conf.dir},boot-time=true)
-
-/host=master/server-config=brms-webs/system-property=org.jboss.processFlow.colocated.pfp.services/:add(value=false,boot-time=true)
+# conditonals do not work in eap6.0.1
+#if(${org.jboss.processFlow.brmsWebs.clustered})
+    batch
+    /host=${serverIpAddr}/server-config=brms-webs/:write-attribute(name=socket-binding-port-offset,value=${brms.webs.port.offset})
+    /host=${serverIpAddr}/server-config=brms-webs/:start(server=brms-webs,blocking=true)
+    run-batch
+#end-if

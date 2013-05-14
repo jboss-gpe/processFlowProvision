@@ -70,7 +70,6 @@
 <resource-root path="closure-compiler-r1741.jar"/>
 <!--resource-root path="cobogw-1.0.jar"/ -->
 <resource-root path="com.google.code.guice-guice-2.0.jar"/>
-<resource-root path="commons-codec-1.5.jar"/>
 <resource-root path="commons-compress-1.0.jar"/>
 <resource-root path="commons-configuration-1.6.jar"/>
 <resource-root path="commons-dbcp-1.2.2.jar"/>

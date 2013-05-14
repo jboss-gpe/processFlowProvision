@@ -23,19 +23,18 @@
         <resource-root path="drools-core-${version.drools}.jar"/>
         <resource-root path="drools-persistence-jpa-${version.drools}.jar"/>
         <resource-root path="kie-api-${version.drools}.jar"/>
-        <resource-root path="kie-ci-${version.drools}.jar"/>
+        <resource-root path="kie-commons-cdi-${version.drools}.jar"/>
         <resource-root path="kie-commons-data-${version.drools}.jar"/>
         <resource-root path="kie-commons-io-${version.drools}.jar"/>
         <resource-root path="kie-commons-regex-${version.drools}.jar"/>
         <resource-root path="kie-commons-validation-${version.drools}.jar"/>
         <resource-root path="kie-internal-${version.drools}.jar"/>
         <resource-root path="kie-nio2-api-${version.drools}.jar"/>
-        <resource-root path="kie-nio2-fs-${version.drools}.jar"/>
-        <resource-root path="kie-nio2-jgit-${version.drools}.jar"/>
         <resource-root path="kie-nio2-model-${version.drools}.jar"/>
     </resources>
     <dependencies>
         <module name="com.google.protobuf" export="true" />
+        <module name="com.google.gson" export="true" />
         <module name="org.antlr.antlr-runtime" export="true" />
         <module name="org.antlr.stringtemplate" export="true" />
         <module name="org.eclipse.jdt.core.compiler.ecj" export="true" />
@@ -44,13 +43,14 @@
         <module name="org.javassist" export="true" />
         <module name="javax.xml.stream.api" export="true" />
         <module name="org.hibernate" export="true" />
+        <module name="org.apache.commons.collections" export="true" />
+        <module name="freemarker" export="true" />
+        <module name="org.apache.commons.vfs" export="true" />
+
         <module name="com.thoughtworks.xstream"/>
 
         <!-- jbpm needs access to javax.persistence.* -->
         <module name="javaee.api" export="true" />
-
-        <!-- jbpm needs access to org.apache.commons.codec -->
-        <module name="org.apache.commons.codec" export="true" slot="5" />
 
         <!-- otherwise :  java.lang.ClassNotFoundException: org.jbpm.bpmn2.BPMN2ProcessProviderImpl from [Module "org.drools:main" -->
         <module name="org.jbpm" slot="${droolsjbpm.slot}" />

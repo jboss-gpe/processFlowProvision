@@ -36,13 +36,7 @@
         <module name="org.hornetq" export="true" />
 
         <module name="org.drools" export="true" slot="${droolsjbpm.slot}" />
-        <module name="org.jbpm" export="true" slot="${droolsjbpm.slot}" >
-            <imports>
-                <!-- JA Bride: 9 July 2012 .... this doesn't seem to work -->
-                <include path="META-INF/Taskorm.xml"/>
-                <include path="META-INF/*.conf"/>
-            </imports>
-        </module>
+        <module name="org.jbpm" export="true" slot="${droolsjbpm.slot}"  />
 
         <!-- needed by bamService, knowledgeSessionService and various org.jboss.processFlow static libraries -->
         <module name="org.jboss.marshalling" export="true" />

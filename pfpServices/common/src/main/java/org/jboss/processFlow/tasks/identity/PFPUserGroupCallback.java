@@ -1,7 +1,7 @@
 package org.jboss.processFlow.tasks.identity;
 
 import java.util.List;
-import org.jbpm.task.identity.UserGroupCallback;
+import org.kie.internal.task.api.UserGroupCallback;
 
 public class PFPUserGroupCallback implements UserGroupCallback {
 

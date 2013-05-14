@@ -4,12 +4,8 @@ batch
 /profile=pfpCore/subsystem=datasources/data-source=ExampleDS/:remove
 /profile=pfpCore/subsystem=ejb3/:write-attribute(name=enable-statistics,value=true)
 
-
-# set up security and networking to invoke remote HA Timer Management service
-# set up ejb client side pre-reqs as per :  https://docs.jboss.org/author/display/AS71/EJB+invocations+from+a+remote+server+instance
-/host=master/core-service=management/security-realm=ejb-security-realm:add()
-/host=master/core-service=management/security-realm=ejb-security-realm/server-identity=secret:add(value="${pfp.core.remoting.base64.passcode}")
-/socket-binding-group=full-sockets/remote-destination-outbound-socket-binding=remote-ejb/:add(fixed-source-port=false, port=${hornetq.remoting.port},host=${pfp.core.host.name})
+/profile=pfpCore/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:undefine-attribute(name=connector)
+/profile=pfpCore/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:undefine-attribute(name=connector)
 run-batch
 
 
@@ -123,17 +119,12 @@ batch
 run-batch
 
 batch
-deploy ${temp.pfp.services.dir}/droolsjbpm-knowledge-services-${jBPM.version}.jar --name=droolsjbpm-knowledge-services.jar --server-groups=${pfp.core.group}
-deploy ${temp.pfp.services.dir}/executor-services-${jBPM.version}.jar --name=executor-services.jar --server-groups=${pfp.core.group}
-deploy ${temp.pfp.services.dir}/form-services-${jBPM.version}.jar --name=form-services.jar --server-groups=${pfp.core.group}
-deploy ${temp.pfp.services.dir}/jbpm-human-task-services-${jBPM.version}.jar --name=jbpm-human-task-services.jar --server-groups=${pfp.core.group}
-deploy ${temp.pfp.services.dir}/jbpm-shared-services-${jBPM.version}.jar --name=jbpm-shared-services.jar --server-groups=${pfp.core.group}
-deploy ${temp.pfp.services.dir}/jbpm-runtime-manager-${jBPM.version}.jar --name=jbpm-runtime-manager.jar --server-groups=${pfp.core.group}
+deploy ${temp.pfp.services.dir}/bpms-pfp.ear --name=bpms-pfp.ear --server-groups=${pfp.core.group}
 run-batch
 
-batch
+#batch
 # deploy pfp services related to jbpm5 to pfp-core server group
-deploy ${temp.pfp.services.dir}/processFlow-knowledgeSessionService.jar --name=processFlow-knowledgeSessionService.jar --server-groups=${pfp.core.group}
+#deploy ${temp.pfp.services.dir}/processFlow-knowledgeSessionService.jar --name=processFlow-knowledgeSessionService.jar --server-groups=${pfp.core.group}
 #deploy ${temp.pfp.services.dir}/processFlow-taskService.jar --name=processFlow-taskService.jar --server-groups=${pfp.core.group}
 #deploy ${temp.pfp.services.dir}/processFlow-knowledgeSessionService-web.war --name=processFlow-knowledgeSessionService-web.war --server-groups=${pfp.core.group}
-run-batch
+#run-batch

@@ -2,7 +2,7 @@ package org.jboss.processFlow.tasks;
 
 import java.util.Date;
 
-import org.jbpm.task.Status;
+import org.kie.api.task.model.Status;
 
 public class TaskChangeDetails implements java.io.Serializable {
     public static final String TASK_CHANGE_DETAILS = "TASK_CHANGE_DETAILS";

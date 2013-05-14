@@ -22,10 +22,13 @@
 
 package org.jboss.processFlow.tasks;
 
-import org.jbpm.task.service.TaskException;
+import org.jbpm.services.task.exception.TaskException;
 
 public class TaskNotFoundException extends TaskException {
-    public TaskNotFoundException(String message) {
+    
+	private static final long serialVersionUID = 1L;
+
+	public TaskNotFoundException(String message) {
         super(message);
     }
 

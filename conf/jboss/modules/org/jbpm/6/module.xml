@@ -22,7 +22,6 @@
   -->
 <module xmlns="urn:jboss:module:1.1" name="org.jbpm" slot="${droolsjbpm.slot}">
     <resources>
-        <resource-root path="jbpm-human-task-core-${jBPM.version}.jar"/>
         <resource-root path="jbpm-bam-${jBPM.version}.jar"/>
         <resource-root path="jbpm-bpmn2-${jBPM.version}.jar"/>
         <resource-root path="jbpm-flow-${jBPM.version}.jar"/>

@@ -26,16 +26,11 @@ import java.io.Externalizable;
 import java.util.List;
 import java.util.Map;
 
-/*import org.jbpm.task.OrganizationalEntity;
-import org.jbpm.task.Task;
-import org.jbpm.task.Status;
-import org.jbpm.task.Content;
-import org.jbpm.task.query.TaskSummary;
-import org.jbpm.task.service.ContentData;
-import org.jbpm.task.service.TaskException;
-import org.jbpm.task.service.CannotAddTaskException;*/
-
-import org.kie.internal.task.api.model.*;
+import org.kie.api.task.model.OrganizationalEntity;
+import org.kie.api.task.model.Status;
+import org.kie.api.task.model.Task;
+import org.kie.api.task.model.TaskSummary;
+import org.kie.internal.task.api.model.ContentData;
 
 /**
  *

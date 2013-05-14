@@ -43,8 +43,9 @@ import javax.persistence.Query;
 import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
+import org.kie.api.runtime.manager.RuntimeEngine;
+import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.internal.io.ResourceFactory;
-import org.kie.internal.runtime.manager.RuntimeManager;
 import org.kie.internal.runtime.manager.RuntimeManagerFactory;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.jbpm.persistence.processinstance.ProcessInstanceInfo;
@@ -180,7 +181,8 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
         } else {
             KieSession kSession = null;
             try {
-                kSession = rManager.getRuntime(ProcessInstanceIdContext.get()).getKieSession();
+                
+                kSession = rManager.getRuntimeEngine(ProcessInstanceIdContext.get()).getKieSession();
                 ProcessInstance pInstance = kSession.startProcess(processId, pInstanceVariables);
                 
                 Map<String, Object> returnMap = new HashMap<String, Object>();
@@ -197,7 +199,7 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
     public void signalEvent(String signalType, Object signalValue, Long processInstanceId) {
         KieSession kSession = null;
         try {
-            kSession = rManager.getRuntime(ProcessInstanceIdContext.get(processInstanceId)).getKieSession();
+            kSession = rManager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId)).getKieSession();
             kSession.signalEvent(signalType, signalValue, processInstanceId);
         }finally {
             dispose(kSession);
@@ -235,7 +237,7 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
         } else {
             KieSession kSession = null;
             try {
-                kSession = rManager.getRuntime(ProcessInstanceIdContext.get(pInstanceId)).getKieSession();
+                kSession = rManager.getRuntimeEngine(ProcessInstanceIdContext.get(pInstanceId)).getKieSession();
                 kSession.getWorkItemManager().completeWorkItem(workItemId, pInstanceVariables);
                 kSession.dispose();
             }finally {
@@ -247,7 +249,7 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
     public void upgradeProcessInstance(long processInstanceId, String processId, Map<String, Long> nodeMapping) {
         KieSession kSession = null;
         try {
-            kSession = rManager.getRuntime(ProcessInstanceIdContext.get(processInstanceId)).getKieSession();
+            kSession = rManager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId)).getKieSession();
             WorkflowProcessInstanceUpgrader.upgradeProcessInstance(kSession, processInstanceId, processId, nodeMapping);
         }finally {
             dispose(kSession);
@@ -257,7 +259,7 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
     public void abortProcessInstance(Long processInstanceId) {
         KieSession kSession = null;
         try {
-            kSession = rManager.getRuntime(ProcessInstanceIdContext.get(processInstanceId)).getKieSession();
+            kSession = rManager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId)).getKieSession();
             kSession.abortProcessInstance(processInstanceId);
         }finally {
             dispose(kSession);
@@ -310,7 +312,7 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
         KieSession kSession = null;
         Map<String, Object> returnMap = new HashMap<String, Object>();
         try {
-            kSession = rManager.getRuntime(ProcessInstanceIdContext.get(processInstanceId)).getKieSession();
+            kSession = rManager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId)).getKieSession();
             ProcessInstance pInstance = kSession.getProcessInstance(processInstanceId, Boolean.TRUE.booleanValue());
             if (pInstance != null) {
                 Map<String, Object> variables = ((WorkflowProcessInstanceImpl) pInstance).getVariables();
@@ -333,7 +335,7 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
     }
     
     public void setProcessInstanceVariables(Long processInstanceId, Map<String, Object> variables){
-        KieSession kSession = rManager.getRuntime(ProcessInstanceIdContext.get(processInstanceId)).getKieSession();
+        KieSession kSession = rManager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId)).getKieSession();
         ProcessInstance pInstance = kSession.getProcessInstance(processInstanceId, Boolean.TRUE.booleanValue());
         try {
             if (pInstance != null) {
