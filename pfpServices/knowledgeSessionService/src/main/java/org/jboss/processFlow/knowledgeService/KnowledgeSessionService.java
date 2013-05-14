@@ -51,8 +51,6 @@ import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.jbpm.persistence.processinstance.ProcessInstanceInfo;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
-import org.jbpm.runtime.manager.impl.DefaultRuntimeEnvironment;
-import org.jbpm.runtime.manager.impl.SimpleRuntimeEnvironment;
 import org.jbpm.workflow.instance.WorkflowProcessInstanceUpgrader;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 
@@ -99,7 +97,6 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
     private Connection connectionObj = null;
     private String sessionMgmtStrategy = IKnowledgeSessionService.DEFAULT_PER_PINSTANCE;
     private RuntimeManager rManager = null;
-    private SimpleRuntimeEnvironment rEnvironment = null;
     
     @PostConstruct
     public void start() throws Exception {
@@ -111,20 +108,6 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
             connectionObj = cFactory.createConnection();
             gwDObj = (Destination)MessagingUtil.grabJMSObject(gwDObjName);
             
-            rEnvironment = new DefaultRuntimeEnvironment(jbpmCoreEMF);
-            //rEnvironment.setUserGroupCallback(new JBossUserGroupCallbackImpl("classpath:/usergroups.properties"));
-            
-            /*
-            if(sessionMgmtStrategy.equals(IKnowledgeSessionService.DEFAULT_PER_PINSTANCE)){
-                rManager = rmFactory.newPerProcessInstanceRuntimeManager(rEnvironment);
-            }else if(sessionMgmtStrategy.equals(IKnowledgeSessionService.DEFAULT_PER_REQUEST)){
-                rManager = rmFactory.newPerRequestRuntimeManager(rEnvironment);
-            }else if (sessionMgmtStrategy.equals(IKnowledgeSessionService.DEFAULT_SINGLETON)){
-                rManager = rmFactory.newSingletonRuntimeManager(rEnvironment);
-            }else {
-                throw new RuntimeException("start() the following sessionMgmtStrategy is not valid : "+sessionMgmtStrategy);
-            }
-            */
         } catch(Exception x) {
             throw new RuntimeException(x);
         }finally {
@@ -142,7 +125,6 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
     }
     
     public void addAssetToRuntimeEnvironment(File processFile){
-        rEnvironment.addAsset(ResourceFactory.newFileResource(processFile), ResourceType.BPMN2);
     }
     
     /**
