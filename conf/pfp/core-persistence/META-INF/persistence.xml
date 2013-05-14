@@ -8,8 +8,8 @@
 
     <persistence-unit name="org.jbpm.persistence.jpa" transaction-type="JTA">
         <jta-data-source>java:jboss/datasources/jbpm-core-cp</jta-data-source>
-        <mapping-file>META-INF/Taskorm.xml</mapping-file>
         <mapping-file>META-INF/JBPMorm.xml</mapping-file>
+        <mapping-file>META-INF/Taskorm.xml</mapping-file>
         <mapping-file>META-INF/Servicesorm.xml</mapping-file>
 
         <!--mapping-file>META-INF/Executor-orm.xml</mapping-file -->
