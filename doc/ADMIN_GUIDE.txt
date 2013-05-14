@@ -534,34 +534,6 @@ in general, what does the PFP ant script do ???
     - provisions an AS7 server called "domain-pfp" that includes PFP's bam, humanTask and knowledgeSession services
 
 
-"is it possible to create url (or something else) to navigate to picture of jBPM workflow for specific instance ?"
-  did a little research on this and my thought is that yes, this is possible.  but it's more involved than just downloading a URL.  Considerations as follows:
-
-1)  security
-   - business-central-server functionality is secured via FORM based authentication
-   - in case you don't already have sample code on how to do this,  the following is a URL to my BaseRestClient.java class that has the authenticateIntoBusinessCentral() function :
-       https://github.com/jboss-sso/jbpm-performanceTests/blob/master/base/src/test/java/org/jboss/processFlow/test/BaseRestClient.java
-
-2)  HTTP GET to retrieve process image
-   - your client will want to download the process image associated with your bpmn2 process definition (png image is created in guvnor)
-   - URL follows this format :    http://<my server>:8230//business-central-server/rs/process/definition/{process id}/image
-
-3)  play_red_big.png
-    - your client will want to download the following red arrow image
-    - URL follows this format:   http://<my server>:8230/business-central/images/icons/play_red_big.png
-
-4)  activeNodeInfo
-   - your client will want to query the business-central-server to retrieve information regarding where in the previously downloaded process image do place play_red_big.png image
-   - URL follows this format:  http://<my server>:8230//business-central-server/rs/process/instance/{process instance id}/activeNodeInfo
-   - example JSON response body is as follows :      [{"width":932,"height":541,"activeNode":{"name":"_BFEAE12B-9E58-41A4-B037-4BBD4C87ADB3","x":234,"y":110,"width":151,"height":110}}]
-
-   what's relevant about the above response are the values of the "x" and "y" properties.  these properties are indicating where to place the play_red_big.png onto the process image base layer
-
-5)  merging of the play_red_big.png "layer" onto the base process image "layer"
-   - after all the above are retrieved, your client will want to layer the play_red_big.png layer on top of the process image base layer
-   - i have no idea how to do this programmatically
-   - in the existing business-central web app, it's the javascript portion that figures this part out.
-
 
 
 
