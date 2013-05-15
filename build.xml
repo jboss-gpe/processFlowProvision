@@ -576,7 +576,7 @@
                     <param name="source.dir" value="conf/pfp/bpms-pfp.ear"/>
                     <param name="dest.dir" value="${temp.pfp.services.dir}/bpms-pfp.ear.work"/>
                 </antcall>
-                <jar jarfile="${temp.pfp.services.dir}/bpms-pfp.ear.work/META-INF/core-persistence.jar" >
+                <jar jarfile="${temp.pfp.services.dir}/bpms-pfp.ear.work/lib/core-persistence.jar" >
                     <fileset dir="conf/pfp/core-persistence" />
                 </jar>
                 <zip destfile="${temp.pfp.services.dir}/bpms-pfp.ear">

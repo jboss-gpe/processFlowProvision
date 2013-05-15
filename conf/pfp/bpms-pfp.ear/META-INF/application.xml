@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <application xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" version="6" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/application_6.xsd">
     <module><java>jbpm-shared-services-${jBPM.version}.jar</java></module>
-    <!--module><java>jbpm-human-task-services-${jBPM.version}.jar</java></module -->
+    <module><java>jbpm-human-task-services-${jBPM.version}.jar</java></module>
     <!-- module><java>droolsjbpm-knowledge-services-${jBPM.version}.jar</java></module>
     <module><java>form-services-${jBPM.version}.jar</java></module>
     <module><java>jbpm-runtime-manager-${jBPM.version}.jar</java></module -->
