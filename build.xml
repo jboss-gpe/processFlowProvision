@@ -15,6 +15,7 @@
         <mkdir dir="${install.home}/lib" />
         <antcall target="clone.jboss" />
         <antcall target="local.deploy.jboss.modules" />
+        <antcall target="prep.jbpm.services" />
         <antcall target="addUserRoleConfigs" >
             <param name="config.path" value="${jboss.home}/${jboss.domain.base.dir}/configuration" />
         </antcall>
@@ -481,6 +482,11 @@
         </copy>
     </target> 
 
+    <target name="prep.jbpm.services" >
+        <copy file="${temp.brms.unzip.dir}/jbpm-human-task-services-${jBPM.version}.jar" todir="${temp.pfp.services.dir}" />
+        <jar update="true" destfile="${temp.pfp.services.dir}/jbpm-human-task-services-${jBPM.version}.jar" basedir="conf/jbpm/jbpm-human-task-services//" />
+    </target>
+
     <target name="local.deploy.jboss.modules" >
         <antcall target="configure.jboss.modules" >
             <param name="non.openshift.environment" value="true"/>
@@ -584,11 +590,11 @@
                     <zipfileset dir="${temp.brms.unzip.dir}">
                         <include name="droolsjbpm-knowledge-services-${jBPM.version}.jar" />
                         <include name="form-services-${jBPM.version}.jar" />
-                        <include name="jbpm-human-task-services-${jBPM.version}.jar" />
                         <include name="jbpm-runtime-manager-${jBPM.version}.jar" />
                         <include name="jbpm-shared-services-${jBPM.version}.jar" />
                     </zipfileset>
                     <zipfileset dir="${temp.pfp.services.dir}" >
+                        <include name="jbpm-human-task-services-${jBPM.version}.jar" />
                         <include name="processFlow-knowledgeSessionService.jar" />
                     </zipfileset>
                 </zip>
