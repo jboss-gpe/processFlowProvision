@@ -98,6 +98,12 @@ INSTALL   :
         (as root)   :   yum install git wget
 
 
+    - pull ProcessFlowProvision from github
+        (as jboss)  :   cd /opt/jbossProjects
+                        git clone https://github.com/jboss-sso/processFlowProvision.git
+                        git checkout 5.3.1_eap6.0
+
+
     --  required PFP shell environment variables
           JBOSS_HOME        :   location of JBoss EAP
           PFP_HOME          :   location of process flow provision project
@@ -108,7 +114,6 @@ INSTALL   :
             (as jboss):     cd /opt/jbossProjects/processFlowProvision
                             cp ~/.bashrc ~/.bashrc.bak
                             cp conf/shell/bashrc ~/.bashrc
-                            cp conf/git/git_completion ~/.git_completion
                             ( review the newly copied ~/.bashrc and modify where appropriate )
                             source ~/.bashrc
 
