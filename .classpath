@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="var" path="JBOSS_HOME/system/layers/base/org/apache/httpcomponents/main/httpcore-4.2.1-redhat-1.jar"/>
-	<classpathentry kind="var" path="JBOSS_HOME/system/layers/base/org/apache/httpcomponents/main/httpclient-4.2.1-redhat-1.jar"/>
-	<classpathentry kind="var" path="JBOSS_HOME/system/layers/base/javax/ejb/api/main/jboss-ejb-api_3.1_spec-1.0.2.Final-redhat-2.jar"/>
-	<classpathentry kind="var" path="JBOSS_HOME/system/layers/base/javax/inject/api/main/javax.inject-1-redhat-3.jar"/>
 	<classpathentry kind="src" path="pfpServices/bam/src/main/java"/>
 	<classpathentry kind="src" path="pfpServices/common/src/main/java"/>
 	<classpathentry kind="src" path="pfpServices/interfaces/src/main/java"/>
@@ -13,6 +9,7 @@
 	<classpathentry kind="src" path="pfpServicesTest/src/main/webapp/WEB-INF/classes"/>
 	<classpathentry kind="src" path="pfpServicesTest/src/test/java"/>
 	<classpathentry kind="src" path="pfpServices/haTimerService/src/main/java"/>
+	<classpathentry kind="src" path="pfpServices/cdiDiagnostics/src/main/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-bam"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-bpmn2"/>
@@ -66,5 +63,13 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/kiemodulemodel-example"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/named-kiesession"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/named-kiesession-from-file"/>
+	<classpathentry kind="lib" path="/opt/jboss/eap/jboss-eap-6.1/modules/system/layers/base/javax/enterprise/api/main/cdi-api-1.0-SP4-redhat-2.jar"/>
+	<classpathentry kind="lib" path="/opt/jboss/eap/jboss-eap-6.1/modules/system/layers/base/javax/ejb/api/main/jboss-ejb-api_3.1_spec-1.0.2.Final-redhat-2.jar"/>
+	<classpathentry kind="lib" path="/opt/jboss/eap/jboss-eap-6.1/modules/system/layers/base/javax/persistence/api/main/hibernate-jpa-2.0-api-1.0.1.Final-redhat-2.jar"/>
+	<classpathentry kind="lib" path="/opt/jboss/eap/jboss-eap-6.1/modules/system/layers/base/javax/inject/api/main/javax.inject-1-redhat-3.jar"/>
+	<classpathentry kind="lib" path="/opt/jboss/eap/jboss-eap-6.1/modules/system/layers/base/javax/jms/api/main/jboss-jms-api_1.1_spec-1.0.1.Final-redhat-2.jar"/>
+	<classpathentry kind="lib" path="/opt/jboss/eap/jboss-eap-6.1/modules/system/layers/base/org/codehaus/jackson/jackson-core-asl/main/jackson-core-asl-1.9.9-redhat-2.jar"/>
+	<classpathentry kind="lib" path="/opt/jboss/eap/jboss-eap-6.1/modules/system/layers/base/org/codehaus/jackson/jackson-mapper-asl/main/jackson-mapper-asl-1.9.9-redhat-2.jar"/>
+	<classpathentry kind="lib" path="/opt/jboss/eap/jboss-eap-6.1/modules/system/layers/base/org/jboss/log4j/logmanager/main/log4j-jboss-logmanager-1.0.1.Final-redhat-2.jar"/>
 	<classpathentry kind="output" path="pfpServices/taskService/target"/>
 </classpath>

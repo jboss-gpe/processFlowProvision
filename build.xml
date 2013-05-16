@@ -582,9 +582,9 @@
                     <param name="source.dir" value="conf/pfp/bpms-pfp.ear"/>
                     <param name="dest.dir" value="${temp.pfp.services.dir}/bpms-pfp.ear.work"/>
                 </antcall>
-                <jar jarfile="${temp.pfp.services.dir}/bpms-pfp.ear.work/lib/core-persistence.jar" >
+                <!--jar jarfile="${temp.pfp.services.dir}/bpms-pfp.ear.work/lib/core-persistence.jar" >
                     <fileset dir="conf/pfp/core-persistence" />
-                </jar>
+                </jar -->
                 <zip destfile="${temp.pfp.services.dir}/bpms-pfp.ear">
                     <zipfileset dir="${temp.pfp.services.dir}/bpms-pfp.ear.work" />
                     <zipfileset dir="${temp.brms.unzip.dir}">
@@ -596,6 +596,7 @@
                     <zipfileset dir="${temp.pfp.services.dir}" >
                         <include name="jbpm-human-task-services-${jBPM.version}.jar" />
                         <include name="processFlow-knowledgeSessionService.jar" />
+                        <include name="processFlow-cdiDiagnostics.jar" />
                     </zipfileset>
                 </zip>
                 <!--copy file="conf/pfp/default.session.template" tofile="${drools.session.template.path}" overwrite="true" / -->
@@ -718,6 +719,7 @@
                 <fileset dir="pfpServices/common" includes="build.xml"/>
                 <fileset dir="pfpServices/knowledgeSessionService" includes="build.xml"/>
                 <fileset dir="pfpServices/taskService" includes="build.xml"/>
+                <fileset dir="pfpServices/cdiDiagnostics" includes="build.xml"/>
                 <fileset dir="privateServiceTaskRepo" includes="build.xml"/>
             </subant>
         </sequential>
