@@ -1,0 +1,24 @@
+batch
+    # JBoss AMQ resource adaptor configs
+
+    deploy ${install.home}/lib/${activemq.rar.file.name} --name=${activemq.rar.file.name} --server-groups=${pfp.core.group}
+
+
+    /profile=pfpCore/subsystem=messaging/hornetq-server=default/:remove
+
+    #/profile=pfpCore/subsystem=resource-adapters/resource-adapter=jbossamq/:add(module=org.apache.activemq.rar,transaction-support=XATransaction)
+
+    /profile=pfpCore/subsystem=resource-adapters/resource-adapter=jbossamq/:add(archive=${activemq.rar.file.name},transaction-support=XATransaction)
+    /profile=pfpCore/subsystem=resource-adapters/resource-adapter=jbossamq/connection-definitions=RemoteConnectionFactory/:add(class-name=org.apache.activemq.ra.ActiveMQManagedConnectionFactory,flush-strategy=FailingConnectionOnly,max-pool-size=10,jndi-name=java:/RemoteConnectionFactory,same-rm-override=false,min-pool-size=0,no-recovery=true)
+    
+
+    /profile=pfpCore/subsystem=resource-adapters/resource-adapter=jbossamq/config-properties=UseInboundSession/:add(value=false)
+    /profile=pfpCore/subsystem=resource-adapters/resource-adapter=jbossamq/config-properties=UserName/:add(value=${org.activmq.user.name})
+    /profile=pfpCore/subsystem=resource-adapters/resource-adapter=jbossamq/config-properties=Password/:add(value=${org.activmq.password})
+    /profile=pfpCore/subsystem=resource-adapters/resource-adapter=jbossamq/config-properties=ServerUrl/:add(value=${org.activmq.server.url})
+
+    /profile=pfpCore/subsystem=resource-adapters/resource-adapter=jbossamq/admin-objects=${org.jboss.processFlow.ksession.queue}/:add(class-name=org.apache.activemq.command.ActiveMQQueue,jndi-name=queue/${org.jboss.processFlow.ksession.queue})
+   
+run-batch
+
+

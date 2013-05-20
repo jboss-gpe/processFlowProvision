@@ -263,6 +263,18 @@
         </exec>
     </target>
 
+    <target name="resolve.messaging.properties" >
+        <if>
+            <equals arg1="${org.jboss.processFlow.messagingProvider}" arg2="hornetq" />
+            <then>
+                <property name="org.jboss.processFlow.rar.name" value="${hornetq.rar.file.name}"/>
+            </then>
+            <else>
+                <property name="org.jboss.processFlow.rar.name" value="${activemq.rar.file.name}"/>
+            </else>
+        </if>
+    </target>
+
     <target name="resolve.local.or.openshift.properties" >
         <!--echo message="resolve.local.or.openshift.properties:  is.deployment.local = ${is.deployment.local}" / -->
         <if>
@@ -413,7 +425,7 @@
         - using depends because with antcall :  The called target(s) are run in a new project; 
         - be aware that this means properties, references, etc. set by called targets will not persist back to the calling project.
     -->
-    <target name="filter" depends="resolve.local.or.openshift.properties" >
+    <target name="filter" depends="resolve.local.or.openshift.properties,resolve.messaging.properties" >
         <fail unless="source.dir" message="filter:  need to pass 'source.dir' property" />
         <fail unless="dest.dir" message="filter:  need to pass 'dest.dir' property" />
         <!--echo message="filter:  source.dir = ${source.dir} :  dest.dir = ${dest.dir}" / -->

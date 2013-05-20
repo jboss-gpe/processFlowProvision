@@ -377,10 +377,6 @@
         <delete dir="${eclipse.home}/drools-update-site"/>
     </target>
 
-    <target name="configure.sy.modules" >
-        <antcall target="download.and.unzip.sy.deployer" />
-    </target>
-
     <target name="configure.jboss.modules" >
         <if>
             <not><available file="${temp.pfp.lib.dir}" type="dir" /></not>
@@ -520,7 +516,8 @@
         <copy todir="${pfp.module.path}" overwrite="true" >
             <fileset dir="${temp.pfp.modules.dir}" />
         </copy>
-        <antcall target="configure.sy.modules" >
+        <antcall target="download.and.unzip.sy.deployer"  />
+        <antcall target="configure.jbossamq.modules" >
             <param name="non.openshift.environment" value="true"/>
         </antcall>
         <!-- https://community.jboss.org/wiki/LayeredDistributionsAndModulePathOrganization -->
@@ -617,12 +614,29 @@
                     <then><antcall target="refresh.master" /></then>
                 </if>
                 <!--copy file="conf/pfp/default.session.template" tofile="${drools.session.template.path}" overwrite="true" / -->
-                <math result="hornetq.remoting.port" operand1="${base.remoting.port}" operation="+" operand2="${ha.group.port.offset}" datatype="int" />
+                <math result="ha.remoting.port" operand1="${base.remoting.port}" operation="+" operand2="${ha.group.port.offset}" datatype="int" />
                 <antcall target="cli.batch">
                     <param name="cli.source.dir" value="conf/pfp"/>
                     <param name="cli.to.filter.and.execute" value="pfp-server-group.cli"/>
                     <param name="cli.fail.on.error" value="true"/>
                 </antcall>
+                <if>
+                    <equals arg1="${org.jboss.processFlow.messagingProvider}" arg2="hornetq" />
+                    <then>
+                        <antcall target="cli.batch">
+                            <param name="cli.source.dir" value="conf/pfp"/>
+                            <param name="cli.to.filter.and.execute" value="pfp-using-hornetq.cli"/>
+                            <param name="cli.fail.on.error" value="true"/>
+                        </antcall>
+                    </then>
+                    <else>
+                        <antcall target="cli.batch">
+                            <param name="cli.source.dir" value="conf/pfp"/>
+                            <param name="cli.to.filter.and.execute" value="pfp-using-activemq.cli"/>
+                            <param name="cli.fail.on.error" value="true"/>
+                        </antcall>
+                    </else>
+                </if>
                 <for list="${org.jboss.eap.host.list}" param="serverIpAddr">
                     <sequential>
                         <var name="serverIpAddr" value="@{serverIpAddr}" />
@@ -814,6 +828,20 @@
     </target>
 
 
+    <target name="configure.jbossamq.modules">
+        <if>
+            <equals arg1="${org.jboss.processFlow.messagingProvider}" arg2="amq" />
+            <then>
+                <antcall target="filter">
+                    <param name="source.dir" value="conf/amq/modules"/>
+                    <param name="dest.dir" value="${jboss.home}/modules/system/layers/pfp"/>
+                </antcall>
+                <get src="${activemq.rar.download.url}" dest="${install.home}/lib/"  skipexisting="true" />
+                <copy file="${install.home}/lib/${activemq.rar.file.name}" todir="${jboss.home}/modules/system/layers/pfp/org/apache/activemq/rar/main" />
+            </then>
+            <else><echo message="not using jbossamq.  instead using:  ${org.jboss.processFlow.messagingProvider}" /></else>
+        </if>
+    </target>
     <target name="download.and.unzip.sy.deployer">
         <get src="${switchyard.deployer.download.url}" dest="${install.home}/lib/"  skipexisting="true" />
         <unzip src="${install.home}/lib/${switchyard.zip.name}" dest="${jboss.home}/../" />

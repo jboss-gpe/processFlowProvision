@@ -1,0 +1,47 @@
+batch
+
+    # set hornetq specific system properties that reference broker discovery groups
+    /server-group=${pfp.core.group}/system-property=jboss.messaging.group.address/:add(value=${jboss.messaging.group.address},boot-time=true)
+    /server-group=${pfp.core.group}/system-property=jboss.messaging.group.port/:add(value=${jboss.messaging.group.port},boot-time=true)
+
+    ## use pfpCore profile for switchyard because still need hornetq remote resource adaptor functionality
+    ## which, needs hornetq subsystem as per:  https://community.jboss.org/message/756775
+    /profile=pfpCore/subsystem=messaging/hornetq-server=default/:write-attribute(name=persistence-enabled,value=false)
+    /profile=pfpCore/subsystem=messaging/hornetq-server=default/:undefine-attribute(name=journal-file-size)
+    /profile=pfpCore/subsystem=messaging/hornetq-server=default/:undefine-attribute(name=journal-min-files)
+    /profile=pfpCore/subsystem=messaging/hornetq-server=default/address-setting=#/:remove
+    /profile=pfpCore/subsystem=messaging/hornetq-server=default/security-setting=#/:remove
+    /profile=pfpCore/subsystem=messaging/hornetq-server=default/connection-factory=InVmConnectionFactory/:remove
+    /profile=pfpCore/subsystem=messaging/hornetq-server=default/in-vm-acceptor=in-vm/:remove
+    /profile=pfpCore/subsystem=messaging/hornetq-server=default/in-vm-connector=in-vm/:remove
+    /profile=pfpCore/subsystem=messaging/hornetq-server=default/remote-acceptor=netty-throughput/:remove
+    /profile=pfpCore/subsystem=messaging/hornetq-server=default/remote-acceptor=netty/:remove
+    /profile=pfpCore/subsystem=messaging/hornetq-server=default/remote-connector=netty-throughput/:remove
+    /profile=pfpCore/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:undefine-attribute(name=connector)
+    /profile=pfpCore/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:undefine-attribute(name=connector)
+run-batch
+batch
+
+    ###  TRACE logging of hornetq client
+    #/profile=pfpCore/subsystem=logging/logger=org.hornetq.core.client.impl/:add(category=org.hornetq.core.client.impl,level=TRACE,use-parent-handlers=true)
+
+    #  define a discovery-group for the messaging subcomponent of the pfpCore profile
+    #  both hornetq-ra.rar as well as JMS connection factories will use this discovery-group rather than lookup via static IPs
+    /profile=pfpCore/subsystem=messaging/hornetq-server=default/discovery-group=dg-group1/:add(socket-binding=messaging-group,refresh-timeout=10000)
+
+    # change pooled connection factory to use discovery-group rather than immediately using a netty connector
+    /profile=pfpCore/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=discovery-group-name,value=dg-group1)
+
+    # configure hornetq-ra for HA behavior
+    /profile=pfpCore/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=ha,value=true)
+    /profile=pfpCore/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=reconnect-attempts,value=-1)
+
+    # configure JMS connection factory avialable internally to beans;  ensure it uses correct discovery group and is HA
+    /profile=pfpCore/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=discovery-group-name,value=dg-group1)
+    /profile=pfpCore/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=entries,value=["java:/RemoteConnectionFactory"])
+    /profile=pfpCore/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=ha,value=true)
+    /profile=pfpCore/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=reconnect-attempts,value=-1)
+
+run-batch
+
+

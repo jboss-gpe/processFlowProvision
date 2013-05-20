@@ -1,6 +1,8 @@
 <jboss xmlns="http://www.jboss.com/xml/ns/javaee"
        xmlns:jee="http://java.sun.com/xml/ns/javaee"
-       xmlns:c="urn:clustering:1.0">
+       xmlns:c="urn:clustering:1.0"
+       xmlns:mdb="urn:resource-adapter-binding"
+>
  
  
     <jee:assembly-descriptor>
@@ -8,5 +10,9 @@
             <jee:ejb-name>KnowledgeSessionService</jee:ejb-name>
             <c:clustered>true</c:clustered>
         </c:clustering>
+        <mdb:resource-adapter-binding>
+            <jee:ejb-name>KnowledgeSessionMDB</jee:ejb-name>
+            <mdb:resource-adapter-name>${org.jboss.processFlow.rar.name}</mdb:resource-adapter-name>
+        </mdb:resource-adapter-binding>
     </jee:assembly-descriptor>
 </jboss>

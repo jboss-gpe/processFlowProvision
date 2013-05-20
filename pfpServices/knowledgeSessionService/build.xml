@@ -18,6 +18,11 @@
             <param name="file.name" value="beans.xml" />
             <param name="dest.dir" value="${build.dir}/META-INF" />
         </antcall>
+        <antcall target="filter">
+            <param name="source.dir" value="src/main/resources/META-INF" />
+            <param name="file.name" value="jboss-ejb3.xml" />
+            <param name="dest.dir" value="${build.dir}/META-INF" />
+        </antcall>
 
         <!-- can't have jboss-ejb-client in an openshift environment -->
         <if>
