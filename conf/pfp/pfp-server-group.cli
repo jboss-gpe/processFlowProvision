@@ -5,8 +5,9 @@ batch
 
 /profile=pfpCore/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:undefine-attribute(name=connector)
 /profile=pfpCore/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:undefine-attribute(name=connector)
-run-batch
 
+/system-property=org.jboss.processFlow.messagingProvider/:add(value=${org.jboss.processFlow.messagingProvider},boot-time=true)
+run-batch
 
 batch
 # setup remote-outbound-connection called 'remote-ha-group-ejb-connection' and reference in jboss-ejb-client.xml
@@ -14,9 +15,6 @@ batch
 /profile=pfpCore/subsystem=remoting/remote-outbound-connection=remote-ha-group-ejb-connection/property=SASL_POLICY_NOANONYMOUS:add(value=false)
 /profile=pfpCore/subsystem=remoting/remote-outbound-connection=remote-ha-group-ejb-connection/property=SSL_ENABLED:add(value=false)
 
-
-###  TRACE logging of hornetq client
-#/profile=pfpCore/subsystem=logging/logger=org.hornetq.core.client.impl/:add(category=org.hornetq.core.client.impl,level=TRACE,use-parent-handlers=true)
 
 ### non-XA datasource connection pools to jbpm and jbpm_bam databases
 /profile=pfpCore/subsystem=datasources/data-source=jbpm-core-cp:add(jndi-name=java:jboss/datasources/jbpm-core-cp,connection-url=${jbpm_connection_url},driver-class=${jbpm_driver_class},driver-name=${jdbc.module.name},user-name=${jbpm_db_user},password=${jbpm_db_password},pool-name=jbpm-core_ds_pool,max-pool-size=50,min-pool-size=10)
@@ -39,23 +37,6 @@ batch
 /profile=pfpCore/subsystem=messaging/hornetq-server=default/remote-acceptor=netty-throughput/:remove
 /profile=pfpCore/subsystem=messaging/hornetq-server=default/remote-acceptor=netty/:remove
 /profile=pfpCore/subsystem=messaging/hornetq-server=default/remote-connector=netty-throughput/:remove
-
-#  define a discovery-group for the messaging subcomponent of the pfpCore profile
-#  both hornetq-ra.rar as well as JMS connection factories will use this discovery-group rather than lookup via static IPs
-/profile=pfpCore/subsystem=messaging/hornetq-server=default/discovery-group=dg-group1/:add(socket-binding=messaging-group,refresh-timeout=10000)
-
-# change pooled connection factory to use discovery-group rather than immediately using a netty connector
-/profile=pfpCore/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=discovery-group-name,value=dg-group1)
-
- # configure hornetq-ra for HA behavior
-/profile=pfpCore/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=ha,value=true)
-/profile=pfpCore/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=reconnect-attempts,value=-1)
-
-#  # configure JMS connection factory avialable internally to beans;  ensure it uses correct discovery group and is HA
-/profile=pfpCore/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=discovery-group-name,value=dg-group1)
-/profile=pfpCore/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=entries,value=["java:/RemoteConnectionFactory"])
-/profile=pfpCore/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=ha,value=true)
-/profile=pfpCore/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=reconnect-attempts,value=-1)
 
 # define an ejb outbound socket binding (called "remote-ejb") to point to hornetq-ha server
 # allows remote invocation of any ha EJB service on hornetq-ha server from pfp-core servers
@@ -96,7 +77,6 @@ batch
 
 
 /server-group=${pfp.core.group}/system-property=org.jboss.processFlow.bam.queue/:add(value=${org.jboss.processFlow.bam.queue},boot-time=true)
-/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.messagingProvider/:add(value=${org.jboss.processFlow.messagingProvider},boot-time=true)
 /server-group=${pfp.core.group}/system-property=org.jboss.processFlow.is.hornetq.inVm/:add(value=${org.jboss.processFlow.is.hornetq.inVm},boot-time=true)
 
 # enabled until JBAS014803: Duplicate resource [(\"system-property\" => \"hibernate.hbm2ddl.auto\")] problem is corrected in pfp-core-server.cli
@@ -110,7 +90,34 @@ batch
 /server-group=${pfp.core.group}/system-property=jbpm.conf.dir/:add(value=${jbpm.conf.dir},boot-time=true)
 /server-group=${pfp.core.group}/system-property=drools.session.template.path/:add(value=${drools.session.template.path},boot-time=true)
 /server-group=${pfp.core.group}/system-property=drools.timerService/:add(value=${drools.timerService},boot-time=true)
+run-batch
 
+if (result.value == HORNETQ) of /system-property=org.jboss.processFlow.messagingProvider:read-resource
+    ###  TRACE logging of hornetq client
+    /profile=pfpCore/subsystem=logging/logger=org.hornetq.core.client.impl/:add(category=org.hornetq.core.client.impl,level=TRACE,use-parent-handlers=true)
+
+    #  define a discovery-group for the messaging subcomponent of the pfpCore profile
+    #  both hornetq-ra.rar as well as JMS connection factories will use this discovery-group rather than lookup via static IPs
+    /profile=pfpCore/subsystem=messaging/hornetq-server=default/discovery-group=dg-group1/:add(socket-binding=messaging-group,refresh-timeout=10000)
+
+    # change pooled connection factory to use discovery-group rather than immediately using a netty connector
+    /profile=pfpCore/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=discovery-group-name,value=dg-group1)
+
+    # configure hornetq-ra for HA behavior
+    /profile=pfpCore/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=ha,value=true)
+    /profile=pfpCore/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=reconnect-attempts,value=-1)
+
+    # configure JMS connection factory avialable internally to beans;  ensure it uses correct discovery group and is HA
+    /profile=pfpCore/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=discovery-group-name,value=dg-group1)
+    /profile=pfpCore/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=entries,value=["java:/RemoteConnectionFactory"])
+    /profile=pfpCore/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=ha,value=true)
+    /profile=pfpCore/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=reconnect-attempts,value=-1)
+end-if
+
+#if (result.value == AMQ) of /system-property=org.jboss.processFlow.messagingProvider:read-resource
+#end-if
+
+batch
 # deploy pfp services related to jbpm5 to pfp-core server group
 deploy ${temp.pfp.services.dir}/processFlow-knowledgeSessionService.jar --name=processFlow-knowledgeSessionService.jar --server-groups=${pfp.core.group}
 deploy ${temp.pfp.services.dir}/processFlow-taskService.jar --name=processFlow-taskService.jar --server-groups=${pfp.core.group}
@@ -121,3 +128,5 @@ deploy ${temp.pfp.services.dir}/processFlow-knowledgeSessionService-web.war --na
 # deploy haTimerService to the ha.group
 deploy ${temp.pfp.services.dir}/processFlow-haTimerService.jar --name=processFlow-haTimerService.jar --server-groups=ha.group
 run-batch
+
+

@@ -146,17 +146,6 @@
         <get src="${brms.download.url}" dest="${install.home}/lib/${brms.deployable.suffix}"  skipexisting="true" />
     </target>
 
-    <condition property="useHornetQ" >
-        <equals arg1="${org.jboss.processFlow.messagingProvider}" arg2="HORNETQ" />
-    </condition>
-    <target name="hornetq-config" if="useHornetQ" >
-        <antcall target="cli.batch">
-            <param name="cli.source.dir" value="conf/hornetq/"/>
-            <param name="cli.to.filter.and.execute" value="hornetq-config-down.cli"/>
-            <param name="cli.fail.on.error" value="false"/>
-        </antcall>
-    </target>
-
     <target name="unzip.brms.deployable">
         <antcall target="download.brms.deployable" />
         <if>
@@ -569,11 +558,16 @@
 
     <target name="local.provision.ha.jvms">
         <sleep seconds="2"/>
-        <antcall target="cli.batch">
-            <param name="cli.source.dir" value="conf/hornetq/"/>
-            <param name="cli.to.filter.and.execute" value="hornetq-config-group.cli"/>
-            <param name="cli.fail.on.error" value="true"/>
-        </antcall>
+        <if>
+            <equals arg1="${org.jboss.processFlow.messagingProvider}" arg2="hornetq" />
+            <then>
+                <antcall target="cli.batch">
+                    <param name="cli.source.dir" value="conf/hornetq/"/>
+                    <param name="cli.to.filter.and.execute" value="hornetq-config-group.cli"/>
+                    <param name="cli.fail.on.error" value="true"/>
+                </antcall>
+            </then>
+        </if>
         <for list="${org.jboss.eap.host.list}" param="serverIpAddr">
             <sequential>
                 <var name="serverIpAddr" value="@{serverIpAddr}" />
@@ -581,23 +575,28 @@
                   <sequential>
                     <var name="ha.server.id" value="ha-@{serverNum}" />
                     <math result="ha.port.increment" operand1="100" operation="*" operand2="@{serverNum}" datatype="int" />
-                    <math result="ha.port.offset" operand1="${hornetq.group.port.offset}" operation="+" operand2="${ha.port.increment}" datatype="int" />
+                    <math result="ha.port.offset" operand1="${ha.group.port.offset}" operation="+" operand2="${ha.port.increment}" datatype="int" />
                     <var name="ha.server.id" value="ha-@{serverNum}" />
                     <if>
                         <equals arg1="${ha.server.id}" arg2="ha-0" />
                         <then><var name="ha.block" value="true" /></then>
                         <else><var name="ha.block" value="false" /></else>
                     </if>
-                    <antcall target="cli.batch">
-                        <param name="cli.source.dir" value="conf/hornetq/"/>
-                        <param name="cli.to.filter.and.execute" value="hornetq-config-server.cli"/>
-                        <param name="cli.fail.on.error" value="true"/>
-                    </antcall>
-                        <antcall target="cli.batch">
-                        <param name="cli.source.dir" value="conf/hornetq/"/>
-                        <param name="cli.to.filter.and.execute" value="hornetq-config-up.cli"/>
-                        <param name="cli.fail.on.error" value="true"/>
-                    </antcall>
+                    <if>
+                        <equals arg1="${org.jboss.processFlow.messagingProvider}" arg2="hornetq" />
+                        <then>
+                            <antcall target="cli.batch">
+                                <param name="cli.source.dir" value="conf/hornetq/"/>
+                                <param name="cli.to.filter.and.execute" value="hornetq-config-server.cli"/>
+                                <param name="cli.fail.on.error" value="true"/>
+                            </antcall>
+                                <antcall target="cli.batch">
+                                <param name="cli.source.dir" value="conf/hornetq/"/>
+                                <param name="cli.to.filter.and.execute" value="hornetq-config-up.cli"/>
+                                <param name="cli.fail.on.error" value="true"/>
+                            </antcall>
+                        </then>
+                    </if>
                   </sequential>
                 </for>
             </sequential>
@@ -618,7 +617,7 @@
                     <then><antcall target="refresh.master" /></then>
                 </if>
                 <!--copy file="conf/pfp/default.session.template" tofile="${drools.session.template.path}" overwrite="true" / -->
-                <math result="hornetq.remoting.port" operand1="${base.remoting.port}" operation="+" operand2="${hornetq.group.port.offset}" datatype="int" />
+                <math result="hornetq.remoting.port" operand1="${base.remoting.port}" operation="+" operand2="${ha.group.port.offset}" datatype="int" />
                 <antcall target="cli.batch">
                     <param name="cli.source.dir" value="conf/pfp"/>
                     <param name="cli.to.filter.and.execute" value="pfp-server-group.cli"/>
