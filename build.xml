@@ -562,12 +562,17 @@
             <equals arg1="${org.jboss.processFlow.messagingProvider}" arg2="hornetq" />
             <then>
                 <antcall target="cli.batch">
-                    <param name="cli.source.dir" value="conf/hornetq/"/>
+                    <param name="cli.source.dir" value="conf/ha/"/>
                     <param name="cli.to.filter.and.execute" value="hornetq-config-group.cli"/>
                     <param name="cli.fail.on.error" value="true"/>
                 </antcall>
             </then>
         </if>
+        <antcall target="cli.batch">
+            <param name="cli.source.dir" value="conf/ha/"/>
+            <param name="cli.to.filter.and.execute" value="ha-config-group.cli"/>
+            <param name="cli.fail.on.error" value="true"/>
+        </antcall>
         <for list="${org.jboss.eap.host.list}" param="serverIpAddr">
             <sequential>
                 <var name="serverIpAddr" value="@{serverIpAddr}" />
@@ -582,21 +587,16 @@
                         <then><var name="ha.block" value="true" /></then>
                         <else><var name="ha.block" value="false" /></else>
                     </if>
-                    <if>
-                        <equals arg1="${org.jboss.processFlow.messagingProvider}" arg2="hornetq" />
-                        <then>
-                            <antcall target="cli.batch">
-                                <param name="cli.source.dir" value="conf/hornetq/"/>
-                                <param name="cli.to.filter.and.execute" value="hornetq-config-server.cli"/>
+                    <antcall target="cli.batch">
+                                <param name="cli.source.dir" value="conf/ha/"/>
+                                <param name="cli.to.filter.and.execute" value="ha-config-server.cli"/>
                                 <param name="cli.fail.on.error" value="true"/>
-                            </antcall>
+                    </antcall>
                                 <antcall target="cli.batch">
-                                <param name="cli.source.dir" value="conf/hornetq/"/>
-                                <param name="cli.to.filter.and.execute" value="hornetq-config-up.cli"/>
+                                <param name="cli.source.dir" value="conf/ha/"/>
+                                <param name="cli.to.filter.and.execute" value="ha-config-up.cli"/>
                                 <param name="cli.fail.on.error" value="true"/>
-                            </antcall>
-                        </then>
-                    </if>
+                    </antcall>
                   </sequential>
                 </for>
             </sequential>

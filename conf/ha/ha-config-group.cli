@@ -1,0 +1,3 @@
+batch
+/server-group=ha.group/:add(profile=full-ha,socket-binding-group=full-ha-sockets)
+run-batch
