@@ -215,8 +215,16 @@ INSTALL   :
 
 POST INSTALL ADMINISTRATION
 
+    pfp-core-0 jvm
+        - there should be no stack traces in the following log file :
+            $JBOSS_HOME/domain-${organization.name}/servers/pfp-core-0/log/server.log
+
+    databases
+        - log into your jbpm and jbpm_bam databases and check for tables
+        - those tables were created when JPA persistence of knowledgeSession, task and bam functionality detected that the tables did not exist
+
     jboss-brms
-        -- point browser to the following URL   :  http://<$HOSTNAME>:8230/jboss-brms/org.drools.guvnor.Guvnor/Guvnor.jsp
+        -- point browser to the following URL   :  http://<$HOSTNAME>:8080/jboss-brms/org.drools.guvnor.Guvnor/Guvnor.jsp
             - userId / password = admin/brms
             
             -- building "defaultPackage"
@@ -254,7 +262,7 @@ POST INSTALL ADMINISTRATION
 
 
     BRMS business-central console
-        -- point browser to the following URL   :  http://<$HOSTNAME>:8230/business-central/app.html
+        -- point browser to the following URL   :  http://<$HOSTNAME>:8080/business-central/app.html
         -- login as:  jboss / brms
 
 
@@ -264,7 +272,7 @@ POST INSTALL ADMINISTRATION
         -- Of possible interest is that the above URL is the root path to a variety of jbpm5 RESTful resources
         -- The jbpm5 process management resources exposed via this API are predominantly exposed as application/JSON representations
         -- business-central REST API :
-            http://<hostName>:8230/business-central-server/rs/server/resources/jbpm
+            http://<hostName>:8080/business-central-server/rs/server/resources/jbpm
 
                 
     Eclipse Tooling                
@@ -531,7 +539,7 @@ remote client examples
                 - implements the 'EJB client API' approach documented here:  https://docs.jboss.org/author/display/AS71/EJB+invocations+from+a+remote+client+using+JNDI
                 - procedure
                     - command terminal 1 
-                        - tail -f $JBOSS_HOME/domain-pfp/servers/pfp-core/log/server.log
+                        - tail -f $JBOSS_HOME/domain-${organization.name}/servers/pfp-core-0/log/server.log
                     - command terminal 2 :  
                         - cd $PFP_HOME
                         - ant test.standaloneTask
@@ -560,7 +568,7 @@ remote client examples
                         - ant local.provision.brms.webs -Drefresh.master=true
 
                     - monitor brmsWebs log file
-                        - tail -f domain-pfp/servers/brms-webs/log/server.log
+                        - tail -f domain-${organization.name}/servers/brms-webs/log/server.log
 
                     - deploy pfpServicesTest.war into brmsWebs
                         - pfpServicesTest.war has a sample http GETful application that will invoke the ksession service running on pfpCore
@@ -579,7 +587,7 @@ remote client examples
                         - ant local.provision.pfp.core
 
                     - invoke pfpServicesTest.war and proxy requests to ksessionService on pfpCore through ejb-security-realm
-                        - curl $HOSTNAME:8230/pfpServicesTest/all 
+                        - curl $HOSTNAME:8080/pfpServicesTest/all 
                             - should return:  Great Success!!
                             - in the brmsWebs log, you'll also see various logs regarding claiming and completing a task
                             - look for the following indicating successful hand-shake between remote-outbound-connection from brmsWebs to JBoss Remoting on pfpCore:
@@ -591,7 +599,7 @@ remote client examples
 BIRT reporting
     - the BIRT report engine is integrated in with business-central-server.war
     - upon brmsWebs server start-up, statements similar to the following indicating that the BIRT reporting engine 
-        is alive should be visible in $JBOSS_HOME/default-pfp/servers/brms-webs/log/server.log
+        is alive should be visible in $JBOSS_HOME/default-${organization.name}/servers/brms-webs/log/server.log
 
         INFO  [org.jboss.bpm.report.ReportFacade] (MSC service thread 1-14) BIRT home: /shared/source/jboss/jbossProjects/jboss/birt/ReportEngine
         INFO  [org.jboss.bpm.report.ReportFacade] (MSC service thread 1-14) Output dir: /shared/source/jboss/jbossProjects/jboss/birt/output/
