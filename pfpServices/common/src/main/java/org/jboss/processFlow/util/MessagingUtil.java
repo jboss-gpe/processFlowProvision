@@ -69,14 +69,8 @@ public class MessagingUtil {
     public static ConnectionFactory grabConnectionFactory() throws Exception {
         Context jndiContext = null;
         try {
-            if(!isHornetqInVm) {
-                org.hornetq.jms.client.HornetQConnectionFactory hqcFactory = HornetQJMSClient.createConnectionFactoryWithHA(groupConfiguration, JMSFactoryType.QUEUE_CF);
-                hqcFactory.setReconnectAttempts(-1);
-                return (ConnectionFactory)hqcFactory;
-            }else {
-                jndiContext = new InitialContext();
-                return (ConnectionFactory)jndiContext.lookup(CONNECTION_FACTORY_JNDI_NAME);
-            }
+            jndiContext = new InitialContext();
+            return (ConnectionFactory)jndiContext.lookup(CONNECTION_FACTORY_JNDI_NAME);
         }finally {
             if(jndiContext != null)
                 jndiContext.close();
