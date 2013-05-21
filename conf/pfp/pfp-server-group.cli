@@ -3,6 +3,10 @@ batch
 /profile=pfpCore/subsystem=datasources/data-source=ExampleDS/:remove
 /profile=pfpCore/subsystem=ejb3/:write-attribute(name=enable-statistics,value=true)
 
+# filter out all jbpm5 related log messages related to its inability to correctly parse BPMN2 as per :
+#   https://community.jboss.org/message/784580?tstart=0
+/profile=pfpCore/subsystem=logging/periodic-rotating-file-handler=FILE:update-properties(filter={"not" => {"match"=>BPMN20.xsd|dc:Point|bpmn2:tFormalExpression}})
+
 run-batch
 
 batch
@@ -63,6 +67,7 @@ batch
 /server-group=${pfp.core.group}/system-property=jbpm.conf.dir/:add(value=${jbpm.conf.dir},boot-time=true)
 /server-group=${pfp.core.group}/system-property=drools.session.template.path/:add(value=${drools.session.template.path},boot-time=true)
 /server-group=${pfp.core.group}/system-property=drools.timerService/:add(value=${drools.timerService},boot-time=true)
+
 
 # deploy pfp services related to jbpm5 to pfp-core server group
 deploy ${temp.pfp.services.dir}/processFlow-knowledgeSessionService.jar --name=processFlow-knowledgeSessionService.jar --server-groups=${pfp.core.group}
