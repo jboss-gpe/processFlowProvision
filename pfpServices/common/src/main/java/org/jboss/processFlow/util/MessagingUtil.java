@@ -81,6 +81,13 @@ public class MessagingUtil {
         Context jndiContext = null;
         try {
             if(!isHornetqInVm) {
+
+            /* 
+                HornetQ JCA RA doesn't support any admin objects for binding HornetQ JMS destinations in the local JNDI namespace 
+                    - (https://issues.jboss.org/browse/HORNETQ-908)
+                However, can work around this by using the JMS API javax.jms.Session.createQueue(String)
+                    - keep in mind that the String passed to createQueue will be the underlying HornetQ name of the destination, not the JNDI entry
+            */
                 Destination queue = HornetQJMSClient.createQueue(jndiName);
                 return queue;
             }else {

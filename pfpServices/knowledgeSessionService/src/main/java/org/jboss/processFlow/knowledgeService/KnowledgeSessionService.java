@@ -98,6 +98,9 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
         log.info("stop");
         try {
             platformMBeanServer.unregisterMBean(this.objectName);
+
+            if(connectionObj != null)
+                connectionObj.close();
         } catch (Exception e) {
             throw new RuntimeException("Problem during unregistration of Monitoring into JMX:" + e);
         }
