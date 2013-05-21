@@ -87,12 +87,13 @@ public class BAMService implements IBAMService, MessageListener {
     private @Resource UserTransaction uTrnx;
     private @Resource(name="java:/TransactionManager") TransactionManager tMgr;
 
-    ConnectionFactory cFactory;
-    Destination queue;
+    @javax.annotation.Resource(name="java:/RemoteConnectionFactory")
+    private ConnectionFactory cFactory;
+
+    private Destination queue;
 
     @PostConstruct
     public void start() throws Exception {
-        cFactory = MessagingUtil.grabConnectionFactory();
         connectObj = cFactory.createConnection();
         connectObj.setExceptionListener(new ExceptionListener() {
             public void onException(final JMSException e) {

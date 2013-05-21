@@ -29,6 +29,8 @@ batch
     #  both hornetq-ra.rar as well as JMS connection factories will use this discovery-group rather than lookup via static IPs
     /profile=pfpCore/subsystem=messaging/hornetq-server=default/discovery-group=dg-group1/:add(socket-binding=messaging-group,refresh-timeout=10000)
 
+    # connection factories like JmsXA (ie:  pooled-connection-factory) should only be used to send messages, not consume them
+    # to consume messages in a Java EE context, use an MDB which uses the HornetQ JCA inbound adapter
     # change pooled connection factory to use discovery-group rather than immediately using a netty connector
     /profile=pfpCore/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=discovery-group-name,value=dg-group1)
 
