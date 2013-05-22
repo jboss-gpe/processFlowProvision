@@ -4,7 +4,7 @@ batch
     /server-group=${pfp.core.group}/system-property=jboss.messaging.group.address/:add(value=${jboss.messaging.group.address},boot-time=true)
     /server-group=${pfp.core.group}/system-property=jboss.messaging.group.port/:add(value=${jboss.messaging.group.port},boot-time=true)
 
-    ## use pfpCore profile for switchyard because still need hornetq remote resource adaptor functionality
+    ## use profile based on 'full' for  because still need hornetq remote resource adaptor functionality
     ## which, needs hornetq subsystem as per:  https://community.jboss.org/message/756775
     /profile=pfpCore/subsystem=messaging/hornetq-server=default/:write-attribute(name=persistence-enabled,value=false)
     /profile=pfpCore/subsystem=messaging/hornetq-server=default/:undefine-attribute(name=journal-file-size)

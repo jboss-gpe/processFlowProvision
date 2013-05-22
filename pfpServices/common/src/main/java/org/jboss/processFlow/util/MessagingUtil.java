@@ -38,7 +38,9 @@ import org.apache.log4j.Logger;
 
 public class MessagingUtil {
 
+    // using non-pooled / non-JCA connection factory (ie:  not using java:/JmsXA)
     public static final String CONNECTION_FACTORY_JNDI_NAME="java:/RemoteConnectionFactory";
+
     public static final String JBOSS_MESSAGING_GROUP_ADDRESS="jboss.messaging.group.address";
     public static final String JBOSS_MESSAGING_GROUP_PORT="jboss.messaging.group.port";
     public static final String IS_HORNETQ_INVM="org.jboss.processFlow.is.hornetq.inVm";

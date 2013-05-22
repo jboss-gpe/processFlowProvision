@@ -23,10 +23,6 @@ batch
 /profile=pfpCore/subsystem=datasources/data-source=jbpm-bam-cp:add(jndi-name=java:jboss/datasources/jbpm-bam-cp,connection-url=${bam_connection_url},driver-class=${bam_driver_class},driver-name=${jdbc.module.name},user-name=${bam_db_user},password=${bam_db_password},pool-name=jbpm-bam_ds_pool,max-pool-size=50,min-pool-size=10)
 /profile=pfpCore/subsystem=datasources/data-source=jbpm-bam-cp:enable()
 
-# define an ejb outbound socket binding (called "remote-ejb") to point to ha server
-# allows remote invocation of any ha EJB service on ha server from pfp-core servers
-/socket-binding-group=full-sockets/remote-destination-outbound-socket-binding=remote-ejb/:add(fixed-source-port=false, port=${ha.remoting.port},host=${pfp.core.host.name})
-
 # create pfpCore server group and start
 /server-group=${pfp.core.group}/:add(profile=pfpCore,socket-binding-group=full-sockets)
 

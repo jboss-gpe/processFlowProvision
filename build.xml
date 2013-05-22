@@ -541,6 +541,7 @@
     </target> 
 
     <target name="local.configure.core.services">
+        <math result="ha.remoting.port" operand1="${base.remoting.port}" operation="+" operand2="${ha.group.port.offset}" datatype="int" />
         <for list="${org.jboss.eap.host.list}" param="serverIpAddr">
             <sequential>
                 <var name="serverIpAddr" value="@{serverIpAddr}" />
@@ -614,7 +615,6 @@
                     <then><antcall target="refresh.master" /></then>
                 </if>
                 <!--copy file="conf/pfp/default.session.template" tofile="${drools.session.template.path}" overwrite="true" / -->
-                <math result="ha.remoting.port" operand1="${base.remoting.port}" operation="+" operand2="${ha.group.port.offset}" datatype="int" />
                 <antcall target="cli.batch">
                     <param name="cli.source.dir" value="conf/pfp"/>
                     <param name="cli.to.filter.and.execute" value="pfp-server-group.cli"/>
@@ -686,6 +686,23 @@
                     <param name="cli.to.filter.and.execute" value="sy-server-group.cli"/>
                     <param name="cli.fail.on.error" value="true"/>
                 </antcall>
+                <if>
+                    <equals arg1="${org.jboss.processFlow.messagingProvider}" arg2="hornetq" />
+                    <then>
+                        <antcall target="cli.batch">
+                            <param name="cli.source.dir" value="conf/switchyard"/>
+                            <param name="cli.to.filter.and.execute" value="sy-using-hornetq.cli"/>
+                            <param name="cli.fail.on.error" value="true"/>
+                        </antcall>
+                    </then>
+                    <else>
+                        <antcall target="cli.batch">
+                            <param name="cli.source.dir" value="conf/switchyard"/>
+                            <param name="cli.to.filter.and.execute" value="sy-using-activemq.cli"/>
+                            <param name="cli.fail.on.error" value="true"/>
+                        </antcall>
+                    </else>
+                </if>
                 <for list="${org.jboss.eap.host.list}" param="serverIpAddr">
                     <sequential>
                         <var name="serverIpAddr" value="@{serverIpAddr}" />

@@ -11,4 +11,9 @@ batch
 /host=${serverIpAddr}/core-service=management/security-realm=ha-timer-ejb-security-realm:add()
 /host=${serverIpAddr}/core-service=management/security-realm=ha-timer-ejb-security-realm/server-identity=secret:add(value="${pfp.core.remoting.base64.passcode}")
 
+# used for both pfpCore and sy server-groups
+# define an ejb outbound socket binding (called "remote-ejb") to point to ha server
+# # allows remote invocation of any ha EJB service on ha server from pfp-core servers
+/socket-binding-group=full-sockets/remote-destination-outbound-socket-binding=remote-ejb/:add(fixed-source-port=false, port=${ha.remoting.port},host=${pfp.core.host.name})
+
 run-batch

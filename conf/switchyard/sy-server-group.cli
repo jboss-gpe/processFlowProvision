@@ -1,43 +1,14 @@
 batch
-/profile=full/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:undefine-attribute(name=connector)
-/profile=full/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:undefine-attribute(name=connector)
+/profile=full/subsystem=datasources/data-source=ExampleDS/:disable
+/profile=full/subsystem=datasources/data-source=ExampleDS/:remove
+/profile=full/subsystem=ejb3/:write-attribute(name=enable-statistics,value=true)
 run-batch
+
 batch
-
-###################################       configure full profile to support hosting of MDB          #######################################
-# use full profile for switchyard because still need hornetq remote resource adaptor functionality
-# which, needs hornetq subsystem as per:  https://community.jboss.org/message/756775
-/profile=full/subsystem=messaging/hornetq-server=default/:write-attribute(name=persistence-enabled,value=false)
-/profile=full/subsystem=messaging/hornetq-server=default/:undefine-attribute(name=journal-file-size)
-/profile=full/subsystem=messaging/hornetq-server=default/:undefine-attribute(name=journal-min-files)
-/profile=full/subsystem=messaging/hornetq-server=default/address-setting=#/:remove
-/profile=full/subsystem=messaging/hornetq-server=default/security-setting=#/:remove
-/profile=full/subsystem=messaging/hornetq-server=default/connection-factory=InVmConnectionFactory/:remove
-/profile=full/subsystem=messaging/hornetq-server=default/in-vm-acceptor=in-vm/:remove
-/profile=full/subsystem=messaging/hornetq-server=default/in-vm-connector=in-vm/:remove
-/profile=full/subsystem=messaging/hornetq-server=default/remote-acceptor=netty-throughput/:remove
-/profile=full/subsystem=messaging/hornetq-server=default/remote-acceptor=netty/:remove
-/profile=full/subsystem=messaging/hornetq-server=default/remote-connector=netty-throughput/:remove
-
-#  define a discovery-group for the messaging subcomponent of the full profile
-#  both hornetq-ra.rar as well as JMS connection factories will use this discovery-group rather than lookup via static IPs
-/profile=full/subsystem=messaging/hornetq-server=default/discovery-group=dg-group1/:add(socket-binding=messaging-group,refresh-timeout=10000)
-
-# change pooled connection factory to use discovery-group rather than immediately using a netty connector
-/profile=full/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=discovery-group-name,value=dg-group1)
-
-# configure hornetq-ra for HA behavior
-/profile=full/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=ha,value=true)
-/profile=full/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=reconnect-attempts,value=-1)
-
-# configure JMS connection factory avialable internally to beans;  ensure it uses correct discovery group and is HA
-/profile=full/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=discovery-group-name,value=dg-group1)
-/profile=full/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=entries,value=["java:/RemoteConnectionFactory"])
-/profile=full/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=ha,value=true)
-/profile=full/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=reconnect-attempts,value=-1)
-##################################################################################################################################
-
-
+# setup remote-outbound-connection called 'remote-ha-group-ejb-connection' and reference in jboss-ejb-client.xml
+/profile=full/subsystem=remoting/remote-outbound-connection=remote-ha-group-ejb-connection/:add(outbound-socket-binding-ref=remote-ejb,username=${pfp.core.remoting.user.name},security-realm=ha-timer-ejb-security-realm)
+/profile=full/subsystem=remoting/remote-outbound-connection=remote-ha-group-ejb-connection/property=SASL_POLICY_NOANONYMOUS:add(value=false)
+/profile=full/subsystem=remoting/remote-outbound-connection=remote-ha-group-ejb-connection/property=SSL_ENABLED:add(value=false)
 
 
 ### provide it a non-XA datasource connection pools to jbpm and jbpm_bam databases
@@ -71,10 +42,5 @@ batch
 
 # create sy.core server group and start
 /server-group=${sy.core.group}/:add(profile=full,socket-binding-group=full-sockets)
-
-# set hornetq specific system properties that reference broker discovery groups
-/server-group=${sy.core.group}/system-property=jboss.messaging.group.address/:add(value=${jboss.messaging.group.address},boot-time=true)
-/server-group=${sy.core.group}/system-property=jboss.messaging.group.port/:add(value=${jboss.messaging.group.port},boot-time=true)
-
 
 run-batch
