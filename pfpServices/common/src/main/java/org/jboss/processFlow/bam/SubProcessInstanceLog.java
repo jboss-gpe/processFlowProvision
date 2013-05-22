@@ -38,6 +38,8 @@ import javax.persistence.Id;
 @Entity
 public class SubProcessInstanceLog implements Serializable {
 
+    public static final int AFTER_SUBPROCESSINSTANCE_CREATED = 901;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;

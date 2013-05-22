@@ -42,6 +42,8 @@ import javax.persistence.Id;
 @Entity
 public class HumanTaskLog implements Externalizable {
 
+    public static final int AFTER_HUMANTASK_CREATED = 902;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;

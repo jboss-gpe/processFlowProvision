@@ -69,8 +69,6 @@ import org.jbpm.task.admin.TasksAdmin;
 import org.jbpm.workflow.instance.WorkflowProcessInstanceUpgrader;
 
 import org.jboss.processFlow.bam.IBAMService;
-import org.jboss.processFlow.bam.AsyncBAMProducerPool;
-import org.jboss.processFlow.bam.AsyncBAMProducer;
 import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
 import org.jboss.processFlow.tasks.ITaskService;
 import org.jboss.processFlow.util.LogSystemEventListener;

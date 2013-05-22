@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.jboss.processFlow.bam;
+package org.jboss.processFlow.knowledgeService;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -48,13 +48,10 @@ import org.jbpm.process.audit.VariableInstanceLog;
 import org.jbpm.workflow.instance.node.HumanTaskNodeInstance;
 import org.jbpm.workflow.instance.node.SubProcessNodeInstance;
 
-public class AsyncBAMProducer extends DefaultProcessEventListener {
+import org.jboss.processFlow.bam.SubProcessInstanceLog;
+import org.jboss.processFlow.bam.HumanTaskLog;
 
-    /* *********************************
-     * event types 
-     * *********************************/
-    public static final int AFTER_SUBPROCESSINSTANCE_CREATED = 901;
-    public static final int AFTER_HUMANTASK_CREATED = 902;
+public class AsyncBAMProducer extends DefaultProcessEventListener {
 
     public static final String LOG_EVENT_TYPE = "logEventType";
 
@@ -127,7 +124,7 @@ public class AsyncBAMProducer extends DefaultProcessEventListener {
                 log.setParentProcessInstanceId(event.getProcessInstance().getId());
                 log.setSubProcessNodeInstanceId(event.getNodeInstance().getId());
 
-                sendBAMEvent(AFTER_SUBPROCESSINSTANCE_CREATED, log);
+                sendBAMEvent(SubProcessInstanceLog.AFTER_SUBPROCESSINSTANCE_CREATED, log);
             }
             else if (event.getNodeInstance() instanceof HumanTaskNodeInstance) {
                 HumanTaskLog log = new HumanTaskLog();
@@ -135,7 +132,7 @@ public class AsyncBAMProducer extends DefaultProcessEventListener {
                 log.setNodeInstanceId(event.getNodeInstance().getId());
                 log.setProcessInstanceId(event.getProcessInstance().getId());
 
-                sendBAMEvent(AFTER_HUMANTASK_CREATED, log);
+                sendBAMEvent(HumanTaskLog.AFTER_HUMANTASK_CREATED, log);
             }
         }
         catch (Exception e) {

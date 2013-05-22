@@ -166,8 +166,8 @@ public class BAMService implements IBAMService, MessageListener {
                 if(persistManager == null)
                     persistManager = jbpmBamEFactory.createEntityManager();
                 
-                if (logEventType == AsyncBAMProducer.AFTER_SUBPROCESSINSTANCE_CREATED
-                        || logEventType == AsyncBAMProducer.AFTER_HUMANTASK_CREATED) {
+                if (logEventType == SubProcessInstanceLog.AFTER_SUBPROCESSINSTANCE_CREATED
+                        || logEventType == HumanTaskLog.AFTER_HUMANTASK_CREATED) {
                     persistManager.persist(bamObj);
 
                     // always flush transaction when the subprocessinstance or human task created

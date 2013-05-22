@@ -64,8 +64,6 @@ import org.jbpm.integration.console.shared.GuvnorConnectionUtils;
 import org.jbpm.task.admin.TaskCleanUpProcessEventListener;
 import org.jbpm.task.admin.TasksAdmin;
 import org.jboss.processFlow.bam.IBAMService;
-import org.jboss.processFlow.bam.AsyncBAMProducerPool;
-import org.jboss.processFlow.bam.AsyncBAMProducer;
 import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
 import org.jboss.processFlow.tasks.ITaskService;
 import org.jboss.processFlow.util.LogSystemEventListener;

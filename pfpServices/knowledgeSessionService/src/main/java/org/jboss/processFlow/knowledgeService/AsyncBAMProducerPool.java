@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.jboss.processFlow.bam;
+package org.jboss.processFlow.knowledgeService;
 
 import javax.jms.*;
 
@@ -29,6 +29,7 @@ import org.apache.commons.pool.impl.GenericObjectPool;
 import org.apache.log4j.Logger;
 
 import org.jboss.processFlow.util.MessagingUtil;
+import org.jboss.processFlow.bam.IBAMService;
 
 public final class AsyncBAMProducerPool implements PoolableObjectFactory {
 
