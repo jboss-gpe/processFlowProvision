@@ -50,7 +50,6 @@ batch
 
 
 /server-group=${pfp.core.group}/system-property=org.jboss.processFlow.bam.queue/:add(value=${org.jboss.processFlow.bam.queue},boot-time=true)
-/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.is.hornetq.inVm/:add(value=${org.jboss.processFlow.is.hornetq.inVm},boot-time=true)
 
 # enabled until JBAS014803: Duplicate resource [(\"system-property\" => \"hibernate.hbm2ddl.auto\")] problem is corrected in pfp-core-server.cli
 /server-group=${pfp.core.group}/system-property=hibernate.hbm2ddl.auto/:add(value=${hibernate.hbm2ddl.auto},boot-time=true)

@@ -28,11 +28,8 @@ import javax.naming.Context;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 
-import org.hornetq.api.core.DiscoveryGroupConfiguration;
-import org.hornetq.api.core.UDPBroadcastGroupConfiguration;
 import org.hornetq.api.core.client.HornetQClient;
 import org.hornetq.api.jms.HornetQJMSClient;
-import org.hornetq.api.jms.JMSFactoryType;
 
 import org.apache.log4j.Logger;
 
@@ -40,32 +37,8 @@ public class MessagingUtil {
 
     // using non-pooled / non-JCA connection factory (ie:  not using java:/JmsXA)
     public static final String CONNECTION_FACTORY_JNDI_NAME="java:/RemoteConnectionFactory";
-
-    public static final String JBOSS_MESSAGING_GROUP_ADDRESS="jboss.messaging.group.address";
-    public static final String JBOSS_MESSAGING_GROUP_PORT="jboss.messaging.group.port";
-    public static final String IS_HORNETQ_INVM="org.jboss.processFlow.is.hornetq.inVm";
-
     private static Logger log = Logger.getLogger("MessagingUtil");
-    private static boolean isHornetqInVm = true;
-    private static String brokerHostName = null;
-    private static String brokerPort = null;
-    private static DiscoveryGroupConfiguration groupConfiguration = null;
 
-    static{
-        isHornetqInVm = Boolean.parseBoolean(System.getProperty(IS_HORNETQ_INVM, Boolean.TRUE.toString()));
-        if(!isHornetqInVm) {
-            brokerHostName = System.getProperty(JBOSS_MESSAGING_GROUP_ADDRESS);
-            if(brokerHostName == null)
-                throw new RuntimeException("grabJMSObject() system property not set : "+JBOSS_MESSAGING_GROUP_ADDRESS);
-            brokerPort = System.getProperty(JBOSS_MESSAGING_GROUP_PORT);
-            if(brokerPort == null)
-                throw new RuntimeException("grabJMSObject() system property not set : "+JBOSS_MESSAGING_GROUP_PORT);
-
-            UDPBroadcastGroupConfiguration udpCfg = new UDPBroadcastGroupConfiguration(brokerHostName, Integer.parseInt(brokerPort), null, -1);
-            groupConfiguration = new DiscoveryGroupConfiguration(HornetQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT, HornetQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT, udpCfg);
-        }
-    }
-    
     // 22 Feb 2013
     // all lookups for ConnectionFactory (both in an OSE and non OSE environment should be to local JNDI
     public static ConnectionFactory grabConnectionFactory() throws Exception {
@@ -82,22 +55,18 @@ public class MessagingUtil {
     public static Destination grabDestination(String jndiName) throws Exception {
         Context jndiContext = null;
         try {
-            if(!isHornetqInVm) {
-
+            jndiContext = new InitialContext();
+            return (Destination)jndiContext.lookup("jms/"+jndiName);
+        } catch(javax.naming.NamingException x){
             /* 
                 HornetQ JCA RA doesn't support any admin objects for binding HornetQ JMS destinations in the local JNDI namespace 
                     - (https://issues.jboss.org/browse/HORNETQ-908)
                 However, can work around this by using the JMS API javax.jms.Session.createQueue(String)
                     - keep in mind that the String passed to createQueue will be the underlying HornetQ name of the destination, not the JNDI entry
             */
-                Destination queue = HornetQJMSClient.createQueue(jndiName);
-                return queue;
-            }else {
-                jndiContext = new InitialContext();
-                return (Destination)jndiContext.lookup("jms/"+jndiName);
-            }
-        } catch(javax.naming.NamingException x){
-            log.error("grabJMSObject() isHornetqInVm="+isHornetqInVm+" : remotingHostName="+brokerHostName+" : remotingPort="+brokerPort+" : jndiName="+jndiName);
+            Destination queue = HornetQJMSClient.createQueue(jndiName);
+            return queue;
+        } catch(Exception x) {
             throw x;
         } finally {
             if(jndiContext != null)

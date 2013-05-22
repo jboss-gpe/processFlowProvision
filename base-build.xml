@@ -298,7 +298,6 @@
                 <property name="guvnor.external.host" value="${guvnor.host}"/>
                 <property name="org.jboss.processFlow.remoting.ejb.receiver" value="${local.org.jboss.processFlow.remoting.ejb.receiver}"/>
                 <property name="org.jboss.processFlow.remoting.ha.group.ejb.receiver" value="${local.org.jboss.processFlow.remoting.ha.group.ejb.receiver}" />
-                <property name="org.jboss.processFlow.is.hornetq.inVm" value="false"/>
             </else>
         </if>
     </target>

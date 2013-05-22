@@ -10,6 +10,7 @@ batch
 
     /profile=pfpCore/subsystem=resource-adapters/resource-adapter=jbossamq/:add(archive=${activemq.rar.file.name},transaction-support=XATransaction)
     /profile=pfpCore/subsystem=resource-adapters/resource-adapter=jbossamq/connection-definitions=RemoteConnectionFactory/:add(class-name=org.apache.activemq.ra.ActiveMQManagedConnectionFactory,flush-strategy=FailingConnectionOnly,max-pool-size=10,jndi-name=java:/RemoteConnectionFactory,same-rm-override=false,min-pool-size=0,no-recovery=true)
+    /profile=pfpCore/subsystem=resource-adapters/resource-adapter=jbossamq/connection-definitions=JmsXA/:add(class-name=org.apache.activemq.ra.ActiveMQManagedConnectionFactory,flush-strategy=FailingConnectionOnly,max-pool-size=10,jndi-name=java:/JmsXA,same-rm-override=false,min-pool-size=0,no-recovery=true)
     
 
     /profile=pfpCore/subsystem=resource-adapters/resource-adapter=jbossamq/config-properties=UseInboundSession/:add(value=false)

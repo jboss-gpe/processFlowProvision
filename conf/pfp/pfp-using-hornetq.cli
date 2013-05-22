@@ -31,6 +31,10 @@ batch
 
     # connection factories like JmsXA (ie:  pooled-connection-factory) should only be used to send messages, not consume them
     # to consume messages in a Java EE context, use an MDB which uses the HornetQ JCA inbound adapter
+    # In JMS, a Connection represents a connection to the messaging provider and a Session represents a transaction within a connection
+    # In JCA, a Connection represents both a connection and a tranactional context. To make a JMS connection work like a JCA connection, it can only have one session.
+    # As a practical matter, this won't make code less efficient because connections are pooled and reused by the container
+
     # change pooled connection factory to use discovery-group rather than immediately using a netty connector
     /profile=pfpCore/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=discovery-group-name,value=dg-group1)
 
