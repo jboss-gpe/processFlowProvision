@@ -64,13 +64,8 @@ public class AsyncBAMProducer extends DefaultProcessEventListener {
         configuration.setVersion(3);
     }
 
-    public AsyncBAMProducer() {
-        try {
-            pWrapper = (BAMProducerWrapper) AsyncBAMProducerPool.getInstance().borrowObject();
-        }
-        catch (Exception x) {
-            throw new RuntimeException(x);
-        }
+    public void setBAMProducerWrapper(BAMProducerWrapper x) {
+        pWrapper = x;
     }
 
     @Override
@@ -198,9 +193,6 @@ public class AsyncBAMProducer extends DefaultProcessEventListener {
         }
     }
 
-    public void dispose() throws Exception {
-        AsyncBAMProducerPool.getInstance().returnObject(pWrapper);
-    }
 
     /**
      * Get the unique id of this <code>node</code>, this method is different from {@link org.drools.definition.process.Node#getId()}

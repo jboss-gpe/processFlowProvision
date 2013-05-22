@@ -83,6 +83,7 @@ public interface IKnowledgeSession extends IBaseKnowledgeSession {
     public static final String BPMN_FILE="bpmnFile";
     public static final String NODE_ID="nodeId";
     public static final String DELIVER_ASYNC="deliverAsync";
+    public static final String ASYNC_BAM_PRODUCER="org.jboss.processFlow.knowledgeService.AsyncBAMProducer";
 
     /**
      * printWorkItemHandlers

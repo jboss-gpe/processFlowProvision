@@ -32,6 +32,7 @@ import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
 import javax.enterprise.inject.Default;
+import javax.inject.Inject;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -118,8 +119,10 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
 
     private ConcurrentMap<Integer, KnowledgeSessionWrapper> kWrapperHash = new ConcurrentHashMap<Integer, KnowledgeSessionWrapper>();
     private Logger log = Logger.getLogger(SessionPerPInstanceBean.class);
-    private AsyncBAMProducerPool bamProducerPool=null;
     private IKnowledgeSessionPool sessionPool;
+
+    @Inject
+    private AsyncBAMProducerPool bamProducerPool;
     
 /******************************************************************************
  **************        Singleton Lifecycle Management                     *********/
@@ -150,13 +153,6 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
 
          // 3) set the system event listener back to the original implementation
         SystemEventListenerFactory.setSystemEventListener(originalSystemEventListener);
-
-        try {
-            if(bamProducerPool != null)
-                bamProducerPool.close();
-        } catch(Exception x) {
-            x.printStackTrace();
-        }
     }
 
 /******************************************************************************
@@ -339,12 +335,8 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
                 try {
                     Class peClass = Class.forName(peString);
                     ProcessEventListener peListener = (ProcessEventListener)peClass.newInstance();
-                    if(IBAMService.ASYNC_BAM_PRODUCER.equals(peListener.getClass().getName())){
+                    if(IKnowledgeSessionService.ASYNC_BAM_PRODUCER.equals(peListener.getClass().getName()))
                         bamProducer = (AsyncBAMProducer)peListener;
-       
-                        if(bamProducerPool == null) 
-                            bamProducerPool = AsyncBAMProducerPool.getInstance();
-                    }
                     ksession.addEventListener(peListener);
                 } catch(Exception x) {
                     throw new RuntimeException(x);
@@ -714,31 +706,36 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
         }
     }
 
-    
-}
+    class KnowledgeSessionWrapper {
 
-class KnowledgeSessionWrapper {
-    StatefulKnowledgeSession ksession;
-    AsyncBAMProducer bamProducer;
-    KnowledgeRuntimeLogger rLogger;
+        StatefulKnowledgeSession ksession;
+        KnowledgeRuntimeLogger rLogger;
+        BAMProducerWrapper pWrapper;
 
-    public KnowledgeSessionWrapper(StatefulKnowledgeSession x, AsyncBAMProducer y) {
-        ksession = x;
-        bamProducer = y;
-    }
-
-    public void dispose() throws Exception {
-        if(bamProducer != null)
-            bamProducer.dispose();
-
-        if(rLogger != null) {
-            rLogger.close();
+        public KnowledgeSessionWrapper(StatefulKnowledgeSession x, AsyncBAMProducer bamProducer) {
+            ksession = x;
+            try {
+                if(bamProducer != null){
+                    pWrapper =  bamProducerPool.borrowObject();
+                    bamProducer.setBAMProducerWrapper(pWrapper);
+                }
+            }catch(Exception e) {
+                throw new RuntimeException(e);
+            }
         }
 
-        ksession.dispose();
-    }
+        public void dispose() throws Exception {
+            if(pWrapper != null)
+                bamProducerPool.returnObject(pWrapper);
 
-    public void setKnowledgeRuntimeLogger(KnowledgeRuntimeLogger x) {
-        rLogger = x;
+            if(rLogger != null) {
+                rLogger.close();
+            }
+            ksession.dispose();
+        }
+
+        public void setKnowledgeRuntimeLogger(KnowledgeRuntimeLogger x) {
+            rLogger = x;
+        }
     }
 }

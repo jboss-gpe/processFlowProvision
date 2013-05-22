@@ -22,6 +22,11 @@
 
 package org.jboss.processFlow.knowledgeService;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.annotation.Resource;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Default;
 import javax.jms.*;
 
 import org.apache.commons.pool.PoolableObjectFactory;
@@ -31,52 +36,42 @@ import org.apache.log4j.Logger;
 import org.jboss.processFlow.util.MessagingUtil;
 import org.jboss.processFlow.bam.IBAMService;
 
-public final class AsyncBAMProducerPool implements PoolableObjectFactory {
+@ApplicationScoped
+@Default
+public class AsyncBAMProducerPool implements PoolableObjectFactory {
 
     private static Logger log = Logger.getLogger("AsyncBAMProducerPool");
-    private static AsyncBAMProducerPool singleton = null;
     private static Connection connectObj;
     private static Destination dQueue;
 
     private GenericObjectPool producerPool;
+    
+    // failed:  Error looking up java:comp/env/java:/JmsXA in JNDI
+    // @Resource(name="java:/JmsXA")
+    private ConnectionFactory cFactory;
 
-    private AsyncBAMProducerPool() {
-    }
-
-    public synchronized static AsyncBAMProducerPool getInstance() {
-        if(singleton == null) {
-            // 0)  grab JMS objects
-            try {
-                ConnectionFactory cFactory = MessagingUtil.grabConnectionFactory();
-                connectObj = cFactory.createConnection();
-                dQueue = (Destination)MessagingUtil.grabDestination(IBAMService.BAM_QUEUE);
-            } catch(Exception x) {
-                throw new RuntimeException(x);
-            }
-
-            // 1)  create singleton of this class 
-            singleton = new AsyncBAMProducerPool();
-
-            // 2)  create a FIFO pool to manage 'PoolWrapper' objects
-            GenericObjectPool producerPool = new GenericObjectPool(singleton);
-
-            // 3)  populate with AsyncBAMProducerPool
-            singleton.setProducerPool(producerPool);
-
-            // 4)  set settings on pool
-            int poolMaxIdle = 10;
-            if(System.getProperty("org.jboss.processFlow.bam.AsyncBAMProducerPool.poolMaxIdle") != null)
-                poolMaxIdle = Integer.parseInt(System.getProperty("org.jboss.processFlow.bam.AsyncBAMProducerPool.poolMaxIdle"));
-            producerPool.setMaxIdle(poolMaxIdle);
-            producerPool.setMaxActive(-1);
-            producerPool.setLifo(false);
-            log.info("getInstance() just created AsyncBAMProducerPool ");
+    @PostConstruct
+    public void start() {
+        // 1)  grab JMS objects
+        try {
+            cFactory = MessagingUtil.grabConnectionFactory();
+            connectObj = cFactory.createConnection();
+            dQueue = (Destination)MessagingUtil.grabDestination(IBAMService.BAM_QUEUE);
+        } catch(Exception x) {
+            throw new RuntimeException(x);
         }
-        return singleton;
-    }
 
-    private void setProducerPool(GenericObjectPool x) {
-        this.producerPool = x;
+        // 2)  create a FIFO pool to manage 'PoolWrapper' objects
+        producerPool = new GenericObjectPool(this);
+
+        // 3)  set settings on pool
+        int poolMaxIdle = 10;
+        if(System.getProperty("org.jboss.processFlow.bam.AsyncBAMProducerPool.poolMaxIdle") != null)
+            poolMaxIdle = Integer.parseInt(System.getProperty("org.jboss.processFlow.bam.AsyncBAMProducerPool.poolMaxIdle"));
+        producerPool.setMaxIdle(poolMaxIdle);
+        producerPool.setMaxActive(-1);
+        producerPool.setLifo(false);
+        log.info("start() just created AsyncBAMProducerPool with poolMaxIdle = "+poolMaxIdle);
     }
 
     public BAMProducerWrapper borrowObject() throws Exception {
@@ -87,6 +82,7 @@ public final class AsyncBAMProducerPool implements PoolableObjectFactory {
         producerPool.returnObject(pWrapper);
     }
 
+    @PreDestroy
     public void close() throws Exception {
         log.info("close() ");
         if(producerPool != null)
@@ -95,8 +91,6 @@ public final class AsyncBAMProducerPool implements PoolableObjectFactory {
 
         if(connectObj != null)
             connectObj.close();
-
-        singleton = null;
     }
 
     public int getNumActive() {

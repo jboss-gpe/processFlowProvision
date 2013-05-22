@@ -28,6 +28,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import org.apache.commons.lang.StringUtils;
@@ -88,8 +89,10 @@ import org.jboss.processFlow.util.LogSystemEventListener;
 public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnowledgeSessionBean {
 
     private Logger log = Logger.getLogger(SingleSessionBean.class);
-    private AsyncBAMProducerPool bamProducerPool=null;
     private StatefulKnowledgeSession ksession;
+
+    @Inject
+    private AsyncBAMProducerPool bamProducerPool;
     
 /******************************************************************************
  **************        Singleton Lifecycle Management                     *********/
@@ -259,11 +262,8 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
                 try {
                     Class peClass = Class.forName(peString);
                     ProcessEventListener peListener = (ProcessEventListener)peClass.newInstance();
-                    if(IBAMService.ASYNC_BAM_PRODUCER.equals(peListener.getClass().getName())){
+                    if(IKnowledgeSessionService.ASYNC_BAM_PRODUCER.equals(peListener.getClass().getName())){
                         bamProducer = (AsyncBAMProducer)peListener;
-       
-                        if(bamProducerPool == null) 
-                            bamProducerPool = AsyncBAMProducerPool.getInstance();
                     }
                     ksession.addEventListener(peListener);
                 } catch(Exception x) {
