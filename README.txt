@@ -29,7 +29,7 @@ OVERVIEW
 
 PFP github branches :
     - master
-        - targets "domain" managed JBoss EAP6.1.* environment
+        - targets "domain" managed JBoss EAP6.1.* in local environment
         - targets 'standalone' EAP 6 in 'openshift' mode
         - leverages Red Hat/JBoss BRMS5.3.1 Deployable
         - configurable to use either mysql, oracle or postgres
