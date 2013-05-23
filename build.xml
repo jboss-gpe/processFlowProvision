@@ -861,7 +861,11 @@
     </target>
     <target name="download.and.unzip.sy.deployer">
         <get src="${switchyard.deployer.download.url}" dest="${install.home}/lib/"  skipexisting="true" />
-        <unzip src="${install.home}/lib/${switchyard.zip.name}" dest="${jboss.home}/../" />
+        <if>
+            <equals arg1="${switchyard.zip.name}" arg2="switchyard.deployer.zip" />
+            <then><unzip src="${install.home}/lib/${switchyard.zip.name}" dest="${jboss.home}" /></then>
+            <else><unzip src="${install.home}/lib/${switchyard.zip.name}" dest="${jboss.home}/../" /></else>
+        </if>
     </target>
     <target name="download.drools.guvnor">
         <get src="${drools.guvnor.url}" dest="${install.home}/lib/guvnor-distribution-wars-${drools.guvnor.version}-jboss-as-7.0.war"  skipexisting="true" />
