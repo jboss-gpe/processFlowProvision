@@ -212,32 +212,24 @@ function checkRemotePort() {
 }
 
 
-function killJavaProcesses() {
+function killJbossProcesses() {
     sleep 2;
     for jProc in `ps -C java -o pid=`;
     do
         pInfo=$(ps -p $jProc -f)
-        if [[ $pInfo =~ .*ant.home.* ]];
-        then
-            echo -en "\nkillJavaProcesses() will not kill ant process = $jProc\n"
-        else
-            if [[ $pInfo =~ .*org.eclipse.equinox.launcher.* ]];
-            then
-                echo -en "\nkillJavaProcesses() will not kill eclipse process = $jProc\n"
-            else
-                echo -en "killJavaProcesses() about to kill java process id = $jProc\n"
-                kill -9 $jProc
-            fi
+        if [[ $pInfo =~ jboss.modules.system.pkgs ]]; then
+            echo -en "killJbossProcesses() about to kill java process id = $jProc\n"
+            kill -9 $jProc
         fi
     done
 }
 
 
 case "$1" in
-    start|stop|restart|executeCli|refreshSlaveHosts|killJavaProcesses)
+    start|stop|restart|executeCli|refreshSlaveHosts|killJbossProcesses)
         $1
         ;;
     *)
-    echo 1>&2 $"Usage: $0 {start|stop|restart|executeAddUser|executeCli|refreshSlaveHosts|killJavaProcesses}"
+    echo 1>&2 $"Usage: $0 {start|stop|restart|executeAddUser|executeCli|refreshSlaveHosts|killJbossProcesses}"
     exit 1
 esac
