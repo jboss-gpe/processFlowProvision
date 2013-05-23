@@ -29,36 +29,22 @@ OVERVIEW
 
 PFP github branches :
     - master
-        - targeted for "domain" managed JBoss AS7.1.3 environment in 'local' mode
-        - targeted for 'standalone' in 'openshift' mode
-        - tracks master branch of jbpm5 community project from github
-            - 5 Dec. 2012:  in particular, 5.4.0.Final tag of jbpm5
-        - configurable to use either mysql, oracle or postgres
-        - leverages embedded hornetq provided by EAP 6
-        - pfp services implemented using CDI & JPA 2.1 with EJB 3.1 wrappings
-        - provisions additional droolsjbpm web archives such as :
-            1)  guvnor
-            2)  designer
-            3)  gwt-console-server
-            4)  gwt-console
-            5)  BIRT reporting
-        - provisioning scripts work only in a *nix variant (read: no windows)
-
-    - 5.3.1
-        - targeted for "domain" managed JBoss EAP6 environment in 'local' mode
+        - targeted for "domain" managed JBoss EAP6.1.* environment in 'domain' mode
         - targeted for 'standalone' EAP 6 in 'openshift' mode
-        - provisions Red Hat BRMS 5.3.1
-            - 5 Dec. 2012:  in particular, BRMS 5.3.1 ER4
+        - leverages Red Hat/JBoss BRMS5.3.1 Deployable
         - configurable to use either mysql, oracle or postgres
         - leverages embedded hornetq provided by EAP 6
+            - alternative is JBoss AMQ
         - pfp services implemented using CDI & JPA 2.1 with EJB 3.1 wrappings
         - provisions additional droolsjbpm web archives such as :
             1)  jboss-brms
-            2)  designer
+            2)  web designer
             3)  business-central-server
             4)  business-central
-            5)  BIRT reporting
         - provisioning scripts work only in a *nix variant (read: no windows)
+
+    - 5.3.1_eap6.0
+        - same as master branch however makes use of JBoss EAP6.0 rather than EAP6.1
 
     - 5.3.0.GA    
         - targeted for non-clustered JBoss EAP 5.*
@@ -67,6 +53,9 @@ PFP github branches :
         - postgresql is the only database supported
         - provisioning scripts work on any operating system
         - requires separate 'standalone' hornetq 2.2.14 provider
+
+    - 6.0.0
+        - tracks Red Hat / JBoss BPMS6
 
 
 
