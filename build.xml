@@ -864,7 +864,11 @@
         <if>
             <equals arg1="${switchyard.zip.name}" arg2="switchyard.deployer.zip" />
             <then><unzip src="${install.home}/lib/${switchyard.zip.name}" dest="${jboss.home}" /></then>
-            <else><unzip src="${install.home}/lib/${switchyard.zip.name}" dest="${jboss.home}/../" /></else>
+            <else>
+                <unzip src="${install.home}/lib/${switchyard.zip.name}" dest="${jboss.home}/../" />
+                <!-- apply temporary patch to SOA6 Alpha DR5 -->
+                <copy file="lib/sy/switchyard-deploy-jboss-as7-0.8.1.Final.jar" todir="${jboss.home}/modules/system/layers/soa/org/switchyard/main/" overwrite="true" verbose="true" />
+            </else>
         </if>
     </target>
     <target name="download.drools.guvnor">
@@ -923,10 +927,15 @@
         <antcall target="local.provision.brms.webs">
             <param name="refresh.master" value="false"/>
         </antcall>
-        <echo message="you may find executing the following will be helpful to diagnose your environment :" />
-        <echo message="    curl -v -X PUT -HAccept:text/plain ${os.hostname}:8330/knowledgeService/kbase               :   refresh kBase in PFP's kSessionService" />
-        <echo message="    curl -v -X GET -HAccept:text/plain ${os.hostname}:8330/knowledgeService/kbase/content       :   view contents of kbase" />
-        <echo message="    curl -v -X GET -HAccept:text/plain ${os.hostname}:8330/knowledgeService/workItemHandlers    :   view all registerd workItemHandlers with kSessions" />
+        <if>
+            <equals arg1="${org.jboss.processFlow.provision.pfpCore}" arg2="true" />
+            <then>
+                <echo message="you may find executing the following will be helpful to diagnose your environment :" />
+                <echo message="    curl -v -X PUT -HAccept:text/plain ${os.hostname}:8330/knowledgeService/kbase               :   refresh kBase in PFP's kSessionService" />
+                <echo message="    curl -v -X GET -HAccept:text/plain ${os.hostname}:8330/knowledgeService/kbase/content       :   view contents of kbase" />
+                <echo message="    curl -v -X GET -HAccept:text/plain ${os.hostname}:8330/knowledgeService/workItemHandlers    :   view all registerd workItemHandlers with kSessions" />
+            </then>
+        </if>
         
     </target>
     <target name="pfp.distro" depends="" >
