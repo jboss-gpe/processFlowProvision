@@ -33,14 +33,12 @@
         <module name="javax.jms.api" />
 
         <module name="org.jboss.remote-naming" export="true" />
-        <module name="org.hornetq" export="true" />
 
-        <module name="org.drools" export="true" slot="${droolsjbpm.slot}" />
-        <module name="org.jbpm" export="true" slot="${droolsjbpm.slot}"  />
+        <module name="org.kie" export="true" />
+        <module name="org.jbpm" export="true" />
 
         <!-- needed by bamService, knowledgeSessionService and various org.jboss.processFlow static libraries -->
         <module name="org.jboss.marshalling" export="true" />
         <module name="org.jboss.marshalling.river" export="true" />
-
     </dependencies>
 </module>

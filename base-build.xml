@@ -49,10 +49,6 @@
         <path id="supported.classpath">
             <path refid="initial.classpath" />
             <path refid="project.classpath" />
-            <fileset dir="${temp.brms.unzip.dir}/lib" />
-            <fileset dir="${temp.brms.unzip.dir}" >
-                <include name="*.jar" />
-            </fileset>
         </path>
         <if>
             <equals arg1="${org.jboss.processFlow.provision.switchyard}" arg2="true" />

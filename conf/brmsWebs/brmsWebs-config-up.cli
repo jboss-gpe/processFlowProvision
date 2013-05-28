@@ -1,7 +1,0 @@
-# conditonals do not work in eap6.0.1
-#if(${org.jboss.processFlow.brmsWebs.clustered})
-    batch
-    /host=${serverIpAddr}/server-config=brms-webs/:write-attribute(name=socket-binding-port-offset,value=${brms.webs.port.offset})
-    /host=${serverIpAddr}/server-config=brms-webs/:start(server=brms-webs,blocking=true)
-    run-batch
-#end-if

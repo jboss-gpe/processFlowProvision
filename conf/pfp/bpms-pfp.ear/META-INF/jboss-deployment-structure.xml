@@ -2,8 +2,6 @@
     <deployment>
         <dependencies>
             <module name="org.jboss.processFlow" export="true" />
-            <module name="org.jboss.seam" export="true" />
-            <module name="org.apache.lucene" export="true" />
         </dependencies>
     </deployment>
 
