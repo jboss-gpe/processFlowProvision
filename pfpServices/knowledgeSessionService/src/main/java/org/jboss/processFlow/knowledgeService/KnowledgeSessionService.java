@@ -72,11 +72,13 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
     protected MBeanServer platformMBeanServer;
 
     private final String gwDObjName = "processFlow.knowledgeSessionQueue";
-    private Destination gwDObj = null;
-    private Connection connectionObj = null;
+    private Connection connectionObj;
 
     @javax.annotation.Resource(name="java:/JmsXA")
     private ConnectionFactory cFactory;
+
+    @javax.annotation.Resource(name="java:/queue/processFlow.knowledgeSessionQueue")
+    private Destination gwDObj;
     
     @PostConstruct
     public void start() throws Exception {
@@ -87,7 +89,6 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
             platformMBeanServer.registerMBean(this, objectName);
 
             connectionObj = cFactory.createConnection();
-            gwDObj = (Destination)MessagingUtil.grabDestination(gwDObjName);
         } catch(Exception x) {
             throw new RuntimeException(x);
         }

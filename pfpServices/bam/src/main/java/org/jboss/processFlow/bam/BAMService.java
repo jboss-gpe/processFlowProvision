@@ -90,6 +90,7 @@ public class BAMService implements IBAMService, MessageListener {
     @javax.annotation.Resource(name="java:/RemoteConnectionFactory")
     private ConnectionFactory cFactory;
 
+    @javax.annotation.Resource(name="java:/queue/processFlow.asyncWorkingMemoryLogger")
     private Destination queue;
 
     @PostConstruct
@@ -101,7 +102,6 @@ public class BAMService implements IBAMService, MessageListener {
             }
         });
 
-        queue = (Destination)MessagingUtil.grabDestination(IBAMService.BAM_QUEUE);
         sessionObj = connectObj.createSession(true, Session.AUTO_ACKNOWLEDGE);
         MessageConsumer mConsumer = sessionObj.createConsumer(queue);
         mConsumer.setMessageListener(this);

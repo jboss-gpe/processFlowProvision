@@ -7,6 +7,14 @@ batch
 #   https://community.jboss.org/message/784580?tstart=0
 /profile=pfpCore/subsystem=logging/periodic-rotating-file-handler=FILE:update-properties(filter={"not" => {"match"=>BPMN20.xsd|dc:Point|bpmn2:tFormalExpression|bpmn2:definitions}})
 
+# queues to support jbpm functionality
+# these queues are just references to the actual queues maintained in the remote 'ha' server group
+# Async KnowledgeSession queue
+/profile=pfpCore/subsystem=messaging/hornetq-server=default/jms-queue=${org.jboss.processFlow.ksession.queue}/:add(entries=["queue/${org.jboss.processFlow.ksession.queue}","java:jboss/exported/jms/${org.jboss.processFlow.ksession.queue}"],durable=true)
+
+# BAM queue
+/profile=pfpCore/subsystem=messaging/hornetq-server=default/jms-queue=${org.jboss.processFlow.bam.queue}/:add(entries=["queue/${org.jboss.processFlow.bam.queue}","java:jboss/exported/jms/${org.jboss.processFlow.bam.queue}"],durable=true)
+
 run-batch
 
 batch

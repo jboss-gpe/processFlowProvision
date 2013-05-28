@@ -38,6 +38,8 @@ public class MessagingUtil {
     // using non-pooled / non-JCA connection factory (ie:  not using java:/JmsXA)
     public static final String CONNECTION_FACTORY_JNDI_NAME="java:/RemoteConnectionFactory";
     private static Logger log = Logger.getLogger("MessagingUtil");
+    private static String destinationPrefix = "java:/queue/";
+    
 
     // 22 Feb 2013
     // all lookups for ConnectionFactory (both in an OSE and non OSE environment should be to local JNDI
@@ -56,7 +58,7 @@ public class MessagingUtil {
         Context jndiContext = null;
         try {
             jndiContext = new InitialContext();
-            return (Destination)jndiContext.lookup("jms/"+jndiName);
+            return (Destination)jndiContext.lookup(destinationPrefix+jndiName);
         } catch(javax.naming.NamingException x){
             /* 
                 HornetQ JCA RA doesn't support any admin objects for binding HornetQ JMS destinations in the local JNDI namespace 
@@ -64,6 +66,7 @@ public class MessagingUtil {
                 However, can work around this by using the JMS API javax.jms.Session.createQueue(String)
                     - keep in mind that the String passed to createQueue will be the underlying HornetQ name of the destination, not the JNDI entry
             */
+            log.warn("grabDestination() looks like the following destination name is not found in the local JNDI.  will use proprietary hornetq API:  "+jndiName);
             Destination queue = HornetQJMSClient.createQueue(jndiName);
             return queue;
         } catch(Exception x) {
