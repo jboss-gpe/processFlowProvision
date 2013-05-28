@@ -376,11 +376,7 @@
         </exec>
     </target>
     <target name="local.start.master">
-        <var name="jbossModulePath" value="${jboss.home}/modules:${pfp.module.path}:${sy.module.path}" />
-        <if>
-            <isset property="project.module.path"/>
-            <then><var name="jbossModulePath" value="${jbossModulePath}:${project.module.path}"/></then>
-        </if>
+        <var name="jbossModulePath" value="${jboss.home}/modules" />
         <exec executable="bash" failonerror="true" dir="." >
            <arg value="${development.base}/bin/local.jboss.domain.sh"/>
            <arg value="start"/>
