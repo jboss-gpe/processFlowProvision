@@ -1,12 +1,11 @@
 processFlowProvision (aka:  PFP)
 
 JA Bride
-curl -b cookies -L -d "j_username=USER&j_password=PASSWORD" http://localhost:8080/business-central-server/j_security_check 
 
 
 ASSUMPTIONS
     - you are a RHCE (or equivalent in a Unix environment)
-    - you are installing on Fedora 17 or Red Hat Enterprise Linux (RHEL) 6.*
+    - you are installing on Fedora 17/18 or Red Hat Enterprise Linux (RHEL) 6.*
 
 
 OVERVIEW
@@ -28,14 +27,6 @@ OVERVIEW
             - there is a section towards the latter part of this document entitled:  "deploy BRMS runtime artifacts to JBoss EAP"
             - if provisioning a new BRMS environment, then this section explains the how to execute the ant script to do that
             - please ensure all of the previous steps outlined in this document have been completed prior to executing the ant script
-
-
-  - why doesn't PFP leverage BRMS Standalone rather than BRMS Deployable ?
-        - there are architectural decisions implemented in BRMS Standalone that are sufficient for a demo, but problably would not do well in production
-        - BRMS Deployable provides maximum flexibility by allowing a software team to embed supported Drools and jbpm5 libraries 
-          into a customer solution tailored toward their specific production requirements
-        - the PFP team has taken advantage of the flexibility provided by BRMS Deployable and built one example of an optimized, fully-featured and
-          easily administered BRMS production deployment.
 
 
 
@@ -60,7 +51,7 @@ INSTALL   :
 
 
     -- Red Hat Network (RHN)
-        NOTE:  this section is only applicable if environment to be built is either on Red Hat Enterprise Linux (RHEL) 5.* or 6.*
+        NOTE:  this section is only applicable if environment to be built is either on Red Hat Enterprise Linux (RHEL) 6.*
 
         -- RHN registration
                 -- set web proxy for rhn_register
@@ -69,20 +60,6 @@ INSTALL   :
                                         httpProxy=http://<my.proxy.url>:8080
                 -- (as root) :     rhn_register
 
-        --  RHN channel modifications
-                -- after system registration is complete, open any browser (from any computer) and log into http://rhn.redhat.com
-                -- select your system and then click 'Alter Channel Subscriptions".  Select the following channels and click 'change subscriptions'
-                    Base Channel
-                        * Red Hat Enterprise Linux (v. 5 for 64-bit x86_64)
-                    Release Channels for RHEL 5 for x86_64
-                        * RHEL Supplementary (v5 for x86_64)
-                    Additional Service Channels for RHEL 5 for x86_64
-                        * JBoss Application Platform (v 5.x) for x86_64
-                -- logout of Red Hat Network
-                -- NOTE:  this can be done programmatically.  Example as follows :
-                     yum install rhn-setup.noarch"  # to install rhn-channel
-                     rhn-channel -u <my rhn login> -p <my passwd> -a jb-ewp-5-x86_64-server-5-rpm 
-                     rhn-channel -u <my rhn login> -p <my passwd> -a rhel-x86_64-server-supplementary-5
 
         -- enable RHN Plugin
                 -- it is possible that the access to the RHN repository is disabled.
@@ -90,6 +67,9 @@ INSTALL   :
                 -- enable the RHN plugin in the following file :
                     /etc/yum/pluginconf.d/rhnplugin.conf
 
+
+        - update base operating system
+            - (as root) :   yum update -y
 
 
     -- Java Development Kit
@@ -118,6 +98,11 @@ INSTALL   :
         (as root)   :   yum install git wget
 
 
+    - pull ProcessFlowProvision from github
+        (as jboss)  :   cd /opt/jbossProjects
+                        git clone -b 5.3.1_eap6.0 https://github.com/jboss-sso/processFlowProvision.git
+
+
     --  required PFP shell environment variables
           JBOSS_HOME        :   location of JBoss EAP
           PFP_HOME          :   location of process flow provision project
@@ -128,7 +113,6 @@ INSTALL   :
             (as jboss):     cd /opt/jbossProjects/processFlowProvision
                             cp ~/.bashrc ~/.bashrc.bak
                             cp conf/shell/bashrc ~/.bashrc
-                            cp conf/git/git_completion ~/.git_completion
                             ( review the newly copied ~/.bashrc and modify where appropriate )
                             source ~/.bashrc
 
@@ -231,8 +215,16 @@ INSTALL   :
 
 POST INSTALL ADMINISTRATION
 
+    pfp-core-0 jvm
+        - there should be no stack traces in the following log file :
+            $JBOSS_HOME/domain-${organization.name}/servers/pfp-core-0/log/server.log
+
+    databases
+        - log into your jbpm and jbpm_bam databases and check for tables
+        - those tables were created when JPA persistence of knowledgeSession, task and bam functionality detected that the tables did not exist
+
     jboss-brms
-        -- point browser to the following URL   :  http://<$HOSTNAME>:8230/jboss-brms/org.drools.guvnor.Guvnor/Guvnor.jsp
+        -- point browser to the following URL   :  http://<$HOSTNAME>:8080/jboss-brms/org.drools.guvnor.Guvnor/Guvnor.jsp
             - userId / password = admin/brms
             
             -- building "defaultPackage"
@@ -270,7 +262,7 @@ POST INSTALL ADMINISTRATION
 
 
     BRMS business-central console
-        -- point browser to the following URL   :  http://<$HOSTNAME>:8230/business-central/app.html
+        -- point browser to the following URL   :  http://<$HOSTNAME>:8080/business-central/app.html
         -- login as:  jboss / brms
 
 
@@ -280,7 +272,7 @@ POST INSTALL ADMINISTRATION
         -- Of possible interest is that the above URL is the root path to a variety of jbpm5 RESTful resources
         -- The jbpm5 process management resources exposed via this API are predominantly exposed as application/JSON representations
         -- business-central REST API :
-            http://<hostName>:8230/business-central-server/rs/server/resources/jbpm
+            http://<hostName>:8080/business-central-server/rs/server/resources/jbpm
 
                 
     Eclipse Tooling                
@@ -527,33 +519,14 @@ in general, what does the PFP ant script do ???
     - provisions an AS7 server called "domain-pfp" that includes PFP's bam, humanTask and knowledgeSession services
 
 
-"is it possible to create url (or something else) to navigate to picture of jBPM workflow for specific instance ?"
-  did a little research on this and my thought is that yes, this is possible.  but it's more involved than just downloading a URL.  Considerations as follows:
 
-1)  security
-   - business-central-server functionality is secured via FORM based authentication
-   - in case you don't already have sample code on how to do this,  the following is a URL to my BaseRestClient.java class that has the authenticateIntoBusinessCentral() function :
-       https://github.com/jboss-sso/jbpm-performanceTests/blob/master/base/src/test/java/org/jboss/processFlow/test/BaseRestClient.java
+why doesn't PFP leverage BRMS Standalone rather than BRMS Deployable ?
+        - there are architectural decisions implemented in BRMS Standalone that are sufficient for a demo, but problably would not do well in production
+        - BRMS Deployable provides maximum flexibility by allowing a software team to embed supported Drools and jbpm5 libraries 
+          into a customer solution tailored toward their specific production requirements
+        - the PFP team has taken advantage of the flexibility provided by BRMS Deployable and built one example of an optimized, fully-featured and
+          easily administered BRMS production deployment.
 
-2)  HTTP GET to retrieve process image
-   - your client will want to download the process image associated with your bpmn2 process definition (png image is created in guvnor)
-   - URL follows this format :    http://<my server>:8230//business-central-server/rs/process/definition/{process id}/image
-
-3)  play_red_big.png
-    - your client will want to download the following red arrow image
-    - URL follows this format:   http://<my server>:8230/business-central/images/icons/play_red_big.png
-
-4)  activeNodeInfo
-   - your client will want to query the business-central-server to retrieve information regarding where in the previously downloaded process image do place play_red_big.png image
-   - URL follows this format:  http://<my server>:8230//business-central-server/rs/process/instance/{process instance id}/activeNodeInfo
-   - example JSON response body is as follows :      [{"width":932,"height":541,"activeNode":{"name":"_BFEAE12B-9E58-41A4-B037-4BBD4C87ADB3","x":234,"y":110,"width":151,"height":110}}]
-
-   what's relevant about the above response are the values of the "x" and "y" properties.  these properties are indicating where to place the play_red_big.png onto the process image base layer
-
-5)  merging of the play_red_big.png "layer" onto the base process image "layer"
-   - after all the above are retrieved, your client will want to layer the play_red_big.png layer on top of the process image base layer
-   - i have no idea how to do this programmatically
-   - in the existing business-central web app, it's the javascript portion that figures this part out.
 
 
 
@@ -566,7 +539,7 @@ remote client examples
                 - implements the 'EJB client API' approach documented here:  https://docs.jboss.org/author/display/AS71/EJB+invocations+from+a+remote+client+using+JNDI
                 - procedure
                     - command terminal 1 
-                        - tail -f $JBOSS_HOME/domain-pfp/servers/pfp-core/log/server.log
+                        - tail -f $JBOSS_HOME/domain-${organization.name}/servers/pfp-core-0/log/server.log
                     - command terminal 2 :  
                         - cd $PFP_HOME
                         - ant test.standaloneTask
@@ -595,7 +568,7 @@ remote client examples
                         - ant local.provision.brms.webs -Drefresh.master=true
 
                     - monitor brmsWebs log file
-                        - tail -f domain-pfp/servers/brms-webs/log/server.log
+                        - tail -f domain-${organization.name}/servers/brms-webs/log/server.log
 
                     - deploy pfpServicesTest.war into brmsWebs
                         - pfpServicesTest.war has a sample http GETful application that will invoke the ksession service running on pfpcore
@@ -614,7 +587,7 @@ remote client examples
                         - ant local.provision.pfp.core
 
                     - invoke pfpServicesTest.war and proxy requests to ksessionService on pfpcore through ejb-security-realm
-                        - curl $HOSTNAME:8230/pfpServicesTest/all 
+                        - curl $HOSTNAME:8080/pfpServicesTest/all 
                             - should return:  Great Success!!
                             - in the brmsWebs log, you'll also see various logs regarding claiming and completing a task
                             - look for the following indicating successful hand-shake between remote-outbound-connection from brmsWebs to JBoss Remoting on pfpcore:
@@ -626,7 +599,7 @@ remote client examples
 BIRT reporting
     - the BIRT report engine is integrated in with business-central-server.war
     - upon brmsWebs server start-up, statements similar to the following indicating that the BIRT reporting engine 
-        is alive should be visible in $JBOSS_HOME/default-pfp/servers/brms-webs/log/server.log
+        is alive should be visible in $JBOSS_HOME/default-${organization.name}/servers/brms-webs/log/server.log
 
         INFO  [org.jboss.bpm.report.ReportFacade] (MSC service thread 1-14) BIRT home: /shared/source/jboss/jbossProjects/jboss/birt/ReportEngine
         INFO  [org.jboss.bpm.report.ReportFacade] (MSC service thread 1-14) Output dir: /shared/source/jboss/jbossProjects/jboss/birt/output/
