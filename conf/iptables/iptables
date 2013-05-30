@@ -22,13 +22,13 @@
 -A INPUT -m state --state NEW -m tcp -p tcp --dport 9999 -j ACCEPT
 -A INPUT -m state --state NEW -m tcp -p tcp --dport 9990 -j ACCEPT
 
-#pfpCore0 - remoting:   4447 + 250 = 4697
+#pfpcore0 - remoting:   4447 + 250 = 4697
 -A INPUT -m state --state NEW -m tcp -p tcp --dport 4697 -j ACCEPT
 
-#pfpCore0 - remote debugging
+#pfpcore0 - remote debugging
 -A INPUT -m state --state NEW -m tcp -p tcp --dport 8789 -j ACCEPT
 
-#pfpCore0 - http port :  8080 + 250 = 
+#pfpcore0 - http port :  8080 + 250 = 
 -A INPUT -m state --state NEW -m tcp -p tcp --dport 8330 -j ACCEPT
 
 #allow for remote postgresql administration

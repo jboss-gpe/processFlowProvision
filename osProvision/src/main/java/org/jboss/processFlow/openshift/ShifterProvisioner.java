@@ -107,8 +107,8 @@ public class ShifterProvisioner {
     public static final String OPENSHIFT_ACCOUNT_PROVISIONING_LOG_DIR  = "openshift.account.provisioning.log.dir";
     public static final String OPENSHIFT_ACCOUNT_DETAILS_SCHEMA_FILE="/openshift_account_details.xsd";
     public static final String OPENSHIFT_BRMS_WEBS_APP_SIZE="openshift.brmsWebs.app.size";
-    public static final String OPENSHIFT_PFP_CORE_APP_SIZE="openshift.pfpCore.app.size";
-    public static final String OPENSHIFT_PFP_CORE_SCALED_APP="openshift.pfpCore.scaled.app";
+    public static final String OPENSHIFT_PFP_CORE_APP_SIZE="openshift.pfpcore.app.size";
+    public static final String OPENSHIFT_PFP_CORE_SCALED_APP="openshift.pfpcore.scaled.app";
     public static final String OPENSHIFT_APPEND_DATE_TO_ACCOUNT_DETAILS_FILE="openshift.append.date.to.account.details.file";
     public static final String ACCOUNT_ID = "accountId";
     public static final String PASSWORD = "password";
@@ -137,7 +137,7 @@ public class ShifterProvisioner {
     public static final String DELETE_DOMAIN = "DELETE_DOMAIN";
     public static final String CREATE_DOMAIN = "CREATE_DOMAIN";
     public static final String BRMS_WEBS = "brmsWebs";
-    public static final String PFP_CORE = "pfpCore";
+    public static final String PFP_CORE = "pfpcore";
     public static final String LARGE = "large";
     public static final String MEDIUM = "medium";
     public static final String SMALL = "small";
@@ -184,7 +184,7 @@ public class ShifterProvisioner {
         //xpath.setNamespaceContext(new AccountNameSpaceContext());
         XPathExpression expression = xpath.compile("/openshiftAccounts/account");
         accountsList = (NodeList)expression.evaluate(accountDetailsDoc, XPathConstants.NODESET);
-        findPFPExpression = xpath.compile("//account/pfpCore");
+        findPFPExpression = xpath.compile("//account/pfpcore");
         findBRMSWebsExpression = xpath.compile("//account/brmsWebs");
         if(refreshDomain) {
             StringBuffer warningBuf = new StringBuffer("\n\nDANGER:  you have requested to re-provision(aka: annihilate) the following Openshift account(s):\n");
@@ -234,7 +234,7 @@ public class ShifterProvisioner {
             Node existingChildNode = (Node)findPFPExpression.evaluate(accountNode, XPathConstants.NODE);
             if(existingChildNode != null){
                 accountNode.removeChild(existingChildNode);
-                log.info("provisionAccounts() scrubbing existing pfpCore for accountNode = "+accountNode.getChildNodes().item(1).getTextContent());
+                log.info("provisionAccounts() scrubbing existing pfpcore for accountNode = "+accountNode.getChildNodes().item(1).getTextContent());
             }
             Runnable shifterProvisioner = new ProvisionerThread(accountNode);
             execObj.execute(shifterProvisioner);
@@ -655,7 +655,7 @@ public class ShifterProvisioner {
         sBuilder.append("\n\tpenshiftAccountDetailsFile = "+openshiftAccountDetailsFile);
         sBuilder.append("\n\topenshiftAccountProvisioningLogDir = "+openshiftAccountProvisioningLogDir);
         sBuilder.append("\n\topenshift.brmsWebs.app.size = "+openshiftBrmsWebsAppSize);
-        sBuilder.append("\n\topenshift.pfpCore.app.size = "+openshiftPfpCoreAppSize);
+        sBuilder.append("\n\topenshift.pfpcore.app.size = "+openshiftPfpCoreAppSize);
         sBuilder.append("\n\trefreshDomain = "+refreshDomain);
         sBuilder.append("\n\tcreatePfpCore = "+createPfpCore);
         sBuilder.append("\n\tcreateBrmsWebs = "+createBrmsWebs);

@@ -268,15 +268,15 @@
         <if>
             <equals arg1="${is.deployment.local}" arg2="false" />
             <then>
-                <property name="jbpm.console.server.host" value="${openshift.pfpCore.uri}"/>
+                <property name="jbpm.console.server.host" value="${openshift.pfpcore.uri}"/>
                 <property name="jbpm.console.server.port" value="80"/>
-                <property name="jbpm.conf.dir" value="/var/lib/stickshift/${openshift.pfpCore.user.hash}/pfpCore/${openshift.jboss.cartridge.type}/standalone/configuration/modules/org/jbpm/configuration/main"/>
-                <property name="guvnor.host" value="${openshift.pfpCore.internal.ip}:8080"/>
-                <property name="guvnor.external.host" value="${openshift.pfpCore.uri}"/>
+                <property name="jbpm.conf.dir" value="/var/lib/stickshift/${openshift.pfpcore.user.hash}/pfpcore/${openshift.jboss.cartridge.type}/standalone/configuration/modules/org/jbpm/configuration/main"/>
+                <property name="guvnor.host" value="${openshift.pfpcore.internal.ip}:8080"/>
+                <property name="guvnor.external.host" value="${openshift.pfpcore.uri}"/>
                 <property name="org.jboss.processFlow.remoting.ejb.receiver" value=""/>
                 <property name="org.jboss.processFlow.remoting.ha.group.ejb.receiver" value="" />
                 <property name="openshift.drools.session.template.path" 
-                        value="${openshift.pfpCore.home.dir}/${openshift.jboss.cartridge.type}/${openshift.jboss.cartridge.type}/standalone/configuration/drools.session.template"/>
+                        value="${openshift.pfpcore.home.dir}/${openshift.jboss.cartridge.type}/${openshift.jboss.cartridge.type}/standalone/configuration/drools.session.template"/>
             </then>
             <else>
                 <property name="jbpm.console.server.host" value="${os.hostname}"/>
@@ -357,7 +357,7 @@
         <antcall target="local.start.master" />
         <antcall target="local.bounce.hornetq" />
         <if>
-            <equals arg1="${org.jboss.processFlow.provision.pfpCore}" arg2="true" />
+            <equals arg1="${org.jboss.processFlow.provision.pfpcore}" arg2="true" />
             <then><antcall target="local.bounce.pfp.core"  ><param name="group.stop" value="false"/></antcall></then>
         </if>
         <if>

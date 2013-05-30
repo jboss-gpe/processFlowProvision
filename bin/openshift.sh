@@ -247,21 +247,21 @@ provisionAccountsWithPFP() {
     for i in `xmlstarlet sel -t -n -m '//openshiftAccounts/account' -v 'domainId' -n $osAccountDetailsFileLocation`; 
     do 
         # ensure that openshift.accounts.details.xml has appropriate information for this account
-        eval pfpCoreUserHash=\"`xmlstarlet sel -t -n -m '//openshiftAccounts/account['$t']' -v 'pfpCore/uuid' -n $osAccountDetailsFileLocation` \"
-        if [ "x$pfpCoreUserHash" = "x " ]; 
+        eval pfpcoreUserHash=\"`xmlstarlet sel -t -n -m '//openshiftAccounts/account['$t']' -v 'pfpcore/uuid' -n $osAccountDetailsFileLocation` \"
+        if [ "x$pfpcoreUserHash" = "x " ]; 
             then
-                echo "pfpCore/uuid for account $i in $osAccountDetailsFileLocation is empty.  have you executed:  ant openshift.provision.empty.accounts  ?";
+                echo "pfpcore/uuid for account $i in $osAccountDetailsFileLocation is empty.  have you executed:  ant openshift.provision.empty.accounts  ?";
                 exit 1;
             else
-                echo "openshift.pfpCore.user.hash for account $i in $osAccountDetailsFileLocation is:$pfpCoreUserHash:";
+                echo "openshift.pfpcore.user.hash for account $i in $osAccountDetailsFileLocation is:$pfpcoreUserHash:";
         fi
 
         # create openshiftAccount.properties file used by bldw provisioning
         echo -n "" > target/openshiftAccount.properties
         xmlstarlet sel -t -n -m '//openshiftAccounts/account['$t']' -n \
         -o 'openshift.domain.name=' -v "domainId" -n \
-        -o 'openshift.pfpCore.user.hash=' -v "pfpCore/uuid" -n \
-        -o 'openshift.pfpCore.internal.ip=' -v "pfpCore/internal_ip" -n \
+        -o 'openshift.pfpcore.user.hash=' -v "pfpcore/uuid" -n \
+        -o 'openshift.pfpcore.internal.ip=' -v "pfpcore/internal_ip" -n \
         $osAccountDetailsFileLocation >> target/openshiftAccount.properties
 
         
@@ -306,7 +306,7 @@ bounceMultipleAccounts() {
         eval accountId=\"`xmlstarlet sel -t -n -m '//openshiftAccounts/account['$t']' -v 'accountId' -n $osAccountDetailsFileLocation` \"
         eval password=\"`xmlstarlet sel -t -n -m '//openshiftAccounts/account['$t']' -v 'password' -n $osAccountDetailsFileLocation` \"
         echo -en "\naccountId = $accountId \t:password = $password\n"; 
-        rhc app restart -a pfpCore -l $accountId -p $password
+        rhc app restart -a pfpcore -l $accountId -p $password
         ((t++))
     done
 }
@@ -322,7 +322,7 @@ bounceMultipleKBase() {
     t=1
     for domainId in `xmlstarlet sel -t -n -m '//openshiftAccounts/account' -v 'domainId' -n $osAccountDetailsFileLocation`; 
     do 
-        eval app_url=\"`xmlstarlet sel -t -n -m '//openshiftAccounts/account['$t']/pfpCore' -v 'app_url' -n $osAccountDetailsFileLocation`\"
+        eval app_url=\"`xmlstarlet sel -t -n -m '//openshiftAccounts/account['$t']/pfpcore' -v 'app_url' -n $osAccountDetailsFileLocation`\"
         echo -en "\nabout to execute:  curl -X PUT -HAccept:text/plain $app_url$reloadUri\n"; 
         curl -X PUT -HAccept:text/plain $app_url$reloadUri
         echo -en "\nabout to execute:  curl -X GET -HAccept:text/plain $app_url$getContentUri\n"; 
@@ -339,7 +339,7 @@ listDigResultsForEachAccount() {
     t=1
     echo listDigResultsForEachAccount  : will write results to :  dig_results.txt
     echo -en "dig results as follows:\n\n\n" > dig_results.txt
-    for git_url in `xmlstarlet sel -t -n -m '//openshiftAccounts/account[*]/pfpCore' -v 'git_url' -n $osAccountDetailsFileLocation`; 
+    for git_url in `xmlstarlet sel -t -n -m '//openshiftAccounts/account[*]/pfpcore' -v 'git_url' -n $osAccountDetailsFileLocation`; 
     do 
         git_url=${git_url#*@}
         totalLength=${#git_url}
@@ -357,7 +357,7 @@ executeCommandsAcrossAllAccounts() {
         osAccountDetailsFileLocation=$HOME/redhat/openshift/openshift_account_details.xml
     fi
     t=1
-    for git_url in `xmlstarlet sel -t -n -m '//openshiftAccounts/account[*]/pfpCore' -v 'git_url' -n $osAccountDetailsFileLocation`; 
+    for git_url in `xmlstarlet sel -t -n -m '//openshiftAccounts/account[*]/pfpcore' -v 'git_url' -n $osAccountDetailsFileLocation`; 
     do 
         git_url=${git_url:6}
         totalLength=${#git_url}

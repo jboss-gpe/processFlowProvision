@@ -1,6 +1,6 @@
 batch
 
-# define an ejb outbound socket binding (called "remote-ejb") to point to pfpCore server
+# define an ejb outbound socket binding (called "remote-ejb") to point to pfpcore server
 # allows gwt-console-server web app to invoke ejb services from pfp-core
 /socket-binding-group=ha-sockets/remote-destination-outbound-socket-binding=remote-ejb/:add(port=${pfp.core.remoting.port},host=${pfp.core.host.name},fixed-source-port=false)
 

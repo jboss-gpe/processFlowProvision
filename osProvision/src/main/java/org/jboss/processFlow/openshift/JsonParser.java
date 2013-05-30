@@ -60,7 +60,7 @@ public class JsonParser {
          XPathExpression expression = xpath.compile("/openshiftAccounts/account");
          NodeList accountsList = (NodeList)expression.evaluate(accountDetailsDoc, XPathConstants.NODESET);
          StringBuffer warningBuf = new StringBuffer();
-         XPathExpression findPFPExpression = xpath.compile("//account/pfpCore");
+         XPathExpression findPFPExpression = xpath.compile("//account/pfpcore");
          for(int p=0; p < accountsList.getLength(); p++){
              Node accountNameNode = accountsList.item(p);
              warningBuf.append("\n\t\t"+accountNameNode.getNodeValue());

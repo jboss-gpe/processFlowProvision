@@ -147,7 +147,7 @@
 				</datasource>
 				<datasource jndi-name="java:jboss/datasources/MysqlDS"
 					enabled="false" use-java-context="true" pool-name="MysqlDS">
-					<connection-url>jdbc:mysql://${env.OPENSHIFT_POSTGRESQL_DB_HOST}:${env.OPENSHIFT_POSTGRESQL_DB_PORT}/pfpCore
+					<connection-url>jdbc:mysql://${env.OPENSHIFT_POSTGRESQL_DB_HOST}:${env.OPENSHIFT_POSTGRESQL_DB_PORT}/pfpcore
 					</connection-url>
 					<driver>mysql</driver>
 					<security>
@@ -161,7 +161,7 @@
 				<datasource jndi-name="java:jboss/datasources/PostgreSQLDS"
 					enabled="false" use-java-context="true" pool-name="PostgreSQLDS"
 					use-ccm="true">
-					<connection-url>jdbc:postgresql://${env.OPENSHIFT_POSTGRESQL_DB_HOST}:${env.OPENSHIFT_POSTGRESQL_DB_PORT}/pfpCore
+					<connection-url>jdbc:postgresql://${env.OPENSHIFT_POSTGRESQL_DB_HOST}:${env.OPENSHIFT_POSTGRESQL_DB_PORT}/pfpcore
 					</connection-url>
 					<driver>postgresql</driver>
 					<security>

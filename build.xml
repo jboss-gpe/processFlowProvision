@@ -591,12 +591,12 @@
 
     <!--
       pass following parameters to this target :
-        1) org.jboss.processFlow.provision.pfpCore
+        1) org.jboss.processFlow.provision.pfpcore
         2) refresh.master (optional)
     -->
     <target name="local.provision.pfp.core">
         <if>
-            <equals arg1="${org.jboss.processFlow.provision.pfpCore}" arg2="true" />
+            <equals arg1="${org.jboss.processFlow.provision.pfpcore}" arg2="true" />
             <then>
                 <if>
                     <equals arg1="${refresh.master}" arg2="true" />
@@ -635,7 +635,7 @@
                 </for>
             </then>
             <else>
-                <echo message="local.provision.pfp.core:  org.jboss.processFlow.provision.pfpCore = ${org.jboss.processFlow.provision.pfpCore}" />
+                <echo message="local.provision.pfp.core:  org.jboss.processFlow.provision.pfpcore = ${org.jboss.processFlow.provision.pfpcore}" />
             </else>
         </if>
     </target>

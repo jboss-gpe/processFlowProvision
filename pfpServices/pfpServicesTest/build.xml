@@ -44,14 +44,14 @@
         <if>
             <isset property="test.openshift"/>
             <then>
-                <property name="configurable.pfp.core.host.name" value="${openshift.pfpCore.internal.ip}" />
+                <property name="configurable.pfp.core.host.name" value="${openshift.pfpcore.internal.ip}" />
                 <property name="pfp.core.remoting.port" value="4447" />
                 <exec executable="bash" failonerror="true" dir="." >
                     <arg value="bin/openshift.sh"/>
                     <arg value="createTunnel"/>
-                    <arg value="-serverIpAddr=${openshift.pfpCore.internal.ip}"/>
+                    <arg value="-serverIpAddr=${openshift.pfpcore.internal.ip}"/>
                     <arg value="-port=${pfp.core.remoting.port}"/>
-                    <arg value="-sshUrl=${openshift.pfpCore.ssh.url}"/>
+                    <arg value="-sshUrl=${openshift.pfpcore.ssh.url}"/>
                 </exec>
             </then>
             <else>

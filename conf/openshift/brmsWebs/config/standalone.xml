@@ -39,7 +39,7 @@
 
             <security-realms>
 
-                <!-- JA Bride : added ejb-security-realm  for communication with pfpCore -->
+                <!-- JA Bride : added ejb-security-realm  for communication with pfpcore -->
                 <security-realm name="ejb-security-realm">
                     <server-identities>
                         <secret value="${pfp.core.remoting.base64.passcode}"/>
@@ -464,7 +464,7 @@
 		<subsystem xmlns="urn:jboss:domain:remoting:1.1">
 			<connector name="remoting-connector" socket-binding="remoting" />
 
-                    <!-- JA Bride :  added remote-ejb-connection outbound connection to pfpCore -->
+                    <!-- JA Bride :  added remote-ejb-connection outbound connection to pfpcore -->
                     <outbound-connections>
                         <remote-outbound-connection name="remote-ejb-connection" outbound-socket-binding-ref="remote-ejb" username="${pfp.core.remoting.user.name}" security-realm="ejb-security-realm">
                             <properties>

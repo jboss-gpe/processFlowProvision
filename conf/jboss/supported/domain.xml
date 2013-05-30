@@ -575,7 +575,7 @@
         </profile>
 
         <!-- JA Bride :  new profile to support jbpm5 services -->
-        <profile name="pfpCore">
+        <profile name="pfpcore">
             <subsystem xmlns="urn:jboss:domain:logging:1.1">
                 <console-handler name="CONSOLE">
                     <level name="INFO"/>

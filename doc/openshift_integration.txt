@@ -5,10 +5,10 @@ there are several phases to this automated provisioning :
     2)  creation of "openshift_account_details.xml"
     3)  execution of 'openshift.provision.accounts' target of PFP
     4)  rsa key management for each account
-    5)  configuring git "remotes" for each account for both pfpCore and brmsWebs apps
+    5)  configuring git "remotes" for each account for both pfpcore and brmsWebs apps
     6)  openshift.provision.pfp.core
-        6.a)  customization of postgresql-8.4 rdbms in openshift to support pfpCore
-        6.b)  customization of jbosseap-6.0 cartridge in openshift to support pfpCore
+        6.a)  customization of postgresql-8.4 rdbms in openshift to support pfpcore
+        6.b)  customization of jbosseap-6.0 cartridge in openshift to support pfpcore
         6.c)  deployment of pfp services to openshift
     7)  openshift.provision.brms.webs
         7.a)  deployment of brms web archives to openshift
@@ -63,7 +63,7 @@ the remainder of this document discusses details of each of these phases
 
 
 
-5)  configuring git "remotes" for each account for both pfpCore and brmsWebs apps
+5)  configuring git "remotes" for each account for both pfpcore and brmsWebs apps
     - now that RSA keys are in place, numberous mechanisms are available to customize previously provisioned apps and cartridges:
         1)  git
         2)  rsync
@@ -84,12 +84,12 @@ the remainder of this document discusses details of each of these phases
         2)  if none of the existing PFP batch scripts can be used, its easier in the short-term to just create a single standalone.xml
             although managing a standalone.xml file is not as maintanable as CLI batch scripts, standalone.xml is initially easier to write
 
-    - the use of git requires that a 'remote' reference to each account's git repo be configured for both the pfpCore and brmsWebs applications
+    - the use of git requires that a 'remote' reference to each account's git repo be configured for both the pfpcore and brmsWebs applications
         - this step is entirely manual (although a future phase could conceivably automate this)
         - git clone -o <accountId> <gitUrl>
         
 6)  openshift.provision.pfp.core
-    6.a)  customization of postgresql-8.4 rdbms in openshift to support pfpCore
+    6.a)  customization of postgresql-8.4 rdbms in openshift to support pfpcore
       - when the postgresql cartridge is added to a jbosseap-6.0 based app, several environment variables are created :
         OPENSHIFT_DB_HOST
         OPENSHIFT_DB_PASSWORD
@@ -99,7 +99,7 @@ the remainder of this document discusses details of each of these phases
       - action_hooks/deploy can create the jbpm and jbpm_bam databases and configure with those databases with appropriate db roles and passwords
       - action_hooks/deploy can then be pushed to each openshift account via git
 
-    6.b)  customization of jbosseap-6.0 cartridge in openshift to support pfpCore
+    6.b)  customization of jbosseap-6.0 cartridge in openshift to support pfpcore
       - all additional PFP/BRMS related modules need to be configured and pushed to each openshift account
         - this task can be accomplished via git
       - all system properties and custom security-realms need to be set in standalone.xml
