@@ -43,11 +43,13 @@ import javax.persistence.Query;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.manager.RuntimeManager;
+import org.kie.internal.runtime.manager.RuntimeEnvironment;
 import org.kie.internal.runtime.manager.RuntimeManagerFactory;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.jbpm.persistence.processinstance.ProcessInstanceInfo;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
+import org.jbpm.runtime.manager.impl.RuntimeEnvironmentBuilder;
 import org.jbpm.workflow.instance.WorkflowProcessInstanceUpgrader;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 
@@ -57,7 +59,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.processFlow.knowledgeService.IBaseKnowledgeSession;
 import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
 import org.jboss.processFlow.knowledgeService.KnowledgeSessionServiceMXBean;
-import org.jboss.processFlow.util.MessagingUtil;
+import org.jboss.processFlow.tasks.identity.PFPUserGroupCallback;
 /**
  *<pre>
  *notes on Transactions
@@ -77,11 +79,11 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
     public static final String EMF_NAME = "org.jbpm.persistence.jpa";
     private Logger log = Logger.getLogger("KnowledgeSessionService");
     
-    @Inject
-    private RuntimeManagerFactory rmFactory;
-    
-    @javax.annotation.Resource (name=MessagingUtil.CONNECTION_FACTORY_JNDI_NAME)
+    @javax.annotation.Resource (name="java:/RemoteConnectionFactory")
     ConnectionFactory cFactory;
+
+    @javax.annotation.Resource (name="java:/queue/processFlow.knowledgeSessionQueue")
+    private Destination gwDObj;
     
     @PersistenceUnit(unitName=EMF_NAME)
     EntityManagerFactory jbpmCoreEMF;
@@ -89,8 +91,6 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
     protected ObjectName objectName;
     protected MBeanServer platformMBeanServer;
 
-    private final String gwDObjName = "jms/processFlow.knowledgeSessionQueue";
-    private Destination gwDObj = null;
     private Connection connectionObj = null;
     private String sessionMgmtStrategy = IKnowledgeSessionService.DEFAULT_PER_PINSTANCE;
     private RuntimeManager rManager = null;
@@ -103,7 +103,11 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
             platformMBeanServer.registerMBean(this, objectName);
 
             connectionObj = cFactory.createConnection();
-            gwDObj = (Destination)MessagingUtil.grabJMSObject(gwDObjName);
+
+            RuntimeEnvironment environment = RuntimeEnvironmentBuilder.getDefault().entityManagerFactory(jbpmCoreEMF)
+            	.userGroupCallback(new PFPUserGroupCallback())
+                .get();
+            rManager = RuntimeManagerFactory.Factory.get().newPerProcessInstanceRuntimeManager(environment);
             
         } catch(Exception x) {
             throw new RuntimeException(x);
@@ -115,6 +119,7 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
     public void stop() throws Exception{
         log.info("stop");
         try {
+        	rManager.close();
             platformMBeanServer.unregisterMBean(this.objectName);
         } catch (Exception e) {
             throw new RuntimeException("stop() Problem during unregistration of Monitoring into JMX:" + e);

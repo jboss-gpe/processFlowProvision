@@ -21,9 +21,7 @@ import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
 import javax.ejb.MessageDrivenContext;
 
-
 import org.apache.commons.lang.StringUtils;
-import org.jboss.processFlow.util.MessagingUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,8 +40,8 @@ public class KnowledgeSessionMDB implements MessageListener {
     IKnowledgeSessionService kProxy;
     
     @Resource MessageDrivenContext mCtx;
-    @Resource(name=MessagingUtil.CONNECTION_FACTORY_JNDI_NAME) ConnectionFactory cFactory;
-    
+    @Resource(name="java:/JmsXA") ConnectionFactory cFactory; 
+
     @PostConstruct
     void init() throws JMSException{
         if(connectObj == null){

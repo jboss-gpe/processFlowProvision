@@ -32,6 +32,8 @@
         <module name="javax.transaction.api" />
         <module name="javax.jms.api" />
 
+        <module name="org.apache.log4j" export="true" />
+
         <module name="org.jboss.remote-naming" export="true" />
 
         <module name="org.kie" export="true" />
