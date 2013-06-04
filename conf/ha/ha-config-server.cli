@@ -1,5 +1,5 @@
 batch
-/host=${serverIpAddr}/server-config=${ha.server.id}/:add(auto-start=false,group=ha.group)
+/host=${serverIpAddr}/server-config=${ha.server.id}/:add(auto-start=false,group=${ha.group})
 run-batch
 
 batch

@@ -3,6 +3,11 @@ batch
 /profile=full-ha/subsystem=messaging/hornetq-server=default/:write-attribute(name=jmx-management-enabled,value=true)
 /profile=full-ha/subsystem=messaging/hornetq-server=default/:write-attribute(name=cluster-password,value=${hornetq.cluster.password})
 
+/profile=full-ha/subsystem=messaging/hornetq-server=default/:write-attribute(name=allow-failback,value=true)
+#/profile=full-ha/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=failover-on-server-shutdown,value=${failover.on.server.shutdown})
+
+
+
 # needed for remote hornetq clients to fail-over correctly
 /profile=full-ha/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=ha,value=true)
 /profile=full-ha/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=reconnect-attempts,value=-1)
@@ -30,5 +35,45 @@ batch
 # BAM queue 
 /profile=full-ha/subsystem=messaging/hornetq-server=default/jms-queue=${org.jboss.processFlow.bam.queue}/:add(entries=["queue/${org.jboss.processFlow.bam.queue}","java:jboss/exported/jms/${org.jboss.processFlow.bam.queue}"],durable=true)
 /profile=full-ha/subsystem=messaging/hornetq-server=default/address-setting=jms.queue.${org.jboss.processFlow.bam.queue}/:add(address-full-policy=PAGE,dead-letter-address=jms.queue.DLQ,last-value-queue=false,max-size-bytes=10485760,page-size-bytes=1048576,send-to-dla-on-no-route=false,message-redistribution=0)
+
+run-batch
+
+batch
+/profile=full-ha-backup/subsystem=messaging/hornetq-server=default/:write-attribute(name=backup,value=true)
+
+/profile=full-ha-backup/subsystem=messaging/hornetq-server=default/:write-attribute(name=message-counter-enabled,value=true)
+/profile=full-ha-backup/subsystem=messaging/hornetq-server=default/:write-attribute(name=jmx-management-enabled,value=true)
+/profile=full-ha-backup/subsystem=messaging/hornetq-server=default/:write-attribute(name=cluster-password,value=${hornetq.cluster.password})
+
+#/profile=full-ha-backup/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=failover-on-server-shutdown,value=${failover.on.server.shutdown})
+
+
+# needed for remote hornetq clients to fail-over correctly
+/profile=full-ha-backup/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=ha,value=true)
+/profile=full-ha-backup/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=reconnect-attempts,value=-1)
+
+# turn off security since usually brokers are already on secure network
+/profile=full-ha-backup/subsystem=messaging/hornetq-server=default/:write-attribute(name=security-enabled,value=false)
+/profile=full-ha-backup/subsystem=messaging/hornetq-server=default/:write-attribute(name=persistence-enabled,value=${message.persistence.enabled})
+
+# 10 May 2012:  clebert> jbride_:  in terms of :
+#        journal-directory
+#        large-messages-directory
+#        paging-directory
+#        bindings-directory
+#    these settings are supposed to be there before the server is up.. so I don't think you can change it via CLI
+
+
+
+
+
+# Async KnowledgeSession queue
+/profile=full-ha-backup/subsystem=messaging/hornetq-server=default/jms-queue=${org.jboss.processFlow.ksession.queue}/:add(entries=["queue/${org.jboss.processFlow.ksession.queue}","java:jboss/exported/jms/${org.jboss.processFlow.ksession.queue}"],durable=true)
+/profile=full-ha-backup/subsystem=messaging/hornetq-server=default/address-setting=jms.queue.${org.jboss.processFlow.ksession.queue}/:add(address-full-policy=PAGE,dead-letter-address=jms.queue.DLQ,last-value-queue=false,max-size-bytes=10485760,page-size-bytes=1048576,send-to-dla-on-no-route=false,message-redistribution=0)
+
+
+# BAM queue 
+/profile=full-ha-backup/subsystem=messaging/hornetq-server=default/jms-queue=${org.jboss.processFlow.bam.queue}/:add(entries=["queue/${org.jboss.processFlow.bam.queue}","java:jboss/exported/jms/${org.jboss.processFlow.bam.queue}"],durable=true)
+/profile=full-ha-backup/subsystem=messaging/hornetq-server=default/address-setting=jms.queue.${org.jboss.processFlow.bam.queue}/:add(address-full-policy=PAGE,dead-letter-address=jms.queue.DLQ,last-value-queue=false,max-size-bytes=10485760,page-size-bytes=1048576,send-to-dla-on-no-route=false,message-redistribution=0)
 
 run-batch

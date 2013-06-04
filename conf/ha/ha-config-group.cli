@@ -1,3 +1,4 @@
 batch
-/server-group=ha.group/:add(profile=full-ha,socket-binding-group=full-ha-sockets)
+/server-group=ha.group.primary/:add(profile=full-ha,socket-binding-group=full-ha-sockets)
+/server-group=ha.group.backup/:add(profile=full-ha-backup,socket-binding-group=full-ha-sockets)
 run-batch

@@ -40,6 +40,12 @@ batch
 # FINE logging for all of SY
 #/profile=full/subsystem=logging/root-logger=ROOT/:write-attribute(name=level,value=FINE)
 
+# DEBUG logging for hornetq XA recovery
+/profile=full/subsystem=logging/logger=org.hornetq.jms.server/:add(category=org.hornetq.jms.server,level=TRACE,use-parent-handlers=true)
+
+# enable transaction manager statistics
+/profile=full/subsystem=transactions/:write-attribute(name=enable-statistics,value=true)
+
 # create sy.core server group and start
 /server-group=${sy.core.group}/:add(profile=full,socket-binding-group=full-sockets)
 

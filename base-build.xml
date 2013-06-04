@@ -302,18 +302,32 @@
         </if>
     </target>
 
-    <target name="local.bounce.hornetq" description="">
+    <target name="local.bounce.ha.primary" description="">
         <if><not><equals arg1="group.stop" arg2="false" /></not><then>
             <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
                 <arg value="--connect"/>
                 <arg value="--controller=${os.hostname}:${management.port}"/>
-                <arg value="/server-group=ha.group/:stop-servers"/>
+                <arg value="/server-group=ha.group.primary/:stop-servers"/>
             </exec>
         </then></if>
         <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
             <arg value="--connect"/>
             <arg value="--controller=${os.hostname}:${management.port}"/>
-            <arg value="/server-group=ha.group/:start-servers"/>
+            <arg value="/server-group=ha.group.primary/:start-servers"/>
+        </exec>
+    </target>
+    <target name="local.bounce.ha.backup" description="">
+        <if><not><equals arg1="group.stop" arg2="false" /></not><then>
+            <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
+                <arg value="--connect"/>
+                <arg value="--controller=${os.hostname}:${management.port}"/>
+                <arg value="/server-group=ha.group.backup/:stop-servers"/>
+            </exec>
+        </then></if>
+        <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
+            <arg value="--connect"/>
+            <arg value="--controller=${os.hostname}:${management.port}"/>
+            <arg value="/server-group=ha.group.backup/:start-servers"/>
         </exec>
     </target>
     <target name="local.bounce.pfp.core" description="">
@@ -366,7 +380,8 @@
         </if>
         <antcall target="local.stop.master"  />
         <antcall target="local.start.master" />
-        <antcall target="local.bounce.hornetq" />
+        <antcall target="local.bounce.ha.primary" />
+        <antcall target="local.bounce.ha.backup" />
         <if>
             <equals arg1="${org.jboss.processFlow.provision.pfpCore}" arg2="true" />
             <then><antcall target="local.bounce.pfp.core"  ><param name="group.stop" value="false"/></antcall></then>

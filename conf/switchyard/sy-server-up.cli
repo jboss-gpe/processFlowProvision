@@ -10,8 +10,8 @@ batch
     #    - WARN  [com.arjuna.ats.jta] (Periodic Recovery) ARJUNA016037: Could not find new XAResource to use for recovering non-serializable XAResource XAResourceRecord
     #    - WARN  [com.arjuna.ats.jta] (Periodic Recovery) ARJUNA016038: No XAResource to recover 
 
-    /host=${serverIpAddr}/server-config=${sy.core.server.id}/system-property=com.arjuna.ats.jta.recovery.XAResourceRecovery.HORNETQ2/:add(value="org.hornetq.jms.server.recovery.HornetQXAResourceRecovery;org.hornetq.core.remoting.impl.netty.NettyConnectorFactory,,,host=${os.hostname},port=5545;org.hornetq.core.remoting.impl.netty.NettyConnectorFactory,,,host=${os.hostname},port=5645",boot-time=true)
-    /host=${serverIpAddr}/server-config=${sy.core.server.id}/system-property=com.arjuna.ats.jta.xaRecoveryNode/:add(value=1)
+    #/host=${serverIpAddr}/server-config=${sy.core.server.id}/system-property=com.arjuna.ats.jta.recovery.XAResourceRecovery.HORNETQ2/:add(value="org.hornetq.jms.server.recovery.HornetQXAResourceRecovery;org.hornetq.core.remoting.impl.netty.NettyConnectorFactory,,,host=${os.hostname},port=5545;org.hornetq.core.remoting.impl.netty.NettyConnectorFactory,,,host=${os.hostname},port=5645",boot-time=true)
+    #/host=${serverIpAddr}/server-config=${sy.core.server.id}/system-property=com.arjuna.ats.jta.xaRecoveryNode/:add(value=1)
 
 run-batch
 

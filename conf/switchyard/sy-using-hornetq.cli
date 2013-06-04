@@ -41,7 +41,6 @@ batch
     # configure hornetq-ra for HA behavior
     /profile=full/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=ha,value=true)
     /profile=full/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=reconnect-attempts,value=-1)
-    /profile=full/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=failover-on-server-shutdown,value=${failover.on.server.shutdown})
 
     # configure JMS connection factory avialable internally to beans;  ensure it uses correct discovery group and is HA
     /profile=full/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=discovery-group-name,value=dg-group1)
