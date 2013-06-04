@@ -79,8 +79,9 @@ deploy ${temp.pfp.services.dir}/processFlow-bamService.jar --name=processFlow-ba
 deploy ${temp.pfp.services.dir}/processFlow-knowledgeSessionService-web.war --name=processFlow-knowledgeSessionService-web.war --server-groups=${pfp.core.group}
 
 
-# deploy haTimerService to the ha.group
-deploy ${temp.pfp.services.dir}/processFlow-haTimerService.jar --name=processFlow-haTimerService.jar --server-groups=ha.group
+# deploy haTimerService to ha.group.primary and ha.group.backup
+deploy ${temp.pfp.services.dir}/processFlow-haTimerService.jar --name=processFlow-haTimerService-primary.jar --server-groups=ha.group.primary
+deploy ${temp.pfp.services.dir}/processFlow-haTimerService.jar --name=processFlow-haTimerService-backup.jar --server-groups=ha.group.backup
 run-batch
 
 
