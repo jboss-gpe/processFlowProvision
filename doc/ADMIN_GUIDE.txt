@@ -428,13 +428,15 @@ Guvnor automation
 
 Process Versioning
      what actually happens is that active jbpm5 process instances continue to be dependent on the contents of the KnowledgeBase.
-     so if the KnowledgeBase is updated with an updated process definition (let's call it org.acme.myProcess.v1), then active process instances are going to follow the behavior of this newly UPDATED process definitions
+     so if the KnowledgeBase is updated with an updated process definition (let's call it org.acme.myProcess.v1), then active process instances are going to follow the behavior of this newly UPDATED process definition
  
      so if this is not desired, the current workaround is to change the process definition id.
      for instance, modify your existing process definition such that the process id (previously org.acme.myProcess.v1) is changed to  org.acme.myProcess.v2.
      subsequently, after compiling the package in guvnor, you'll now have two different  process definitions compiled and included in the KnowledgeBase (via the KnowledgeAgent).
      previous instances that where started using org.acme.myProcess.v1 will continue to use that older process definition.
      new pInstances that are started using org.acme.myProcess.v2 will now use the new process definition.
+
+    The "version" field is just a String which is not used by the engine, it should be used only as a metadata for documentation purposes.
 
 
 
