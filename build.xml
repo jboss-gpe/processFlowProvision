@@ -883,8 +883,9 @@
                 <copy todir="${jboss.home}/modules" overwrite="true">
                     <fileset dir="${temp.soa.unzip.dir}/${eap6.name}/modules" />
                 </copy>
-                <!-- apply temporary patch to SOA6 Alpha DR5 -->
+                <!-- apply temporary patches to SOA6 Alpha DR5 -->
                 <copy file="lib/sy/switchyard-deploy-jboss-as7-0.8.1.Final.jar" todir="${jboss.home}/modules/system/layers/soa/org/switchyard/main/" overwrite="true" verbose="true" />
+                <copy file="lib/sy/switchyard-component-jca-0.8.1.Final.jar" todir="${jboss.home}/modules/system/layers/soa/org/switchyard/component/jca/main/" overwrite="true" verbose="true" />
             </else>
         </if>
     </target>
