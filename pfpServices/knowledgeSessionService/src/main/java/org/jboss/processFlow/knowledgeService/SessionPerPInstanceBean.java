@@ -38,9 +38,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.drools.SystemEventListenerFactory;
-import org.drools.core.util.DelegatingSystemEventListener;
 import org.drools.KnowledgeBaseFactory;
-import org.drools.agent.impl.PrintStreamSystemEventListener;
 import org.drools.command.SingleSessionCommandService;
 import org.drools.command.impl.CommandBasedStatefulKnowledgeSession;
 import org.drools.event.process.ProcessCompletedEvent;
@@ -53,8 +51,6 @@ import org.drools.io.*;
 import org.drools.logger.KnowledgeRuntimeLogger;
 import org.drools.logger.KnowledgeRuntimeLoggerFactory;
 import org.drools.persistence.jpa.JPAKnowledgeService;
-import org.drools.persistence.jpa.JpaJDKTimerService;
-import org.drools.persistence.jpa.processinstance.JPAWorkItemManagerFactory;
 import org.drools.runtime.KnowledgeSessionConfiguration;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.Environment;
@@ -64,15 +60,11 @@ import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.jbpm.workflow.instance.node.SubProcessNodeInstance;
-import org.jbpm.integration.console.shared.GuvnorConnectionUtils;
 import org.jbpm.task.admin.TaskCleanUpProcessEventListener;
 import org.jbpm.task.admin.TasksAdmin;
 import org.jbpm.workflow.instance.WorkflowProcessInstanceUpgrader;
 
-import org.jboss.processFlow.bam.IBAMService;
 import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
-import org.jboss.processFlow.tasks.ITaskService;
-import org.jboss.processFlow.util.LogSystemEventListener;
 
 /**
  *<pre>
