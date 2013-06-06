@@ -44,6 +44,12 @@
         <!--BAM for task service -->
         <class>org.jbpm.services.task.impl.model.BAMTaskSummaryImpl</class>
 
+        <!-- remove me once using JMS based org.jbpm.process.audit.AuditLoggerFactory -->
+        <class>org.jbpm.process.audit.ProcessInstanceLog</class>
+        <class>org.jbpm.process.audit.NodeInstanceLog</class>
+        <class>org.jbpm.process.audit.VariableInstanceLog</class>
+
+
         <!-- Event Classes -->
         <class>org.jbpm.services.task.impl.model.TaskEventImpl</class>
 

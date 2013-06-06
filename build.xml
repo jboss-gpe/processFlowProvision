@@ -288,7 +288,7 @@
                   <sequential>
                     <var name="ha.server.id" value="ha-@{serverNum}" />
                     <math result="ha.port.increment" operand1="100" operation="*" operand2="@{serverNum}" datatype="int" />
-                    <math result="ha.port.offset" operand1="${hornetq.group.port.offset}" operation="+" operand2="${ha.port.increment}" datatype="int" />
+                    <math result="ha.port.offset" operand1="${ha.group.port.offset}" operation="+" operand2="${ha.port.increment}" datatype="int" />
                     <var name="ha.server.id" value="ha-@{serverNum}" />
                     <if>
                         <equals arg1="${ha.server.id}" arg2="ha-0" />
@@ -343,7 +343,7 @@
                     </zipfileset>
                 </zip>
                 <!--copy file="conf/pfp/default.session.template" tofile="${drools.session.template.path}" overwrite="true" / -->
-                <math result="hornetq.remoting.port" operand1="${base.remoting.port}" operation="+" operand2="${hornetq.group.port.offset}" datatype="int" />
+                <math result="hornetq.remoting.port" operand1="${base.remoting.port}" operation="+" operand2="${ha.group.port.offset}" datatype="int" />
                 <antcall target="cli.batch">
                     <param name="cli.source.dir" value="conf/pfp"/>
                     <param name="cli.to.filter.and.execute" value="pfp-server-group.cli"/>

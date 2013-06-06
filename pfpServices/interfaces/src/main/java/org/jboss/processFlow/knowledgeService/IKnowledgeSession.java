@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.List;
 
 import org.jbpm.persistence.processinstance.ProcessInstanceInfo;
+import org.kie.api.io.Resource;
 
 /**
  *
@@ -58,7 +59,7 @@ import org.jbpm.persistence.processinstance.ProcessInstanceInfo;
  *</pre>
  */
 public interface IKnowledgeSession extends IBaseKnowledgeSession {
-    public static final String KNOWLEDGE_SESSION_SERVICE_JNDI = "ejb:/processFlow-knowledgeSessionService//prodKSessionProxy!org.jboss.processFlow.knowledgeService.IKnowledgeSessionService";
+    public static final String KNOWLEDGE_SESSION_SERVICE_JNDI = "ejb:bpms-pfp/processFlow-knowledgeSessionService/prodKSessionProxy!org.jboss.processFlow.knowledgeService.IKnowledgeSessionService";
     public static final String KNOWLEDGE_SERVICE_PROVIDER_URL = "org.jboss.processFlow.knowledgeService.KNOWLEDGE_SERVICE_PROVIDER_URL";
     public static final String SPACE_DELIMITED_PROCESS_EVENT_LISTENERS = "space.delimited.process.event.listeners";
     public static final String TASK_CLEAN_UP_PROCESS_EVENT_LISTENER_IMPL="task.clean.up.process.event.listener.impl";
@@ -105,6 +106,10 @@ public interface IKnowledgeSession extends IBaseKnowledgeSession {
     public void abortProcessInstance(Long processInstanceId);
 
     public void addAssetToRuntimeEnvironment(File processFile);
+    public void addAssetToRuntimeEnvironment(Process processObj, Resource resourceObj);
+    
+    // backwards compatibility only
+    public void addProcessToKnowledgeBase(File processFile);
     
     /**
      * refreshKnowledgeBase and knowledgeAgent managed by PFP knowledgeSessionService
@@ -148,9 +153,8 @@ public interface IKnowledgeSession extends IBaseKnowledgeSession {
      */
     //public List<SerializableProcessMetaData> retrieveProcesses() throws Exception ;
 
-    //public void addProcessToKnowledgeBase(Process processObj, Resource resourceObj);
+    
 
-    //public void addProcessToKnowledgeBase(File bpmnFile);
 
     /**
      *getActiveProcessInstances

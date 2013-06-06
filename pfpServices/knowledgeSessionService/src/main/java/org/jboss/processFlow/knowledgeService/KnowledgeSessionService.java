@@ -31,7 +31,6 @@ import java.util.*;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.ejb.*;
-import javax.inject.Inject;
 import javax.jms.*;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -40,9 +39,12 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
 import javax.persistence.Query;
 
+import org.kie.api.io.Resource;
+import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.manager.RuntimeManager;
+import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.runtime.manager.RuntimeEnvironment;
 import org.kie.internal.runtime.manager.RuntimeManagerFactory;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
@@ -55,7 +57,6 @@ import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
-
 import org.jboss.processFlow.knowledgeService.IBaseKnowledgeSession;
 import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
 import org.jboss.processFlow.knowledgeService.KnowledgeSessionServiceMXBean;
@@ -92,22 +93,27 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
     protected MBeanServer platformMBeanServer;
 
     private Connection connectionObj = null;
-    private String sessionMgmtStrategy = IKnowledgeSessionService.DEFAULT_PER_PINSTANCE;
+    private RuntimeEnvironmentBuilder reBuilder = null;
     private RuntimeManager rManager = null;
+    private RuntimeEnvironment rEnvironment = null;
     
     @PostConstruct
     public void start() throws Exception {
         try {
+            String nameString = "META-INF/Taskorm.xml";
+            java.io.InputStream iStream = this.getClass().getClassLoader().getResourceAsStream(nameString);
+            if(iStream == null)
+                throw new Exception("can not find : "+nameString);
+            
             objectName = new ObjectName("org.jboss.processFlow:type="+this.getClass().getName());
             platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
             platformMBeanServer.registerMBean(this, objectName);
 
             connectionObj = cFactory.createConnection();
+            
 
-            RuntimeEnvironment environment = RuntimeEnvironmentBuilder.getDefault().entityManagerFactory(jbpmCoreEMF)
-            	.userGroupCallback(new PFPUserGroupCallback())
-                .get();
-            rManager = RuntimeManagerFactory.Factory.get().newPerProcessInstanceRuntimeManager(environment);
+            createRuntimeEnvironmentBuilder();
+            createRuntimeManager();
             
         } catch(Exception x) {
             throw new RuntimeException(x);
@@ -126,7 +132,36 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
         }
     }
     
+    private void createRuntimeEnvironmentBuilder() {
+    	reBuilder = RuntimeEnvironmentBuilder.getDefault()
+    		.registerableItemsFactory(new org.jbpm.runtime.manager.impl.DefaultRegisterableItemsFactory())
+    		.entityManagerFactory(this.jbpmCoreEMF)
+    	    .userGroupCallback(new PFPUserGroupCallback());
+    }
+    
+    private synchronized void createRuntimeManager() {
+    	if(rEnvironment != null)
+        	rEnvironment.close();
+    	
+        if(rManager != null)
+            rManager.close();
+    	    
+        rEnvironment = reBuilder.get();
+        rManager = RuntimeManagerFactory.Factory.get().newPerProcessInstanceRuntimeManager(rEnvironment);
+    }
+    
     public void addAssetToRuntimeEnvironment(File processFile){
+        reBuilder.addAsset(ResourceFactory.newFileResource(processFile), ResourceType.BPMN2);
+    	
+    	this.createRuntimeManager();
+    }
+    
+    public void addAssetToRuntimeEnvironment(Process processObj, Resource resourceObj){
+    	
+    }
+    
+    public void addProcessToKnowledgeBase(File processFile){
+    	this.addAssetToRuntimeEnvironment(processFile);
     }
     
     /**
@@ -175,7 +210,7 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
                 returnMap.put(IKnowledgeSessionService.KSESSION_ID, kSession.getId());
                 return returnMap;
             }finally {
-                dispose(kSession);
+                //dispose(kSession);
             }
         }
     }
@@ -359,7 +394,8 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
     }
 
     private void dispose(KieSession kSession){
-        kSession.dispose();
+    	if(kSession != null)
+    		kSession.dispose();
     }
 
     @Override
