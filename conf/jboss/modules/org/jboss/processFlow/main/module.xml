@@ -36,7 +36,6 @@
 
         <module name="org.jboss.remote-naming" export="true" />
 
-        <module name="org.kie" export="true" />
         <module name="org.jbpm" export="true" />
 
         <!-- needed by bamService, knowledgeSessionService and various org.jboss.processFlow static libraries -->
