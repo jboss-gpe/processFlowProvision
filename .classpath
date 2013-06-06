@@ -11,58 +11,7 @@
 	<classpathentry kind="src" path="pfpServices/haTimerService/src/main/java"/>
 	<classpathentry kind="src" path="pfpServices/cdiDiagnostics/src/main/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-bam"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-bpmn2"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-bpmn2-emfextmodel"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-examples"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-flow"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-flow-builder"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-human-task-war"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-persistence-jpa"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-test"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-workitems"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-human-task"/>
 	<classpathentry kind="var" path="JBOSS_HOME"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/droolsjbpm-knowledge-services"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/executor-services"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/form-services"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-human-task-core"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-human-task-hornetq"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-human-task-jms"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-human-task-mina"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-human-task-services"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-human-task-workitems"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-runtime-manager"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-shared-services"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/kie-api"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/kie-internal"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/cdi-example"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/cdi-example-with-inclusion"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/default-kiesession"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/default-kiesession-from-file"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/drools-compiler"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/drools-core"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/drools-decisiontables"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/drools-examples"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/drools-guvnor-models-commons"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/drools-guvnor-models-guided-dtable"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/drools-guvnor-models-guided-scorecard"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/drools-guvnor-models-guided-template"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/drools-guvnor-models-test-scenarios"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/drools-jsr94"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/drools-maven-plugin"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/drools-persistence-jpa"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/drools-scorecards"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/drools-templates"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/drools-verifier"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/kie-ci"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/kie-module-from-multiple-files"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/kiebase-inclusion"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/kiecontainer-from-kierepo"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/kiefilesystem-example"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/kiemodulemodel-example"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/named-kiesession"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/named-kiesession-from-file"/>
 	<classpathentry kind="lib" path="/opt/jboss/eap/jboss-eap-6.1/modules/system/layers/base/javax/enterprise/api/main/cdi-api-1.0-SP4-redhat-2.jar"/>
 	<classpathentry kind="lib" path="/opt/jboss/eap/jboss-eap-6.1/modules/system/layers/base/javax/ejb/api/main/jboss-ejb-api_3.1_spec-1.0.2.Final-redhat-2.jar"/>
 	<classpathentry kind="lib" path="/opt/jboss/eap/jboss-eap-6.1/modules/system/layers/base/javax/persistence/api/main/hibernate-jpa-2.0-api-1.0.1.Final-redhat-2.jar"/>
@@ -72,5 +21,32 @@
 	<classpathentry kind="lib" path="/opt/jboss/eap/jboss-eap-6.1/modules/system/layers/base/org/codehaus/jackson/jackson-mapper-asl/main/jackson-mapper-asl-1.9.9-redhat-2.jar"/>
 	<classpathentry kind="lib" path="/opt/jboss/eap/jboss-eap-6.1/modules/system/layers/base/org/jboss/log4j/logmanager/main/log4j-jboss-logmanager-1.0.1.Final-redhat-2.jar"/>
 	<classpathentry kind="lib" path="/opt/jboss/eap/jboss-eap-6.1/modules/system/layers/base/javax/transaction/api/main/jboss-transaction-api_1.1_spec-1.0.1.Final-redhat-2.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/drools-compiler"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/drools-core"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/drools-decisiontables"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/drools-examples"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/drools-jsr94"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/drools-maven-plugin"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/drools-persistence-jpa"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/drools-scorecards"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/drools-templates"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/drools-verifier"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-audit"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-bpmn2"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-bpmn2-emfextmodel"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-executor"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-flow"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-flow-builder"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-form-services"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-human-task-core"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-human-task-workitems"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-kie-services"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-persistence-jpa"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-runtime-manager"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-shared-services"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-workitems"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/kie-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/kie-ci"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/kie-internal"/>
 	<classpathentry kind="output" path="pfpServices/taskService/target"/>
 </classpath>
