@@ -61,14 +61,9 @@ import org.jboss.processFlow.knowledgeService.IBaseKnowledgeSession;
 import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
 import org.jboss.processFlow.knowledgeService.KnowledgeSessionServiceMXBean;
 import org.jboss.processFlow.tasks.identity.PFPUserGroupCallback;
-/**
- *<pre>
- *notes on Transactions
- *  - most publicly exposed methods in this singleton assumes a container managed trnx demarcation of REQUIRED
- *  - in some methods, bean managed transaction demarcation is used IOT dispose of the ksession *AFTER* the transaction has committed
- *  - otherwise, the method will fail due to implementation of JBRULES-1880
- *</pre>
- */
+import org.jboss.processFlow.util.CMTDisposeCommand;
+
+
 @Remote(IKnowledgeSessionService.class)
 @Local(IBaseKnowledgeSession.class)
 @Singleton(name="prodKSessionProxy")
@@ -210,7 +205,7 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
                 returnMap.put(IKnowledgeSessionService.KSESSION_ID, kSession.getId());
                 return returnMap;
             }finally {
-                //dispose(kSession);
+            	kSession.execute(new CMTDisposeCommand());
             }
         }
     }
@@ -221,7 +216,7 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
             kSession = rManager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId)).getKieSession();
             kSession.signalEvent(signalType, signalValue, processInstanceId);
         }finally {
-            dispose(kSession);
+            kSession.execute(new CMTDisposeCommand());
         }
     }
     
@@ -260,7 +255,7 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
                 kSession.getWorkItemManager().completeWorkItem(workItemId, pInstanceVariables);
                 kSession.dispose();
             }finally {
-                dispose(kSession);
+                kSession.execute(new CMTDisposeCommand());
             }
         }
     }
@@ -271,7 +266,7 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
             kSession = rManager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId)).getKieSession();
             WorkflowProcessInstanceUpgrader.upgradeProcessInstance(kSession, processInstanceId, processId, nodeMapping);
         }finally {
-            dispose(kSession);
+            kSession.execute(new CMTDisposeCommand());
         }
     }
 
@@ -281,7 +276,7 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
             kSession = rManager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId)).getKieSession();
             kSession.abortProcessInstance(processInstanceId);
         }finally {
-            dispose(kSession);
+            kSession.execute(new CMTDisposeCommand());
         }
     }
     
@@ -348,7 +343,7 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
                 log.error("getActiveProcessInstanceVariables() :  Could not find process instance " + processInstanceId);
             }
         }finally {
-            dispose(kSession);
+            kSession.execute(new CMTDisposeCommand());
         }
         return returnMap;
     }
@@ -369,7 +364,7 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
                 throw new IllegalArgumentException("Could not find process instance " + processInstanceId);
             }
         }finally{
-            dispose(kSession);
+            kSession.execute(new CMTDisposeCommand());
         }
     }
     
@@ -391,11 +386,6 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
                 try { sWriter.close();  }catch(Exception x){x.printStackTrace();}
             }
         }
-    }
-
-    private void dispose(KieSession kSession){
-    	if(kSession != null)
-    		kSession.dispose();
     }
 
     @Override

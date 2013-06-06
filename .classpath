@@ -71,5 +71,6 @@
 	<classpathentry kind="lib" path="/opt/jboss/eap/jboss-eap-6.1/modules/system/layers/base/org/codehaus/jackson/jackson-core-asl/main/jackson-core-asl-1.9.9-redhat-2.jar"/>
 	<classpathentry kind="lib" path="/opt/jboss/eap/jboss-eap-6.1/modules/system/layers/base/org/codehaus/jackson/jackson-mapper-asl/main/jackson-mapper-asl-1.9.9-redhat-2.jar"/>
 	<classpathentry kind="lib" path="/opt/jboss/eap/jboss-eap-6.1/modules/system/layers/base/org/jboss/log4j/logmanager/main/log4j-jboss-logmanager-1.0.1.Final-redhat-2.jar"/>
+	<classpathentry kind="lib" path="/opt/jboss/eap/jboss-eap-6.1/modules/system/layers/base/javax/transaction/api/main/jboss-transaction-api_1.1_spec-1.0.1.Final-redhat-2.jar"/>
 	<classpathentry kind="output" path="pfpServices/taskService/target"/>
 </classpath>
