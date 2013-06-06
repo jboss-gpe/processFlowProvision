@@ -25,37 +25,37 @@ package org.jboss.processFlow.knowledgeService;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.net.ConnectException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.ejb.*;
+import javax.ejb.Local;
+import javax.ejb.Lock;
+import javax.ejb.LockType;
+import javax.ejb.Remote;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
-import javax.jms.*;
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.MessageProducer;
+import javax.jms.ObjectMessage;
+import javax.jms.Session;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.naming.Context;
-import javax.naming.InitialContext;
-
-import org.drools.definition.process.Process;
-import org.drools.io.*;
-import org.drools.runtime.process.ProcessInstance;
-import org.jboss.processFlow.knowledgeService.IBaseKnowledgeSession;
-import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
-import org.jboss.processFlow.knowledgeService.KnowledgeSessionServiceMXBean;
-import org.jboss.processFlow.util.MessagingUtil;
-import org.jbpm.persistence.processinstance.ProcessInstanceInfo;
 
 import org.apache.log4j.Logger;
+import org.drools.definition.process.Process;
+import org.drools.io.Resource;
+import org.jbpm.persistence.processinstance.ProcessInstanceInfo;
 
-/**
- *<pre>
- *notes on Transactions
- *  - most publicly exposed methods in this singleton assumes a container managed trnx demarcation of REQUIRED
- *  - in some methods, bean managed transaction demarcation is used IOT dispose of the ksession *AFTER* the transaction has committed
- *  - otherwise, the method will fail due to implementation of JBRULES-1880
- *</pre>
- */
 @Remote(IKnowledgeSessionService.class)
 @Local(IBaseKnowledgeSession.class)
 @Singleton(name="prodKSessionProxy")
@@ -178,13 +178,9 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
      *<pre>
      *- this method will block until the newly created process instance either completes or arrives at a wait state
      *- at completion of the process instance (or arrival at a wait state), the StatefulKnowledgeSession will be disposed
-     *- bean managed transaction demarcation is used by this method IOT dispose of the ksession *AFTER* the transaction has committed
-     *- otherwise, this method will fail due to implementation of JBRULES-1880
-     *
      *  will deliver to KSessionManagement via JMS if inbound pInstanceVariables map contains an entry keyed by IKnowledgeSessionService.DELIVER_ASYNC
      *</pre>
      */
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public Map<String, Object> startProcessAndReturnId(String processId, Map<String, Object> pInstanceVariables) {
         if(pInstanceVariables != null && pInstanceVariables.containsKey(IKnowledgeSessionService.DELIVER_ASYNC)) {
             Session sessionObj = null;
@@ -211,19 +207,15 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
             return kBean.startProcessAndReturnId(processId, pInstanceVariables);
         }
     }
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public void signalEvent(String signalType, Object signalValue, Long processInstanceId, Integer ksessionId) {
         kBean.signalEvent(signalType, signalValue, processInstanceId, ksessionId);
     }
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public void abortProcessInstance(Long processInstanceId, Integer ksessionId) {
         kBean.abortProcessInstance(processInstanceId, ksessionId);
     }
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public void upgradeProcessInstance(long processInstanceId, String processId, Map<String, Long> nodeMapping) {
         kBean.upgradeProcessInstance(processInstanceId, processId, nodeMapping);
     }
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public String printActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId) {
         return kBean.printActiveProcessInstanceVariables(processInstanceId, ksessionId);
     }

@@ -65,6 +65,7 @@ import org.jbpm.task.admin.TasksAdmin;
 import org.jbpm.workflow.instance.WorkflowProcessInstanceUpgrader;
 
 import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
+import org.jboss.processFlow.util.CMTDisposeCommand;
 
 /**
  *<pre>
@@ -385,9 +386,6 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
      *<pre>
      *- this method will block until the newly created process instance either completes or arrives at a wait state
      *- at completion of the process instance (or arrival at a wait state), the StatefulKnowledgeSession will be disposed
-     *- bean managed transaction demarcation is used by this method IOT dispose of the ksession *AFTER* the transaction has committed
-     *- otherwise, this method will fail due to implementation of JBRULES-1880
-     *
      * - will return null if problems arise
      *</pre>
      */
@@ -398,7 +396,6 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
         ProcessInstance pInstance = null;
         Map<String, Object> returnMap = new HashMap<String, Object>();
         try {
-            uTrnx.begin();
             ksession = getStatefulKnowledgeSession(processId);
             ksessionId = ksession.getId();
             addExtrasToStatefulKnowledgeSession(ksession);
@@ -416,29 +413,19 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
             for (String key : variables.keySet()) {
                 returnMap.put(key, variables.get(key));
             }
-            uTrnx.commit();
             returnMap.put(IKnowledgeSessionService.PROCESS_INSTANCE_ID, pInstance.getId());
             returnMap.put(IKnowledgeSessionService.PROCESS_INSTANCE_STATE, pInstance.getState());
             returnMap.put(IKnowledgeSessionService.KSESSION_ID, ksessionId);
+            
+            sessionPool.setProcessInstanceId(ksessionId, pInstance.getId());
         }catch(Throwable x){
             x.printStackTrace();
-            rollbackTrnx();
             return null;
         }finally {
             if(ksession != null){
                 disposeStatefulKnowledgeSessionAndExtras(ksessionId);
             }
         }
-
-        try {
-            uTrnx.begin();
-            sessionPool.setProcessInstanceId(ksessionId, pInstance.getId());
-            uTrnx.commit();
-        }catch(Exception x){
-            x.printStackTrace();
-            rollbackTrnx();
-        }
-
         sBuilder.append(" : pInstanceId = "+pInstance.getId()+" : function (not necessarily pInstance) now completed.  check the jbpm_bam db for status of pInstance");
         log.info(sBuilder.toString());
         return returnMap;
@@ -450,8 +437,6 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
         StatefulKnowledgeSession ksession = null;
         try {
             try {
-                uTrnx.begin();
-
                 // always go to the database to ensure row-level pessimistic lock for each process instance
                 ksessionId = sessionPool.getSessionId(processInstanceId);
 
@@ -484,18 +469,15 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
 
                 ProcessInstance pInstance = ksession.getProcessInstance(processInstanceId);
                 pInstance.signalEvent(signalType, signalValue);
-                uTrnx.commit();
             }finally {
                 if(ksession != null)
                     disposeStatefulKnowledgeSessionAndExtras(ksessionId);
             }
         } catch(RuntimeException x) {
             log.error("signalEvent() exception thrown.  signalType = "+signalType+" : pInstanceId = "+processInstanceId+" : ksessionId ="+ksessionId);
-            rollbackTrnx();
             throw x;
         }catch(Exception x) {
             log.error("signalEvent() exception thrown.  signalType = "+signalType+" : pInstanceId = "+processInstanceId+" : ksessionId ="+ksessionId);
-            rollbackTrnx();
             throw new RuntimeException(x);
         }
     }
@@ -504,23 +486,19 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
         StatefulKnowledgeSession ksession = null;
         try {
             try {
-                uTrnx.begin();
                 if(ksessionId == null)
                     ksessionId = sessionPool.getSessionId(processInstanceId);
 
                 ksession = loadStatefulKnowledgeSessionAndAddExtras(ksessionId);
                 ksession.abortProcessInstance(processInstanceId);
                 sessionPool.markAsReturned(ksessionId);
-                uTrnx.commit();
             }finally {
                 if(ksession != null)
                     disposeStatefulKnowledgeSessionAndExtras(ksessionId);
             }
         } catch(RuntimeException x) {
-            rollbackTrnx();
             throw x;
         }catch(Exception x) {
-            rollbackTrnx();
             throw new RuntimeException(x);
         }
     }
@@ -530,17 +508,14 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
         Integer ksessionId = 0;
         try {
             try {
-                uTrnx.begin();
                 ksessionId = sessionPool.getSessionId(processInstanceId);
                 ksession = loadStatefulKnowledgeSessionAndAddExtras(ksessionId);
                 WorkflowProcessInstanceUpgrader.upgradeProcessInstance(ksession, processInstanceId, processId, nodeMapping);
-                uTrnx.commit();
             }finally {
                 if(ksession != null)
                     disposeStatefulKnowledgeSessionAndExtras(ksessionId);
             }
         } catch(Exception x) {
-            rollbackTrnx();
             throw new RuntimeException(x);
         }
     }
@@ -549,17 +524,14 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
         Map<String,Object> vHash = null;
         try {
             try {
-                uTrnx.begin();
                 if(ksessionId == null)
                     ksessionId = sessionPool.getSessionId(processInstanceId);
 
                 vHash = getActiveProcessInstanceVariables(processInstanceId, ksessionId);
-                uTrnx.commit();
             }finally {
                 disposeStatefulKnowledgeSessionAndExtras(ksessionId);
             }
         }catch(Exception x) {
-            rollbackTrnx();
             throw new RuntimeException(x);
         }
         if(vHash.size() == 0)
@@ -723,7 +695,7 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
             if(rLogger != null) {
                 rLogger.close();
             }
-            ksession.dispose();
+            ksession.execute(new CMTDisposeCommand());
         }
 
         public void setKnowledgeRuntimeLogger(KnowledgeRuntimeLogger x) {
