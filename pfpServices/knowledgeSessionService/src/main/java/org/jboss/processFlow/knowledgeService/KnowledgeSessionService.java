@@ -220,14 +220,6 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
         return kBean.printActiveProcessInstanceVariables(processInstanceId, ksessionId);
     }
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public Map<String, Object> beanManagedGetActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId){
-        return kBean.beanManagedGetActiveProcessInstanceVariables(processInstanceId, ksessionId);
-    }
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public void beanManagedSetProcessInstanceVariables(Long processInstanceId, Map<String, Object> variables, Integer ksessionId){
-        kBean.beanManagedSetProcessInstanceVariables(processInstanceId, variables, ksessionId);
-    }
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public void beanManagedCompleteWorkItem(Long workItemId, Map<String, Object> pInstanceVariables, Long pInstanceId, Integer ksessionId){
         kBean.beanManagedCompleteWorkItem(workItemId, pInstanceVariables, pInstanceId, ksessionId);
     }

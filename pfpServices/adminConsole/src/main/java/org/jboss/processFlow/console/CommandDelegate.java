@@ -160,7 +160,7 @@ public class CommandDelegate {
     
     public static Map<String, Object> getProcessInstanceVariables(String processInstanceId) {
         try {
-            return ksessionProxy.beanManagedGetActiveProcessInstanceVariables(Long.valueOf(processInstanceId), null);
+            return ksessionProxy.getActiveProcessInstanceVariables(Long.valueOf(processInstanceId), null);
         } catch(RuntimeException x) {
             throw x;
         } catch(Exception x) {

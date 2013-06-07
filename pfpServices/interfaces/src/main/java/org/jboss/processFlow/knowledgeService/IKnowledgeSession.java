@@ -186,8 +186,6 @@ public interface IKnowledgeSession extends IBaseKnowledgeSession {
      */
     public void upgradeProcessInstance(long processInstanceId, String processId, Map<String, Long> nodeMapping);
     
-    public Map<String, Object> beanManagedGetActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId);
-    public void beanManagedSetProcessInstanceVariables(Long processInstanceId, Map<String, Object> variables, Integer ksessionId);
     public void beanManagedCompleteWorkItem(Long workItemId, Map<String, Object> pInstanceVariables, Long pInstanceId, Integer ksessionId);
 
 }
