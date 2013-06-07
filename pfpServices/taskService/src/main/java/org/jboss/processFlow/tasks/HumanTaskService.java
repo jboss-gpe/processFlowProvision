@@ -88,8 +88,6 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
 
     public static final String JBPM_TASK_EMF_RESOURCE_LOCAL = "org.jbpm.task.resourceLocal";
     public static final String JBPM_TASK_EMF = "org.jbpm.task";
-    public static final String LOCAL_JTA = "local-JTA";
-    public static final String RESOURCE_LOCAL = "RESOURCE_LOCAL";
     public static final String TASK_BY_TASK_ID = "TaskByTaskId";
     public static final String GROUP="group";
     public static final String USER="user";
@@ -257,22 +255,16 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
         }
         return claimedTask;
     }
-    
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public void completeTask(Long taskId, Map<String, Object> outboundTaskVars, String userId) {
-        this.completeTask(taskId, outboundTaskVars, userId, true);
-    }
 
     /**
         - changes task status from : InProgress --> Completed
         - this method blocks until process instance arrives at next 'safe point'
-        - this method uses BMT to define the scope of the transaction
+        - this method uses BMT to define the scope of the transaction    , boolean disposeKsession)
      */
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public void completeTask(Long taskId, Map<String, Object> outboundTaskVars, String userId, boolean disposeKsession) {
+    public void completeTask(Long taskId, Map<String, Object> outboundTaskVars, String userId)  {
         TaskServiceSession taskSession = null;
         try {
-            taskSession = taskService.createSession();
+            taskSession = jtaTaskService.createSession();
             Task taskObj = taskSession.getTask(taskId);
             int sessionId = taskObj.getTaskData().getProcessSessionId();
             long pInstanceId = taskObj.getTaskData().getProcessInstanceId();
@@ -296,7 +288,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
                 // 1) constructure a purely empty new HashMap, as the final results map, which will be mapped out to the process instance
                 newOutboundTaskVarMap = new HashMap<String, Object>();
                 // 2) put the original input parameters first
-                newOutboundTaskVarMap.putAll(populateHashWithTaskContent(documentContentId, "documentContent"));
+                newOutboundTaskVarMap.putAll(populateHashWithTaskContent(taskSession.getContent(documentContentId), "documentContent"));
                 // 3) put the user modified into the final result map, replace the original values with the user modified ones if any
                 newOutboundTaskVarMap.putAll(outboundTaskVars);
             }   //~~  intelligent mapping
@@ -319,14 +311,9 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
             newOutboundTaskVarMap.put(TaskChangeDetails.TASK_CHANGE_DETAILS, changeDetails);
    
             kSessionProxy.completeWorkItem(taskObj.getTaskData().getWorkItemId(), newOutboundTaskVarMap, pInstanceId, sessionId);
-    
-            if(disposeKsession)
-                kSessionProxy.disposeStatefulKnowledgeSessionAndExtras(taskObj.getTaskData().getProcessSessionId());
         }catch(org.jbpm.task.service.PermissionDeniedException x) {
-            rollbackTrnx();
             throw x;
         }catch(RuntimeException x) {
-            rollbackTrnx();
             if(x.getCause() != null && (x.getCause() instanceof javax.transaction.RollbackException) && (x.getMessage().indexOf("Could not commit transaction") != -1)) {
                 String message = "completeTask() RollbackException thrown most likely because the following task object is dirty : "+taskId;
                 log.error(message);
@@ -336,9 +323,6 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
             }
         }catch(Exception x) {
             throw new RuntimeException(x);
-        }finally {
-            if(taskSession != null)
-                taskSession.dispose();
         }
     }
 
@@ -358,15 +342,11 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
                 taskSession.dispose();
         }
     }
-
-    public void failTask(Long taskId, Map<String, Object> outboundTaskVars, String userId, String faultName) {
-        this.failTask(taskId, outboundTaskVars, userId, faultName, true);
-    }
-
+    
     /**
      * NOTE:  allows for a null userId ... in which case this implementation will use the actual owner of the task to execute the fail task operation
      */
-    public void failTask(Long taskId, Map<String, Object> outboundTaskVars, String userId, String faultName, boolean disposeKsession) {
+    public void failTask(Long taskId, Map<String, Object> outboundTaskVars, String userId, String faultName) {
         TaskServiceSession taskSession = null;
         try {
             taskSession = jtaTaskService.createSession();
@@ -388,14 +368,8 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
             this.dumpTaskDetails(taskObj, sBuilder);
            
             kSessionProxy.completeWorkItem(taskObj.getTaskData().getWorkItemId(), outboundTaskVars, pInstanceId, sessionId);
-            
-            if(disposeKsession)
-                kSessionProxy.disposeStatefulKnowledgeSessionAndExtras(sessionId);
         }catch(PermissionDeniedException x) {
             throw new RuntimeException(x);
-        }finally {
-            if(taskSession != null)
-                taskSession.dispose();
         }
     }
     
@@ -419,17 +393,14 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
                 taskSession.dispose();
         }
     }
-
-    public void skipTask(Long taskId, String userId, Map<String, Object> outboundTaskVars) {
-        this.skipTask(taskId, userId, outboundTaskVars, true);
-    }
+    
     /**
      * skipTask
      * <pre>
      * NOTE:  underlying jbpm5 TaskServiceSession does not allow for outbound task variables with Operation.Skip
      * </pre>
      */
-    public void skipTask(Long taskId, String userId, Map<String, Object> outboundTaskVars, boolean disposeKsession) {
+    public void skipTask(Long taskId, String userId, Map<String, Object> outboundTaskVars) {
         TaskServiceSession taskSession = null;
         try {
             taskSession = jtaTaskService.createSession();
@@ -444,9 +415,6 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
             this.dumpTaskDetails(taskObj, sBuilder);
            
             kSessionProxy.completeWorkItem(taskObj.getTaskData().getWorkItemId(), outboundTaskVars, pInstanceId, sessionId);
-            
-            if(disposeKsession)
-                kSessionProxy.disposeStatefulKnowledgeSessionAndExtras(sessionId);
         }catch(org.jbpm.task.service.PermissionDeniedException x) {
             throw x;
         }catch(Exception x) {
@@ -935,10 +903,9 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
             - Long contentid    :   contentId to be retrieved from database
             - String keyName    :   name of key in returned Map whose value should be the raw content Object
      */
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public Map populateHashWithTaskContent(Long contentId, String keyName) {
+    public Map populateHashWithTaskContent(Content contentObj, String keyName) {
         Map<String, Object> returnHash = null;
-        Content contentObj = getContent(contentId);
+        long contentId = contentObj.getId();
         if(contentObj != null) {
             returnHash = new HashMap<String, Object>();
             ByteArrayInputStream bis = new ByteArrayInputStream(contentObj.getContent());

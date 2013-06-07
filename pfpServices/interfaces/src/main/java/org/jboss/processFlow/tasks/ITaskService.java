@@ -130,11 +130,9 @@ public interface ITaskService {
      *  please see the following section WS-HT specification:  4.7.1  Normal Processing of a Human Task
      *
      *  implementations of this function will invoke IKnowledgeSessionService.completeWorkItem(...) to continue process instance execution
-     *  
-     *  most remote clients will leverage the method signature that does not include the 'disposeKsession' parameter
+     * 
      * </pre>
      */
-    public void completeTask(Long taskId, Map<String, Object> outboundTaskVars, String userId, boolean disposeKsession);
     public void completeTask(Long taskId, Map<String, Object> outboundTaskVars, String userId);
     
     /**
@@ -152,14 +150,11 @@ public interface ITaskService {
      * failTask
      * places task in a status of "Failed" and continues process instance execution
      * as per WS-HT specification, section 4.7 ,  task status must already be "InProgress" for this operation to be valid
-     * most remote clients will leverage the method signature that does not include the 'disposeKsession' parameter
      * @param taskId
      * @param outboundTaskVars
      * @param userId
      * @param faultName
-     * @param disposeKsession
      */
-    public void failTask(Long taskId, Map<String, Object> outboundTaskVars, String userId, String faultName, boolean disposeKsession);
     public void failTask(Long taskId, Map<String, Object> outboundTaskVars, String userId, String faultName);
 
     public TaskSummary getTask(Long taskId);
@@ -178,10 +173,8 @@ public interface ITaskService {
      * <pre>
      * NOTE:  underlying jbpm5 TaskServiceSession does not allow for outbound task variables with Operation.Skip
      *        will still use the "outboundTaskVars" passed in this function to populate process instance variables with completeWorkItem() invocation
-     * most remote clients will leverage the method signature that does not include the 'disposeKsession' parameter
      * </pre>
      */
-    public void skipTask(Long taskId, String userId, Map<String, Object> outboundTaskVars, boolean disposeKsession);
     public void skipTask(Long taskId, String userId, Map<String, Object> outboundTaskVars);
     
     
@@ -259,7 +252,7 @@ public interface ITaskService {
     public List<TaskSummary> getAssignedTasks(String userId, List<Status> statuses, String language);
     public List query(String qlString, Integer size, Integer offset);
     public Content getContent(Long contentId);
-    public Map populateHashWithTaskContent(Long contentId, String keyName);
+    public Map populateHashWithTaskContent(Content contentObj, String keyName);
     public void releaseTask(Long taskId, String userId);
 
 }

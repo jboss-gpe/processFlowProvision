@@ -581,35 +581,23 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
     }
     
     
-    public void beanManagedCompleteWorkItem(Long workItemId, Map<String, Object> pInstanceVariables, Long pInstanceId, Integer ksessionId) {
-        try {
-            try {
-                uTrnx.begin();
-                if(ksessionId == null)
-                    ksessionId = sessionPool.getSessionId(pInstanceId);
-
-                completeWorkItem(workItemId, pInstanceVariables, pInstanceId, ksessionId);
-                uTrnx.commit();
-            }finally {
-                disposeStatefulKnowledgeSessionAndExtras(ksessionId);
-            }
-        }catch(Exception x) {
-            rollbackTrnx();
-            throw new RuntimeException(x);
-        }
-    }
-    
-    
-    
     // notifies process engine to complete a work item and continue execution of next node in process instance
     // can no longer dispose knowledge session within scope of this transaction due to side effects from fix for JBRULES-1880
     // subsequently, it's expected that a client will invoke 'disposeStatefulKnowledgeSessionAndExtras' after this JTA trnx has been committed
     public void completeWorkItem(Long workItemId, Map<String, Object> pInstanceVariables, Long pInstanceId, Integer ksessionId) {
-        if(ksessionId == null)
-            ksessionId = sessionPool.getSessionId(pInstanceId);
-            
-        StatefulKnowledgeSession ksession = loadStatefulKnowledgeSessionAndAddExtras(ksessionId);
-        ksession.getWorkItemManager().completeWorkItem(workItemId, pInstanceVariables);
+        try {
+            try {
+                if(ksessionId == null)
+                    ksessionId = sessionPool.getSessionId(pInstanceId);
+
+                StatefulKnowledgeSession ksession = loadStatefulKnowledgeSessionAndAddExtras(ksessionId);
+                ksession.getWorkItemManager().completeWorkItem(workItemId, pInstanceVariables);
+            }finally {
+                disposeStatefulKnowledgeSessionAndExtras(ksessionId);
+            }
+        }catch(Exception x) {
+            throw new RuntimeException(x);
+        }
     }
     
     public Map<String, Object> getActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId) {

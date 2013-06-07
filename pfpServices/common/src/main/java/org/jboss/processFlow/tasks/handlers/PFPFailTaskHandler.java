@@ -32,7 +32,7 @@ public class PFPFailTaskHandler extends BasePFPTaskHandler implements WorkItemHa
         changeDetails.setNewStatus(Status.Failed);
         
         // places task in a status of "Failed" and continues work flow execution of "task" branch
-        taskProxy.failTask(taskId, workItem.getParameters(), null, reason, false);
+        taskProxy.failTask(taskId, workItem.getParameters(), null, reason);
         
         // executes kSessionProxy.completeWorkItem(...) so as to continue execution of "signaled" branch
         kSessionProxy.completeWorkItem(workItem.getId(), workItem.getParameters(), workItem.getProcessInstanceId(), ksessionId);

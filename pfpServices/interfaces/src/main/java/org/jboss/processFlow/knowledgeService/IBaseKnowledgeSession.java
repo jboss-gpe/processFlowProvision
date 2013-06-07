@@ -70,6 +70,4 @@ public interface IBaseKnowledgeSession {
      * @param ksessionId the id of the KnowledgeSession that is managing the lifecycle of the process instance
      */
     public void signalEvent(String signalType, Object signalPayload, Long processInstanceId, Integer ksessionId);
-
-    public void disposeStatefulKnowledgeSessionAndExtras(Integer sessionId);
 }

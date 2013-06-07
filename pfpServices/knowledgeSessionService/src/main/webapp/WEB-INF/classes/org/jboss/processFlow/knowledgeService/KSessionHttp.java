@@ -168,7 +168,7 @@ public class KSessionHttp {
             }
             if(enableLog)
                 log.info("completeWorkItem() contents of payloadMap as follows :\n"+payloadMap);
-            kProxy.beanManagedCompleteWorkItem(workItemId, payloadMap, pInstanceId, null);
+            kProxy.completeWorkItem(workItemId, payloadMap, pInstanceId, null);
         }catch(RuntimeException x){
             builder = Response.status(Status.SERVICE_UNAVAILABLE);
         }

@@ -30,7 +30,7 @@ public class PFPSkipTaskHandler extends BasePFPTaskHandler implements WorkItemHa
         changeDetails.setNewStatus(Status.Obsolete);
         
         // places task in a status of "Obsolete" and continues work flow execution of "task" branch
-        taskProxy.skipTask(taskId, ITaskService.ADMINISTRATOR, workItem.getParameters(), false);
+        taskProxy.skipTask(taskId, ITaskService.ADMINISTRATOR, workItem.getParameters());
         
         // continue execution of "signaled" branch
         kSessionProxy.completeWorkItem(workItem.getId(), workItem.getParameters(), workItem.getProcessInstanceId(), ksessionId);

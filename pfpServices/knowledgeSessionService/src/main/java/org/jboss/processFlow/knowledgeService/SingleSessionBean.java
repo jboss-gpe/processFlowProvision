@@ -459,10 +459,6 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
         }
     }
 
-    public void disposeStatefulKnowledgeSessionAndExtras(Integer sessionId) {
-         // do nothing.  ksession will be disposed at stop() lifecycle funtion
-    }
-
     public void upgradeProcessInstance(long processInstanceId, String processId, Map<String, Long> nodeMapping) {
         WorkflowProcessInstanceUpgrader.upgradeProcessInstance(ksession, processInstanceId, processId, nodeMapping);
     }
