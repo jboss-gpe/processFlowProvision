@@ -16,15 +16,21 @@ function checkRemotePort() {
 # TO_DO:  this should be configurable as per 'hibernate.hbm2ddl.auto' property
 ${openshift.jdbc.module.name}_DBModifications() {
     echo -en "post_deploy.${openshift.jdbc.module.name}_DBModifications() ... start\n"
-    PGPASSWORD=$OPENSHIFT_${openshift.jdbc.module.name}_DB_PASSWORD psql -h $OPENSHIFT_${openshift.jdbc.module.name}_DB_HOST -U admin -d $OPENSHIFT_APP_NAME -c "drop database if exists jbpm;"
-    PGPASSWORD=$OPENSHIFT_${openshift.jdbc.module.name}_DB_PASSWORD psql -h $OPENSHIFT_${openshift.jdbc.module.name}_DB_HOST -U admin -d $OPENSHIFT_APP_NAME -c "drop user if exists jbpm;"
-    PGPASSWORD=$OPENSHIFT_${openshift.jdbc.module.name}_DB_PASSWORD psql -h $OPENSHIFT_${openshift.jdbc.module.name}_DB_HOST -U admin -d $OPENSHIFT_APP_NAME -c "create user jbpm with password 'jbpm';"
-    PGPASSWORD=$OPENSHIFT_${openshift.jdbc.module.name}_DB_PASSWORD psql -h $OPENSHIFT_${openshift.jdbc.module.name}_DB_HOST -U admin -d $OPENSHIFT_APP_NAME -c "create database jbpm with owner=jbpm;"
+    psql -c "drop database if exists jbpm;"
+    psql -c "drop user if exists jbpm;"
+    psql -c "create user jbpm with password 'jbpm';"
+    psql -c "create database jbpm with owner=jbpm;"
 
-    PGPASSWORD=$OPENSHIFT_${openshift.jdbc.module.name}_DB_PASSWORD psql -h $OPENSHIFT_${openshift.jdbc.module.name}_DB_HOST -U admin -d $OPENSHIFT_APP_NAME -c "drop database if exists jbpm_bam;"
-    PGPASSWORD=$OPENSHIFT_${openshift.jdbc.module.name}_DB_PASSWORD psql -h $OPENSHIFT_${openshift.jdbc.module.name}_DB_HOST -U admin -d $OPENSHIFT_APP_NAME -c "drop user if exists jbpm_bam;"
-    PGPASSWORD=$OPENSHIFT_${openshift.jdbc.module.name}_DB_PASSWORD psql -h $OPENSHIFT_${openshift.jdbc.module.name}_DB_HOST -U admin -d $OPENSHIFT_APP_NAME -c "create user jbpm_bam with password 'jbpm_bam';"
-    PGPASSWORD=$OPENSHIFT_${openshift.jdbc.module.name}_DB_PASSWORD psql -h $OPENSHIFT_${openshift.jdbc.module.name}_DB_HOST -U admin -d $OPENSHIFT_APP_NAME -c "create database jbpm_bam with owner=jbpm_bam;"
+    psql -c "drop database if exists jbpm_bam;"
+    psql -c "drop user if exists jbpm_bam;"
+    psql -c "create user jbpm_bam with password 'jbpm_bam';"
+    psql -c "create database jbpm_bam with owner=jbpm_bam;"
+
+    psql -c "drop database if exists guvnor;"
+    psql -c "drop user if exists guvnor;"
+    psql -c "create user guvnor with password 'guvnor';"
+    psql -c "create database guvnor with owner=guvnor;"
+
     echo -en "post_deploy.${openshift.jdbc.module.name}_DBModifications()  ... completed.\n\n"
 }
 

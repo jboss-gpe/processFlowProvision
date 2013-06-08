@@ -61,6 +61,12 @@
         </system-properties>
 
 
+        <!-- JA Bride -->
+        <paths>
+            <path path="${openshift.pfpcore.home.dir}/${openshift.jboss.cartridge.type}/tmp/domain-${organization.name}/configuration" name="pfpConfigDir"/>
+        </paths>
+
+
 	<management>
 
             <!-- JA Bride :  added 'ApplicationRealm' back to this config -->
@@ -68,10 +74,10 @@
                 <security-realm name="ApplicationRealm">
                     <authentication>
                         <local default-user="$local" allowed-users="*"/>
-                        <properties path="application-users.properties" relative-to="jboss.server.config.dir"/>
+                        <properties path="application-users.properties" relative-to="pfpConfigDir"/>
                     </authentication>
                     <authorization>
-                        <properties path="application-roles.properties" relative-to="jboss.server.config.dir"/>
+                        <properties path="application-roles.properties" relative-to="pfpConfigDir"/>
                     </authorization>
                 </security-realm>
             </security-realms>
@@ -201,6 +207,24 @@
                                         <pool>
                                             <min-pool-size>5</min-pool-size>
                                             <max-pool-size>20</max-pool-size>
+                                        </pool>
+                                        <security>
+                                                <user-name>${env.OPENSHIFT_POSTGRESQL_DB_USERNAME}</user-name>
+                                                <password>${env.OPENSHIFT_POSTGRESQL_DB_PASSWORD}</password>
+                                        </security>
+                                        <validation>
+                      <check-valid-connection-sql>SELECT 1</check-valid-connection-sql>
+                        </validation>
+                                </datasource>
+                                <datasource jndi-name="java:/global/guvnor-cp"
+                                        enabled="true" use-java-context="true" pool-name="guvnor-cp"
+                                        use-ccm="true">
+                                        <connection-url>jdbc:postgresql://${env.OPENSHIFT_POSTGRESQL_DB_HOST}:${env.OPENSHIFT_POSTGRESQL_DB_PORT}/guvnor
+                                        </connection-url>
+                                        <driver>postgresql</driver>
+                                        <pool>
+                                            <min-pool-size>5</min-pool-size>
+                                            <max-pool-size>50</max-pool-size>
                                         </pool>
                                         <security>
                                                 <user-name>${env.OPENSHIFT_POSTGRESQL_DB_USERNAME}</user-name>
