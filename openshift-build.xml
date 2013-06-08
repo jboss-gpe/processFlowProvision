@@ -86,6 +86,14 @@
         </exec>
         <exec executable="bash" failonerror="true" dir="." >
            <arg value="${development.base}/bin/openshift.sh"/>
+           <arg value="copyFileToRemote"/>
+           <arg value="-localDir=${temp.brmsWebs.dir}"/>
+           <arg value="-file=repository.xml"/>
+           <arg value="-sshUrl=${openshift.pfpcore.ssh.url}"/>
+           <arg value="-remoteDir=${openshift.jboss.cartridge.type}/tmp/guvnor"/>
+        </exec>
+        <exec executable="bash" failonerror="true" dir="." >
+           <arg value="${development.base}/bin/openshift.sh"/>
            <arg value="openshiftRsync"/>
            <arg value="-localDir=${temp.brmsWebs.dir}/${designer.name}/*"/>
            <arg value="-sshUrl=${openshift.pfpCore.ssh.url}"/>

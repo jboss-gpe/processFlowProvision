@@ -104,18 +104,25 @@ function openshiftRsync() {
 
 
 function copyFileToRemote() {
-    getRemoteFileSize
-    localFileSize=$(ls -nl $localDir/$file | awk '{print $5}')
-    if [ $fileSize -eq $localFileSize ]; then
-        echo -en "\nno need to copy $file"
-    else
-        echo -en "\nupdate to $file is needed.  local=$localFileSize : remote=$fileSize"
+    #getRemoteFileSize
+    #localFileSize=$(ls -nl $localDir/$file | awk '{print $5}')
+    #if [ $fileSize -eq $localFileSize ]; then
+    #    echo -en "\nno need to copy $file"
+    #else
+    #    echo -en "\nupdate to $file is needed.  local=$localFileSize : remote=$fileSize"
+    #    ssh $sshUrl "
+    #        mkdir -p $remoteDir;
+    #        cd $remoteDir;
+    #        rm $file*;
+    #    "
+    #    scp $localDir/$file $sshUrl:$remoteDir
+    #fi
         ssh $sshUrl "
+            mkdir -p $remoteDir;
             cd $remoteDir;
-            rm $file*;
+            rm -f $file*;
         "
         scp $localDir/$file $sshUrl:$remoteDir
-    fi
 }
 
 # ssh -N -L {OPENSHIFT_INTERNAL_IP}:{port}:{OPENSHIFT_INTERNAL_IP}:{port} {UUID}@{appName}-{domain}.rhcloud.com
@@ -239,7 +246,7 @@ provisionAccountsWithPFP() {
     t=1
 
     # prior to looping, delete target/pfp/services to trigger a rebuild of all of PFP
-    rm -rf target/pfp/services
+    # rm -rf target/pfp/services
 
     echo -en "\n\nprovisionAccountsWithPFP() BEGIN in 5 seconds\n\n"
     sleep 5 
@@ -367,12 +374,12 @@ executeCommandsAcrossAllAccounts() {
         echo -en "\n*********   git_url = $git_url\t$totalLength\t$urlLength    **************\n"
 
         #localFile=target/lib/brmsUnzip/jboss-brms.war/WEB-INF/classes/org/drools/guvnor/server/configurations/ApplicationPreferencesInitializer.class
-        #remoteFile=jbosseap-6.0/tmp/deployments/jboss-brms.war/WEB-INF/classes/org/drools/guvnor/server/configurations/ApplicationPreferencesInitializer.class
+        #remoteFile=jbosseap/tmp/deployments/jboss-brms.war/WEB-INF/classes/org/drools/guvnor/server/configurations/ApplicationPreferencesInitializer.class
         #scp $localFile $git_url:$remoteFile
         #ssh $git_url "ls -l $remoteFile"
 
-        #ssh $git_url "ls -l jbosseap-6.0/jbosseap-6.0/standalone/log/boot.log; cd jbosseap-6.0/jbosseap-6.0/standalone/deployments/; rm *war*; app_ctl.sh stop; app_ctl.sh start"
-        #ssh $git_url "rm -rf  jbosseap-6.0/tmp/guvnor; app_ctl.sh stop;  app_ctl.sh start"
+        #ssh $git_url "ls -l jbosseap/standalone/log/boot.log; cd jbosseap/standalone/deployments/; rm *war*; app_ctl.sh stop; app_ctl.sh start"
+        #ssh $git_url "rm -rf  jbosseap/tmp/guvnor; app_ctl.sh stop;  app_ctl.sh start"
         numJVMs=$(ssh $git_url "
             ps -aef | grep -c '\[Standalone\]'
         ")
@@ -382,7 +389,7 @@ executeCommandsAcrossAllAccounts() {
         ")
         echo -ne "\nnum of postgresql processes = $numPostgresql"
         timestamp=$(ssh $git_url "
-            ls -l jbosseap-6.0/jbosseap-6.0/standalone/log/boot.log
+            ls -l jbosseap/standalone/log/boot.log
         ")
         echo -ne "\ntimestamp of server.log = $timestamp"
 
