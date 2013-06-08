@@ -276,7 +276,7 @@
                 <property name="org.jboss.processFlow.remoting.ejb.receiver" value=""/>
                 <property name="org.jboss.processFlow.remoting.ha.group.ejb.receiver" value="" />
                 <property name="openshift.drools.session.template.path" 
-                        value="${openshift.pfpcore.home.dir}/${openshift.jboss.cartridge.type}/${openshift.jboss.cartridge.type}/standalone/configuration/drools.session.template"/>
+                        value="${openshift.pfpcore.home.dir}/${openshift.jboss.cartridge.type}/tmp/domain-${organization.name}/configuration/drools.session.template"/>
             </then>
             <else>
                 <property name="jbpm.console.server.host" value="${os.hostname}"/>

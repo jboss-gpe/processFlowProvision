@@ -47,7 +47,7 @@
                             <param name="dest.dir" value="${temp.jboss.dir}/domain-${organization.name}/configuration"/>
                         </antcall>
                         <antcall target="filter">
-                            <param name="source.dir" value="conf/brmsWebs/drools-guvnor"/>
+                            <param name="source.dir" value="conf/brmsWebs/drools-guvnor/clustered" />
                             <param name="file.name" value="repository.xml"/>
                             <param name="dest.dir" value="${temp.brmsWebs.dir}"/>
                         </antcall>
@@ -216,12 +216,17 @@
             <param name="file.name" value="components.xml"/>
             <param name="dest.dir" value="${guvnor.target}/WEB-INF"/>
         </antcall>
+        <antcall target="filter">
+            <param name="source.dir" value="conf/brmsWebs/drools-guvnor" />
+            <param name="file.name" value="repository.xml"/>
+            <param name="dest.dir" value="${temp.brmsWebs.dir}"/>
+        </antcall>
         <if>
             <equals arg1="${org.jboss.processFlow.brmsWebs.clustered}" arg2="true" />
             <then>
                 <property name="serverIpAddr" value="master" />
                 <antcall target="filter">
-                    <param name="source.dir" value="conf/brmsWebs/drools-guvnor"/>
+                    <param name="source.dir" value="conf/brmsWebs/drools-guvnor/clustered"/>
                     <param name="file.name" value="repository.xml"/>
                     <param name="dest.dir" value="${local.guvnor.repo.location}"/>
                 </antcall>
