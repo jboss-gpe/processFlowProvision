@@ -294,23 +294,23 @@ provisionAccountsWithPFP() {
         echo -n "is.deployment.local=false" >> target/openshiftAccount.properties
 
         echo -en "\n\nprovisionAccountsWithPFP() ***** now provisioning: $i with brms/pfp :  log can be found in /tmp/$i.log\n\n"; 
-        #if ant openshift.provision.pfp.core -Dbounce.servers=false > /tmp/$i.log 2>&1
-        #then
-        #    echo "just provisioned $i with brms/pfp"
-        #else
-        #    echo "ERROR :  please review /tmp/$i.log"
-        #    exit 1
-        #fi
+        if ant openshift.provision.pfp.core -Dbounce.servers=false > /tmp/$i.log 2>&1
+        then
+            echo "just provisioned $i with brms/pfp"
+        else
+            echo "ERROR :  please review /tmp/$i.log"
+            exit 1
+        fi
 
-        #echo -en "\n\nprovisionAccountsWithPFP() ***** now provisioning: $i with bldw :  log can be found in /tmp/$i.bldw.log\n\n"; 
-        #cd $bldwProvisionProjectLocation
-        #if ant > /tmp/$i.bldw.log 2>&1
-        #then
-        #    echo "just provisioned $i with bldw"
-        #else
-        #    echo "ERROR :  please review /tmp/$i.bldw.log"
-        #    exit 1
-        #fi
+        echo -en "\n\nprovisionAccountsWithPFP() ***** now provisioning: $i with bldw :  log can be found in /tmp/$i.bldw.log\n\n"; 
+        cd $bldwProvisionProjectLocation
+        if ant > /tmp/$i.bldw.log 2>&1
+        then
+            echo "just provisioned $i with bldw"
+        else
+            echo "ERROR :  please review /tmp/$i.bldw.log"
+            exit 1
+        fi
     	cd $JBOSS_PROJECTS/processFlowProvision
         ((t++))
     done
