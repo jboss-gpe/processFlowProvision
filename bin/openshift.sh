@@ -60,6 +60,9 @@ do
         -bldwProvisionProjectLocation=*)
             bldwProvisionProjectLocation=`echo $var | cut -f2 -d\=`
             ;;
+        -skipFullBuild=*)
+            skipFullBuild=`echo $var | cut -f2 -d\=`
+            ;;
     esac
 done
 
@@ -230,7 +233,7 @@ setRSAkeyAndNamespaceOnAccounts() {
     done
 }
 
-# iterates through accounts in ${openshift.account.details.file.location}, creates an Ant property file invokes the 'openshift.provision.both' target
+# iterates through accounts in ${openshift.account.details.file.location}, creates an Ant property file and invokes the ant 'openshift.provision.pfp.core' target
 provisionAccountsWithPFP() {
     checkLocalJDKVersion
 
@@ -246,7 +249,12 @@ provisionAccountsWithPFP() {
     t=1
 
     # prior to looping, delete target/pfp/services to trigger a rebuild of all of PFP
-    # rm -rf target/pfp/services
+    if [ "$skipFullBuild" = "true" ]; 
+        then
+            echo -en "\nwill not trigger a full rebuild of PFP\n\n";
+        else
+            rm -rf target/pfp/services;
+    fi
 
     echo -en "\n\nprovisionAccountsWithPFP() BEGIN in 5 seconds\n\n"
     sleep 5 
@@ -263,6 +271,16 @@ provisionAccountsWithPFP() {
                 echo "openshift.pfpcore.user.hash for account $i in $osAccountDetailsFileLocation is:$pfpcoreUserHash:";
         fi
 
+        #ssh directly to gear, retrieve internal_ip and use this value to replace inline openshift_account_details using
+        eval ssh_url=\"`xmlstarlet sel -t -n -m '//openshiftAccounts/account['$t']'/pfpcore -v 'git_url' -n $osAccountDetailsFileLocation` \"
+        ssh_url=${ssh_url:7}
+        totalLength=${#ssh_url}
+        urlLength=$(($totalLength-20))
+        ssh_url=${ssh_url:0:$urlLength}
+        eval internalIp=\"`ssh $ssh_url 'echo $OPENSHIFT_JBOSSEAP_IP'` \"
+        echo -en "\nssh_url = $ssh_url : internalIp = $internalIp\n"
+        xmlstarlet ed -L -u '//openshiftAccounts/account['$t']'/pfpcore/internal_ip -v $internalIp $osAccountDetailsFileLocation
+
         # create openshiftAccount.properties file used by bldw provisioning
         echo -n "" > target/openshiftAccount.properties
         xmlstarlet sel -t -n -m '//openshiftAccounts/account['$t']' -n \
@@ -276,23 +294,23 @@ provisionAccountsWithPFP() {
         echo -n "is.deployment.local=false" >> target/openshiftAccount.properties
 
         echo -en "\n\nprovisionAccountsWithPFP() ***** now provisioning: $i with brms/pfp :  log can be found in /tmp/$i.log\n\n"; 
-        if ant openshift.provision.pfp.core -Dbounce.servers=false > /tmp/$i.log 2>&1
-        then
-            echo "just provisioned $i with brms/pfp"
-        else
-            echo "ERROR :  please review /tmp/$i.log"
-            exit 1
-        fi
+        #if ant openshift.provision.pfp.core -Dbounce.servers=false > /tmp/$i.log 2>&1
+        #then
+        #    echo "just provisioned $i with brms/pfp"
+        #else
+        #    echo "ERROR :  please review /tmp/$i.log"
+        #    exit 1
+        #fi
 
-        echo -en "\n\nprovisionAccountsWithPFP() ***** now provisioning: $i with bldw :  log can be found in /tmp/$i.bldw.log\n\n"; 
-        cd $bldwProvisionProjectLocation
-        if ant > /tmp/$i.bldw.log 2>&1
-        then
-            echo "just provisioned $i with bldw"
-        else
-            echo "ERROR :  please review /tmp/$i.bldw.log"
-            exit 1
-        fi
+        #echo -en "\n\nprovisionAccountsWithPFP() ***** now provisioning: $i with bldw :  log can be found in /tmp/$i.bldw.log\n\n"; 
+        #cd $bldwProvisionProjectLocation
+        #if ant > /tmp/$i.bldw.log 2>&1
+        #then
+        #    echo "just provisioned $i with bldw"
+        #else
+        #    echo "ERROR :  please review /tmp/$i.bldw.log"
+        #    exit 1
+        #fi
     	cd $JBOSS_PROJECTS/processFlowProvision
         ((t++))
     done

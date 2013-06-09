@@ -63,7 +63,7 @@
 
         <!-- JA Bride -->
         <paths>
-            <path path="${openshift.pfpcore.home.dir}/${openshift.jboss.cartridge.type}/tmp/domain-${organization.name}/configuration" name="pfpConfigDir"/>
+            <path path="${openshift.pfpcore.config.dir}/" name="pfpConfigDir"/>
         </paths>
 
 

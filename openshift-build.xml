@@ -30,9 +30,14 @@
         </antcall>
         <delete file="${openshift.pfpcore.app.location}/pom.xml" />
         <delete file="${openshift.pfpcore.app.location}/.openshift/markers/java7" />
-        <antcall target="addUserRoleConfigs" >
-            <param name="config.path" value="${openshift.pfpcore.app.location}/.openshift/config"/>
-        </antcall>
+        <exec executable="bash" failonerror="true" dir="." >
+           <arg value="${development.base}/bin/openshift.sh"/>
+           <arg value="copyFileToRemote"/>
+           <arg value="-localDir=conf/jboss/"/>
+           <arg value="-file=*.properties"/>
+           <arg value="-sshUrl=${openshift.pfpcore.ssh.url}"/>
+           <arg value="-remoteDir=${openshift.pfpcore.config.dir}"/>
+        </exec>
         <copy todir="${openshift.pfpcore.app.location}/deployments" overwrite="true" >
             <fileset dir="${temp.pfp.services.dir}" >
                 <include name="*.jar" />
@@ -48,7 +53,7 @@
            <arg value="openshiftRsync"/>
            <arg value="-localDir=${temp.brmsWebs.dir}/${console.server.name}/*"/>
            <arg value="-sshUrl=${openshift.pfpcore.ssh.url}"/>
-           <arg value="-remoteDir=${openshift.jboss.cartridge.type}/tmp/deployments/${console.server.name}"/>
+           <arg value="-remoteDir=${openshift.pfpcore.config.dir}/deployments/${console.server.name}"/>
            <arg value="-rsyncDelete=true"/>
         </exec> 
         <exec executable="bash" failonerror="true" dir="." >
@@ -56,7 +61,7 @@
            <arg value="openshiftRsync"/>
            <arg value="-localDir=${temp.brmsWebs.dir}/${console.name}/*"/>
            <arg value="-sshUrl=${openshift.pfpcore.ssh.url}"/>
-           <arg value="-remoteDir=${openshift.jboss.cartridge.type}/tmp/deployments/${console.name}"/>
+           <arg value="-remoteDir=${openshift.pfpcore.config.dir}/deployments/${console.name}"/>
            <arg value="-rsyncDelete=true"/>
         </exec> 
         <if>
@@ -81,7 +86,7 @@
            <arg value="openshiftRsync"/>
            <arg value="-localDir=${temp.brmsWebs.dir}/${guvnor.name}/*"/>
            <arg value="-sshUrl=${openshift.pfpcore.ssh.url}"/>
-           <arg value="-remoteDir=${openshift.jboss.cartridge.type}/tmp/deployments/${guvnor.name}"/>
+           <arg value="-remoteDir=${openshift.pfpcore.config.dir}/deployments/${guvnor.name}"/>
            <arg value="-rsyncDelete=true"/>
         </exec>
         <exec executable="bash" failonerror="true" dir="." >
@@ -90,14 +95,14 @@
            <arg value="-localDir=${temp.brmsWebs.dir}"/>
            <arg value="-file=repository.xml"/>
            <arg value="-sshUrl=${openshift.pfpcore.ssh.url}"/>
-           <arg value="-remoteDir=${openshift.jboss.cartridge.type}/tmp/guvnor"/>
+           <arg value="-remoteDir=${openshift.pfpcore.config.dir}/guvnor"/>
         </exec>
         <exec executable="bash" failonerror="true" dir="." >
            <arg value="${development.base}/bin/openshift.sh"/>
            <arg value="openshiftRsync"/>
            <arg value="-localDir=${temp.brmsWebs.dir}/${designer.name}/*"/>
            <arg value="-sshUrl=${openshift.pfpcore.ssh.url}"/>
-           <arg value="-remoteDir=${openshift.jboss.cartridge.type}/tmp/deployments/${designer.name}"/>
+           <arg value="-remoteDir=${openshift.pfpcore.config.dir}/deployments/${designer.name}"/>
            <arg value="-rsyncDelete=true"/>
         </exec>
     </target>
@@ -137,12 +142,12 @@
             <param name="file.name" value="repository.xml"/>
             <param name="dest.dir" value="target/tmp"/>
         </antcall>
-        <exec executable="bash" failonerror="true" dir="." >
+        <!--exec executable="bash" failonerror="true" dir="." >
            <arg value="${development.base}/bin/openshift.sh"/>
            <arg value="refreshGuvnor"/>
            <arg value="-sshUrl=${ssh.url}"/>
            <arg value="-remoteDir=${os.data.dir}/guvnor"/>
-        </exec> 
+        </exec --> 
 
     </target>
 
@@ -155,7 +160,7 @@
            <arg value="openshiftRsync"/>
            <arg value="-localDir=${temp.jboss.dir}/*"/>
            <arg value="-sshUrl=${openshift.pfpcore.ssh.url}"/>
-           <arg value="-remoteDir=${openshift.jboss.cartridge.type}/tmp"/>
+           <arg value="-remoteDir=${openshift.pfpcore.config.dir}"/>
            <arg value="-rsyncDelete=true"/>
         </exec> 
     </target>
@@ -199,6 +204,7 @@
            <arg value="${development.base}/bin/openshift.sh"/>
            <arg value="provisionAccountsWithPFP"/>
            <arg value="-bldwProvisionProjectLocation=${bldw.provision.project.location}"/>
+           <arg value="-skipFullBuild=${openshift.skip.full.build}"/>
         </exec> 
     </target>
 
