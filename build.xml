@@ -607,7 +607,6 @@
                     <equals arg1="${refresh.master}" arg2="true" />
                     <then><antcall target="refresh.master" /></then>
                 </if>
-                <!--copy file="conf/pfp/default.session.template" tofile="${drools.session.template.path}" overwrite="true" / -->
                 <math result="hornetq.remoting.port" operand1="${base.remoting.port}" operation="+" operand2="${hornetq.group.port.offset}" datatype="int" />
                 <antcall target="cli.batch">
                     <param name="cli.source.dir" value="conf/pfp"/>
