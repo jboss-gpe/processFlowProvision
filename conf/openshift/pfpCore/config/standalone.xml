@@ -44,6 +44,8 @@
             <property name="org.jboss.processFlow.task.enableIntelligentMapping" value="${org.jboss.processFlow.task.enableIntelligentMapping}"/>
             <property name="org.jboss.processFlow.KnowledgeSessionPool" value="${org.jboss.processFlow.KnowledgeSessionPool}"/>
             <property name="org.jboss.processFlow.statefulKnowledge.enableKnowledgeRuntimeLogger" value="${org.jboss.processFlow.statefulKnowledge.enableKnowledgeRuntimeLogger}"/>
+            <property name="org.jboss.processFlow.kAgentMonitor" value="${org.jboss.processFlow.kAgentMonitor}"/>
+            <property name="org.jboss.processFlow.kAgentRefreshHours" value="${org.jboss.processFlow.kAgentRefreshHours}"/>
             <property name="space.delimited.process.event.listeners" value="${space.delimited.process.event.listeners}"/>
             <property name="task.clean.up.process.event.listener.impl" value="${task.clean.up.process.event.listener.impl}"/>
             <property name="org.jboss.processFlow.drools.resource.scanner.interval" value="${org.jboss.processFlow.drools.resource.scanner.interval}"/>
@@ -61,7 +63,7 @@
 
         <!-- JA Bride -->
         <paths>
-            <path path="${openshift.pfpcore.home.dir}/${openshift.jboss.cartridge.type}/tmp/domain-${organization.name}/configuration" name="pfpConfigDir"/>
+            <path path="${openshift.pfpcore.config.dir}/" name="pfpConfigDir"/>
         </paths>
 
 
@@ -151,7 +153,7 @@
 				</datasource>
 				<datasource jndi-name="java:jboss/datasources/MysqlDS"
 					enabled="false" use-java-context="true" pool-name="MysqlDS">
-					<connection-url>jdbc:mysql://${env.OPENSHIFT_POSTGRESQL_DB_HOST}:${env.OPENSHIFT_POSTGRESQL_DB_PORT}/pfpCore
+					<connection-url>jdbc:mysql://${env.OPENSHIFT_POSTGRESQL_DB_HOST}:${env.OPENSHIFT_POSTGRESQL_DB_PORT}/pfpcore
 					</connection-url>
 					<driver>mysql</driver>
 					<security>
@@ -165,7 +167,7 @@
 				<datasource jndi-name="java:jboss/datasources/PostgreSQLDS"
 					enabled="false" use-java-context="true" pool-name="PostgreSQLDS"
 					use-ccm="true">
-					<connection-url>jdbc:postgresql://${env.OPENSHIFT_POSTGRESQL_DB_HOST}:${env.OPENSHIFT_POSTGRESQL_DB_PORT}/pfpCore
+					<connection-url>jdbc:postgresql://${env.OPENSHIFT_POSTGRESQL_DB_HOST}:${env.OPENSHIFT_POSTGRESQL_DB_PORT}/pfpcore
 					</connection-url>
 					<driver>postgresql</driver>
 					<security>

@@ -42,17 +42,17 @@ createSoftLinksToWebArchives() {
     # remove any stale links or status files referencing the brms web archives
     rm -f b*war* d*war* j*war*
 
-    ln -s ~/${openshift.jboss.cartridge.type}/tmp/deployments/${console.server.name}
+    ln -s ${openshift.pfpcore.config.dir}/deployments/${console.server.name}
     touch ${console.server.name}.dodeploy
 
 
-    ln -s ~/${openshift.jboss.cartridge.type}/tmp/deployments/${console.name}
+    ln -s ${openshift.pfpcore.config.dir}/deployments/${console.name}
     touch ${console.name}.dodeploy
 
-    ln -s ~/${openshift.jboss.cartridge.type}/tmp/deployments/${designer.name}
+    ln -s ${openshift.pfpcore.config.dir}/deployments/${designer.name}
     touch ${designer.name}.dodeploy
 
-    ln -s ~/${openshift.jboss.cartridge.type}/tmp/deployments/${guvnor.name}
+    ln -s ${openshift.pfpcore.config.dir}/deployments/${guvnor.name}
     touch ${guvnor.name}.dodeploy
 }
 
