@@ -4,7 +4,7 @@ echo "** inside pre_start_jbosseap "
 
 # now increasing PermGen and lowering heap
 export JAVA_OPTS="-client -Xmx664m -XX:MaxPermSize=256m -XX:+AggressiveOpts -Dorg.jboss.resolver.warning=true -Djava.net.preferIPv4Stack=true -Dfile.encoding=UTF-8 -Djava.net.preferIPv4Stack=true -Djboss.node.name=${OPENSHIFT_GEAR_DNS} -Djgroups.bind_addr=${OPENSHIFT_INTERNAL_IP}"
-export OPENSHIFT_JBOSSEAP_MODULE_PATH=$JBOSS_MODULEPATH:$HOME/${openshift.jboss.cartridge.type}/tmp/pfpModules:$HOME/${openshift.jboss.cartridge.type}/tmp/gpseModules
+export OPENSHIFT_JBOSSEAP_MODULE_PATH=$JBOSS_MODULEPATH:${openshift.pfpcore.config.dir}/pfpModules:${openshift.pfpcore.config.dir}/gpseModules
 
 printJvmCount() {
     mkdir -p ~/${openshift.jboss.cartridge.type}/tmp/log
