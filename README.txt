@@ -10,18 +10,16 @@ Jeff Bride
 welcome Java developers to Process Flow Provision
 you have reached the location where PFP source code is centrally maintained
 
-if you are a JEE and *nix administrator, recommend pointing your browser to 
-the following to download a PFP binary distribution :
-    http://people.redhat.com/jbride
-
-for Java developers, please review :
+for Java /*nix administrators, please review :
     1)  docs/ADMIN_GUIDE.txt 
+
+for Java developers, please review docs/ADMIN_GUIDE.txt and in addition:
     2)  docs/DEVELOPER_GUIDE.txt
 
 
 
 OVERVIEW
-  - PFP is a downstream project to BRMS 5.3 Deployable
+  - PFP is a downstream project to BRMS 5.3.* "Deployable"
   - purpose of PFP :
     - provide an example of one possible production BRMS environment using 
       BRMS deployable libraries
@@ -70,13 +68,13 @@ LEGAL
 
 FEATURES 
 1)  automated provisioning
-    - Automates provisioning of BRMS deployable libraries on JBoss EAP 5.1
-    - Automates Hornetq or MRG-M standalone configuration
-    - Provides PostgreSQL and mysql configuration templates
+    - Automates provisioning of BRMS deployable libraries on JBoss EAP in a *nix environment
+    - Automates configuration of hornetq in ha clustered mode
+    - Provides PostgreSQL, mysql and Oracle RDBMS configuration templates
 
 
 2)  centralized configuration
-    - centralized configuration of jbpm5 properties during build phase 
+    - centralized configuration of jbpm properties during build phase 
       - (via a single build.properties)
     - purpose
         - BRMS deployable has configuration files throughout it's various 
@@ -89,17 +87,17 @@ FEATURES
 
 3)  database integration
     - integrated and performance tested  using postgresql
-    - all jbpm5 / drools components now using one of 3 JCA connection pools:
+    - all jbpm / drools components now using one of 3 JCA connection pools:
         1)  jbpm-core-cp
         2)  jbpm-bam
-        1)  guvnor-cp
+        3)  guvnor-cp
 
 
 4)  CDI singleton services
     - Exposes full functionality of BRMS APIs to remote clients
     - Allows for scalability / fail-over in distributed environment
     - Allows for wrapping with EJB, REST or SOAP endpoints
-    - avoids management of jbpm5/drools knowledge sessions in client code
+    - avoids management of jbpm/drools knowledge sessions in client code
     - simplifies usability of the jpm5 engine from the client perspective
 
 
@@ -112,7 +110,7 @@ FEATURES
 
 
 6)  task functionality
-    - No longer uses a Mina /Hornet-q messaging provider nor jbpm5 "Task Server"
+    - No longer uses a Mina /Hornet-q messaging provider nor jbpm "Task Server"
     - instead, exposes task related API as EJB3
     - greatly simplifies environment
     - substantial performance and concurrency improvements 
@@ -121,7 +119,7 @@ FEATURES
 
 
 7)  StatefulKnowledgeSession management:
-    - drools/jbpm5 process engine functionality is centralized
+    - drools/jbpm process engine functionality is centralized
     - forwards process engine BAM events to a messaging provider
     - significantly more performant than persisting BAM event to RDBMS in same
       thread of execution as process engine
