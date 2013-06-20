@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# appears this script gets called twice upon start-up
+#  1)  when jboss cart starts
+#  2)  when postgresql cart starts
+
+echo "** inside pre_start "
+
+modifyJvmSettings() {
+    # now increasing PermGen and lowering heap
+    echo -en "pre_start:  about to modify jvm settings\n"
+    export JAVA_OPTS="-client -Xmx664m -XX:MaxPermSize=256m -XX:+AggressiveOpts -Dorg.jboss.resolver.warning=true -Djava.net.preferIPv4Stack=true -Dfile.encoding=UTF-8 -Djava.net.preferIPv4Stack=true -Djboss.node.name=${OPENSHIFT_GEAR_DNS} -Djgroups.bind_addr=${OPENSHIFT_JBOSSEAP_IP} -Dorg.apache.coyote.http11.Http11Protocol.COMPRESSION=on"
+    export OPENSHIFT_JBOSSEAP_MODULE_PATH=${openshift.pfpcore.config.dir}/pfpModules:${openshift.pfpcore.config.dir}/gpseModules
+}
+
+printJvmCount() {
+    mkdir -p ~/${openshift.jboss.cartridge.type}/tmp/log
+    echo `date` > ~/${openshift.jboss.cartridge.type}/tmp/log/pre_start.log
+    for jProc in `ps -C java -o pid=`;
+    do
+        echo "java process id = $jProc\t" >> ~/${openshift.jboss.cartridge.type}/tmp/log/pre_start.log
+    done 
+}
+
+printJvmCount
+modifyJvmSettings

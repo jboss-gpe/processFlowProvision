@@ -390,6 +390,7 @@ executeCommandsAcrossAllAccounts() {
         git_url=${git_url:0:$urlLength}
         echo -en "\n"
         echo -en "\n*********   git_url = $git_url\t$totalLength\t$urlLength    **************\n"
+        ssh $git_url "ps -aef | grep java"
 
         #localFile=target/lib/brmsUnzip/jboss-brms.war/WEB-INF/classes/org/drools/guvnor/server/configurations/ApplicationPreferencesInitializer.class
         #remoteFile=jbosseap/tmp/deployments/jboss-brms.war/WEB-INF/classes/org/drools/guvnor/server/configurations/ApplicationPreferencesInitializer.class
@@ -398,18 +399,18 @@ executeCommandsAcrossAllAccounts() {
 
         #ssh $git_url "ls -l jbosseap/standalone/log/boot.log; cd jbosseap/standalone/deployments/; rm *war*; app_ctl.sh stop; app_ctl.sh start"
         #ssh $git_url "rm -rf  jbosseap/tmp/guvnor; app_ctl.sh stop;  app_ctl.sh start"
-        numJVMs=$(ssh $git_url "
-            ps -aef | grep -c '\[Standalone\]'
-        ")
-        echo -ne "num of JVMs = $numJVMs"
-        numPostgresql=$(ssh $git_url "
-            ps -aef | grep -c '\/usr\/bin\/postgres'
-        ")
-        echo -ne "\nnum of postgresql processes = $numPostgresql"
-        timestamp=$(ssh $git_url "
-            ls -l jbosseap/standalone/log/boot.log
-        ")
-        echo -ne "\ntimestamp of server.log = $timestamp"
+        #numJVMs=$(ssh $git_url "
+        #    ps -aef | grep -c '\[Standalone\]'
+        #")
+        #echo -ne "num of JVMs = $numJVMs"
+        #numPostgresql=$(ssh $git_url "
+        #    ps -aef | grep -c '\/usr\/bin\/postgres'
+        #")
+        #echo -ne "\nnum of postgresql processes = $numPostgresql"
+        #timestamp=$(ssh $git_url "
+        #    ls -l jbosseap/standalone/log/boot.log
+        #")
+        #echo -ne "\ntimestamp of server.log = $timestamp"
 
         ((t++))
     done

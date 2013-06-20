@@ -34,6 +34,8 @@
 		<extension module="org.jboss.as.weld" />
 	</extensions>
 
+
+
         <!-- JA Bride :  added system properties -->
         <system-properties>
             <property name="organization.name" value="${organization.name}"/>
@@ -108,6 +110,11 @@
                                 <!-- JA Bride :  switched to false and added TRACE -->
                                 <append value="false" />
                                 <level name="TRACE"/>
+
+                                <!-- JA Bride:  filter out all jbpm5 related log messages related to its inability to correctly parse BPMN2 as per :
+                                https://community.jboss.org/message/784580?tstart=0 -->
+                                <filter-spec value="not(match(&quot;BPMN20.xsd|dc:Point|bpmn2:tFormalExpression|bpmn2:definitions&quot;))"/>
+
 
 			</periodic-rotating-file-handler>
                         <logger category="org.apache.jackrabbit.core.TransientRepository" use-parent-handlers="true">
