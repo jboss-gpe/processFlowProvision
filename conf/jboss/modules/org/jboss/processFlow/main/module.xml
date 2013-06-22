@@ -48,6 +48,8 @@
         <!-- needed by bamService, knowledgeSessionService and various org.jboss.processFlow static libraries -->
         <module name="org.jboss.marshalling" export="true" />
         <module name="org.jboss.marshalling.river" export="true" />
+        
+        <module name="com.google.gson" export="true" />
 
     </dependencies>
 </module>
