@@ -56,6 +56,7 @@
             <fileset dir="${temp.brms.unzip.dir}/${console.sub.domain}-server.war/WEB-INF/lib/" >
                 <include name="jbpm-gwt-*.jar" />
                 <include name="gwt-console-*.jar" />
+            	<include name="gson-1.2.2.jar" />
            </fileset>
         </path>
         <if>
