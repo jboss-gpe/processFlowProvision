@@ -523,8 +523,13 @@
             <param name="non.openshift.environment" value="true"/>
         </antcall>
         <!-- https://community.jboss.org/wiki/LayeredDistributionsAndModulePathOrganization -->
-        <copy todir="${temp.jboss.dir}/modules" file="conf/jboss/modules/layers.conf" overwrite="true" />
-        <copy todir="${jboss.home}/modules" file="conf/jboss/modules/layers.conf" overwrite="true" />
+        <!--copy todir="${temp.jboss.dir}/modules" file="conf/jboss/modules/layers.conf" overwrite="true" / -->
+        <mkdir dir="${jboss.home}/modules/system/layers/${organization.name}" />
+        <antcall target="filter">
+            <param name="source.dir" value="conf/jboss/modules/"/>
+            <param name="file.name" value="layers.conf"/>
+            <param name="dest.dir" value="${jboss.home}/modules"/>
+        </antcall>
     </target>
 
     <target name="resolve.droolsjbpm.dependencies" >

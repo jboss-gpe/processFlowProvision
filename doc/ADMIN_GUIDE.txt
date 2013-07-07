@@ -174,17 +174,17 @@ INSTALL   :
 
 
     --  postgresql RDBMS
-            -- if using Fedora 14/15/16 or RHEL 6
                 (as root) :     yum install postgresql
                                 yum install postgresql-server
                                 yum install postgresql-jdbc
 
-            --  ensure that postgresql 'service' is on at runlevels 3,4 & 5 (RHEL 5.*, Fedora 14)
+            --  ensure that postgresql 'service' is on at runlevels 3,4 & 5
                 (as root) :     chkconfig --level 345 postgresql on
             --  change password of 'postgres' operating system user to 'postgres'
                 (as root) :      passwd postgres
           
             --  ensure that postgresql 'service' is automatically started at boot (Fedora 16+)
+                (as root) :     postgresql-setup initdb
                 (as root) :     systemctl enable postgresql.service
                 (as root) :     systemctl start postgresql.service
 

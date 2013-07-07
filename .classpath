@@ -33,6 +33,7 @@
 	<classpathentry kind="var" path="JBOSS_HOME/modules/system/layers/pfp/org/jbpm/5/jbpm-human-task-5.3.1.BRMS.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/modules/system/layers/pfp/org/jbpm/5/jbpm-persistence-jpa-5.3.1.BRMS.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/modules/system/layers/pfp/org/jbpm/5/jbpm-workitems-5.3.1.BRMS.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/modules/system/layers/pfp/com/google/gson/main/gson-1.2.2.jar"/>
 	<classpathentry kind="src" path="osProvision/src/main/java"/>
 	<classpathentry kind="src" path="pfpServices/adminConsole/src/main/java"/>
 	<classpathentry kind="src" path="pfpServices/bam/src/main/java"/>
@@ -40,10 +41,10 @@
 	<classpathentry kind="src" path="pfpServices/interfaces/src/main/java"/>
 	<classpathentry kind="src" path="pfpServices/knowledgeSessionService/src/main/java"/>
 	<classpathentry kind="src" path="pfpServices/taskService/src/main/java"/>
-	<classpathentry kind="src" path="pfpServices/knowledgeSessionService/src/main/webapp/WEB-INF/classes"/>
 	<classpathentry kind="src" path="pfpServicesTest/src/main/webapp/WEB-INF/classes"/>
 	<classpathentry kind="src" path="pfpServicesTest/src/test/java"/>
 	<classpathentry kind="src" path="pfpServices/haTimerService/src/main/java"/>
+	<classpathentry kind="src" path="pfpServices/pfpRest/src/main/webapp/WEB-INF/classes"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-bam"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-bpmn2"/>
