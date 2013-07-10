@@ -120,7 +120,7 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
     public void stop() throws Exception{
         log.info("stop");
         try {
-        	rManager.close();
+            rManager.close();
             platformMBeanServer.unregisterMBean(this.objectName);
         } catch (Exception e) {
             throw new RuntimeException("stop() Problem during unregistration of Monitoring into JMX:" + e);
@@ -128,35 +128,35 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
     }
     
     private void createRuntimeEnvironmentBuilder() {
-    	reBuilder = RuntimeEnvironmentBuilder.getDefault()
-    		.registerableItemsFactory(new org.jbpm.runtime.manager.impl.DefaultRegisterableItemsFactory())
-    		.entityManagerFactory(this.jbpmCoreEMF)
-    	    .userGroupCallback(new PFPUserGroupCallback());
+        reBuilder = RuntimeEnvironmentBuilder.getDefault()
+            .registerableItemsFactory(new org.jbpm.runtime.manager.impl.DefaultRegisterableItemsFactory())
+            .entityManagerFactory(this.jbpmCoreEMF)
+            .userGroupCallback(new PFPUserGroupCallback());
     }
     
     private synchronized void createRuntimeManager() {
-    	if(rEnvironment != null)
-        	rEnvironment.close();
-    	
+        if(rEnvironment != null)
+            rEnvironment.close();
+        
         if(rManager != null)
             rManager.close();
-    	    
+            
         rEnvironment = reBuilder.get();
         rManager = RuntimeManagerFactory.Factory.get().newPerProcessInstanceRuntimeManager(rEnvironment);
     }
     
     public void addAssetToRuntimeEnvironment(File processFile){
         reBuilder.addAsset(ResourceFactory.newFileResource(processFile), ResourceType.BPMN2);
-    	
-    	this.createRuntimeManager();
+        
+        this.createRuntimeManager();
     }
     
     public void addAssetToRuntimeEnvironment(Process processObj, Resource resourceObj){
-    	
+        
     }
     
     public void addProcessToKnowledgeBase(File processFile){
-    	this.addAssetToRuntimeEnvironment(processFile);
+        this.addAssetToRuntimeEnvironment(processFile);
     }
     
     /**
@@ -205,7 +205,7 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
                 returnMap.put(IKnowledgeSessionService.KSESSION_ID, kSession.getId());
                 return returnMap;
             }finally {
-            	kSession.execute(new CMTDisposeCommand());
+                kSession.execute(new CMTDisposeCommand());
             }
         }
     }
