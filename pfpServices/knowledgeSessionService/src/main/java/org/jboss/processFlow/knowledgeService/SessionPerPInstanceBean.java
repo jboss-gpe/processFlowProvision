@@ -491,7 +491,6 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
 
                 ksession = loadStatefulKnowledgeSessionAndAddExtras(ksessionId);
                 ksession.abortProcessInstance(processInstanceId);
-                sessionPool.markAsReturned(ksessionId);
             }finally {
                 if(ksession != null)
                     disposeStatefulKnowledgeSessionAndExtras(ksessionId);
@@ -561,15 +560,15 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
                 StatefulKnowledgeSession ksession = loadStatefulKnowledgeSessionAndAddExtras(ksessionId);
                 ProcessInstance processInstance = ksession.getProcessInstance(processInstanceId);
                 if (processInstance != null) {
-                	VariableScopeInstance variableScope = (VariableScopeInstance)((org.jbpm.process.instance.ProcessInstance) processInstance).getContextInstance(VariableScope.VARIABLE_SCOPE);
-                	if (variableScope == null) {
-                		throw new IllegalArgumentException("Could not find variable scope for process instance " + processInstanceId);
-                	}
-                	for (Map.Entry<String, Object> entry: variables.entrySet()) {
-                		variableScope.setVariable(entry.getKey(), entry.getValue());
-                	}
+                    VariableScopeInstance variableScope = (VariableScopeInstance)((org.jbpm.process.instance.ProcessInstance) processInstance).getContextInstance(VariableScope.VARIABLE_SCOPE);
+                    if (variableScope == null) {
+                        throw new IllegalArgumentException("Could not find variable scope for process instance " + processInstanceId);
+                    }
+                    for (Map.Entry<String, Object> entry: variables.entrySet()) {
+                        variableScope.setVariable(entry.getKey(), entry.getValue());
+                    }
                 } else {
-                	throw new IllegalArgumentException("Could not find process instance " + processInstanceId);
+                    throw new IllegalArgumentException("Could not find process instance " + processInstanceId);
                 }
                 
             }finally {
@@ -604,27 +603,26 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
         if(ksessionId == null)
             ksessionId = sessionPool.getSessionId(processInstanceId);
 
-        StatefulKnowledgeSession ksession = null;
         Map<String, Object> result = new HashMap<String, Object>();
         try {
-        	loadStatefulKnowledgeSessionAndAddExtras(ksessionId);
+            StatefulKnowledgeSession ksession = this.loadStatefulKnowledgeSessionAndAddExtras(ksessionId);
             ProcessInstance processInstance = ksession.getProcessInstance(processInstanceId);
             if (processInstance != null) {
-            	Map<String, Object> variables = ((WorkflowProcessInstanceImpl) processInstance).getVariables();
-            	if (variables == null) {
-            		return new HashMap<String, Object>();
-            	}
-            	// filter out null values
-            	for (Map.Entry<String, Object> entry: variables.entrySet()) {
-            		if (entry.getValue() != null) {
-            			result.put(entry.getKey(), entry.getValue());
-            		}
-            	}
+                Map<String, Object> variables = ((WorkflowProcessInstanceImpl) processInstance).getVariables();
+                if (variables == null) {
+                    return new HashMap<String, Object>();
+                }
+                // filter out null values
+                for (Map.Entry<String, Object> entry: variables.entrySet()) {
+                    if (entry.getValue() != null) {
+                        result.put(entry.getKey(), entry.getValue());
+                    }
+                }
             } else {
-            	log.error("getActiveProcessInstanceVariables() :  Could not find process instance " + processInstanceId);
+                log.error("getActiveProcessInstanceVariables() :  Could not find process instance " + processInstanceId);
             }
         }finally{
-        	this.disposeStatefulKnowledgeSessionAndExtras(ksessionId);
+            this.disposeStatefulKnowledgeSessionAndExtras(ksessionId);
         }
         return result;
     }
