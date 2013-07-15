@@ -173,7 +173,13 @@ public class JpaKnowledgeSessionPool implements IKnowledgeSessionPool {
             else {
                 availableSessionsLock.lock();
                 try {
-                    availableSessions.addLast(new Integer(sessionId));
+                    // Thank you Darren Osten
+                    logger.debug("adding sessionid=" + sessionId + " to pool");
+                    if (!availableSessions.contains(new Integer(sessionId))) {
+                        availableSessions.addLast(new Integer(sessionId));
+                    } else {
+                        logger.warn("session " + sessionId + " already in pool");
+                    }
                 }
                 finally {
                     availableSessionsLock.unlock();
