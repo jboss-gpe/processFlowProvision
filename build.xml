@@ -461,7 +461,6 @@
                 <fileset dir="pfpServices/knowledgeSessionService" includes="build.xml"/>
                 <fileset dir="pfpServices/taskService" includes="build.xml"/>
                 <fileset dir="pfpServices/cdiDiagnostics" includes="build.xml"/>
-                <fileset dir="privateServiceTaskRepo" includes="build.xml"/>
             </subant>
         </sequential>
     </macrodef>

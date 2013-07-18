@@ -1,8 +1,0 @@
-<jboss-ejb-client xmlns="urn:jboss:ejb-client:1.0">
-    <client-context>
-        <ejb-receivers>
-            <!-- JA Bride:  references outbound connection for EJB traffic to pfp-core defined in:  $PFP_HOME/conf/brmsWebs/brmsWebs-config-up.cli -->
-            <remoting-ejb-receiver outbound-connection-ref="remote-ejb-connection"/>
-        </ejb-receivers>
-    </client-context>
-</jboss-ejb-client>
