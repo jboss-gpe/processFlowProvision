@@ -340,6 +340,7 @@
                     <zipfileset dir="${temp.pfp.services.dir}" >
                         <include name="processFlow-knowledgeSessionService.jar" />
                         <include name="processFlow-cdiDiagnostics.jar" />
+                        <include name="kie-services-remote.war" />
                     </zipfileset>
                 </zip>
                 <!--copy file="conf/pfp/default.session.template" tofile="${drools.session.template.path}" overwrite="true" / -->
@@ -461,6 +462,7 @@
                 <fileset dir="pfpServices/knowledgeSessionService" includes="build.xml"/>
                 <fileset dir="pfpServices/taskService" includes="build.xml"/>
                 <fileset dir="pfpServices/cdiDiagnostics" includes="build.xml"/>
+                <fileset dir="pfpServices/kie-services-remote" includes="build.xml"/>
             </subant>
         </sequential>
     </macrodef>

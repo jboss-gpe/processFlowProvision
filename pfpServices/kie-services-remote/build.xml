@@ -1,0 +1,34 @@
+<project name="kie-services-remote" default="all" basedir=".">
+
+    <property environment="ENV"/>
+    <property file="../../build.properties" />
+    <import file="${development.base}/base-build.xml"/>
+
+    <target name="all" depends="clean,setClasspath" >
+        <exec executable="mvn" failonerror="true" dir="." >
+            <arg value="clean" />
+            <arg value="install" />
+            <arg value="-Dmaven.test.skip=true" />
+            <arg value="-DuniqueVersion=false" />
+        </exec>
+        <jar destfile="target/${ant.project.name}.war" >
+            <zipfileset dir="target/${ant.project.name}" >
+                <include name="index.html" />
+                <include name="WEB-INF/web.xml" />
+                <include name="WEB-INF/classes/**/*" />
+                <include name="WEB-INF/lib/kie-services-client*.jar" />
+            </zipfileset>
+
+            <!-- org/jbpm/kie/services/impl/SearchServiceImpl doesn't seem to be used and yet brings in apache lucene dependencies .... will purge -->
+            <!-- Error loading class org.jbpm.kie.services.impl.form.provider.InMemoryFormProvider  .... java.lang.NoClassDefFoundError: freemarker/template/ObjectWrapper
+                zip -d jbpm-kie-services-6.0.0.jar org/jbpm/kie/services/impl/form/*
+            <zipfileset dir="." prefix="WEB-INF/lib" >
+                <include name="jbpm-kie-services-6.0.0.jar" />
+            </zipfileset -->
+        </jar>
+        <copy file="${build.dir}/${ant.project.name}.war" toDir="${temp.pfp.services.dir}" overwrite="true" verbose="true" />
+    </target>
+
+    <target name="clean"><delete dir="${build.dir}" /></target>
+
+</project>
