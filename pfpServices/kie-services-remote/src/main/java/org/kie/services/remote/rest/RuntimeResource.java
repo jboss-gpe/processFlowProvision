@@ -80,12 +80,14 @@ public class RuntimeResource extends ResourceBase {
 
     @POST
     @Path("/process")
-    public Response addAssetToRuntimeEnvironment(String processFile){
+    public Response addAssetToRuntimeEnvironment(String processString){
     	ResponseBuilder builder = null;
-    	if(processFile == null || processFile.isEmpty())
+    	if(processString == null || processString.isEmpty())
     		builder = Response.status(Status.BAD_REQUEST);
     	else{
-            processRequestBean.addAssetToRuntimeEnvironment(processFile);
+    		logger.info("addAssetToRuntimeEnvironment() processString length is {}", processString.length());
+            System.out.println(processString);
+    		processRequestBean.addAssetToRuntimeEnvironment(processString);
             builder = Response.ok();
     	}
         return builder.build();

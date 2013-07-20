@@ -50,11 +50,6 @@ public class ProcessRequestBean {
 
     @PostConstruct
     public void start() {
-        StringBuilder sBuilder = new StringBuilder();
-        sBuilder.append("start() \n\tjbpmCoreEmf = ");
-        sBuilder.append(jbpmCoreEMF);
-        sBuilder.append("\n\ttaskService = ");
-        sBuilder.append(taskService);
         logger.info("start");
         try {
             createRuntimeEnvironmentBuilder();
@@ -95,8 +90,13 @@ public class ProcessRequestBean {
         }
     }
     
-    public void addAssetToRuntimeEnvironment(String processFile){
-        reBuilder.addAsset(ResourceFactory.newByteArrayResource(processFile.getBytes()), ResourceType.BPMN2);
+    //JA Bride:  TO-DO
+    public Object listAssets() {
+    	return new Object();
+    }
+    
+    public void addAssetToRuntimeEnvironment(String processString){
+        reBuilder.addAsset(ResourceFactory.newByteArrayResource(processString.getBytes()), ResourceType.BPMN2);
     }
 
     public Object doKieSessionOperation(Command<?> cmd, String deploymentId, Long processInstanceId) {
