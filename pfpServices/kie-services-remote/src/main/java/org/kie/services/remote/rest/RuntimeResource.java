@@ -41,6 +41,7 @@ import org.jbpm.process.audit.command.FindSubProcessInstancesCommand;
 import org.jbpm.process.audit.command.FindVariableInstancesCommand;
 import org.kie.api.command.Command;
 import org.kie.api.runtime.process.ProcessInstance;
+import org.kie.internal.io.ResourceFactory;
 import org.kie.services.client.serialization.jaxb.JaxbCommandsRequest;
 import org.kie.services.client.serialization.jaxb.JaxbCommandsResponse;
 import org.kie.services.client.serialization.jaxb.impl.JaxbHistoryLogList;
@@ -80,8 +81,13 @@ public class RuntimeResource extends ResourceBase {
     @POST
     @Path("/process")
     public Response addAssetToRuntimeEnvironment(String processFile){
-        reBuilder.addAsset(ResourceFactory.newFileResource(processFile), ResourceType.BPMN2);
-        ResponseBuilder builder = Response.ok();
+    	ResponseBuilder builder = null;
+    	if(processFile == null || processFile.isEmpty())
+    		builder = Response.status(Status.BAD_REQUEST);
+    	else{
+            processRequestBean.addAssetToRuntimeEnvironment(processFile);
+            builder = Response.ok();
+    	}
         return builder.build();
     }
 

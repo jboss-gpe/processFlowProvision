@@ -7,13 +7,17 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.kie.api.command.Command;
+import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.Context;
 import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.task.TaskService;
+import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.runtime.manager.context.EmptyContext;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.kie.internal.task.api.InternalTaskService;
@@ -89,6 +93,10 @@ public class ProcessRequestBean {
             rManager = RuntimeManagerFactory.Factory.get().newPerProcessInstanceRuntimeManager(rEnvironment);
             return rManager;
         }
+    }
+    
+    public void addAssetToRuntimeEnvironment(String processFile){
+        reBuilder.addAsset(ResourceFactory.newByteArrayResource(processFile.getBytes()), ResourceType.BPMN2);
     }
 
     public Object doKieSessionOperation(Command<?> cmd, String deploymentId, Long processInstanceId) {
