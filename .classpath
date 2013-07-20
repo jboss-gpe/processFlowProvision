@@ -10,6 +10,7 @@
 	<classpathentry kind="src" path="pfpServicesTest/src/test/java"/>
 	<classpathentry kind="src" path="pfpServices/haTimerService/src/main/java"/>
 	<classpathentry kind="src" path="pfpServices/cdiDiagnostics/src/main/java"/>
+	<classpathentry kind="src" path="pfpServices/kie-services-remote/src/main/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="JBOSS_HOME"/>
 	<classpathentry kind="lib" path="/opt/jboss/eap/jboss-eap-6.1/modules/system/layers/base/javax/enterprise/api/main/cdi-api-1.0-SP4-redhat-2.jar"/>

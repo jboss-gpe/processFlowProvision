@@ -5,6 +5,7 @@
     <module>
         <web>
             <web-uri>kie-services-remote.war</web-uri>
+            <context-root>kie-jbpm-services</context-root>
         </web>
     </module>
     <library-directory/>

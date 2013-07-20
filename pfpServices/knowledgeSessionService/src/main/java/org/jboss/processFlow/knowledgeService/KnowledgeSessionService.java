@@ -108,7 +108,6 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
             
 
             createRuntimeEnvironmentBuilder();
-            createRuntimeManager();
             
         } catch(Exception x) {
             throw new RuntimeException(x);

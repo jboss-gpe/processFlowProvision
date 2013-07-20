@@ -18,6 +18,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.Response.Status;
+
 import org.drools.core.command.runtime.process.AbortProcessInstanceCommand;
 import org.drools.core.command.runtime.process.AbortWorkItemCommand;
 import org.drools.core.command.runtime.process.CompleteWorkItemCommand;
@@ -74,6 +78,16 @@ public class RuntimeResource extends ResourceBase {
     }
 
     @POST
+    @Path("/process")
+    public Response addAssetToRuntimeEnvironment(String processFile){
+        reBuilder.addAsset(ResourceFactory.newFileResource(processFile), ResourceType.BPMN2);
+        ResponseBuilder builder = Response.ok();
+        return builder.build();
+    }
+
+
+
+    @POST
     @Produces(MediaType.APPLICATION_XML)
     @Path("/process/{processDefId: [a-zA-Z0-9-:\\.]+}/start")
     public JaxbProcessInstanceResponse startNewProcess(@PathParam("processDefId") String processId) {
@@ -81,7 +95,7 @@ public class RuntimeResource extends ResourceBase {
         Map<String, Object> params = extractMapFromParams(formParams, "process/" + processId + "/start");
         Command<?> cmd = new StartProcessCommand(processId, params);
 
-        ProcessInstance procInst = (ProcessInstance) processRequestBean.doKieSessionOperation(cmd, deploymentId);
+        ProcessInstance procInst = (ProcessInstance) processRequestBean.doKieSessionOperation(cmd, deploymentId, 0L);
         JaxbProcessInstanceResponse resp = new JaxbProcessInstanceResponse(procInst, request);
         return resp;
     }
@@ -91,7 +105,7 @@ public class RuntimeResource extends ResourceBase {
     @Path("/process/instance/{procInstId: [0-9]+}")
     public JaxbProcessInstanceResponse getProcessInstanceDetails(@PathParam("procInstId") Long procInstId) {
         Command<?> cmd = new GetProcessInstanceCommand(procInstId);
-        Object result = processRequestBean.doKieSessionOperation(cmd, deploymentId);
+        Object result = processRequestBean.doKieSessionOperation(cmd, deploymentId, procInstId.longValue());
         if (result != null) {
             return new JaxbProcessInstanceResponse((ProcessInstance) result);
         } else {
@@ -106,7 +120,7 @@ public class RuntimeResource extends ResourceBase {
     public JaxbGenericResponse abortProcessInstanceOperation(@PathParam("procInstId") Long procInstId) {
         Command<?> cmd = new AbortProcessInstanceCommand();
         ((AbortProcessInstanceCommand) cmd).setProcessInstanceId(procInstId);
-        processRequestBean.doKieSessionOperation(cmd, deploymentId);
+        processRequestBean.doKieSessionOperation(cmd, deploymentId, 0L);
         return new JaxbGenericResponse(request);
     }
 
@@ -118,7 +132,7 @@ public class RuntimeResource extends ResourceBase {
         String eventType = getStringParam("eventType", true, params, "signal");
         Object event = getObjectParam("event", false, params, "signal");
         Command<?> cmd = new SignalEventCommand(procInstId, eventType, event);
-        processRequestBean.doKieSessionOperation(cmd, deploymentId);
+        processRequestBean.doKieSessionOperation(cmd, deploymentId, procInstId.longValue());
         return new JaxbGenericResponse(request);
     }
 
@@ -127,10 +141,14 @@ public class RuntimeResource extends ResourceBase {
     @Path("/process/instance/{procInstId: [0-9]+}/start")
     public JaxbProcessInstanceResponse startProcessInstanceOperation(@PathParam("procInstId") Long procInstId) {
         Command<?> cmd = new StartProcessInstanceCommand(procInstId);
-        ProcessInstance procInst = (ProcessInstance) processRequestBean.doKieSessionOperation(cmd, deploymentId);
+        ProcessInstance procInst = (ProcessInstance) processRequestBean.doKieSessionOperation(cmd, deploymentId, procInstId.longValue());
         return new JaxbProcessInstanceResponse(procInst, request);
     }
-
+    
+    
+    /*
+     * JA Bride:  isn't a processInstanceId needed here ?
+     */
     @POST
     @Produces(MediaType.APPLICATION_XML)
     @Path("/signal/{signal: [a-zA-Z0-9-]+}")
@@ -138,10 +156,14 @@ public class RuntimeResource extends ResourceBase {
         Map<String, List<String>> formParams = getRequestParams(request);
         Object event = getObjectParam("event", false, formParams, "signal/" + signal);
         Command<?> cmd = new SignalEventCommand(signal, event);
-        processRequestBean.doKieSessionOperation(cmd, deploymentId);
+        processRequestBean.doKieSessionOperation(cmd, deploymentId, 0L);
         return new JaxbGenericResponse(request);
     }
 
+
+    /*
+     * JA Bride:  isn't a processInstanceId needed here ?
+     */
     @POST
     @Path("/workitem/{workItemId: [0-9-]+}/{oper: [a-zA-Z]+}")
     public JaxbGenericResponse doWorkItemOperation(@PathParam("workItemId") Long workItemId, @PathParam("oper") String operation) {
@@ -155,7 +177,7 @@ public class RuntimeResource extends ResourceBase {
         } else {
             throw new BadRequestException("Unsupported operation: /process/instance/" + workItemId + "/" + operation);
         }
-        processRequestBean.doKieSessionOperation(cmd, deploymentId);
+        processRequestBean.doKieSessionOperation(cmd, deploymentId, 0L);
         return new JaxbGenericResponse(request);
     }
 
@@ -168,7 +190,7 @@ public class RuntimeResource extends ResourceBase {
     @Path("/history/clear")
     public JaxbGenericResponse clearProcessInstanceLogs() {
         Command<?> cmd = new ClearHistoryLogsCommand();
-        processRequestBean.doKieSessionOperation(cmd, deploymentId);
+        processRequestBean.doKieSessionOperation(cmd, deploymentId, 0L);
         return new JaxbGenericResponse(request);
     }
 
@@ -181,7 +203,7 @@ public class RuntimeResource extends ResourceBase {
         
         Command<?> cmd = new FindProcessInstancesCommand();
         List<ProcessInstanceLog> results = (List<ProcessInstanceLog>) processRequestBean.doKieSessionOperation(cmd,
-                deploymentId);
+                deploymentId, 0L);
         
         results = (new Paginator<ProcessInstanceLog>()).paginate(pageInfo, results);
         return new JaxbHistoryLogList(results);
@@ -195,7 +217,7 @@ public class RuntimeResource extends ResourceBase {
         int [] pageInfo = getPageNumAndPageSize(params);
         
         Command<?> cmd = new FindProcessInstanceCommand(procInstId);
-        ProcessInstanceLog procInstLog = (ProcessInstanceLog) processRequestBean.doKieSessionOperation(cmd, deploymentId);
+        ProcessInstanceLog procInstLog = (ProcessInstanceLog) processRequestBean.doKieSessionOperation(cmd, deploymentId, 0L);
         List<ProcessInstanceLog> logList = new ArrayList<ProcessInstanceLog>();
         logList.add(procInstLog);
         
@@ -216,19 +238,19 @@ public class RuntimeResource extends ResourceBase {
         if ("child".equalsIgnoreCase(operation)) {
             cmd = new FindSubProcessInstancesCommand(processInstanceId);
             List<ProcessInstanceLog> procInstLogList = (List<ProcessInstanceLog>) processRequestBean.doKieSessionOperation(cmd,
-                    deploymentId);
+                    deploymentId, 0L);
             procInstLogList = (new Paginator<ProcessInstanceLog>()).paginate(pageInfo, procInstLogList);
             resultList = new JaxbHistoryLogList(procInstLogList);
         } else if ("node".equalsIgnoreCase(operation)) {
             cmd = new FindNodeInstancesCommand(processInstanceId);
             List<NodeInstanceLog> nodeInstLogList = (List<NodeInstanceLog>) processRequestBean.doKieSessionOperation(cmd,
-                    deploymentId);
+                    deploymentId, 0L);
             nodeInstLogList = (new Paginator<NodeInstanceLog>()).paginate(pageInfo, nodeInstLogList);
             resultList = new JaxbHistoryLogList(nodeInstLogList);
         } else if ("variable".equalsIgnoreCase(operation)) {
             cmd = new FindVariableInstancesCommand(processInstanceId);
             List<VariableInstanceLog> varInstLogList = (List<VariableInstanceLog>) processRequestBean.doKieSessionOperation(cmd,
-                    deploymentId);
+                    deploymentId, 0L);
             varInstLogList = (new Paginator<VariableInstanceLog>()).paginate(pageInfo, varInstLogList);
             resultList = new JaxbHistoryLogList(varInstLogList);
         } else {
@@ -250,13 +272,13 @@ public class RuntimeResource extends ResourceBase {
         if ("node".equalsIgnoreCase(operation)) {
             cmd = new FindNodeInstancesCommand(processInstanceId, id);
             List<NodeInstanceLog> nodeInstLogList = (List<NodeInstanceLog>) processRequestBean.doKieSessionOperation(cmd,
-                    deploymentId);
+                    deploymentId, 0L);
             nodeInstLogList = (new Paginator<NodeInstanceLog>()).paginate(pageInfo, nodeInstLogList);
             resultList = new JaxbHistoryLogList(nodeInstLogList);
         } else if ("variable".equalsIgnoreCase(operation)) {
             cmd = new FindVariableInstancesCommand(processInstanceId, id);
             List<VariableInstanceLog> varInstLogList = (List<VariableInstanceLog>) processRequestBean.doKieSessionOperation(cmd,
-                    deploymentId);
+                    deploymentId, 0L);
             varInstLogList = (new Paginator<VariableInstanceLog>()).paginate(pageInfo, varInstLogList);
             resultList = new JaxbHistoryLogList(varInstLogList);
         } else {
@@ -275,10 +297,23 @@ public class RuntimeResource extends ResourceBase {
         
         Command<?> cmd = new FindProcessInstancesCommand(processId);
         List<ProcessInstanceLog> procInstLogList = (List<ProcessInstanceLog>) processRequestBean.doKieSessionOperation(cmd,
-                deploymentId);
+                deploymentId, 0L);
         
         procInstLogList = (new Paginator<ProcessInstanceLog>()).paginate(pageInfo, procInstLogList);
         return new JaxbHistoryLogList(procInstLogList);
     }
+
+    /**
+     * sample usage :
+     *  curl -v --user jboss:brms -X GET -HAccept:text/plain $HOSTNAME:8330/kie-jbpm-services/rest/runtime/werwer/sanityCheck
+     */
+    @GET
+    @Path("/sanityCheck")
+    @Produces({ "text/plain" })
+    public Response sanityCheck() {
+        ResponseBuilder builder = Response.ok("good to go\n");
+        return builder.build();
+    }
+
 
 }

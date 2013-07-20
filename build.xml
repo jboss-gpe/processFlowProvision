@@ -327,23 +327,13 @@
                     <param name="source.dir" value="conf/pfp/bpms-pfp.ear"/>
                     <param name="dest.dir" value="${temp.pfp.services.dir}/bpms-pfp.ear.work"/>
                 </antcall>
-                <jar jarfile="${temp.pfp.services.dir}/bpms-pfp.ear.work/lib/core-persistence.jar" >
-                    <fileset dir="conf/pfp/core-persistence" />
-                </jar>
                 <zip destfile="${temp.pfp.services.dir}/bpms-pfp.ear">
                     <zipfileset dir="${temp.pfp.services.dir}/bpms-pfp.ear.work" />
-                    <!--zipfileset dir="${temp.brms.unzip.dir}">
-                        <include name="jbpm-runtime-manager-${jBPM.version}.jar" />
-                        <include name="jbpm-shared-services-${jBPM.version}.jar" />
-                        <include name="jbpm-kie-services-${jBPM.version}.jar" />
-                    </zipfileset -->
                     <zipfileset dir="${temp.pfp.services.dir}" >
-                        <include name="processFlow-knowledgeSessionService.jar" />
                         <include name="processFlow-cdiDiagnostics.jar" />
                         <include name="kie-services-remote.war" />
                     </zipfileset>
                 </zip>
-                <!--copy file="conf/pfp/default.session.template" tofile="${drools.session.template.path}" overwrite="true" / -->
                 <math result="hornetq.remoting.port" operand1="${base.remoting.port}" operation="+" operand2="${ha.group.port.offset}" datatype="int" />
                 <antcall target="cli.batch">
                     <param name="cli.source.dir" value="conf/pfp"/>
@@ -459,7 +449,7 @@
             <subant target="@{target}">
                 <fileset dir="pfpServices/interfaces" includes="build.xml"/>
                 <fileset dir="pfpServices/common" includes="build.xml"/>
-                <fileset dir="pfpServices/knowledgeSessionService" includes="build.xml"/>
+                <!--fileset dir="pfpServices/knowledgeSessionService" includes="build.xml"/ -->
                 <fileset dir="pfpServices/taskService" includes="build.xml"/>
                 <fileset dir="pfpServices/cdiDiagnostics" includes="build.xml"/>
                 <fileset dir="pfpServices/kie-services-remote" includes="build.xml"/>

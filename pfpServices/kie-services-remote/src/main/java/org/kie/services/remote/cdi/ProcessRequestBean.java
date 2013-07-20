@@ -1,8 +1,12 @@
 package org.kie.services.remote.cdi;
 
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceUnit;
 
 import org.kie.api.command.Command;
 import org.kie.api.runtime.KieSession;
@@ -18,23 +22,83 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.kie.services.remote.exception.KieServiceBadRequestException;
 
+import org.kie.internal.runtime.manager.RuntimeEnvironment;
+import org.kie.internal.runtime.manager.RuntimeManagerFactory;
+import org.jbpm.runtime.manager.impl.RuntimeEnvironmentBuilder;
+
+import org.kie.services.remote.util.RESTUserGroupCallback;
+
 @ApplicationScoped
 public class ProcessRequestBean {
 
     private static final Logger logger = LoggerFactory.getLogger(ProcessRequestBean.class);
 
-    @Inject
-    private RuntimeManagerManager runtimeMgrMgr;
-    
-    @Inject
+    private RuntimeEnvironmentBuilder reBuilder = null;
+    private RuntimeEnvironment rEnvironment = null;
+    private RuntimeManager rManager = null;
+    private Object rManagerLock = new Object();
+
+    //@Inject
     private TaskService taskService;
 
-    public Object doKieSessionOperation(Command<?> cmd, String deploymentId) {
-        return doKieSessionOperation(cmd, deploymentId, null);
+    @PersistenceUnit(unitName="org.jbpm.persistence.jpa")
+    EntityManagerFactory jbpmCoreEMF;
+
+    @PostConstruct
+    public void start() {
+        StringBuilder sBuilder = new StringBuilder();
+        sBuilder.append("start() \n\tjbpmCoreEmf = ");
+        sBuilder.append(jbpmCoreEMF);
+        sBuilder.append("\n\ttaskService = ");
+        sBuilder.append(taskService);
+        logger.info("start");
+        try {
+            createRuntimeEnvironmentBuilder();
+        }catch(Exception x) {
+            throw new RuntimeException(x);
+        }
+    }
+
+    @PreDestroy 
+    public void stop() {
+        logger.info("stop");
+            if(rEnvironment != null)
+                rEnvironment.close();
+        
+            if(rManager != null)
+                rManager.close();
+            
+    }
+
+    private void createRuntimeEnvironmentBuilder() {
+        reBuilder = RuntimeEnvironmentBuilder.getDefault()
+            .registerableItemsFactory(new org.jbpm.runtime.manager.impl.DefaultRegisterableItemsFactory())
+            .entityManagerFactory(this.jbpmCoreEMF)
+            .userGroupCallback(new RESTUserGroupCallback());
     }
     
+    private RuntimeManager getRuntimeManager() {
+        if(rManager != null)
+            return rManager;
+
+        synchronized(rManagerLock) {
+            if(rManager != null)
+                return rManager;
+            
+            rEnvironment = reBuilder.get();
+            rManager = RuntimeManagerFactory.Factory.get().newPerProcessInstanceRuntimeManager(rEnvironment);
+            return rManager;
+        }
+    }
+
     public Object doKieSessionOperation(Command<?> cmd, String deploymentId, Long processInstanceId) {
-        KieSession kieSession = getRuntimeEngine(deploymentId, processInstanceId).getKieSession();
+        KieSession kieSession = null;
+        if(processInstanceId == 0L)
+            kieSession = getRuntimeManager().getRuntimeEngine(ProcessInstanceIdContext.get()).getKieSession();
+        else
+            kieSession = getRuntimeManager().getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId)).getKieSession();
+
+
         Object result = null;
         try { 
             result = kieSession.execute(cmd);
@@ -56,20 +120,6 @@ public class ProcessRequestBean {
             result = exceptResp;
         }
         return result;
-    }
-
-    protected RuntimeEngine getRuntimeEngine(String domainName, Long processInstanceId) {
-        RuntimeManager runtimeManager = runtimeMgrMgr.getRuntimeManager(domainName);
-        Context<?> runtimeContext;
-        if (processInstanceId != null) {
-            runtimeContext = new ProcessInstanceIdContext(processInstanceId);
-        } else {
-            runtimeContext = EmptyContext.get();
-        }
-        if( runtimeManager == null ) { 
-            throw new KieServiceBadRequestException("No runtime manager could be found for domain '" + domainName + "'.");
-        }
-        return runtimeManager.getRuntimeEngine(runtimeContext);
     }
 
 }

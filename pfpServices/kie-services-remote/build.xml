@@ -2,6 +2,7 @@
 
     <property environment="ENV"/>
     <property file="../../build.properties" />
+    <property name="project.path.property" value="lib" />
     <import file="${development.base}/base-build.xml"/>
 
     <target name="all" depends="clean,setClasspath" >
@@ -9,12 +10,13 @@
             <arg value="clean" />
             <arg value="install" />
             <arg value="-Dmaven.test.skip=true" />
-            <arg value="-DuniqueVersion=false" />
         </exec>
+
+        <!-- filter out unnecessary dependencies associated with kie-services-remote maven artifact -->
         <jar destfile="target/${ant.project.name}.war" >
             <zipfileset dir="target/${ant.project.name}" >
                 <include name="index.html" />
-                <include name="WEB-INF/web.xml" />
+                <include name="WEB-INF/*" />
                 <include name="WEB-INF/classes/**/*" />
                 <include name="WEB-INF/lib/kie-services-client*.jar" />
             </zipfileset>

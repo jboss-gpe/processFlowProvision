@@ -24,7 +24,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
 import org.jboss.resteasy.spi.BadRequestException;
-import org.jbpm.kie.services.api.IdentityProvider;
+//import org.jbpm.kie.services.api.IdentityProvider;
 import org.jbpm.services.task.commands.*;
 import org.jbpm.services.task.impl.model.TaskImpl;
 import org.jbpm.services.task.impl.model.xml.JaxbTask;
@@ -51,8 +51,8 @@ public class TaskResource extends ResourceBase {
     @Context
     private HttpServletRequest request;
     
-    @Inject
-    private IdentityProvider identityProvider;
+    //@Inject
+    //private IdentityProvider identityProvider;
     
     private static String[] allowedOperations = { 
         "activate", 
@@ -269,7 +269,8 @@ public class TaskResource extends ResourceBase {
     public JaxbGenericResponse doTaskOperation(@PathParam("id") long taskId, @PathParam("oper") String operation) { 
         Map<String, List<String>> params = getRequestParams(request);
         operation = checkThatOperationExists(operation, allowedOperations);        
-        String userId = identityProvider.getName();
+        //String userId = identityProvider.getName();
+        String userId = null;
         Command<?> cmd = null;
         if ("activate".equalsIgnoreCase(operation)) {
             cmd = new ActivateTaskCommand(taskId, userId);
