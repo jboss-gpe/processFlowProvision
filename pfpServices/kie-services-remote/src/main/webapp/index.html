@@ -8,6 +8,10 @@
 
         post BPMN2 resource
           curl -v -X POST --data @pfpServices/kie-services-remote/src/test/resources/simpleHumanTask.bpmn2 -HAccept:text/plain $HOSTNAME:8330/kie-jbpm-services/rest/runtime/werwer/process
+        
+        start 'simple task' process
+            curl -v -X POST $HOSTNAME:8330/kie-jbpm-services/rest/runtime/werwer/process/simpleTask/start
+
 
         $ curl -i -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d  '{"author":"test_user","description":"this is a test notebook","name":"test notebook","tags":"test,hello-world"}' http://notebook-newideas.rhcloud.com/notebooks
     </body>
