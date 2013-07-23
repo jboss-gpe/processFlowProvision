@@ -128,6 +128,7 @@ batch
 /server-group=${pfp.core.group}/system-property=org.jboss.processFlow.diagnostics.logAfterDeploymentValidation/:add(value=${org.jboss.processFlow.diagnostics.logAfterDeploymentValidation},boot-time=true)
 /server-group=${pfp.core.group}/system-property=org.jboss.processFlow.diagnostics.logBeforeShutdown/:add(value=${org.jboss.processFlow.diagnostics.logBeforeShutdown},boot-time=true)
 /server-group=${pfp.core.group}/system-property=org.jboss.processFlow.diagnostics.logProcessBean/:add(value=${org.jboss.processFlow.diagnostics.logProcessBean},boot-time=true)
+/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.cdi.comma.delimited.veto.classes/:add(value=${org.jboss.processFlow.cdi.comma.delimited.veto.classes},boot-time=true)
 run-batch
 
 batch

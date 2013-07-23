@@ -2,9 +2,11 @@ package org.jboss.processFlow.diagnostics;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -26,6 +28,7 @@ import javax.enterprise.inject.spi.ProcessInjectionTarget;
 import javax.enterprise.util.AnnotationLiteral;
 
 import org.jbpm.runtime.manager.impl.RuntimeManagerFactoryImpl;
+import org.jboss.processFlow.cdi.TestSingleton;
 
 import org.apache.log4j.Logger;
 
@@ -39,6 +42,7 @@ public class CDIDiagnostics implements Extension {
     private static final String LOG_AFTER_DEPLOYMENT_VALIDATION="org.jboss.processFlow.diagnostics.logAfterDeploymentValidation";
     private static final String LOG_BEFORE_SHUTDOWN="org.jboss.processFlow.diagnostics.logBeforeShutdown";
     private static final String LOG_PROCESS_BEAN="org.jboss.processFlow.diagnostics.logProcessBean";
+    private static final String VETO_CLASSES="org.jboss.processFlow.cdi.comma.delimited.veto.classes";
     
     
     private static Logger log = Logger.getLogger("CDIDiagnostics");
@@ -50,6 +54,7 @@ public class CDIDiagnostics implements Extension {
     private boolean logAfterDeploymentValidation = true;
     private boolean logBeforeShutdown = true;
     private boolean logProcessBean = true;
+    private List<String> vetoClasses;
    
     /*
      *  the CDI container will pick up this extension via the Java ServiceLoader mechanism
@@ -68,6 +73,7 @@ public class CDIDiagnostics implements Extension {
         logAfterDeploymentValidation = Boolean.parseBoolean(System.getProperty(this.LOG_AFTER_DEPLOYMENT_VALIDATION, "TRUE"));
         logBeforeShutdown = Boolean.parseBoolean(System.getProperty(this.LOG_BEFORE_SHUTDOWN, "TRUE"));
         logProcessBean = Boolean.parseBoolean(System.getProperty(this.LOG_PROCESS_BEAN, "TRUE"));
+        String vetoClassesString = System.getProperty(this.VETO_CLASSES);
         
         sBuilder.append("\nlogBeforeBeanDiscovery = "+logBeforeBeanDiscovery);
         sBuilder.append("\nlogProcessAnnotatedType = "+logProcessAnnotatedType);
@@ -77,7 +83,16 @@ public class CDIDiagnostics implements Extension {
         sBuilder.append("\nlogAfterDeploymentValidation = "+logAfterDeploymentValidation);
         sBuilder.append("\nlogBeforeShutdown = "+logBeforeShutdown);
         sBuilder.append("\nlogProcessBean = "+logProcessBean);
+        sBuilder.append("\nvetoClassesString = "+vetoClassesString);
         log.info(sBuilder.toString());
+        
+        if(vetoClassesString != null){
+        	vetoClasses = new ArrayList<String>();
+        	String[] vetoClassesArray = vetoClassesString.split("\\s");
+        	for(String vetoClass : vetoClassesArray){
+        		vetoClasses.add(vetoClass);
+        	}
+        }
     }
     
     public void beforeBeanDiscovery(@Observes BeforeBeanDiscovery bbd, BeanManager bm) {
@@ -86,8 +101,14 @@ public class CDIDiagnostics implements Extension {
     }
     
     public void processAnnotatedType(@Observes ProcessAnnotatedType pat, BeanManager bm) {
+    	String name = pat.getAnnotatedType().getJavaClass().getName();
     	if(this.logProcessAnnotatedType)
-            log.info("processAnnotatedType() class = "+pat.getAnnotatedType().toString());
+            log.info("processAnnotatedType() class = "+name);
+    	
+    	if(vetoClasses != null && vetoClasses.contains(name)){
+    		pat.veto();
+    		log.info("processAnnotatedType() just vetoed : "+ name);
+    	}
     }
     
     public void processInjectionTarget(@Observes ProcessInjectionTarget pit, BeanManager bm){
@@ -96,8 +117,14 @@ public class CDIDiagnostics implements Extension {
     }
     
     public void processBean(@Observes ProcessBean pBean, BeanManager bm) {
+    	String name = pBean.getBean().getBeanClass().getName();
     	if(this.logProcessBean)
-    	    log.info("processBean() class = "+pBean.getBean().getBeanClass());
+    	    log.info("processBean() class = "+name);
+    	
+    	if("org.jboss.processFlow.cdi.TestSingleton".equals(name)){    		
+    		CreationalContext ctx = bm.createCreationalContext(null);
+    		pBean.getBean().create(ctx);
+    	}
     }
     
     public void afterBeanDiscovery(@Observes AfterBeanDiscovery abd, BeanManager bm) {
@@ -111,15 +138,15 @@ public class CDIDiagnostics implements Extension {
     	}
 
         // CDI uses an AnnotatedType object to read the annotations of a class
-        AnnotatedType<RuntimeManagerFactoryImpl> at = bm.createAnnotatedType(RuntimeManagerFactoryImpl.class); 
+        AnnotatedType<TestSingleton> at = bm.createAnnotatedType(TestSingleton.class); 
 
         // CDI extension uses an InjectionTarget to delegate instantiation, DI and lifecycle callbacks to the CDI container
-        final InjectionTarget<RuntimeManagerFactoryImpl> it = bm.createInjectionTarget(at);
+        final InjectionTarget<TestSingleton> it = bm.createInjectionTarget(at);
 
-        abd.addBean( new Bean<RuntimeManagerFactoryImpl>() {
+        abd.addBean( new Bean<TestSingleton>() {
 
             public Class<?> getBeanClass() {
-                return RuntimeManagerFactoryImpl.class;
+                return TestSingleton.class;
             }
 
             public Set<InjectionPoint> getInjectionPoints() {
@@ -127,7 +154,7 @@ public class CDIDiagnostics implements Extension {
             }
 
             public String getName() {
-                return "RuntimeManagerFactoryImpl";
+                return "TestSingleton";
             }
 
             public Set<Annotation> getQualifiers() {
@@ -147,7 +174,7 @@ public class CDIDiagnostics implements Extension {
 
             public Set<Type> getTypes() {
                 Set<Type> types = new HashSet<Type>();
-                types.add(RuntimeManagerFactoryImpl.class);
+                types.add(TestSingleton.class);
                 types.add(Object.class);
                 return types;
             }
@@ -160,15 +187,14 @@ public class CDIDiagnostics implements Extension {
                 return false;
             }
 
-            public RuntimeManagerFactoryImpl create(CreationalContext<RuntimeManagerFactoryImpl> ctx) {
-                System.out.println("*** create jeff");
-            	RuntimeManagerFactoryImpl instance = it.produce(ctx);
+            public TestSingleton create(CreationalContext<TestSingleton> ctx) {
+            	TestSingleton instance = it.produce(ctx);
                 it.inject(instance, ctx);                               //call initializer methods and perform field injection
                 it.postConstruct(instance);
                 return instance;
             }
 
-            public void destroy(RuntimeManagerFactoryImpl instance, CreationalContext<RuntimeManagerFactoryImpl> ctx) {
+            public void destroy(TestSingleton instance, CreationalContext<TestSingleton> ctx) {
                 it.preDestroy(instance);
                 it.dispose(instance);
                 ctx.release();
