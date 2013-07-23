@@ -12,6 +12,11 @@
             <arg value="-Dmaven.test.skip=true" />
         </exec>
 
+        <!--mkdir dir="target" />
+        <javac debug="true" srcdir="src/main/java" destdir="target" >
+            <classpath refid="classpath" />
+        </javac -->
+
         <!-- filter out unnecessary dependencies associated with kie-services-remote maven artifact -->
         <jar destfile="target/${ant.project.name}.war" >
             <zipfileset dir="target/${ant.project.name}" >

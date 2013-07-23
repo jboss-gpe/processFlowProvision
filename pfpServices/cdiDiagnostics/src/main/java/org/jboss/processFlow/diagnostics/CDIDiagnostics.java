@@ -1,15 +1,31 @@
 package org.jboss.processFlow.diagnostics;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.event.Observes;
+import javax.enterprise.inject.Any;
+import javax.enterprise.inject.Default;
+import javax.enterprise.inject.spi.AnnotatedType;
+import javax.enterprise.inject.spi.Bean;
+import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.BeforeBeanDiscovery;
+import javax.enterprise.inject.spi.AfterBeanDiscovery;
 import javax.enterprise.inject.spi.Extension;
 import javax.enterprise.inject.spi.InjectionPoint;
+import javax.enterprise.inject.spi.InjectionTarget;
 import javax.enterprise.inject.spi.ProcessAnnotatedType;
+import javax.enterprise.inject.spi.ProcessBean;
 import javax.enterprise.inject.spi.ProcessInjectionTarget;
-import javax.enterprise.inject.spi.Producer;
+import javax.enterprise.util.AnnotationLiteral;
+
+import org.jbpm.runtime.manager.impl.RuntimeManagerFactoryImpl;
 
 import org.apache.log4j.Logger;
 
@@ -17,11 +33,12 @@ public class CDIDiagnostics implements Extension {
     
     private static final String LOG_BEFORE_BEAN_DISCOVERY="org.jboss.processFlow.diagnostics.logBeforeBeanDiscovery";
     private static final String LOG_PROCESS_ANNOTATED_TYPE="org.jboss.processFlow.diagnostics.logProcessAnnotatedType";
+    private static final String LOG_AFTER_BEAN_DISCOVERY="org.jboss.processFlow.diagnostics.logAfterBeanDiscovery";
     private static final String LOG_PROCESS_INJECTION_TARGET="org.jboss.processFlow.diagnostics.logProcessInjectionTarget";
     private static final String LOG_PROCESS_PRODUCER="org.jboss.processFlow.diagnostics.logProcessProducer";
-    private static final String LOG_AFTER_BEAN_DISCOVERY="org.jboss.processFlow.diagnostics.logAfterBeanDiscovery";
     private static final String LOG_AFTER_DEPLOYMENT_VALIDATION="org.jboss.processFlow.diagnostics.logAfterDeploymentValidation";
     private static final String LOG_BEFORE_SHUTDOWN="org.jboss.processFlow.diagnostics.logBeforeShutdown";
+    private static final String LOG_PROCESS_BEAN="org.jboss.processFlow.diagnostics.logProcessBean";
     
     
     private static Logger log = Logger.getLogger("CDIDiagnostics");
@@ -32,6 +49,7 @@ public class CDIDiagnostics implements Extension {
     private boolean logAfterBeanDiscovery = true;
     private boolean logAfterDeploymentValidation = true;
     private boolean logBeforeShutdown = true;
+    private boolean logProcessBean = true;
    
     /*
      *  the CDI container will pick up this extension via the Java ServiceLoader mechanism
@@ -49,6 +67,7 @@ public class CDIDiagnostics implements Extension {
         logAfterBeanDiscovery = Boolean.parseBoolean(System.getProperty(this.LOG_AFTER_BEAN_DISCOVERY, "TRUE"));
         logAfterDeploymentValidation = Boolean.parseBoolean(System.getProperty(this.LOG_AFTER_DEPLOYMENT_VALIDATION, "TRUE"));
         logBeforeShutdown = Boolean.parseBoolean(System.getProperty(this.LOG_BEFORE_SHUTDOWN, "TRUE"));
+        logProcessBean = Boolean.parseBoolean(System.getProperty(this.LOG_PROCESS_BEAN, "TRUE"));
         
         sBuilder.append("\nlogBeforeBeanDiscovery = "+logBeforeBeanDiscovery);
         sBuilder.append("\nlogProcessAnnotatedType = "+logProcessAnnotatedType);
@@ -57,27 +76,129 @@ public class CDIDiagnostics implements Extension {
         sBuilder.append("\nlogAfterBeanDiscovery = "+logAfterBeanDiscovery);
         sBuilder.append("\nlogAfterDeploymentValidation = "+logAfterDeploymentValidation);
         sBuilder.append("\nlogBeforeShutdown = "+logBeforeShutdown);
+        sBuilder.append("\nlogProcessBean = "+logProcessBean);
         log.info(sBuilder.toString());
     }
     
-    public void logBeforeBeanDiscovery(@Observes BeforeBeanDiscovery bbd) {
-        log.info("logBeforeBeanDiscovery() bbd = "+bbd);
+    public void beforeBeanDiscovery(@Observes BeforeBeanDiscovery bbd, BeanManager bm) {
+    	if(this.logBeforeBeanDiscovery)
+            log.info("beforeBeanDiscovery() bbd = "+bbd);
     }
-    public void logProcessAnnotatedType(@Observes ProcessAnnotatedType pat) {
-        log.info("logProcessAnnotatedType() class = "+pat.getAnnotatedType().toString());
+    
+    public void processAnnotatedType(@Observes ProcessAnnotatedType pat, BeanManager bm) {
+    	if(this.logProcessAnnotatedType)
+            log.info("processAnnotatedType() class = "+pat.getAnnotatedType().toString());
     }
-    public void logProcessInjectionTarget(@Observes ProcessInjectionTarget pit) {
-        Iterator injectionPoints = pit.getInjectionTarget().getInjectionPoints().iterator();
-        StringBuilder sBuilder = new StringBuilder();
-        sBuilder.append("logProcessInjectionTarget() pit = "+pit.getClass());
-        while(injectionPoints.hasNext()) {
-            Object obj = injectionPoints.next();
-            if(obj instanceof InjectionPoint){
-                sBuilder.append("\n\tinjectionPoint = "+((InjectionPoint)obj).toString());
-            }else {
-            	sBuilder.append("\n\t class = "+obj.getClass().toString());
+    
+    public void processInjectionTarget(@Observes ProcessInjectionTarget pit, BeanManager bm){
+    	if(this.logProcessInjectionTarget)
+    	    log.info("processInjectionTarget() class = "+pit.getAnnotatedType().toString());
+    }
+    
+    public void processBean(@Observes ProcessBean pBean, BeanManager bm) {
+    	if(this.logProcessBean)
+    	    log.info("processBean() class = "+pBean.getBean().getBeanClass());
+    }
+    
+    public void afterBeanDiscovery(@Observes AfterBeanDiscovery abd, BeanManager bm) {
+    	if(this.logAfterBeanDiscovery){
+            Set<Bean<?>> allBeans = bm.getBeans(Object.class, new AnnotationLiteral<Any>() {});
+            StringBuilder sBuilder = new StringBuilder();
+            for(Bean bObj : allBeans){
+                sBuilder.append("\n\t"+bObj.getBeanClass().getName());
             }
-        }
+            log.info("afterBeanDiscovery() registered beans = "+sBuilder.toString());
+    	}
+
+        // CDI uses an AnnotatedType object to read the annotations of a class
+        AnnotatedType<RuntimeManagerFactoryImpl> at = bm.createAnnotatedType(RuntimeManagerFactoryImpl.class); 
+
+        // CDI extension uses an InjectionTarget to delegate instantiation, DI and lifecycle callbacks to the CDI container
+        final InjectionTarget<RuntimeManagerFactoryImpl> it = bm.createInjectionTarget(at);
+
+        abd.addBean( new Bean<RuntimeManagerFactoryImpl>() {
+
+            public Class<?> getBeanClass() {
+                return RuntimeManagerFactoryImpl.class;
+            }
+
+            public Set<InjectionPoint> getInjectionPoints() {
+                return it.getInjectionPoints();
+            }
+
+            public String getName() {
+                return "RuntimeManagerFactoryImpl";
+            }
+
+            public Set<Annotation> getQualifiers() {
+                Set<Annotation> qualifiers = new HashSet<Annotation>();
+                qualifiers.add( new AnnotationLiteral<Default>() {} );
+                qualifiers.add( new AnnotationLiteral<Any>() {} );
+                return qualifiers;
+            }
+            
+            public Class<? extends Annotation> getScope() {
+                return ApplicationScoped.class;
+            }
+
+            public Set<Class<? extends Annotation>> getStereotypes() {
+                return Collections.emptySet();
+            }
+
+            public Set<Type> getTypes() {
+                Set<Type> types = new HashSet<Type>();
+                types.add(RuntimeManagerFactoryImpl.class);
+                types.add(Object.class);
+                return types;
+            }
+
+            public boolean isAlternative() {
+                return false;
+            }
+            
+            public boolean isNullable() {
+                return false;
+            }
+
+            public RuntimeManagerFactoryImpl create(CreationalContext<RuntimeManagerFactoryImpl> ctx) {
+                System.out.println("*** create jeff");
+            	RuntimeManagerFactoryImpl instance = it.produce(ctx);
+                it.inject(instance, ctx);                               //call initializer methods and perform field injection
+                it.postConstruct(instance);
+                return instance;
+            }
+
+            public void destroy(RuntimeManagerFactoryImpl instance, CreationalContext<RuntimeManagerFactoryImpl> ctx) {
+                it.preDestroy(instance);
+                it.dispose(instance);
+                ctx.release();
+            }
+        });
+        
+        if(this.logAfterBeanDiscovery){
+            Set<Bean<?>> allBeans = bm.getBeans(Object.class, new AnnotationLiteral<Any>() {});
+            StringBuilder sBuilder = new StringBuilder();
+            for(Bean bObj : allBeans){
+                sBuilder.append("\n\t"+bObj.getBeanClass().getName());
+            }
+            log.info("afterBeanDiscovery() registered beans = "+sBuilder.toString());
+    	}
+    }
+    
+    public void logProcessInjectionTarget(@Observes ProcessInjectionTarget pit) {
+    	if(this.logProcessInjectionTarget){
+    		Iterator injectionPoints = pit.getInjectionTarget().getInjectionPoints().iterator();
+    		StringBuilder sBuilder = new StringBuilder();
+    		sBuilder.append("processInjectionTarget() pit = "+pit.getClass());
+    		while(injectionPoints.hasNext()) {
+    			Object obj = injectionPoints.next();
+    			if(obj instanceof InjectionPoint){
+    				sBuilder.append("\n\tinjectionPoint = "+((InjectionPoint)obj).toString());
+    			}else {
+    				sBuilder.append("\n\t class = "+obj.getClass().toString());
+    			}
+    		}
+    	}
     }
 
 }

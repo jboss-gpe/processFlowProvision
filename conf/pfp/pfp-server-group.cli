@@ -118,6 +118,16 @@ batch
 /server-group=${pfp.core.group}/system-property=jbpm.conf.dir/:add(value=${jbpm.conf.dir},boot-time=true)
 /server-group=${pfp.core.group}/system-property=drools.session.template.path/:add(value=${drools.session.template.path},boot-time=true)
 /server-group=${pfp.core.group}/system-property=drools.timerService/:add(value=${drools.timerService},boot-time=true)
+
+
+/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.diagnostics.logBeforeBeanDiscovery/:add(value=${org.jboss.processFlow.diagnostics.logBeforeBeanDiscovery},boot-time=true)
+/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.diagnostics.logProcessAnnotatedType/:add(value=${org.jboss.processFlow.diagnostics.logProcessAnnotatedType},boot-time=true)
+/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.diagnostics.logAfterBeanDiscovery/:add(value=${org.jboss.processFlow.diagnostics.logAfterBeanDiscovery},boot-time=true)
+/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.diagnostics.logProcessInjectionTarget/:add(value=${org.jboss.processFlow.diagnostics.logProcessInjectionTarget},boot-time=true)
+/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.diagnostics.logProcessProducer/:add(value=${org.jboss.processFlow.diagnostics.logProcessProducer},boot-time=true)
+/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.diagnostics.logAfterDeploymentValidation/:add(value=${org.jboss.processFlow.diagnostics.logAfterDeploymentValidation},boot-time=true)
+/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.diagnostics.logBeforeShutdown/:add(value=${org.jboss.processFlow.diagnostics.logBeforeShutdown},boot-time=true)
+/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.diagnostics.logProcessBean/:add(value=${org.jboss.processFlow.diagnostics.logProcessBean},boot-time=true)
 run-batch
 
 batch

@@ -10,6 +10,14 @@ import javax.persistence.PersistenceUnit;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
+import org.jbpm.kie.services.api.DeployedUnit;
+import org.jbpm.kie.services.api.DeploymentService;
+import org.jbpm.kie.services.api.DeploymentUnit;
+import org.jbpm.kie.services.api.RuntimeDataService;
+import org.jbpm.kie.services.api.Vfs;
+import org.jbpm.kie.services.impl.VFSDeploymentUnit;
+import org.jbpm.kie.services.impl.model.ProcessDesc;
+
 import org.kie.api.command.Command;
 import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.KieSession;
@@ -32,6 +40,10 @@ import org.jbpm.runtime.manager.impl.RuntimeEnvironmentBuilder;
 
 import org.kie.services.remote.util.RESTUserGroupCallback;
 
+/*
+    - alternative implementation to:  
+        - https://github.com/droolsjbpm/droolsjbpm-integration/blob/master/kie-remote/kie-services-remote/src/main/java/org/kie/services/remote/cdi/ProcessRequestBean.java
+*/
 @ApplicationScoped
 public class ProcessRequestBean {
 
