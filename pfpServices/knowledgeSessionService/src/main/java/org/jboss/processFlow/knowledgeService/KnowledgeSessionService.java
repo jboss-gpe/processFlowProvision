@@ -32,6 +32,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.ejb.*;
 import javax.jms.*;
+import javax.inject.Inject;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.persistence.EntityManager;
@@ -62,6 +63,7 @@ import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
 import org.jboss.processFlow.knowledgeService.KnowledgeSessionServiceMXBean;
 import org.jboss.processFlow.tasks.identity.PFPUserGroupCallback;
 import org.jboss.processFlow.util.CMTDisposeCommand;
+import org.jboss.processFlow.cdi.TestSingleton;
 
 
 @Remote(IKnowledgeSessionService.class)
@@ -83,6 +85,9 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
     
     @PersistenceUnit(unitName=EMF_NAME)
     EntityManagerFactory jbpmCoreEMF;
+
+    @Inject
+    private TestSingleton tSingleton;
     
     protected ObjectName objectName;
     protected MBeanServer platformMBeanServer;

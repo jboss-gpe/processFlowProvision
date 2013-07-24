@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <application xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" version="6" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/application_6.xsd">
     <module><java>processFlow-cdiDiagnostics.jar</java></module>
-    <!--module><java>processFlow-knowledgeSessionService.jar</java></module -->
-    <module>
+    <module><java>processFlow-knowledgeSessionService.jar</java></module>
+    <!--module>
         <web>
             <web-uri>kie-services-remote.war</web-uri>
             <context-root>kie-jbpm-services</context-root>
         </web>
-    </module>
+    </module -->
     <library-directory/>
 </application>

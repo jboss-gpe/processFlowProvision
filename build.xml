@@ -331,6 +331,7 @@
                     <zipfileset dir="${temp.pfp.services.dir}/bpms-pfp.ear.work" />
                     <zipfileset dir="${temp.pfp.services.dir}" >
                         <include name="processFlow-cdiDiagnostics.jar" />
+                        <include name="processFlow-knowledgeSessionService.jar" />
                         <include name="kie-services-remote.war" />
                     </zipfileset>
                 </zip>
@@ -449,7 +450,7 @@
             <subant target="@{target}">
                 <fileset dir="pfpServices/interfaces" includes="build.xml"/>
                 <fileset dir="pfpServices/common" includes="build.xml"/>
-                <!--fileset dir="pfpServices/knowledgeSessionService" includes="build.xml"/ -->
+                <fileset dir="pfpServices/knowledgeSessionService" includes="build.xml"/>
                 <fileset dir="pfpServices/taskService" includes="build.xml"/>
                 <fileset dir="pfpServices/cdiDiagnostics" includes="build.xml"/>
                 <fileset dir="pfpServices/kie-services-remote" includes="build.xml"/>
