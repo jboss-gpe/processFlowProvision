@@ -98,8 +98,12 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
     private RuntimeEnvironment rEnvironment = null;
     
     @PostConstruct
-    public void start() throws Exception {
+    public void start() {
         try {
+            if(tSingleton == null)
+                throw new RuntimeException("start() tSingleton was not injected");
+            log.info("start() tSingleton responds : "+tSingleton.saySomething());
+
             String nameString = "META-INF/Taskorm.xml";
             java.io.InputStream iStream = this.getClass().getClassLoader().getResourceAsStream(nameString);
             if(iStream == null)
@@ -113,10 +117,11 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
             
 
             createRuntimeEnvironmentBuilder();
-            
+           
+        } catch(RuntimeException x) {
+            throw x; 
         } catch(Exception x) {
             throw new RuntimeException(x);
-        }finally {
         }
     }
     

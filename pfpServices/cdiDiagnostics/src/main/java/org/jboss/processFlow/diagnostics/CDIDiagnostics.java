@@ -120,11 +120,13 @@ public class CDIDiagnostics implements Extension {
     	String name = pBean.getBean().getBeanClass().getName();
     	if(this.logProcessBean)
     	    log.info("processBean() class = "+name);
-    	
+    
+    /*	
     	if("org.jboss.processFlow.cdi.TestSingleton".equals(name)){    		
     		CreationalContext ctx = bm.createCreationalContext(null);
     		pBean.getBean().create(ctx);
     	}
+    */
     }
     
     public void afterBeanDiscovery(@Observes AfterBeanDiscovery abd, BeanManager bm) {

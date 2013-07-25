@@ -15,6 +15,8 @@ import org.jbpm.kie.services.api.DeploymentService;
 import org.jbpm.kie.services.api.DeploymentUnit;
 import org.jbpm.kie.services.api.RuntimeDataService;
 import org.jbpm.kie.services.api.Vfs;
+import org.jbpm.kie.services.api.bpmn2.BPMN2DataService;
+import org.jbpm.kie.services.impl.DeployedUnitImpl;
 import org.jbpm.kie.services.impl.VFSDeploymentUnit;
 import org.jbpm.kie.services.impl.model.ProcessDesc;
 
@@ -30,6 +32,7 @@ import org.kie.internal.runtime.manager.context.EmptyContext;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.kie.internal.task.api.InternalTaskService;
 import org.kie.services.client.serialization.jaxb.impl.JaxbExceptionResponse;
+import org.kie.commons.java.nio.file.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.kie.services.remote.exception.KieServiceBadRequestException;
@@ -37,12 +40,16 @@ import org.kie.services.remote.exception.KieServiceBadRequestException;
 import org.kie.internal.runtime.manager.RuntimeEnvironment;
 import org.kie.internal.runtime.manager.RuntimeManagerFactory;
 import org.jbpm.runtime.manager.impl.RuntimeEnvironmentBuilder;
+import org.jbpm.shared.services.api.FileException;
+import org.jbpm.shared.services.api.FileService;
 
 import org.kie.services.remote.util.RESTUserGroupCallback;
 
 /*
     - alternative implementation to:  
         - https://github.com/droolsjbpm/droolsjbpm-integration/blob/master/kie-remote/kie-services-remote/src/main/java/org/kie/services/remote/cdi/ProcessRequestBean.java
+        
+    - much of this functionality is also taken from VFSDeploymentService
 */
 @ApplicationScoped
 public class ProcessRequestBean {
@@ -54,17 +61,27 @@ public class ProcessRequestBean {
     private RuntimeManager rManager = null;
     private Object rManagerLock = new Object();
 
-    //@Inject
-    private TaskService taskService;
-
     @PersistenceUnit(unitName="org.jbpm.persistence.jpa")
     EntityManagerFactory jbpmCoreEMF;
+    
+    //@Inject
+    private TaskService taskService;
+    
+    //@Inject
+    private FileService fs;
+    
+    //@Inject
+    private BPMN2DataService bpmn2Service;
+
 
     @PostConstruct
     public void start() {
         logger.info("start");
         try {
             createRuntimeEnvironmentBuilder();
+            
+            //loadProcesses(vfsUnit, builder, deployedUnit);
+            //loadRules(vfsUnit, builder, deployedUnit); 
         }catch(Exception x) {
             throw new RuntimeException(x);
         }
@@ -140,6 +157,54 @@ public class ProcessRequestBean {
             result = exceptResp;
         }
         return result;
+    }
+    
+    // from VFSDeploymentService
+    protected void loadProcesses(VFSDeploymentUnit vfsUnit, RuntimeEnvironmentBuilder builder, DeployedUnitImpl deployedUnit) {
+        Iterable<Path> loadProcessFiles = null;
+
+        try {
+            Path processFolder = fs.getPath(vfsUnit.getRepository() + vfsUnit.getRepositoryFolder());
+            loadProcessFiles = fs.loadFilesByType(processFolder, ".+bpmn[2]?$");
+        } catch (FileException ex) {
+            logger.error("Error while loading process files", ex);
+        }
+        for (Path p : loadProcessFiles) {
+            String processString = "";
+            try {
+                processString = new String(fs.loadFile(p));
+                builder.addAsset(ResourceFactory.newByteArrayResource(processString.getBytes()), ResourceType.BPMN2);
+                ProcessDesc process = bpmn2Service.findProcessId(processString, null);
+                process.setOriginalPath(p.toUri().toString());
+                process.setDeploymentId(vfsUnit.getIdentifier());
+                deployedUnit.addAssetLocation(process.getId(), process);
+                
+            } catch (Exception ex) {
+                logger.error("Error while reading process files", ex);
+            }
+        }
+    }
+    
+    //from VFSDeploymentService
+    protected void loadRules(VFSDeploymentUnit vfsUnit, RuntimeEnvironmentBuilder builder, DeployedUnitImpl deployedUnit) {
+        Iterable<Path> loadRuleFiles = null;
+
+        try {
+            Path rulesFolder = fs.getPath(vfsUnit.getRepository() + vfsUnit.getRepositoryFolder());
+            loadRuleFiles = fs.loadFilesByType(rulesFolder, ".+drl");
+        } catch (FileException ex) {
+            logger.error("Error while loading rule files", ex);
+        }
+        for (Path p : loadRuleFiles) {
+            String ruleString = "";
+            try {
+                ruleString = new String(fs.loadFile(p));
+                builder.addAsset(ResourceFactory.newByteArrayResource(ruleString.getBytes()), ResourceType.DRL);                
+                
+            } catch (Exception ex) {
+                logger.error("Error while reading rule files", ex);
+            }
+        }
     }
 
 }

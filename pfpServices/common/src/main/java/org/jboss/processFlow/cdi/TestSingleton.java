@@ -13,6 +13,10 @@ public class TestSingleton {
         System.out.println("TestSingleton.start()");
     }
 
+    public String saySomething() {
+        return "YAT-YAS";
+    }
+
     @PreDestroy
     public void stop() {
         System.out.println("TestSingleton.stop()");
