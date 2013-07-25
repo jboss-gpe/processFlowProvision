@@ -12,11 +12,6 @@
             <arg value="-Dmaven.test.skip=true" />
         </exec>
 
-        <!--mkdir dir="target" />
-        <javac debug="true" srcdir="src/main/java" destdir="target" >
-            <classpath refid="classpath" />
-        </javac -->
-
         <!-- filter out unnecessary dependencies associated with kie-services-remote maven artifact -->
         <jar destfile="target/${ant.project.name}.war" >
             <zipfileset dir="target/${ant.project.name}" >
@@ -24,6 +19,7 @@
                 <include name="WEB-INF/*" />
                 <include name="WEB-INF/classes/**/*" />
                 <include name="WEB-INF/lib/kie-services-client*.jar" />
+                <include name="WEB-INF/lib/kie-services-remote*.jar" />
             </zipfileset>
 
             <!-- org/jbpm/kie/services/impl/SearchServiceImpl doesn't seem to be used and yet brings in apache lucene dependencies .... will purge -->

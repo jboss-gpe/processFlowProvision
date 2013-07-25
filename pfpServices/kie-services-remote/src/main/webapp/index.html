@@ -6,6 +6,9 @@
     <body>
         REST API documentation can be found here :  https://github.com/mrietveld/droolsjbpm-integration/wiki/Rest-API 
 
+        clear history
+          curl -v -X POST http://zareason:8330/kie-jbpm-services/rest/runtime/werwer/history/clear
+
         post BPMN2 resource
           curl -v -X POST --data @pfpServices/kie-services-remote/src/test/resources/simpleHumanTask.bpmn2 -HAccept:text/plain $HOSTNAME:8330/kie-jbpm-services/rest/runtime/werwer/process
         

@@ -27,9 +27,6 @@ import javax.enterprise.inject.spi.ProcessBean;
 import javax.enterprise.inject.spi.ProcessInjectionTarget;
 import javax.enterprise.util.AnnotationLiteral;
 
-import org.jbpm.runtime.manager.impl.RuntimeManagerFactoryImpl;
-import org.jboss.processFlow.cdi.TestSingleton;
-
 import org.apache.log4j.Logger;
 
 public class CDIDiagnostics implements Extension {
@@ -87,122 +84,43 @@ public class CDIDiagnostics implements Extension {
         log.info(sBuilder.toString());
         
         if(vetoClassesString != null){
-        	vetoClasses = new ArrayList<String>();
-        	String[] vetoClassesArray = vetoClassesString.split("\\s");
-        	for(String vetoClass : vetoClassesArray){
-        		vetoClasses.add(vetoClass);
-        	}
+            vetoClasses = new ArrayList<String>();
+            String[] vetoClassesArray = vetoClassesString.split("\\s");
+            for(String vetoClass : vetoClassesArray){
+                vetoClasses.add(vetoClass);
+            }
         }
     }
     
     public void beforeBeanDiscovery(@Observes BeforeBeanDiscovery bbd, BeanManager bm) {
-    	if(this.logBeforeBeanDiscovery)
+        if(this.logBeforeBeanDiscovery)
             log.info("beforeBeanDiscovery() bbd = "+bbd);
     }
     
     public void processAnnotatedType(@Observes ProcessAnnotatedType pat, BeanManager bm) {
-    	String name = pat.getAnnotatedType().getJavaClass().getName();
-    	if(this.logProcessAnnotatedType)
+        String name = pat.getAnnotatedType().getJavaClass().getName();
+        if(this.logProcessAnnotatedType)
             log.info("processAnnotatedType() class = "+name);
-    	
-    	if(vetoClasses != null && vetoClasses.contains(name)){
-    		pat.veto();
-    		log.info("processAnnotatedType() just vetoed : "+ name);
-    	}
+        
+        if(vetoClasses != null && vetoClasses.contains(name)){
+            pat.veto();
+            log.info("processAnnotatedType() just vetoed : "+ name);
+        }
     }
     
     public void processInjectionTarget(@Observes ProcessInjectionTarget pit, BeanManager bm){
-    	if(this.logProcessInjectionTarget)
-    	    log.info("processInjectionTarget() class = "+pit.getAnnotatedType().toString());
+        if(this.logProcessInjectionTarget)
+            log.info("processInjectionTarget() class = "+pit.getAnnotatedType().toString());
     }
     
     public void processBean(@Observes ProcessBean pBean, BeanManager bm) {
-    	String name = pBean.getBean().getBeanClass().getName();
-    	if(this.logProcessBean)
-    	    log.info("processBean() class = "+name);
+        String name = pBean.getBean().getBeanClass().getName();
+        if(this.logProcessBean)
+            log.info("processBean() class = "+name);
     
-    /*	
-    	if("org.jboss.processFlow.cdi.TestSingleton".equals(name)){    		
-    		CreationalContext ctx = bm.createCreationalContext(null);
-    		pBean.getBean().create(ctx);
-    	}
-    */
     }
     
     public void afterBeanDiscovery(@Observes AfterBeanDiscovery abd, BeanManager bm) {
-    	if(this.logAfterBeanDiscovery){
-            Set<Bean<?>> allBeans = bm.getBeans(Object.class, new AnnotationLiteral<Any>() {});
-            StringBuilder sBuilder = new StringBuilder();
-            for(Bean bObj : allBeans){
-                sBuilder.append("\n\t"+bObj.getBeanClass().getName());
-            }
-            log.info("afterBeanDiscovery() registered beans = "+sBuilder.toString());
-    	}
-
-        // CDI uses an AnnotatedType object to read the annotations of a class
-        AnnotatedType<TestSingleton> at = bm.createAnnotatedType(TestSingleton.class); 
-
-        // CDI extension uses an InjectionTarget to delegate instantiation, DI and lifecycle callbacks to the CDI container
-        final InjectionTarget<TestSingleton> it = bm.createInjectionTarget(at);
-
-        abd.addBean( new Bean<TestSingleton>() {
-
-            public Class<?> getBeanClass() {
-                return TestSingleton.class;
-            }
-
-            public Set<InjectionPoint> getInjectionPoints() {
-                return it.getInjectionPoints();
-            }
-
-            public String getName() {
-                return "TestSingleton";
-            }
-
-            public Set<Annotation> getQualifiers() {
-                Set<Annotation> qualifiers = new HashSet<Annotation>();
-                qualifiers.add( new AnnotationLiteral<Default>() {} );
-                qualifiers.add( new AnnotationLiteral<Any>() {} );
-                return qualifiers;
-            }
-            
-            public Class<? extends Annotation> getScope() {
-                return ApplicationScoped.class;
-            }
-
-            public Set<Class<? extends Annotation>> getStereotypes() {
-                return Collections.emptySet();
-            }
-
-            public Set<Type> getTypes() {
-                Set<Type> types = new HashSet<Type>();
-                types.add(TestSingleton.class);
-                types.add(Object.class);
-                return types;
-            }
-
-            public boolean isAlternative() {
-                return false;
-            }
-            
-            public boolean isNullable() {
-                return false;
-            }
-
-            public TestSingleton create(CreationalContext<TestSingleton> ctx) {
-            	TestSingleton instance = it.produce(ctx);
-                it.inject(instance, ctx);                               //call initializer methods and perform field injection
-                it.postConstruct(instance);
-                return instance;
-            }
-
-            public void destroy(TestSingleton instance, CreationalContext<TestSingleton> ctx) {
-                it.preDestroy(instance);
-                it.dispose(instance);
-                ctx.release();
-            }
-        });
-        
         if(this.logAfterBeanDiscovery){
             Set<Bean<?>> allBeans = bm.getBeans(Object.class, new AnnotationLiteral<Any>() {});
             StringBuilder sBuilder = new StringBuilder();
@@ -210,23 +128,23 @@ public class CDIDiagnostics implements Extension {
                 sBuilder.append("\n\t"+bObj.getBeanClass().getName());
             }
             log.info("afterBeanDiscovery() registered beans = "+sBuilder.toString());
-    	}
+        }
     }
     
     public void logProcessInjectionTarget(@Observes ProcessInjectionTarget pit) {
-    	if(this.logProcessInjectionTarget){
-    		Iterator injectionPoints = pit.getInjectionTarget().getInjectionPoints().iterator();
-    		StringBuilder sBuilder = new StringBuilder();
-    		sBuilder.append("processInjectionTarget() pit = "+pit.getClass());
-    		while(injectionPoints.hasNext()) {
-    			Object obj = injectionPoints.next();
-    			if(obj instanceof InjectionPoint){
-    				sBuilder.append("\n\tinjectionPoint = "+((InjectionPoint)obj).toString());
-    			}else {
-    				sBuilder.append("\n\t class = "+obj.getClass().toString());
-    			}
-    		}
-    	}
+        if(this.logProcessInjectionTarget){
+            Iterator injectionPoints = pit.getInjectionTarget().getInjectionPoints().iterator();
+            StringBuilder sBuilder = new StringBuilder();
+            sBuilder.append("processInjectionTarget() pit = "+pit.getClass());
+            while(injectionPoints.hasNext()) {
+                Object obj = injectionPoints.next();
+                if(obj instanceof InjectionPoint){
+                    sBuilder.append("\n\tinjectionPoint = "+((InjectionPoint)obj).toString());
+                }else {
+                    sBuilder.append("\n\t class = "+obj.getClass().toString());
+                }
+            }
+        }
     }
 
 }

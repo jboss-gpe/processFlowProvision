@@ -42,8 +42,5 @@
         <!-- needed by bamService, knowledgeSessionService and various org.jboss.processFlow static libraries -->
         <module name="org.jboss.marshalling" export="true" />
         <module name="org.jboss.marshalling.river" export="true" />
-
-        <!-- java.lang.ClassNotFoundException: org.apache.commons.collections.Predicate from [Module "deployment.bpms-pfp.ear.kie-services-remote.war:main" -->
-        <module name="org.apache.commons.collections" export="true" />
     </dependencies>
 </module>
