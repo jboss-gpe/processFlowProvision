@@ -39,7 +39,7 @@ public class CDIDiagnostics implements Extension {
     private static final String LOG_AFTER_DEPLOYMENT_VALIDATION="org.jboss.processFlow.diagnostics.logAfterDeploymentValidation";
     private static final String LOG_BEFORE_SHUTDOWN="org.jboss.processFlow.diagnostics.logBeforeShutdown";
     private static final String LOG_PROCESS_BEAN="org.jboss.processFlow.diagnostics.logProcessBean";
-    private static final String VETO_CLASSES="org.jboss.processFlow.cdi.comma.delimited.veto.classes";
+    private static final String VETO_CLASSES="org.jboss.processFlow.cdi.space.delimited.veto.classes";
     
     
     private static Logger log = Logger.getLogger("CDIDiagnostics");
@@ -101,7 +101,8 @@ public class CDIDiagnostics implements Extension {
         String name = pat.getAnnotatedType().getJavaClass().getName();
         if(this.logProcessAnnotatedType)
             log.info("processAnnotatedType() class = "+name);
-        
+       
+        // NOTE:  This does not prevent the class from being instantiated 
         if(vetoClasses != null && vetoClasses.contains(name)){
             pat.veto();
             log.info("processAnnotatedType() just vetoed : "+ name);
