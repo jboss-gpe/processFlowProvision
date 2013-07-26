@@ -8,7 +8,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
 @RequestScoped
-public class RESTSessionScopedInitializer {
+public class RESTSessionScopedProducer {
 
 	@Inject
 	private EntityManagerFactory emf;
