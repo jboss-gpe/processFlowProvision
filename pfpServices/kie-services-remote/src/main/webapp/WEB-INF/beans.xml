@@ -8,4 +8,11 @@
         <!--class>org.jbpm.services.task.lifecycle.listeners.JPATaskLifeCycleEventListener</class -->
         <class>org.jbpm.services.task.identity.JAASUserGroupCallbackImpl</class>
     </alternatives>
+    <decorators>
+        <class>org.jbpm.services.task.identity.UserGroupTaskQueryServiceDecorator</class>
+        <class>org.jbpm.services.task.identity.UserGroupTaskInstanceServiceDecorator</class>
+        <class>org.jbpm.services.task.identity.UserGroupLifeCycleManagerDecorator</class>
+        <class>org.jbpm.services.task.subtask.SubTaskDecorator</class>
+    </decorators>
+
 </beans>

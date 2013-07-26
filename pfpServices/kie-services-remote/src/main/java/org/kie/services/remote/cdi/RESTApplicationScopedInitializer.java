@@ -7,12 +7,17 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceUnit;
 
 import org.jbpm.kie.services.api.DeploymentService;
 import org.jbpm.kie.services.api.DeploymentUnit;
 import org.jbpm.kie.services.api.Vfs;
 import org.jbpm.kie.services.impl.VFSDeploymentUnit;
+import org.jbpm.shared.services.cdi.Selectable;
+import org.kie.internal.task.api.UserGroupCallback;
 
 /*
  * triggers org.jbpm.kie.services.impl.event.Deploy &  org.jbpm.kie.services.impl.event.UnDeploy events
@@ -20,7 +25,14 @@ import org.jbpm.kie.services.impl.VFSDeploymentUnit;
  */
 
 @ApplicationScoped
-public class RESTDeploymentInitializer {
+public class RESTApplicationScopedInitializer {
+	
+	@PersistenceUnit(unitName="org.jbpm.persistence.jpa")
+	EntityManagerFactory jbpmCoreEMF;
+	
+	@Inject
+    @Selectable
+    private UserGroupCallback userGroupCallback;
 	
 	@Inject
     @Vfs
@@ -32,6 +44,16 @@ public class RESTDeploymentInitializer {
 	public void start() {
         DeploymentUnit deploymentUnit = new VFSDeploymentUnit("general", "", "processes/general");
         deploymentService.deploy(deploymentUnit);
+	}
+	
+	@Produces
+    public UserGroupCallback produceSelectedUserGroupCallback() {
+        return userGroupCallback;
+    }
+	
+	@Produces
+	public EntityManagerFactory getEntityManagerFactory() {
+	    return jbpmCoreEMF;
 	}
 	
 	@PreDestroy
