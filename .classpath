@@ -79,5 +79,6 @@
 			<attribute name="maven.scope" value="compile"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="src" path="/kie-commons-io"/>
 	<classpathentry kind="output" path="pfpServices/taskService/target"/>
 </classpath>

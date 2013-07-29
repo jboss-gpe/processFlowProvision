@@ -34,7 +34,7 @@ public class RESTApplicationStartup {
 	private List<DeploymentUnit> units = new ArrayList<DeploymentUnit>();
 	
 	private String deploymentId = "general";
-	private String vfsPath = "process/"+deploymentId;
+	private String vfsPath = "/tmp/bpms6/process/";
 	
 	private Logger log = LoggerFactory.getLogger("RESTApplicationStartup");
 	
@@ -42,9 +42,8 @@ public class RESTApplicationStartup {
 	public void start() {
 		deploymentId = System.getProperty(DEPLOYMENT_ID, deploymentId);
 		vfsPath = System.getProperty(VFS_PATH, vfsPath);
-		System.out.println("jeff");
 		log.info("start() deploymentId = {} : vfsPath = {}", deploymentId, vfsPath);
-        DeploymentUnit deploymentUnit = new VFSDeploymentUnit("general", "", "processes/general");
+        DeploymentUnit deploymentUnit = new VFSDeploymentUnit("general", "", vfsPath+deploymentId);
         deploymentService.deploy(deploymentUnit);
 	}
 	

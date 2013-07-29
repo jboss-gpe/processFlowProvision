@@ -515,6 +515,13 @@
         </if>
     </target>
 
+    <target name="pfp.refresh.bpms" description="">
+        <delete file="${install.home}/lib/${bpms.deployer.zip.name}" />
+        <antcall target="download.and.unzip.bpms.deployer" />
+        <copy todir="${jboss.home}/modules" file="conf/jboss/layers.conf" overwrite="true" />
+        <antcall target="local.bounce.pfp.core" />
+    </target>
+
     <target name="all" >
         <antcall target="download.and.unzip.bpms.deployer" />
         <antcall target="refresh.master" />
