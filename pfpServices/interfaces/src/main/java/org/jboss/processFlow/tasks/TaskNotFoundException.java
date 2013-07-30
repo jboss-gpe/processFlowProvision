@@ -26,9 +26,9 @@ import org.jbpm.services.task.exception.TaskException;
 
 public class TaskNotFoundException extends TaskException {
     
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public TaskNotFoundException(String message) {
+    public TaskNotFoundException(String message) {
         super(message);
     }
 

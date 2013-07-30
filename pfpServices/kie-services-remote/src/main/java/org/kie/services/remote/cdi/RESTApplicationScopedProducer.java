@@ -26,57 +26,57 @@ import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
 public class RESTApplicationScopedProducer {
-	
-	public static final String GIT_USER = "org.kie.services.git.user";
-	public static final String GIT_PASSWD = "org.kie.services.git.passwd";
-	public static final String GIT_REPO_url = "org.kie.services.git.repo.url";
-	
-	@PersistenceUnit(unitName="org.jbpm.persistence.jpa")
-	EntityManagerFactory jbpmCoreEMF;
-	
-	@Inject
+    
+    public static final String GIT_USER = "org.kie.services.git.user";
+    public static final String GIT_PASSWD = "org.kie.services.git.passwd";
+    public static final String GIT_REPO_url = "org.kie.services.git.repo.url";
+    
+    @PersistenceUnit(unitName="org.jbpm.persistence.jpa")
+    EntityManagerFactory jbpmCoreEMF;
+    
+    @Inject
     @Selectable
     private UserGroupCallback userGroupCallback;
-	
-	private Logger log = LoggerFactory.getLogger("RESTApplicationScopedProducer");
-	
-	private IOService vfsIOService;
-	private String gitUser = "jboss";
-	private String gitPasswd = "bpms";
-	private String remoteGitUrl = "changeMe";
-	private String gitUrl = "git://jbpm-local";
-	
-	@Produces
+    
+    private Logger log = LoggerFactory.getLogger("RESTApplicationScopedProducer");
+    
+    private IOService vfsIOService;
+    private String gitUser = "jboss";
+    private String gitPasswd = "bpms";
+    private String remoteGitUrl = "changeMe";
+    private String gitUrl = "git://jbpm-local";
+    
+    @Produces
     public UserGroupCallback produceSelectedUserGroupCallback() {
         return userGroupCallback;
     }
-	
-	@Produces
-	public EntityManagerFactory getEntityManagerFactory() {
-	    return jbpmCoreEMF;
-	}
-	
-	@Produces
-	@Named("ioStrategy")
-	public IOService getIOService() {
-		vfsIOService = new IOServiceNio2WrapperImpl();
-		/*try{
-			final URI fsURI = URI.create(gitUrl);
-			FileSystem fSystem = vfsIOService.getFileSystem(fsURI);
-			if(fSystem == null){
-				gitUser = System.getProperty(this.GIT_USER, gitUser);
-				gitPasswd = System.getProperty(this.GIT_PASSWD, gitPasswd);
-				gitUrl = System.getProperty(this.GIT_REPO_url, this.gitUrl);
-				log.info("getIOService() using gitUser of {} to create fileSystem with URL of {}", gitUser, gitUrl);
-				final Map<String, Object> env = new HashMap<String, Object>();
-				env.put( "username", gitUser );
-			    env.put( "password", gitPasswd);
-			    env.put( "origin", remoteGitUrl);
-				vfsIOService.newFileSystem(fsURI, env, FileSystemType.Bootstrap.BOOTSTRAP_INSTANCE);
-			}
-		}catch(Exception x){
-			throw new RuntimeException(x);
-		}*/
-		return vfsIOService;
-	}
+    
+    @Produces
+    public EntityManagerFactory getEntityManagerFactory() {
+        return jbpmCoreEMF;
+    }
+    
+    @Produces
+    @Named("ioStrategy")
+    public IOService getIOService() {
+        vfsIOService = new IOServiceNio2WrapperImpl();
+        /*try{
+            final URI fsURI = URI.create(gitUrl);
+            FileSystem fSystem = vfsIOService.getFileSystem(fsURI);
+            if(fSystem == null){
+                gitUser = System.getProperty(this.GIT_USER, gitUser);
+                gitPasswd = System.getProperty(this.GIT_PASSWD, gitPasswd);
+                gitUrl = System.getProperty(this.GIT_REPO_url, this.gitUrl);
+                log.info("getIOService() using gitUser of {} to create fileSystem with URL of {}", gitUser, gitUrl);
+                final Map<String, Object> env = new HashMap<String, Object>();
+                env.put( "username", gitUser );
+                env.put( "password", gitPasswd);
+                env.put( "origin", remoteGitUrl);
+                vfsIOService.newFileSystem(fsURI, env, FileSystemType.Bootstrap.BOOTSTRAP_INSTANCE);
+            }
+        }catch(Exception x){
+            throw new RuntimeException(x);
+        }*/
+        return vfsIOService;
+    }
 }

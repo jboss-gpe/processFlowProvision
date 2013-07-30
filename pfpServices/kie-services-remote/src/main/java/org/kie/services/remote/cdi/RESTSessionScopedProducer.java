@@ -10,18 +10,18 @@ import javax.persistence.EntityManagerFactory;
 @RequestScoped
 public class RESTSessionScopedProducer {
 
-	@Inject
-	private EntityManagerFactory emf;
+    @Inject
+    private EntityManagerFactory emf;
 
-	@Produces
-	@RequestScoped
-	public EntityManager getEntityManager() {
-		EntityManager em = emf.createEntityManager();
-		return em;
-	}
+    @Produces
+    @RequestScoped
+    public EntityManager getEntityManager() {
+        EntityManager em = emf.createEntityManager();
+        return em;
+    }
 
-	public void close(@Disposes EntityManager em) {
-		em.close();
-	}
+    public void close(@Disposes EntityManager em) {
+        em.close();
+    }
 
 }

@@ -23,34 +23,34 @@ import org.slf4j.LoggerFactory;
 @Singleton
 @Startup
 public class RESTApplicationStartup {
-	
-	public static final String DEPLOYMENT_ID = "org.kie.services.remote.cdi.deployment.id";
-	public static final String VFS_PATH = "org.kie.services.remote.cdi.vfs.path";
-	
-	@Inject
+    
+    public static final String DEPLOYMENT_ID = "org.kie.services.remote.cdi.deployment.id";
+    public static final String VFS_PATH = "org.kie.services.remote.cdi.vfs.path";
+    
+    @Inject
     @Vfs
     private DeploymentService deploymentService;
-	
-	private List<DeploymentUnit> units = new ArrayList<DeploymentUnit>();
-	
-	private String deploymentId = "general";
-	private String vfsPath = "/tmp/bpms6/process/";
-	
-	private Logger log = LoggerFactory.getLogger("RESTApplicationStartup");
-	
-	@PostConstruct
-	public void start() {
-		deploymentId = System.getProperty(DEPLOYMENT_ID, deploymentId);
-		vfsPath = System.getProperty(VFS_PATH, vfsPath);
-		log.info("start() deploymentId = {} : vfsPath = {}", deploymentId, vfsPath);
+    
+    private List<DeploymentUnit> units = new ArrayList<DeploymentUnit>();
+    
+    private String deploymentId = "general";
+    private String vfsPath = "/tmp/bpms6/process/";
+    
+    private Logger log = LoggerFactory.getLogger("RESTApplicationStartup");
+    
+    @PostConstruct
+    public void start() {
+        deploymentId = System.getProperty(DEPLOYMENT_ID, deploymentId);
+        vfsPath = System.getProperty(VFS_PATH, vfsPath);
+        log.info("start() deploymentId = {} : vfsPath = {}", deploymentId, vfsPath);
         DeploymentUnit deploymentUnit = new VFSDeploymentUnit("general", "", vfsPath+deploymentId);
         deploymentService.deploy(deploymentUnit);
-	}
-	
-	@PreDestroy
-	public void stop() {
-		for (DeploymentUnit unit : units) {
+    }
+    
+    @PreDestroy
+    public void stop() {
+        for (DeploymentUnit unit : units) {
             deploymentService.undeploy(unit);
         }
-	}
+    }
 }
