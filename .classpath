@@ -80,5 +80,15 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="/kie-commons-io"/>
+	<classpathentry kind="src" path="/kie-services-remote"/>
+	<classpathentry kind="lib" path="/home/jbride/.m2/repository/org/jboss/spec/javax/servlet/jboss-servlet-api_3.0_spec/1.0.0.Final/jboss-servlet-api_3.0_spec-1.0.0.Final.jar">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.groupId" value="org.jboss.spec.javax.servlet"/>
+			<attribute name="maven.artifactId" value="jboss-servlet-api_3.0_spec"/>
+			<attribute name="maven.version" value="1.0.0.Final"/>
+			<attribute name="maven.scope" value="compile"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="pfpServices/taskService/target"/>
 </classpath>

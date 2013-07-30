@@ -17,8 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /*
- * triggers org.jbpm.kie.services.impl.event.Deploy &  org.jbpm.kie.services.impl.event.UnDeploy events
- * captured in org.kie.services.remote.cdi.RuntimeManagerManager
+ * Triggers org.jbpm.kie.services.impl.event.Deploy &  org.jbpm.kie.services.impl.event.UnDeploy events.
+ * These events are captured in org.kie.services.remote.cdi.RuntimeManagerManager.
  */
 @Singleton
 @Startup
@@ -34,7 +34,7 @@ public class RESTApplicationStartup {
     private List<DeploymentUnit> units = new ArrayList<DeploymentUnit>();
     
     private String deploymentId = "general";
-    private String vfsPath = "/tmp/bpms6/process/";
+    private String vfsPath = "/tmp/bpms/processes/";
     
     private Logger log = LoggerFactory.getLogger("RESTApplicationStartup");
     
@@ -42,14 +42,21 @@ public class RESTApplicationStartup {
     public void start() {
         deploymentId = System.getProperty(DEPLOYMENT_ID, deploymentId);
         vfsPath = System.getProperty(VFS_PATH, vfsPath);
-        log.info("start() deploymentId = {} : vfsPath = {}", deploymentId, vfsPath);
-        DeploymentUnit deploymentUnit = new VFSDeploymentUnit("general", "", vfsPath+deploymentId);
-        deploymentService.deploy(deploymentUnit);
+        if(deploymentService.getDeployedUnit(deploymentId) == null){
+        	log.info("start() creating deploymentUnit with deploymentId = {} : vfsPath = {}", deploymentId, vfsPath);
+        	VFSDeploymentUnit deploymentUnit = new VFSDeploymentUnit(deploymentId, "", vfsPath+deploymentId);
+        	deploymentUnit.setStrategy(DeploymentUnit.RuntimeStrategy.PER_PROCESS_INSTANCE);
+        	deploymentService.deploy(deploymentUnit);
+        	units.add(deploymentUnit);
+        }else{
+        	log.info("start() deployedUnit with following deploymentId already exists : {}", this.deploymentId);
+        }
     }
     
     @PreDestroy
     public void stop() {
         for (DeploymentUnit unit : units) {
+        	log.info("stop() about to stop following deployment unit : {}", unit.getIdentifier());
             deploymentService.undeploy(unit);
         }
     }

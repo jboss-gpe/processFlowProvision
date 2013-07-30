@@ -29,7 +29,8 @@ public class RESTApplicationScopedProducer {
     
     public static final String GIT_USER = "org.kie.services.git.user";
     public static final String GIT_PASSWD = "org.kie.services.git.passwd";
-    public static final String GIT_REPO_url = "org.kie.services.git.repo.url";
+    public static final String GIT_REPO_URL = "org.kie.services.git.repo.url";
+    public static final String GIT_REMOTE_REPO_URL = "org.kie.services.git.remote.repo.url";
     
     @PersistenceUnit(unitName="org.jbpm.persistence.jpa")
     EntityManagerFactory jbpmCoreEMF;
@@ -43,8 +44,9 @@ public class RESTApplicationScopedProducer {
     private IOService vfsIOService;
     private String gitUser = "jboss";
     private String gitPasswd = "bpms";
-    private String remoteGitUrl = "changeMe";
+    private String remoteGitUrl = "https://github.com/guvnorngtestuser1/jbpm-console-ng-playground.git";
     private String gitUrl = "git://jbpm-local";
+    private URI fsURI = null;
     
     @Produces
     public UserGroupCallback produceSelectedUserGroupCallback() {
@@ -59,24 +61,35 @@ public class RESTApplicationScopedProducer {
     @Produces
     @Named("ioStrategy")
     public IOService getIOService() {
-        vfsIOService = new IOServiceNio2WrapperImpl();
-        /*try{
-            final URI fsURI = URI.create(gitUrl);
+        try{
+        	if(vfsIOService == null)
+        	    vfsIOService = new IOServiceNio2WrapperImpl();
+        	
+        	if(fsURI == null)
+                fsURI = URI.create(gitUrl);
+        	
             FileSystem fSystem = vfsIOService.getFileSystem(fsURI);
             if(fSystem == null){
                 gitUser = System.getProperty(this.GIT_USER, gitUser);
                 gitPasswd = System.getProperty(this.GIT_PASSWD, gitPasswd);
-                gitUrl = System.getProperty(this.GIT_REPO_url, this.gitUrl);
-                log.info("getIOService() using gitUser of {} to create fileSystem with URL of {}", gitUser, gitUrl);
+                gitUrl = System.getProperty(this.GIT_REPO_URL, this.gitUrl);
+                remoteGitUrl = System.getProperty(this.GIT_REMOTE_REPO_URL, remoteGitUrl);
+                StringBuilder sBuilder = new StringBuilder();
+                sBuilder.append("\n\t gitUser = "+gitUser);
+                sBuilder.append("\n\tgitUrl = "+gitUrl);
+                sBuilder.append("\n\tremoteGitUrl = "+remoteGitUrl);
+                log.info("getIOService() {}", sBuilder.toString());
                 final Map<String, Object> env = new HashMap<String, Object>();
                 env.put( "username", gitUser );
                 env.put( "password", gitPasswd);
                 env.put( "origin", remoteGitUrl);
                 vfsIOService.newFileSystem(fsURI, env, FileSystemType.Bootstrap.BOOTSTRAP_INSTANCE);
+            }else {
+            	log.info("getIOService() following FileSystem already created: {}", this.gitUrl);
             }
         }catch(Exception x){
             throw new RuntimeException(x);
-        }*/
+        }
         return vfsIOService;
     }
 }
