@@ -52,8 +52,9 @@ PFP github branches :
         - provisioning scripts work on any operating system
         - requires separate 'standalone' hornetq 2.2.14 provider
 
-    - 6.0.0
+    - 6.1.0
         - tracks Red Hat / JBoss BPMS6
+        - used as one of the key components of:   "BPMS6 Engine" cartridge for Openshift
 
 
 
