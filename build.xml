@@ -4,8 +4,6 @@
     <property file="build.properties" />
 
     <import file="base-build.xml"/>
-    <import file="openshift-build.xml" />
-    <import file="osProvision/build.xml"/>
 
     <target name="refresh.master" >
         <echo message="***** refresh.master :  will now call the following target :  local.stop.master, clone.jboss, and local.start.master" />
@@ -15,7 +13,7 @@
         <mkdir dir="${install.home}/lib" />
         <antcall target="clone.jboss" />
         <antcall target="local.deploy.jboss.modules" />
-        <!--antcall target="prep.jbpm.services" / -->
+        <antcall target="configure.pfp.app" />
         <antcall target="addUserRoleConfigs" >
             <param name="config.path" value="${jboss.home}/${jboss.domain.base.dir}/configuration" />
         </antcall>
@@ -167,30 +165,14 @@
         <antcall target="download.and.unzip.sy.deployer" />
     </target>
 
-    <target name="configure.pfp.modules" >
-        <if>
-            <not><available file="${temp.pfp.lib.dir}" type="dir" /></not>
-            <then><antcall target="pfp.compile" /></then>
-        </if>
-        <antcall target="filter">
-            <param name="source.dir" value="conf/jboss/modules"/>
-            <param name="dest.dir" value="${temp.pfp.modules.dir}"/>
-        </antcall>
-        <copy todir="${temp.pfp.modules.dir}/org/jboss/processFlow/main" >
-            <fileset dir="${temp.pfp.lib.dir}" />
-        </copy>
+    <target name="configure.pfp.app" >
+        <antcall target="pfp.compile" />
 
         <!-- database drivers -->
-        <if>
-            <isset property="non.openshift.environment"/>
-            <then>
-                <!-- openshift adds database driver as a jboss module when adding database cartridge.
-                     this must not be an openshift enviroment ....so adding db drivers now
-                -->
                 <echo message="deploying following db modules locally:  ${jdbc.module.name}" />
                 <antcall target="filter">
                     <param name="source.dir" value="conf/${jdbc.module.name}/modules"/>
-                    <param name="dest.dir" value="${temp.pfp.modules.dir}"/>
+                    <param name="dest.dir" value="${pfp.module.path}"/>
                 </antcall>
                 <if><equals arg1="${jdbc.module.name}" arg2="postgresql" />
                     <then>
@@ -209,30 +191,11 @@
                     </then></if>
                 <if><equals arg1="${jdbc.module.name}" arg2="h2" />
                     <then><echo message="configure.jboss.modules() h2 driver already in eap6.*" /></then></if>
-            </then>
-            <else><echo message="deploying to openshift:  postgresql/mysql/h2 modules already pre-configured" /></else>
-        </if>
-
     </target> 
 
-    <target name="prep.jbpm.services" >
-        <copy file="${temp.bpms.unzip.dir}/jbpm-human-task-services-${jBPM.version}.jar" todir="${temp.pfp.services.dir}" />
-        <jar update="true" destfile="${temp.pfp.services.dir}/jbpm-human-task-services-${jBPM.version}.jar" basedir="conf/jbpm/jbpm-human-task-services//" />
-    </target>
-
     <target name="local.deploy.jboss.modules" >
-        <antcall target="configure.pfp.modules" >
-            <param name="non.openshift.environment" value="true"/>
-        </antcall>
-        <copy todir="${pfp.module.path}" overwrite="true" >
-            <fileset dir="${temp.pfp.modules.dir}" />
-        </copy>
-        <antcall target="configure.bpms.modules" >
-            <param name="non.openshift.environment" value="true"/>
-        </antcall>
-        <antcall target="configure.sy.modules" >
-            <param name="non.openshift.environment" value="true"/>
-        </antcall>
+        <antcall target="configure.bpms.modules" />
+        <antcall target="configure.sy.modules" />
         <!-- https://community.jboss.org/wiki/LayeredDistributionsAndModulePathOrganization -->
         <copy todir="${jboss.home}/modules" file="conf/jboss/layers.conf" overwrite="true" />
     </target>
@@ -331,7 +294,6 @@
                     <zipfileset dir="${temp.pfp.services.dir}/bpms-pfp.ear.work" />
                     <zipfileset dir="${temp.pfp.services.dir}" >
                         <include name="processFlow-cdiDiagnostics.jar" />
-                        <include name="processFlow-knowledgeSessionService.jar" />
                         <include name="kie-services-remote.war" />
                     </zipfileset>
                 </zip>
@@ -448,10 +410,6 @@
         <attribute name="target"/>
         <sequential>
             <subant target="@{target}">
-                <fileset dir="pfpServices/interfaces" includes="build.xml"/>
-                <fileset dir="pfpServices/common" includes="build.xml"/>
-                <fileset dir="pfpServices/knowledgeSessionService" includes="build.xml"/>
-                <fileset dir="pfpServices/taskService" includes="build.xml"/>
                 <fileset dir="pfpServices/cdiDiagnostics" includes="build.xml"/>
                 <fileset dir="pfpServices/kie-services-remote" includes="build.xml"/>
             </subant>
@@ -479,21 +437,6 @@
         <delete dir="pfpServicesTest/${build.dir}" />
         <delete dir="osProvision/${build.dir}" />
     </target>
-
-    <target name="create.temp.client.dir" >
-        <copy toDir="${temp.client.dir}" overwrite="true" >
-            <fileset dir="${temp.pfp.lib.dir}" >
-                <include name="processFlow-interfaces*.jar" />
-            </fileset>
-            <fileset dir="${deps.lib.path}/org/jbpm/jbpm-human-task-core/main" >
-                <include name="jbpm-human-task-core*.jar" />
-            </fileset>
-            <fileset dir="${deps.lib.path}/org/kie/kie-api/main" >
-                <include name="kie-api-*.jar" />
-            </fileset>
-        </copy>
-    </target>
-
 
     <target name="download.and.unzip.sy.deployer">
         <get src="${switchyard.deployer.download.url}" dest="${install.home}/lib/"  skipexisting="true" />
@@ -537,36 +480,5 @@
         <antcall target="local.provision.switchyard">
             <param name="refresh.master" value="false"/>
         </antcall>
-        <antcall target="create.temp.client.dir" />
-    </target>
-    <target name="pfp.distro" depends="" >
-        <property name="distro.name" value="processFlow-bin-${brms.major.version}-${brms.minor.version}" />
-        <property name="base.name" value="processFlowProvision" />
-
-        <copy file="base-build.xml" todir="${temp.distro.dir}" />
-        <copy file="build.xml" todir="${temp.distro.dir}" />
-        <copy file="openshift-build.xml" todir="${temp.distro.dir}" />
-        <copy file="build.properties" todir="${temp.distro.dir}" />
-        <copy file="LICENSE.txt" todir="${temp.distro.dir}" />
-        <copy file="README.txt" todir="${temp.distro.dir}" />
-
-        <mkdir dir="${temp.pfp.lib.dir}" />
-        <mkdir dir="${temp.pfp.services.dir}" />
-
-        <zip destfile="${install.home}/${distro.name}.zip">
-            <zipfileset dir="${temp.distro.dir}" prefix="${base.name}" />
-            <zipfileset dir="bin" prefix="${base.name}/bin" filemode="755"/>
-            <zipfileset dir="privateServiceTaskRepo" prefix="${base.name}/privateServiceTaskRepo" />
-            <zipfileset dir="${temp.client.dir}" prefix="${base.name}/clientLibs" />
-            <zipfileset dir="conf" prefix="${base.name}/conf"/>
-            <zipfileset dir="lib" prefix="${base.name}/lib"/>
-            <zipfileset dir="osProvision" prefix="${base.name}/osProvision"/>
-            <zipfileset dir="doc" prefix="${base.name}/doc">
-                <include name="ADMIN_GUIDE.txt" />
-                <include name="release_notes.txt" />
-            </zipfileset>
-            <zipfileset dir="${temp.pfp.lib.dir}" prefix="${base.name}/${build.dir}/pfp/lib" />
-            <zipfileset dir="${temp.pfp.services.dir}" prefix="${base.name}/${build.dir}/pfp/services" />
-        </zip>
     </target>
 </project>

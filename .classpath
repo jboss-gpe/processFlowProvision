@@ -22,11 +22,6 @@
 	<classpathentry kind="var" path="JBOSS_HOME/modules/system/layers/base/org/jboss/msc/main/jboss-msc-1.0.2.GA-redhat-2.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/modules/system/layers/base/org/jboss/logging/main/jboss-logging-3.1.2.GA-redhat-1.jar"/>
 	<classpathentry kind="src" path="pfpServices/bam/src/main/java"/>
-	<classpathentry kind="src" path="pfpServices/common/src/main/java"/>
-	<classpathentry kind="src" path="pfpServices/interfaces/src/main/java"/>
-	<classpathentry kind="src" path="pfpServices/knowledgeSessionService/src/main/java"/>
-	<classpathentry kind="src" path="pfpServices/taskService/src/main/java"/>
-	<classpathentry kind="src" path="pfpServices/knowledgeSessionService/src/main/webapp/WEB-INF/classes"/>
 	<classpathentry kind="src" path="pfpServicesTest/src/main/webapp/WEB-INF/classes"/>
 	<classpathentry kind="src" path="pfpServicesTest/src/test/java"/>
 	<classpathentry kind="src" path="pfpServices/haTimerService/src/main/java"/>
@@ -90,5 +85,5 @@
 			<attribute name="maven.scope" value="compile"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="output" path="pfpServices/taskService/target"/>
+	<classpathentry kind="output" path="target"/>
 </classpath>

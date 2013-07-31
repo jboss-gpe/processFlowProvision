@@ -130,8 +130,9 @@ batch
 /server-group=${pfp.core.group}/system-property=org.jboss.processFlow.diagnostics.logProcessBean/:add(value=${org.jboss.processFlow.diagnostics.logProcessBean},boot-time=true)
 /server-group=${pfp.core.group}/system-property=org.jboss.processFlow.cdi.space.delimited.veto.classes/:add(value="${org.jboss.processFlow.cdi.space.delimited.veto.classes}",boot-time=true)
 
-/server-group=${pfp.core.group}/system-property=org.kie.services.remote.cdi.deployment.id/:add(value="${org.kie.services.remote.cdi.deployment.id}",boot-time=true)
-/server-group=${pfp.core.group}/system-property=org.kie.services.remote.cdi.vfs.path/:add(value="${org.kie.services.remote.cdi.vfs.path}",boot-time=true)
+/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.cdi.deployment.id/:add(value="${org.jboss.processFlow.cdi.deployment.id}",boot-time=true)
+/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.cdi.vfs.path/:add(value="${org.jboss.processFlow.cdi.vfs.path}",boot-time=true)
+/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.cdi.ksession.strategy/:add(value="${org.jboss.processFlow.cdi.ksession.strategy}",boot-time=true)
 run-batch
 
 batch
