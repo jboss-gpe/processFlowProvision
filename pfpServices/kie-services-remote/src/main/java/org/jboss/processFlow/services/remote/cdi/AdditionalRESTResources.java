@@ -22,8 +22,8 @@ import org.kie.api.command.Command;
 @Stateless
 @Path("/additional/runtime/{id: [a-zA-Z0-9-:\\.]+}")
 public class AdditionalRESTResources {
-	
-	private static final Logger logger = LoggerFactory.getLogger(AdditionalRESTResources.class);
+    
+    private static final Logger logger = LoggerFactory.getLogger(AdditionalRESTResources.class);
     
     @Inject
     private ProcessRequestBean processRequestBean;
@@ -47,19 +47,19 @@ public class AdditionalRESTResources {
         List<String> pList = (List<String>) processRequestBean.doKieSessionOperation(cmd, deploymentId);
         StringBuilder sBuilder = new StringBuilder();
         if(pList != null && pList.size() > 0){
-        	sBuilder.append("processes from deploymentId : "+deploymentId);
-        	for(String pString : pList){
-        		sBuilder.append("\n\t"+pString);
-        	}
-        	sBuilder.append("\n");
+            sBuilder.append("processes from deploymentId : "+deploymentId);
+            for(String pString : pList){
+                sBuilder.append("\n\t"+pString);
+            }
+            sBuilder.append("\n");
         }else {
-        	sBuilder.append("no processes found for deploymentId : "+deploymentId+"\n");
+            sBuilder.append("no processes found for deploymentId : "+deploymentId+"\n");
         }
         ResponseBuilder builder = Response.ok(sBuilder.toString());
         return builder.build();
     }
-	
-	/**
+    
+    /**
      * sample usage :
      *  curl -X GET -HAccept:text/plain $HOSTNAME:8330/kie-jbpm-services/rest/additional/runtime/general/sanityCheck
      */

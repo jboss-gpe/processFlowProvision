@@ -45,29 +45,29 @@ public class RESTApplicationStartup {
     public void start() {
         deploymentId = System.getProperty(DEPLOYMENT_ID, deploymentId);
         if(deploymentService.getDeployedUnit(deploymentId) == null){
-        	vfsPath = System.getProperty(VFS_PATH, vfsPath);
-        	ksessionStrategy = RuntimeStrategy.valueOf(System.getProperty(this.KSESSION_STRATEGY, this.ksessionStrategy.toString()));
-        	StringBuilder sBuilder = new StringBuilder();
-        	sBuilder.append("start() creating deploymentUnit with \n\tdeploymentId = ");
-        	sBuilder.append(deploymentId);
-        	sBuilder.append("\n\tvfsPath = ");
-        	sBuilder.append(vfsPath);
-        	sBuilder.append("\n\tksessionStrategy = ");
-        	sBuilder.append(ksessionStrategy.toString());
-        	log.info(sBuilder.toString());
-        	VFSDeploymentUnit deploymentUnit = new VFSDeploymentUnit(deploymentId, "", vfsPath+deploymentId);
-        	deploymentUnit.setStrategy(ksessionStrategy);
-        	deploymentService.deploy(deploymentUnit);
-        	units.add(deploymentUnit);
+            vfsPath = System.getProperty(VFS_PATH, vfsPath);
+            ksessionStrategy = RuntimeStrategy.valueOf(System.getProperty(this.KSESSION_STRATEGY, this.ksessionStrategy.toString()));
+            StringBuilder sBuilder = new StringBuilder();
+            sBuilder.append("start() creating deploymentUnit with \n\tdeploymentId = ");
+            sBuilder.append(deploymentId);
+            sBuilder.append("\n\tvfsPath = ");
+            sBuilder.append(vfsPath);
+            sBuilder.append("\n\tksessionStrategy = ");
+            sBuilder.append(ksessionStrategy.toString());
+            log.info(sBuilder.toString());
+            VFSDeploymentUnit deploymentUnit = new VFSDeploymentUnit(deploymentId, "", vfsPath+deploymentId);
+            deploymentUnit.setStrategy(ksessionStrategy);
+            deploymentService.deploy(deploymentUnit);
+            units.add(deploymentUnit);
         }else{
-        	log.info("start() deployedUnit with following deploymentId already exists : {}", this.deploymentId);
+            log.info("start() deployedUnit with following deploymentId already exists : {}", this.deploymentId);
         }
     }
     
     @PreDestroy
     public void stop() {
         for (DeploymentUnit unit : units) {
-        	log.info("stop() about to stop following deployment unit : {}", unit.getIdentifier());
+            log.info("stop() about to stop following deployment unit : {}", unit.getIdentifier());
             deploymentService.undeploy(unit);
         }
     }

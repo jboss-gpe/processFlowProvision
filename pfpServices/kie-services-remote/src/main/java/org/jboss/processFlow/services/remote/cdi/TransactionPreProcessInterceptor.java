@@ -19,31 +19,31 @@ import org.jboss.resteasy.spi.interception.PreProcessInterceptor;
 @ServerInterceptor
 public class TransactionPreProcessInterceptor extends BaseInterceptor implements PreProcessInterceptor{
 
-	@Override
-	public ServerResponse preProcess(HttpRequest hRequest, ResourceMethod rMethod) throws Failure, WebApplicationException {
-		Set<String> httpMethods = rMethod.getHttpMethods();
-		if(!httpMethods.contains(this.HTTP_GET)) {
-			try {
-				tMgr.begin();
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		}
-		return null;
-	}
+    @Override
+    public ServerResponse preProcess(HttpRequest hRequest, ResourceMethod rMethod) throws Failure, WebApplicationException {
+        Set<String> httpMethods = rMethod.getHttpMethods();
+        if(!httpMethods.contains(this.HTTP_GET)) {
+            try {
+                tMgr.begin();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return null;
+    }
 }
 
 class BaseInterceptor {
-	
-	protected static final String HTTP_GET	= "GET";
-	protected static TransactionManager tMgr = null;
-	
-	static{
-		try {
-			Context jndiContext = new InitialContext();
-			tMgr = (TransactionManager)jndiContext.lookup("java:/TransactionManager");
-		}catch(Exception x){
-			throw new RuntimeException(x);
-		}
-	}
+    
+    protected static final String HTTP_GET    = "GET";
+    protected static TransactionManager tMgr = null;
+    
+    static{
+        try {
+            Context jndiContext = new InitialContext();
+            tMgr = (TransactionManager)jndiContext.lookup("java:/TransactionManager");
+        }catch(Exception x){
+            throw new RuntimeException(x);
+        }
+    }
 }

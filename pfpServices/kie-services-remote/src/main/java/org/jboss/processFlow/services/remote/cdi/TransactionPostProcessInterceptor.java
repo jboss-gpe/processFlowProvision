@@ -10,15 +10,15 @@ import org.jboss.resteasy.spi.interception.PostProcessInterceptor;
 @Provider
 @ServerInterceptor
 public class TransactionPostProcessInterceptor extends BaseInterceptor implements PostProcessInterceptor{
-	
-	@Override
-	public void postProcess(ServerResponse sResponse) {
-		try {
-			if(tMgr.getStatus() == Status.STATUS_ACTIVE)
-				tMgr.commit();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+    
+    @Override
+    public void postProcess(ServerResponse sResponse) {
+        try {
+            if(tMgr.getStatus() == Status.STATUS_ACTIVE)
+                tMgr.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 }

@@ -62,12 +62,12 @@ public class RESTApplicationScopedProducer {
     @Named("ioStrategy")
     public IOService getIOService() {
         try{
-        	if(vfsIOService == null)
-        	    vfsIOService = new IOServiceNio2WrapperImpl();
-        	
-        	if(fsURI == null)
+            if(vfsIOService == null)
+                vfsIOService = new IOServiceNio2WrapperImpl();
+            
+            if(fsURI == null)
                 fsURI = URI.create(gitUrl);
-        	
+            
             FileSystem fSystem = vfsIOService.getFileSystem(fsURI);
             if(fSystem == null){
                 gitUser = System.getProperty(this.GIT_USER, gitUser);
@@ -85,7 +85,7 @@ public class RESTApplicationScopedProducer {
                 env.put( "origin", remoteGitUrl);
                 vfsIOService.newFileSystem(fsURI, env, FileSystemType.Bootstrap.BOOTSTRAP_INSTANCE);
             }else {
-            	log.info("getIOService() following FileSystem already created: {}", this.gitUrl);
+                log.debug("getIOService() following FileSystem already created: {}", this.gitUrl);
             }
         }catch(Exception x){
             throw new RuntimeException(x);
