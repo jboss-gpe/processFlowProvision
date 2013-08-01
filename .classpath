@@ -85,5 +85,14 @@
 			<attribute name="maven.scope" value="compile"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="/home/jbride/.m2/repository/org/jboss/resteasy/resteasy-jaxrs/2.3.6.Final/resteasy-jaxrs-2.3.6.Final.jar">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.groupId" value="org.jboss.resteasy"/>
+			<attribute name="maven.artifactId" value="resteasy-jaxrs"/>
+			<attribute name="maven.version" value="2.3.6.Final"/>
+			<attribute name="maven.scope" value="compile"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="target"/>
 </classpath>
