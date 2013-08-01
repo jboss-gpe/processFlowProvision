@@ -1,245 +1,40 @@
-JBoss Moodules for BRMS components
-    - https://bugzilla.redhat.com/show_bug.cgi?id=842452
+CHALLENGES
+    1) https://www.openshift.com/forums/openshift/automate-addition-of-database-in-cartridge
 
-Pluggable variable persistence for human tasks
-    - https://issues.jboss.org/browse/JBPM-3596 
-    - As discussed, pluggable task persistence won't make it into BRMS 5.3
+    2) jbpm REST API and implementation bundled with everything else
+       A runtime artifact that only exposes the jbpm engine via a REST API doesn't currently exist.
+       So for the purposes of this cartridge, this runtime artifact was built by cherry-picking functionality found in a variety of different locations:
+         a) jbpm functionality is found here:
+             https://github.com/droolsjbpm/jbpm
 
-Pluggable strategies for task cleanup
-    - https://issues.jboss.org/browse/JBPM-3597
-    -- git show caf2df3938230ae1d38ec1ac867865fd2af7a870
-    -- git show a1c392295f00356afa4e315703875201794f1952
-    -- git show d5e83787ce7df13cab342da7f9fe86cbca8e07d6
-    -- ksession.addEventListener(new TaskCleanUpProcessEventListener(admin));
-    -- see jbpm-human-task/src/main/java/org/jbpm/task/admin/*.java
+            -in particular, CDI beans are found here:
+                1)  https://github.com/droolsjbpm/jbpm/jbpm-runtime-manager
+                2)  https://github.com/droolsjbpm/jbpm/jbpm-services/jbpm-kie-services
+         b) the REST API that exposes jbpm is found here:
+             https://github.com/droolsjbpm/droolsjbpm-integration/tree/master/kie-remote/kie-services-remote
+         c) the 'kitchen-sink' runtime web artifact of all droolsjbpm family functionality is found here:
+             https://github.com/droolsjbpm/kie-wb-distributions
 
-    -- https://github.com/droolsjbpm/jbpm/pull/113
-
-automated snapshots of guvnor via REST API
-    -- see email from L. Ponce on 22 August, 2012 in sme-brms mailing list
-
-task audit trail
-    - what task related data do we need to move to BAM
-    - maybe use TaskEventHandler / TaskEventSupport framework ?
-
-bugzilla 806428 :  deadline support for user task nodes
-    -- https://bugzilla.redhat.com/show_bug.cgi?id=806428
-    -- new deadline support in upstream jbpm5:  git show ad25c567f06095a2403951c6c35a2af15762104f
-    -- need this functionality enabled in designer
-
-
-https://github.com/droolsjbpm/jbpm/pull/82
-
-investigate jbpm "form builder"
-    -- http://blog.athico.com/2012/01/jbpm-form-builder-roadmap.html
-
-
-BRMS 5.4 -->  "master-slave" repositories
-assign "process definition administrator"
-    - package names
-    - security
-
-
-bugzilla 807274 :  configurable guvnor shapshot via GuvnorConnectionUtils
-https://bugzilla.redhat.com/show_bug.cgi?id=807274
-
-task delegation
-    -- need search for claimed tasks that are not inprogress.
-    -- need delegation functionality to a different user
-
-gwt-console TaskManagement
-  -- // JA Bride :  NEED TO REFACTOR THIS SO THAT SYNCHORNIZES WITH SYSTEM OF RECORD FOR IDENTITY DATA
-  -- needs to use JAAS ... not roles.properties
-
-processEventListener registration
-
-EV001
-  -- if signal is received and no task yet ..... ignore
-  -- if signal is received and task is RESERVED ... ignore
-
-org.jbpm.integration.console.HumanTaskService
-    -- make use of this new class in taskService
-
-API changes 
-    Is it possible to create a new method to retrieve all Queues (groups) from jbpm.organizationalentity?
-        JAB:  yes ... we can implement this
- 
-    Would it be possible to add “start”, “how many records to retrieve” parameters to
-            getActiveProcessInstanceLogsByProcessId(java.lang.String processId, start,how_many_records)
-        so it will work like getUnclaimedTasksAssignedAsPotentialOwner(user,group,language,start,how_many_records)
-        List<TaskSummary> taskList = taskServiceProxy.getUnclaimedTasksAssignedAsPotentialOwner(null, groupList, "en-UK", 0, 10);
-            JAB:   yes ... we can implement this
-
-    Can these methods be added to ksessionservice/taskservice?
-        Ksession.getProcessInstanceLogsByProcessIdCount(java.lang.String processId)
-        taskService.getUnclaimedTasksAssignedAsPotentialOwnerCount(user,group)
-            JAB:   yes .... we can implement these
-    Would it be possible to add filter / sort parameter to getActiveProcessInstanceLogsByProcessId / getUnclaimedTasksAssignedAsPotentialOwner?
-        JAB:  yes ... we can add sorting ... we'll have to think about what we want to sort by in both use cases
-
-qpid JCA resource adapter
-    -- integrate qpid JCA adapter into processFlowProvision to allow for Message Driven Beans
-
-async start process
-    -- implement startProcessAndReturnIdAsync() that involves creating the process instance, and then sending a message to 'startprocess' via Hornetq
-
-'guaranteedClaim'
-    -- we may also consider exposing through our task service another method called, for example :  'guaranteedClaim'
-    -- would essentially conduct the queryForTasks, iterate through the result set, and finally return a task object that is guaranteed to be freshly reserved for that client
-    -- This would avoid a lot of existing network calls made by the client as it iterates through the queryForTasks result set itself.
-
-re-factor for knowledgeSession <--> processInstance association based on :
-    1)  Timers
-    2)  facts inserted into working memory
-    3)  knowledgeSession dedicated to a specific client
-
-extend gwt-console
-    -- http://anonsvn.jboss.org/repos/soag/bpm-console/tags/bpm-console-2.1/
-    -- the release tags of https://github.com/bpmc/bpm-console are : 2.2.2-Final --> 2.3.2.Final
-
-migrate jbpm5/processFlowProvision to EAP 6
-    -- http://kverlaen.blogspot.com/2011/07/jbpm5-on-as7-lightning.html
-
-jbpm5 'history service'
-    -- krisv 28 Sept 2011 :  we need an implementation of the history service for jBPM5
-    -- the logging is already done if you configure a history logger, the REST api for history just doesn't work
-    -- http://anonsvn.jboss.org/repos/jbpm/jbpm4/trunk/integration/console/src/main/java/org/jbpm/integration/console/services/
-
-humantasklog 
-    -- IOT to remove need for HumanTaskLog, nodeInstanceLog should include 'workItemInfo' field
-    -- Task.taskData object maintains corresponding workItemInfo field
-    -- since workItem id is a database generated unique sequencer, that's the only field required to grab handle to task record
-
-    -- discussion (19 Dec 2011)
-        [23:07:30 EDT] Jeffrey Bride: does our jbpm_bam along with our humanTaskLog keep a history of when a task was claimed ?
-        [23:10:17 EDT] Jeffrey Bride: so imagine the scenario where you and I are in the same group :   i claim the task initially but then send it back to the queue.  Then you claim that task and complete it
-        [23:10:15 EDT] Nick Tan: well, if we'd like to implement this, to  keep the history of when a task was climed,
-        [23:10:55 EDT] Nick Tan: i think we need hook a listener in the task service
-        [23:11:25 EDT] Jeffrey Bride: ok. cool.  at this point .... just confirmiing that currently we do not keep this history
-        [23:11:43 EDT] Nick Tan: yes, we don't keep the history
-        [23:12:04 EDT] Jeffrey Bride: thanks nick
-        [23:12:12 EDT] Jeffrey Bride: how's the testing coming along ?
-        [23:12:13 EDT] Nick Tan: acutally, there still something need to do with audit trail
-        [23:12:27 EDT] Jeffrey Bride: what do we have to do ?
-        [23:13:25 EDT] Nick Tan: for example, tree like audit trail, you know, currenlty there prarent/chidlren process instance relationship is not recorded in the out-of-the-box bam scheam
-        [23:14:31 EDT] Nick Tan: in the processinstancelog, it only keep the procesinstanceid, but it could have a parent process instance id, which is mssing
-        [23:16:47 EDT] Jeffrey Bride: makes sense
-        [23:17:38 EDT] Jeffrey Bride: i guess we could extend ProcessInstanceLog ..... but then again it would be good for the jbpm5 base product to already have this
-
-
-Reasons to introduce Cassandra, MongoDB or Infinispan
-  -- schema-free
-    -- RDBMS is schema-centric and requires the schema to be known at design-time
-    -- the human task implementation of jbpm5 can not predicate the schema of a particular customer's task variables
-    -- thus, for each task, jbpm5 serializes two Maps of task variables (inbound and outbound) as blobs in the 'Content' table
-    -- yet, querying for tasks by those task variables is of critical importance to a business
-    -- cassandra, mongodb and infinispan to NOT require a schema and still allow of powerful queries
-
-
-  -- performance
-    -- the highly normalized schema design of the existing jbpm5 human task implementation experiences performance problems with datasets of 100K
-    -- the denormalized nature of cassandra, mongodb and infinispan will allow for consistent query times as the task related dataset grows
-
-    -- in the existing jbpm5 implementation, the high volume of processEventListener events from the processEngine impedes the process engine's own performance
-    -- we've alleviated the immediate problem by sending processEventListener events to a remote system via JMS 
-    -- still need to work on the consumer side to be able to keep up with producer side
-    -- cassandra, mongodb and infinispan are tuned for very fast writes
-    -- with cassandra, mongodb or infinispan, there would be no need for Hornetq/MRG-M to broker between BAM producer and consumer
-
-
-  -- large data-sets
-    -- how large is the BAM dataset with 100K process instances ?
-    -- this is even without keeping track of any task variable history
+    3) jbpm-kie-services-6.0.0.jar
+        - this library includes both API and CDI service implementations.  Ideal would be separation between the two. 
+        - I'm interested in only a sub-set of API & CDI services packaged in this library
+        - Yet if i choose to use this library, I'm forced to include dependencies in my runtime for services that I don't want.
 
 
 
-**********************************************************************************************************************
-******************                                  COMPLETED               ******************************************
-pre-populate availableSessions datastructure in knowledgeSession
-    -- when knowledgeSessionStarts, populate availableSessions list by doing an inner join between sessionInfo and processInstanceInfo tables
+TO-DO
+    - use bpms.deployer.zip from official jbpm / drools community projects once finalized by jbpm engineering team
+    - package contents of existing bpms.deployer.zip as RPMs
+    - begin process of submittal of jbpm6 RPMs to Fedora packaging team 
+    - inject JMS AuditLogger from org.jbpm.process.audit.AuditLoggerFactory into kieSession
 
-new 'Local' jbpm5 task management introduced on 11 Aug 2011 by salaboy
-    -- processFlowProvision could partly leverage LocalTaskService for read-only query situations to reduce code base in taskService
-    -- taskService architecture is 'TaskServiceSession per invocation'
-    -- LocalTaskService architecture is 'shared TaskServiceSession'
-        -- could be a problem considering TaskServiceSession is not thread-safe since it contains an EntityManager as an object variable
-            -- An EntityManager is an inexpensive, non-threadsafe object that should be used once, for a single business process, a single unit of work (aka: trnx), and then discarded
-        -- seems like naive implementation for invocations such as 'claim' since underlying Task object does not use either optimistic locking or select-for-update pessimistic locking
-    -- jbpm CommandDelegate uses either a completely LOCAL or Mina approach for task management
-    -- taskService uses a mix of LOCAL (for read-only queries) and Hornetq for read-write invocations such as claim or complete task
-
-transacted session with BAMProducerPool
-    One last modification I recommend we do (at some point) with the BAMProducerPool is to switch to a transacted JMS session and batch the delivery of these BAM messages such that producer.send() actually commits at each jbpm5 'safe-point'.
-We are currently not doing that.  Instead, we send each individual BAM message immediately to HornetQ and block waiting for the ack that HornetQ has persisted the message.  For example, in the case of one startProcess() invocation of MDOCE003, there are 71 'nodeInstanceLog' BAM messages and 52 'variableinstancelog' BAM messages sent individually to Hornetq prior to the jbpm5 engine reaching it's first safe point.  Seems that this current approach is probably problematic for the following reasons :
-
-1)  the BAMProducerPool is bottle-necked by the round-trip-time between x304 and x283 .... which seems to be about 136-220 microseconds (with no network load)
-
-2)  if failure were to occur during execution of a jbpm5 process instance then the jbpm5 trnx manager will not commit anything beyond the last known safe point. Upon recovery, execution of that process instance would start again from this last safe point.  However, because we are currently sending and acknowledging BAM messages to HornetQ individually (and thus in between jbpm5 safe points) I would expect that our audit trail would currently NOT correctly reflect the failure that occurred in the jbpm5 process engine.
+ADDITIONAL
+    1)  REST API:  history/clear ..... alternative would be to accept the DELETE http method on the /history resource
 
 
-WorkItemManager not notified of task completion lifecycle events after server re-boot
-    - WSHumanTaskHandlerBase, add start-up, registers universal 'taskComplete', 'taskSkipped' and 'taskFailed' events with MessagingTaskEventListener
-    - WSHumanTaskHandlerBase invokes 'addTask' on server-side TaskServiceSession and includes ksessionId as a variable in the task content blob
-    - TaskServiceSession.taskCompleteOperation(final Task task, final ContentData data) invoked
 
-    -- proposal #1 :
-        - modify TaskEvent to include protected abstract init(Task taskObj, ContentData content).  Needed for the following reasons:
-            - downstream, in the WSHumanTaskHandlerBase.TaskCompletedHandler .... subsequent calls to db for same task object and content are avoided
-        - extend org.jbpm.task.event.TaskCompletedEvent : org.jboss.processFlow.tasks.TaskCompletedEventWithTaskAndContent
-            - init() implementation sets taskObja and content to object properties 
-        - modify TaskServiceSession.taskCompleteOperation() as follows :
-            - invokes TaskEventSupport.fireTaskCompleted() with Task and ContentData as parameters 
-        - modify org.jbpm.task.event.TaskEventSupport.fireTaskCompleted() as follows :
-            1)  takes Task and ContentData as arguments
-            2)  instantiate appropriate TaskCompletedEvent implementation specified as a system property
-        - modify WSHumanTaskHandlerBase.TaskCompletedHandler such that it casts in the first element of the Payload to TaskCompletedEventWithTaskAndContent
-
-        - new implementation of TaskEventListener : org.jboss.processFlow.tasks.TaskEventListenerWithKSession implements TaskEventListener
-        - TaskEventListenerWithKSession registered with TaskEventSupport via TaskService
-
-fork jbpm project in github
-  -- modifications to droolsjbpm/jbpm should be made directly in forked jbpm project (rather than maintaining a build process that copies patches to a local jbpm repository)
-
-remove temp hacks for drools problems with postgresql
-    -- 5 July 2011: JBPM-3246 (drools problem with postgresql) is now fixed as per :
-        https://github.com/droolsjbpm/drools/commit/150dd84baa284c23927c4643421641b95540b392
-    -- 20 July 2011:  Drools 5.2.0.Final does not include the fix ... need to wait until the next tag of Drools .... and then test jbpm5 with that latest Drools
-
-hornetq task service design criteria
-    -- will only use HornetQ task server (not Mina)
-        -- subsequently requires modification to bpm-console integration class :  TaskManagement.java
-    -- HornetQ task server needs optional ability to discover HornetQ nodes for fail-over purposes
-
-
-refactor org.jbpm.integration.console.TaskManagement such that queries occur synchroneously
-
-'Diary Investigation'
-    - example
-        - jbpm-human-task/src/test/java/org/jbpm/task/service/TaskServiceDeadlinesBaseTest.java
-
-    - addTask
-        - jbpm-human-task/src/main/java/org/jbpm/task/service/TaskServiceSession.java   :   scheduleTask()
-            - jbpm-human-task/src/main/java/org/jbpm/task/service/TaskService.java      :   schedule()
-                - java.util.concurrent.ScheduledThreadPoolExecutor                      :   schedule()
-            - jbpm-human-task/src/main/java/org/jbpm/task/service/TaskService.java      :   class ScheduledTaskDeadline
-
-    - jbpm-human-task/src/main/java/org/jbpm/task/service/DefaultEscalatedDeadlineHandler.java
-
-jbpm-humanTask/src/main/resources/META-INF/persistence.xml and hibernate-service.xml need to be managed in processFlowProvision and added to jbpm-humanTask*.jar at provisioning time
-
-fix 'Connection refused' problem when saving a processDefinition in Designer
-    -- fixed on 6 Sept. in guvnor-webapp/src/main/java/org/drools/guvnor/server/contenthandler/BPMN2ProcessHandler.java
-    -- need to wait until next release of guvnor to incorporate fix into processFlowProvision
-
-Hi Jeff,
-I have attached a simple diagram to help explain the full functionality we would be looking for on a human task step.
-The functionality that is currently missing is the event handling.  When a process instance is sat waiting at a human task step we need to be able to fire an event at it that will remove it from that step and send it down a particular process path.  This forms one of the three ways that a work item can exit a human task step.  Ideally we would then be able to decide what path to choose based on the event type.
-The events can be generated externally or internally ie
-a.       A wider system event such as a batch job or management decision, such as to withdraw a sales order or customer application.
-b.      A new business process instance triggers an existing one to complete.
- 
-Thus I think we need the following functionality:-
-A way to draw the business process such that we can handle external events without resorting to code (very similar in many ways to how we do diary expiry now which could be just thought of as a specialist form of external event).
- 
-A simple API for sending an event to a process instance that can be used from both a web service/hornet message consumer (which would handle the real external events) and from within a script step in a process definition so one process instance can trigger another one.
+undeploy with SINGLETON ksession strategy with active process instances
+    Caused by: java.lang.IllegalStateException: Undeploy forbidden - there are active processes instances for deployment general
+        at org.jbpm.kie.services.impl.AbstractDeploymentService.undeploy(AbstractDeploymentService.java:97)
+        at org.jbpm.kie.services.impl.VFSDeploymentService$Proxy$_$$_WeldClientProxy.undeploy(VFSDeploymentService$Proxy$_$$_WeldClientProxy.java)
 
