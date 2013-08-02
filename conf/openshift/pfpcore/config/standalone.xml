@@ -112,8 +112,8 @@
                                 <level name="TRACE"/>
 
                                 <!-- JA Bride:  filter out all jbpm5 related log messages related to its inability to correctly parse BPMN2 as per :
-                                https://community.jboss.org/message/784580?tstart=0 >
-                                <filter-spec value="not(match(&quot;BPMN20.xsd|dc:Point|bpmn2:tFormalExpression|bpmn2:definitions&quot;))"/ -->
+                                https://community.jboss.org/message/784580?tstart=0 -->
+                                <!-- doesn't work in eap6.0  filter-spec value="not(match(&quot;BPMN20.xsd|dc:Point|bpmn2:tFormalExpression|bpmn2:definitions&quot;))"/ -->
 
 
 			</periodic-rotating-file-handler>
