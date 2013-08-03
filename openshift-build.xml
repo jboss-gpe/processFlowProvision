@@ -205,6 +205,7 @@
            <arg value="provisionAccountsWithPFP"/>
            <arg value="-bldwProvisionProjectLocation=${bldw.provision.project.location}"/>
            <arg value="-skipFullBuild=${openshift.skip.full.build}"/>
+           <arg value="-refreshExistingAccount=${openshift.refresh.existing.account}"/>
         </exec> 
     </target>
 

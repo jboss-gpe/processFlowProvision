@@ -63,6 +63,9 @@ do
         -skipFullBuild=*)
             skipFullBuild=`echo $var | cut -f2 -d\=`
             ;;
+        -refreshExistingAccount=*)
+            refreshExistingAccount=`echo $var | cut -f2 -d\=`
+            ;;
     esac
 done
 
@@ -173,18 +176,10 @@ remoteCommand() {
     ssh $sshUrl "$command"
 }
 
-refreshGuvnor() {
-    ssh $sshUrl "
-        rm -rf $OPENSHIFT_DATA_DIR/guvnor;
-        mkdir $OPENSHIFT_DATA_DIR/guvnor;
-    "
-    echo -en "\nabout to copy target/tmp/repository.xml to $sshUrl:$remoteDir"
-    scp target/tmp/repository.xml $sshUrl:$remoteDir
-}
-
 push() {
-    echo "git push $domainName"
     cd $localAppLocation
+    echo "now in $localAppLocation :  git push $domainName "
+    touch README.md
     chmod -R 775 .openshift/action_hooks
     git add -A
     git commit -m 'latest from pfp'
@@ -256,8 +251,8 @@ provisionAccountsWithPFP() {
             rm -rf target/pfp/services;
     fi
 
-    echo -en "\n\nprovisionAccountsWithPFP() BEGIN in 5 seconds\n\n"
-    sleep 5 
+    echo -en "\n\nprovisionAccountsWithPFP() BEGIN in 1 seconds\n\n"
+    sleep 1 
     date1=$(date +"%s")
     for i in `xmlstarlet sel -t -n -m '//openshiftAccounts/account' -v 'domainId' -n $osAccountDetailsFileLocation`; 
     do 
@@ -293,15 +288,23 @@ provisionAccountsWithPFP() {
         # will now set 'is.deployment.local' to false .... this property will only exist in an openshift deployment
         echo -n "is.deployment.local=false" >> target/openshiftAccount.properties
 
-        echo -en "\n\nprovisionAccountsWithPFP() ***** now provisioning: $i with brms/pfp :  log can be found in /tmp/$i.log\n\n"; 
-        if ant openshift.provision.pfp.core -Dbounce.servers=false > /tmp/$i.log 2>&1
-        then
-            echo "just provisioned $i with brms/pfp"
-        else
-            echo "ERROR :  please review /tmp/$i.log"
-            exit 1
+        # either provision fully or just refresh an account
+        if [ "$refreshExistingAccount" != "true" ]; 
+            then
+                echo -en "\n\nprovisionAccountsWithPFP() ***** now provisioning: $i with brms/pfp :  log can be found in /tmp/$i.log\n\n"; 
+                if ant openshift.provision.pfp.core -Dbounce.servers=false > /tmp/$i.log 2>&1
+                then
+                    echo "just provisioned $i with brms/pfp"
+                else
+                    echo "ERROR :  please review /tmp/$i.log"
+                    exit 1
+                fi
+            else
+                echo -en "\n\nprovisionAccountsWithPFP() ***** refreshing guvnor database: $i \n"; 
+                ssh $ssh_url 'pkill java; psql -c "drop database if exists guvnor;"; psql -c "create database guvnor with owner=guvnor;"; rm -f jbosseap/standalone/log/server.log '
         fi
 
+        # add BLD workshop specific stuff
         echo -en "\n\nprovisionAccountsWithPFP() ***** now provisioning: $i with bldw :  log can be found in /tmp/$i.bldw.log\n\n"; 
         cd $bldwProvisionProjectLocation
         if ant > /tmp/$i.bldw.log 2>&1
@@ -419,10 +422,10 @@ executeCommandsAcrossAllAccounts() {
 
 
 case "$1" in
-    startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|setRSAkeyAndNamespaceOnAccounts|provisionAccountsWithPFP|bounceMultipleAccounts|bounceMultipleKBase|executeCommandsAcrossAllAccounts|listDigResultsForEachAccount)
+    startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|setRSAkeyAndNamespaceOnAccounts|provisionAccountsWithPFP|bounceMultipleAccounts|bounceMultipleKBase|executeCommandsAcrossAllAccounts|listDigResultsForEachAccount)
         $1
         ;;
     *)
-    echo 1>&2 $"Usage: $0 {startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|refreshGuvnor|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|setRSAkeyAndNamespaceOnAccounts|provisionAccountsWithPFP|bounceMultipleAccounts|bounceMultipleKBase|executeCommandsAcrossAllAccounts|listDigResultsForEachAccount}"
+    echo 1>&2 $"Usage: $0 {startJboss|stopJboss|copyFileToRemote|executeMysqlScript|executePostgresqlScript|openshiftRsync|push|checkRemotePort|createTunnel|remoteCommand|setRSAkeyAndNamespaceOnAccounts|provisionAccountsWithPFP|bounceMultipleAccounts|bounceMultipleKBase|executeCommandsAcrossAllAccounts|listDigResultsForEachAccount}"
     exit 1
 esac
