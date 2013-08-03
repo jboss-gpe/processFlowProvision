@@ -7,6 +7,11 @@ import org.jboss.resteasy.annotations.interception.ServerInterceptor;
 import org.jboss.resteasy.core.ServerResponse;
 import org.jboss.resteasy.spi.interception.PostProcessInterceptor;
 
+
+/*
+ * Purpose :
+ *     - commit any active transactions just prior to REST response being sent to client
+ */
 @Provider
 @ServerInterceptor
 public class TransactionPostProcessInterceptor extends BaseInterceptor implements PostProcessInterceptor{

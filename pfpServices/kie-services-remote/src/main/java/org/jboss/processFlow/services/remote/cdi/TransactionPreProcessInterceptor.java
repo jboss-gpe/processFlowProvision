@@ -15,6 +15,20 @@ import org.jboss.resteasy.spi.Failure;
 import org.jboss.resteasy.spi.HttpRequest;
 import org.jboss.resteasy.spi.interception.PreProcessInterceptor;
 
+
+/*
+ * Purpose :
+ *   - start a new JTA transaction on REST operations that change state:  POST, PUT and DELETE 
+ *
+ *
+ * Overview :
+ *   - the following two JAX-RS entry points are expecting container managed transactions (CMT)
+ *       1)  org.kie.services.remote.rest.RuntimeResource
+ *       2)  org.kie.services.remote.rest.TaskResource
+ *   - when these JAX-RS entry points are bundled in kie-wb, CMT is provided OOB by CDI container and SEAM transactions
+ *   - because this Openshift cartridge is guaranteed to run in jboss eap, CMT can be provided by default app server mechanism
+ *   - no need to load in SEAM transaction functionality
+ */
 @Provider
 @ServerInterceptor
 public class TransactionPreProcessInterceptor extends BaseInterceptor implements PreProcessInterceptor{
