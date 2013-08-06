@@ -68,6 +68,7 @@ import org.jboss.processFlow.bam.IBAMService;
 import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
 import org.jboss.processFlow.tasks.ITaskService;
 import org.jboss.processFlow.util.LogSystemEventListener;
+import org.jboss.processFlow.util.CMTDisposeCommand;
 
 /**
  *<pre>
@@ -264,6 +265,8 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
                     ProcessEventListener peListener = (ProcessEventListener)peClass.newInstance();
                     if(IKnowledgeSessionService.ASYNC_BAM_PRODUCER.equals(peListener.getClass().getName())){
                         bamProducer = (AsyncBAMProducer)peListener;
+                        BAMProducerWrapper pWrapper = bamProducerPool.borrowObject();
+                        bamProducer.setBAMProducerWrapper(pWrapper);
                     }
                     ksession.addEventListener(peListener);
                 } catch(Exception x) {
@@ -320,7 +323,6 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
         Integer ksessionId = ksession.getId();
         Map<String, Object> returnMap = new HashMap<String, Object>();
         try {
-            uTrnx.begin();
             sBuilder.append("startProcessAndReturnId()\tsessionId :  "+ksessionId+" : process = "+processId);
             ProcessInstance pInstance = null;
             if(parameters != null) {
@@ -335,20 +337,14 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
             for (String key : variables.keySet()) {
                 returnMap.put(key, variables.get(key));
             }
-            uTrnx.commit();
             returnMap.put(IKnowledgeSessionService.PROCESS_INSTANCE_ID, pInstance.getId());
             returnMap.put(IKnowledgeSessionService.KSESSION_ID, ksessionId);
             sBuilder.append(" : pInstanceId = "+pInstance.getId()+" : now completed");
             log.info(sBuilder.toString());
             return returnMap;
-        } catch(RuntimeException x) {
+        } catch(Throwable x) {
             x.printStackTrace();
             return null;
-            //throw x;
-        } catch(Exception x) {
-            x.printStackTrace();
-            return null;
-            //throw new RuntimeException(x);
         }
     }
 
