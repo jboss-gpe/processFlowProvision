@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 
 /*
  * Triggers org.jbpm.kie.services.impl.event.Deploy &  org.jbpm.kie.services.impl.event.UnDeploy events.
- * These events are captured in org.jboss.processFlow.cdi.RuntimeManagerManager.
+ * These events are captured in org.kie.services.remote.cdi.RuntimeManagerManager.
  */
 @Singleton
 @Startup
