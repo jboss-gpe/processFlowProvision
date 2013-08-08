@@ -87,11 +87,15 @@ FEATURES
 
 
 3)  database integration
-    - integrated and performance tested  using postgresql
+    - performance tested using postgresql
     - all jbpm / drools components now using one of 3 JCA connection pools:
         1)  jbpm-core-cp
         2)  jbpm-bam
         3)  guvnor-cp
+    - centralized configuration for the following databases:
+        1)  postgresql
+        2)  mysql
+        3)  oracle 11
 
 
 4)  CDI singleton services
@@ -140,3 +144,8 @@ FEATURES
         parent process instances and its sub-process instances
     - this allows BAM reporting that can be depicted in a tree structure
     - within the BAM audit-trail tree structure, the BAM reports can be generated that include any human task variables that existed at that time
+
+
+
+GETTING STARTED
+    - in the doc directory of this project is an ADMIN_GUIDE.txt

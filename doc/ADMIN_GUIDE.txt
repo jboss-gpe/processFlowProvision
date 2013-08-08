@@ -1,12 +1,11 @@
 processFlowProvision (aka:  PFP)
 
 JA Bride
-curl -b cookies -L -d "j_username=USER&j_password=PASSWORD" http://localhost:8080/business-central-server/j_security_check 
 
 
 ASSUMPTIONS
     - you are a RHCE (or equivalent in a Unix environment)
-    - you are installing on Fedora 17 or Red Hat Enterprise Linux (RHEL) 6.*
+    - you are installing on Fedora 17/18/19 or Red Hat Enterprise Linux (RHEL) 6.*
 
 
 OVERVIEW
@@ -60,7 +59,7 @@ INSTALL   :
 
 
     -- Red Hat Network (RHN)
-        NOTE:  this section is only applicable if environment to be built is either on Red Hat Enterprise Linux (RHEL) 5.* or 6.*
+        NOTE:  this section is only applicable if environment to be built is either on Red Hat Enterprise Linux (RHEL) 6.*
 
         -- RHN registration
                 -- set web proxy for rhn_register
@@ -120,7 +119,7 @@ INSTALL   :
 
     - pull ProcessFlowProvision from github
         (as jboss)  :   cd /opt/jbossProjects
-                        git clone -b 5.3.1_eap6.0 https://github.com/jboss-sso/processFlowProvision.git
+                        git clone https://github.com/jboss-sso/processFlowProvision.git
 
 
     --  required PFP shell environment variables
@@ -231,6 +230,16 @@ INSTALL   :
             vi build.properties    (please review/modify properties as appropriate as explained in this configuration file)
             execute:   ant
 
+            NOTE:  executing the default ant target will attempt to download the following files (if they do not already exist) 
+                   and place in the $PFP_HOME/target/lib directory :
+                1)  brms-p-5.3.1.GA-deployable-ee6.zip
+                2)  BZ887847.zip
+                3)  jboss-eap-6.1.0.zip
+                4)  soa-6.0.0.Alpha-redhat-2.zip
+
+            if for whatever reason there are network issues related to the automate attempt to download these files, then these files can
+            be downloaded manually and copied over to the $PFP_HOME/target/lib directory
+
 
 
 POST INSTALL ADMINISTRATION
@@ -293,6 +302,7 @@ POST INSTALL ADMINISTRATION
             http://<hostName>:8080/business-central-server/rs/server/resources/jbpm
 
 
+
     web app security
         - notice that by defualt the BRMS web apps share the same security-domain :  other
         - which means that by default, users and roles configured in the following files are used at runtime by the brms web apps:
@@ -307,6 +317,8 @@ POST INSTALL ADMINISTRATION
             1)  make static changes to $PFP_HOME/conf/jboss/application-*.properties and run:  ant
             2)  create your own CLI scripts that layer on top of PFP and further customize the runtime property files in $JBOSS_HOME/domain-<organizationName>/configuration/
 
+        test web app security
+            curl -b cookies -L -d "j_username=jboss&j_password=brms" http://localhost:8080/business-central-server/j_security_check 
 
 
                 
