@@ -217,19 +217,7 @@ public class BaseKnowledgeSessionBean {
 
          String timerService = System.getProperty("drools.timerService", JpaJDKTimerService.class.getName());
          ksconfigProperties.setProperty( "drools.timerService", timerService);
-         if(timerService.equals(ITimerServiceManagement.TIMER_SERVICE)){
-             Context jndiContext = null;
-             try {
-                 Properties jndiProps = new Properties();
-                 jndiProps.put(javax.naming.Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
-                 jndiContext = new InitialContext(jndiProps);
-                 ITimerServiceManagement timerMgmt = (ITimerServiceManagement)jndiContext.lookup(ITimerServiceManagement.TIMER_SERVICE_MANAGEMENT_JNDI);
-                 log.info("start() found TimerServiceMgmt says : "+timerMgmt.sanityCheck());
-             }finally {
-                 if(jndiContext != null)
-                     jndiContext.close();
-             }
-         }
+         
          
          guvnorUtils = new GuvnorConnectionUtils();
          enableLog = Boolean.parseBoolean(System.getProperty("org.jboss.enableLog", "TRUE"));

@@ -16,6 +16,7 @@
  */
 package org.jboss.processFlow.haTimerService;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.annotation.Resource;
@@ -42,16 +43,21 @@ public class TimerServiceManagementBean implements ITimerServiceManagement {
         LOGGER.info("scheduler() the following has timedout =" + timer.getInfo());
     }
 
-    public void createIntervalTimer(long initialDuration, long intervalDuration, TimerConfig timerConfig) {
-        timerService.createIntervalTimer(initialDuration, initialDuration, timerConfig);
+    public void createIntervalTimer(long initialDuration, long intervalDuration, Serializable info) {
+    	TimerConfig tConfig = new TimerConfig(info, true);
+        timerService.createIntervalTimer(initialDuration, intervalDuration, tConfig);
     }
 
-    public void createSingleActionTimer(Date expiration, TimerConfig timerConfig){
-        timerService.createSingleActionTimer(expiration, timerConfig);
+    public void createSingleActionTimer(Date expiration, Serializable info){
+    	TimerConfig tConfig = new TimerConfig(info, true);
+        timerService.createSingleActionTimer(expiration, tConfig);
     }
     
     public String sanityCheck(){
-        return "hola, amigo :-)";
+    	if(timerService != null)
+    		return "sweet!  timerService != null";
+    	else
+    		return "oh-no!  timerService == null";
     }
     
     public void stop() {

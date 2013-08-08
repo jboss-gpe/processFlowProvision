@@ -51,5 +51,7 @@
         
         <module name="com.google.gson" export="true" />
 
+        <module name="org.quartz" />
+
     </dependencies>
 </module>

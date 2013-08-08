@@ -2,9 +2,15 @@ package org.jboss.processFlow.ejb;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicLong;
+
+import javax.inject.Inject;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import org.drools.time.AcceptsTimerJobFactoryManager;
 import org.drools.time.InternalSchedulerService;
@@ -18,11 +24,35 @@ import org.drools.time.impl.DefaultJobHandle;
 import org.drools.time.impl.DefaultTimerJobFactoryManager;
 import org.drools.time.impl.TimerJobFactoryManager;
 import org.drools.time.impl.TimerJobInstance;
+import org.jboss.processFlow.haTimerService.ITimerServiceManagement;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
+
+/*
+ * plagarized from org.drools.time.impl.JDKTimerService
+ */
 public class ClusteredSingletonTimerService implements TimerService, SessionClock, InternalSchedulerService, AcceptsTimerJobFactoryManager {
 
+	private static ITimerServiceManagement timerMgmt;
+	private static Logger log = LoggerFactory.getLogger("ClusteredSingletonTimerService");
     private AtomicLong                    idCounter = new AtomicLong();
     private TimerJobFactoryManager        jobFactoryManager = DefaultTimerJobFactoryManager.instance;
+    
+    
+    public ClusteredSingletonTimerService() throws NamingException {
+    	Context jndiContext = null;
+    	try {
+    		Properties jndiProps = new Properties();
+    		jndiProps.put(javax.naming.Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
+    		jndiContext = new InitialContext(jndiProps);
+    		timerMgmt = (ITimerServiceManagement)jndiContext.lookup(ITimerServiceManagement.TIMER_SERVICE_MANAGEMENT_JNDI);
+    		log.info("ClusteredSingletonTimerService() found TimerServiceMgmt says : "+timerMgmt.sanityCheck());
+    	}finally {
+    		if(jndiContext != null)
+    			jndiContext.close();
+    	}
+    }
 
     public void setTimerJobFactoryManager(TimerJobFactoryManager timerJobFactoryManager) {
         this.jobFactoryManager = timerJobFactoryManager;
@@ -33,31 +63,33 @@ public class ClusteredSingletonTimerService implements TimerService, SessionCloc
     }
 
     public JobHandle scheduleJob(Job job, JobContext ctx, Trigger trigger) {
-        ZookeeperJobHandle zkJobHandle = new ZookeeperJobHandle(idCounter.getAndIncrement() );
+        GlobalJobHandle jobHandle = new GlobalJobHandle(idCounter.getAndIncrement() );
         Date date = trigger.hasNextFireTime();
         if ( date != null ) {
             TimerJobInstance jobInstance = jobFactoryManager.createTimerJobInstance( job,
                                                                                      ctx,
                                                                                      trigger,
-                                                                                     zkJobHandle,
+                                                                                     jobHandle,
                                                                                      this );
-            zkJobHandle.setTimerJobInstance( (TimerJobInstance) jobInstance );
+            jobHandle.setTimerJobInstance( (TimerJobInstance) jobInstance );
             internalSchedule( (TimerJobInstance) jobInstance );
 
-            return zkJobHandle;
+            return jobHandle;
         } else {
             return null;
         } 
     }
-
-    public void internalSchedule(TimerJobInstance timerJobInstance) {
-        Date date = timerJobInstance.getTrigger().hasNextFireTime();
-        Callable<Void> item = (Callable<Void>) timerJobInstance;
+    
+    public void internalSchedule(TimerJobInstance timerJobInstance){
+    	Date date = timerJobInstance.getTrigger().hasNextFireTime();
+    	Callable<Void> item = (Callable<Void>) timerJobInstance;
     }
-
+    
+    
+    
     public boolean removeJob(JobHandle jobHandle) {
         jobHandle.setCancel( true );
-        jobFactoryManager.removeTimerJobInstance( ((ZookeeperJobHandle) jobHandle).getTimerJobInstance() );
+        jobFactoryManager.removeTimerJobInstance( ((GlobalJobHandle) jobHandle).getTimerJobInstance() );
         //this.scheduler.remove( (Runnable) ((JDKJobHandle) jobHandle).getFuture() );
         return true;
     }
@@ -70,12 +102,12 @@ public class ClusteredSingletonTimerService implements TimerService, SessionCloc
         return jobFactoryManager.getTimerJobInstances();
     }
 
-    public static class ZookeeperJobHandle extends DefaultJobHandle implements JobHandle {
+    public static class GlobalJobHandle extends DefaultJobHandle implements JobHandle {
         private static final long     serialVersionUID = 510l;
 
         private ScheduledFuture<Void> future;       
 
-        public ZookeeperJobHandle(long id) {
+        public GlobalJobHandle(long id) {
             super(id);
         }
         

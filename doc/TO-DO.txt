@@ -243,3 +243,14 @@ A way to draw the business process such that we can handle external events witho
  
 A simple API for sending an event to a process instance that can be used from both a web service/hornet message consumer (which would handle the real external events) and from within a script step in a process definition so one process instance can trigger another one.
 
+
+timer registration
+    ClusteredSingletonTimerService.scheduleJob(Job, JobContext, Trigger) line: 36   
+    Scheduler.scheduleAgendaItem(ScheduledAgendaItem, InternalAgenda, InternalWorkingMemory) line: 73   
+    DefaultAgenda.scheduleItem(ScheduledAgendaItem, InternalWorkingMemory) line: 274    
+
+
+
+timer firing
+    org.drools.persistence.SingleSessionCommandService.execute() line: 330
+    org.drools.perstence.jpa.JpaTimerJobInstance.call() line: 34

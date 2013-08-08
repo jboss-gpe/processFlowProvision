@@ -73,5 +73,15 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/drools-verifier"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-human-task"/>
 	<classpathentry kind="var" path="JBOSS_HOME"/>
+	<classpathentry kind="src" path="/knowledge-api"/>
+	<classpathentry kind="lib" path="/home/jbride/.m2/repository/org/opensymphony/quartz/quartz/1.6.1/quartz-1.6.1.jar">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.groupId" value="org.opensymphony.quartz"/>
+			<attribute name="maven.artifactId" value="quartz"/>
+			<attribute name="maven.version" value="1.6.1"/>
+			<attribute name="maven.scope" value="provided"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="pfpServices/taskService/target"/>
 </classpath>

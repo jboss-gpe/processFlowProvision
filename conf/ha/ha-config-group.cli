@@ -2,3 +2,10 @@ batch
 /server-group=ha.group.primary/:add(profile=full-ha,socket-binding-group=full-ha-sockets)
 /server-group=ha.group.backup/:add(profile=full-ha-backup,socket-binding-group=full-ha-sockets)
 run-batch
+
+batch
+# deploy haTimerService to ha.group.primary and ha.group.backup
+deploy ${temp.pfp.services.dir}/processFlow-haTimerService.jar --name=processFlow-haTimerService-primary.jar --server-groups=ha.group.primary
+deploy ${temp.pfp.services.dir}/processFlow-haTimerService.jar --name=processFlow-haTimerService-backup.jar --server-groups=ha.group.backup
+
+run-batch

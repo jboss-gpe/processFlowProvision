@@ -18,15 +18,15 @@ package org.jboss.processFlow.haTimerService;
 
 import java.util.Date;
 
-import javax.ejb.TimerConfig;
+import java.io.Serializable;
 
 public interface ITimerServiceManagement {
     
-    public static final String TIMER_SERVICE_MANAGEMENT_JNDI = "ejb:/processFlow-haTimerService//TimerServiceManagementBean!org.jboss.processFlow.haTimerService.ITimerServiceManagement";
+    public static final String TIMER_SERVICE_MANAGEMENT_JNDI = "ejb:/processFlow-haTimerService-primary//TimerServiceManagementBean!org.jboss.processFlow.haTimerService.ITimerServiceManagement";
     public static final String TIMER_SERVICE = "org.jboss.processFlow.ejb.ClusteredSingletonTimerService";
 
-    void createIntervalTimer(long initialDuration, long intervalDuration, TimerConfig timerConfig);
-    void createSingleActionTimer(Date expiration, TimerConfig timerConfig);
+    void createIntervalTimer(long initialDuration, long intervalDuration, Serializable info);
+    void createSingleActionTimer(Date expiration, Serializable info);
     void stop();
     String sanityCheck();
 

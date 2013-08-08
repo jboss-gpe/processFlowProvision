@@ -419,6 +419,7 @@
             <else><echo message="deploying to openshift:  postgresql/mysql/h2 modules already pre-configured" /></else>
         </if>
 
+        <copy file="lib/quartz/quartz-${version.quartz}.jar" todir="${temp.pfp.modules.dir}/org/quartz/main" />
         <copy file="lib/commons/commons-codec-1.5.jar" todir="${temp.pfp.modules.dir}/org/apache/commons/codec/5" /> <!-- GuvnorConnectionUtils needs this version -->
         <copy file="${deps.lib.path}/stringtemplate-${version.stringtemplate}.jar" todir="${temp.pfp.modules.dir}/org/antlr/stringtemplate/main" />
         <copy file="${deps.lib.path}/protobuf-java-${version.protobuf}.jar" todir="${temp.pfp.modules.dir}/com/google/protobuf/main" />
