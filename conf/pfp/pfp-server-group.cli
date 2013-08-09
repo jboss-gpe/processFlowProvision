@@ -81,31 +81,6 @@ batch
 
 ###  pfp-core-group system properties
 /server-group=${pfp.core.group}/system-property=organization.name/:add(value=${organization.name},boot-time=true)
-/server-group=${pfp.core.group}/system-property=org.jboss.enableLog/:add(value=${org.jboss.enableLog},boot-time=true)
-
-/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.task.transactionType/:add(value=${org.jboss.processFlow.task.transactionType},boot-time=true)
-/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.tasks.DeadlineHandler/:add(value=${org.jboss.processFlow.tasks.DeadlineHandler},boot-time=true)
-/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.tasks.TaskEventListeners/:add(value=${org.jboss.processFlow.tasks.TaskEventListeners},boot-time=true)
-/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.task.enableIntelligentMapping/:add(value=${org.jboss.processFlow.task.enableIntelligentMapping},boot-time=true)
-/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.kAgentMonitor/:add(value=${org.jboss.processFlow.kAgentMonitor},boot-time=true)
-/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.kAgentRefreshHours/:add(value=${org.jboss.processFlow.kAgentRefreshHours},boot-time=true)
-
-/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.KnowledgeSessionPool/:add(value=${org.jboss.processFlow.KnowledgeSessionPool},boot-time=true)
-/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.statefulKnowledge.enableKnowledgeRuntimeLogger/:add(value=${org.jboss.processFlow.statefulKnowledge.enableKnowledgeRuntimeLogger},boot-time=true)
-/server-group=${pfp.core.group}/system-property=space.delimited.process.event.listeners/:add(value=${space.delimited.process.event.listeners},boot-time=true)
-/server-group=${pfp.core.group}/system-property=task.clean.up.process.event.listener.impl/:add(value=${task.clean.up.process.event.listener.impl},boot-time=true)
-/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.drools.resource.scanner.interval/:add(value=${org.jboss.processFlow.drools.resource.scanner.interval},boot-time=true)
-/server-group=${pfp.core.group}/system-property=org.jbpm.workItemHandler.mail.address/:add(value=${org.jbpm.workItemHandler.mail.address},boot-time=true)
-/server-group=${pfp.core.group}/system-property=org.jbpm.workItemHandler.mail.port/:add(value=${org.jbpm.workItemHandler.mail.port},boot-time=true)
-/server-group=${pfp.core.group}/system-property=org.jbpm.workItemHandler.mail.userId/:add(value=${org.jbpm.workItemHandler.mail.userId},boot-time=true)
-/server-group=${pfp.core.group}/system-property=org.jbpm.workItemHandler.mail.password/:add(value=${org.jbpm.workItemHandler.mail.password},boot-time=true)
-
-
-/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.bam.queue/:add(value=${org.jboss.processFlow.bam.queue},boot-time=true)
-/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.messagingProvider/:add(value=${org.jboss.processFlow.messagingProvider},boot-time=true)
-/server-group=${pfp.core.group}/system-property=org.jboss.remoting.host.name/:add(value=${org.jboss.remoting.host.name},boot-time=true)
-/server-group=${pfp.core.group}/system-property=org.jboss.remoting.port/:add(value=${org.jboss.remoting.port},boot-time=true)
-/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.is.hornetq.inVm/:add(value=${org.jboss.processFlow.is.hornetq.inVm},boot-time=true)
 
 # enabled until JBAS014803: Duplicate resource [(\"system-property\" => \"hibernate.hbm2ddl.auto\")] problem is corrected in pfp-core-server.cli
 /server-group=${pfp.core.group}/system-property=hibernate.hbm2ddl.auto/:add(value=${hibernate.hbm2ddl.auto},boot-time=true)
@@ -114,11 +89,6 @@ batch
 /server-group=${pfp.core.group}/system-property=hibernate.cache.use_second_level_cache/:add(value=${hibernate.cache.use_second_level_cache},boot-time=true)
 /server-group=${pfp.core.group}/system-property=hibernate.dialect/:add(value=${hibernate.dialect},boot-time=true)
 /server-group=${pfp.core.group}/system-property=hibernate.show_sql/:add(value=${hibernate.show_sql},boot-time=true)
-
-/server-group=${pfp.core.group}/system-property=jbpm.conf.dir/:add(value=${jbpm.conf.dir},boot-time=true)
-/server-group=${pfp.core.group}/system-property=drools.session.template.path/:add(value=${drools.session.template.path},boot-time=true)
-/server-group=${pfp.core.group}/system-property=drools.timerService/:add(value=${drools.timerService},boot-time=true)
-
 
 /server-group=${pfp.core.group}/system-property=org.jboss.processFlow.diagnostics.logBeforeBeanDiscovery/:add(value=${org.jboss.processFlow.diagnostics.logBeforeBeanDiscovery},boot-time=true)
 /server-group=${pfp.core.group}/system-property=org.jboss.processFlow.diagnostics.logProcessAnnotatedType/:add(value=${org.jboss.processFlow.diagnostics.logProcessAnnotatedType},boot-time=true)
@@ -130,8 +100,10 @@ batch
 /server-group=${pfp.core.group}/system-property=org.jboss.processFlow.diagnostics.logProcessBean/:add(value=${org.jboss.processFlow.diagnostics.logProcessBean},boot-time=true)
 /server-group=${pfp.core.group}/system-property=org.jboss.processFlow.cdi.space.delimited.veto.classes/:add(value="${org.jboss.processFlow.cdi.space.delimited.veto.classes}",boot-time=true)
 
-/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.cdi.deployment.id/:add(value="${org.jboss.processFlow.cdi.deployment.id}",boot-time=true)
-/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.cdi.vfs.path/:add(value="${org.jboss.processFlow.cdi.vfs.path}",boot-time=true)
+/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.vfs.deployment.id/:add(value="${org.jboss.processFlow.vfs.deployment.id}",boot-time=true)
+/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.vfs.repository.alias/:add(value="${org.jboss.processFlow.vfs.repository.alias}",boot-time=true)
+/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.vfs.repository.folder/:add(value="${org.jboss.processFlow.vfs.repository.folder}",boot-time=true)
+/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.vfs.repository.scheme/:add(value="${org.jboss.processFlow.vfs.repository.scheme}",boot-time=true)
 /server-group=${pfp.core.group}/system-property=org.jboss.processFlow.cdi.ksession.strategy/:add(value="${org.jboss.processFlow.cdi.ksession.strategy}",boot-time=true)
 run-batch
 

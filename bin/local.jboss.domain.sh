@@ -210,8 +210,13 @@ function killJavaProcesses() {
             then
                 echo -en "\nkillJavaProcesses() will not kill eclipse process = $jProc\n"
             else
-                echo -en "killJavaProcesses() about to kill java process id = $jProc\n"
-                kill -9 $jProc
+                if [[ $pInfo =~ .*org.jboss.as.cli.* ]];
+                then
+                    echo -en "\nkillJavaProcesses() will not kill jboss cli = $jProc\n"
+                else
+                    echo -en "killJavaProcesses() about to kill java process id = $jProc\n"
+                    kill -9 $jProc
+                fi
             fi
         fi
     done
