@@ -110,7 +110,7 @@ public class QuartzSchedulerService implements GlobalSchedulerService, TimerServ
             
         }
         GlobalQuartzJobHandle quartzJobHandle = new GlobalQuartzJobHandle(id, jobname, "jbpm");
-        /*
+        
         TimerJobInstance jobInstance = ((AcceptsTimerJobFactoryManager) globalTimerService).
                 getTimerJobFactoryManager().createTimerJobInstance( job,
                                                                     ctx,
@@ -120,7 +120,7 @@ public class QuartzSchedulerService implements GlobalSchedulerService, TimerServ
         quartzJobHandle.setTimerJobInstance( (TimerJobInstance) jobInstance );
 
         internalSchedule(jobInstance);
-        */
+        
         return quartzJobHandle;
     }
 
