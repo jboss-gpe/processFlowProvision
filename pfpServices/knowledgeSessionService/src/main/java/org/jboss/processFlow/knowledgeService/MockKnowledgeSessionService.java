@@ -1,5 +1,6 @@
 package org.jboss.processFlow.knowledgeService;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,5 +36,11 @@ public class MockKnowledgeSessionService implements IBaseKnowledgeSession {
     public void signalEvent(String type, Object event, Long processInstanceId, Integer ksessionId) {
         log.info("signalEvent() type = "+type+" : pInstanceId = "+processInstanceId+" : ksessionId = "+ksessionId);
     }
+
+	@Override
+	public void processJobExecutionContext(Serializable jobExecutionContext) {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

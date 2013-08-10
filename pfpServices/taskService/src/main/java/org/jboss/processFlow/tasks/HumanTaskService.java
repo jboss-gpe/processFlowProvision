@@ -103,7 +103,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
 
     // https://issues.jboss.org/browse/AS7-4567
     //@EJB(name="kSessionProxy", beanName="ejb/prodKSessionProxy")
-    @EJB(name="kSessionProxy", lookup="java:global/processFlow-knowledgeSessionService/prodKSessionProxy!org.jboss.processFlow.knowledgeService.IBaseKnowledgeSession")
+    @EJB(name="kSessionProxy", lookup=IBaseKnowledgeSession.BASE_JNDI)
     private IBaseKnowledgeSession kSessionProxy;
 
     private PfpTaskEventSupport eventSupport;

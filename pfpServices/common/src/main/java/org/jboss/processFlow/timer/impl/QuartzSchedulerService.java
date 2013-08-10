@@ -22,6 +22,13 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+
+import org.drools.common.InternalKnowledgeRuntime;
+import org.drools.common.InternalWorkingMemory;
+import org.drools.common.Scheduler.ActivationTimerJobContext;
+import org.drools.impl.StatefulKnowledgeSessionImpl;
 import org.drools.time.AcceptsTimerJobFactoryManager;
 import org.drools.time.InternalSchedulerService;
 import org.drools.time.Job;
@@ -48,7 +55,8 @@ import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.impl.jdbcjobstore.JobStoreCMT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.jboss.processFlow.timer.GlobalSchedulerService;
+import org.jboss.processFlow.knowledgeService.IBaseKnowledgeSession;
+import org.jboss.processFlow.knowledgeService.IKnowledgeSession;
 import org.jboss.processFlow.timer.NamedJobContext;
 
 /**
@@ -58,21 +66,23 @@ import org.jboss.processFlow.timer.NamedJobContext;
  * being active.
  *
  */
-public class QuartzSchedulerService implements GlobalSchedulerService, TimerService, AcceptsTimerJobFactoryManager, SessionClock  {
+public class QuartzSchedulerService implements TimerService, InternalSchedulerService, AcceptsTimerJobFactoryManager, SessionClock  {
     
-    private static final Logger logger = LoggerFactory.getLogger(QuartzSchedulerService.class);
+    private static final Logger log = LoggerFactory.getLogger(QuartzSchedulerService.class);
 
     private AtomicLong idCounter = new AtomicLong();
-    private TimerService globalTimerService;
     
     private TimerJobFactoryManager jobFactoryManager = DefaultTimerJobFactoryManager.instance;
     
     // global data shared across all scheduler service instances
     private static Scheduler scheduler;    
     private static AtomicInteger timerServiceCounter = new AtomicInteger();
+    private static IBaseKnowledgeSession kSessionProxy;
  
-    public QuartzSchedulerService() {
-        
+    public QuartzSchedulerService() throws Exception {
+    	log.info("QuartzSchedulerService()");
+    	Context jndiContext = new InitialContext();
+    	kSessionProxy = (IBaseKnowledgeSession)jndiContext.lookup(IBaseKnowledgeSession.BASE_JNDI);
     }
     
     @Override
@@ -81,18 +91,29 @@ public class QuartzSchedulerService implements GlobalSchedulerService, TimerServ
         String jobname = null;
         
         if(scheduler == null)
-        	this.initScheduler(null);
+        	this.initScheduler();
+        
         
         if (ctx instanceof ProcessJobContext) {
             ProcessJobContext processCtx = (ProcessJobContext) ctx;
+            StatefulKnowledgeSessionImpl wM = (StatefulKnowledgeSessionImpl)processCtx.getKnowledgeRuntime();
+            
+            //jobname = wM.getId() + "-" + processCtx.getProcessInstanceId() + "-" + processCtx.getTimer().getId();
+            jobname = new Integer(wM.getId()).toString();
+            log.info("scheduleJob() ProcessJobContext:  sessionId = "+wM.getId());
             /*
-            jobname = processCtx.getSessionId() + "-" + processCtx.getProcessInstanceId() + "-" + processCtx.getTimer().getId();
             if (processCtx instanceof StartProcessJobContext) {
                 jobname = "StartProcess-"+((StartProcessJobContext) processCtx).getProcessId()+ "-" + processCtx.getTimer().getId();
             }
             */
+            
         } else if (ctx instanceof NamedJobContext) {
             jobname = ((NamedJobContext) ctx).getJobName();
+        } else if (ctx instanceof ActivationTimerJobContext) {
+        	InternalWorkingMemory wM =  (InternalWorkingMemory)((ActivationTimerJobContext)ctx).getAgenda().getWorkingMemory();
+        	int sessionId = wM.getId();
+        	log.info("scheduleJob() ActivationTimerJobContext:  sessionId = "+sessionId);
+        	jobname = "Timer-"+sessionId;
         } else {
             jobname = "Timer-"+ctx.getClass().getSimpleName()+ "-" + id;
         
@@ -111,12 +132,7 @@ public class QuartzSchedulerService implements GlobalSchedulerService, TimerServ
         }
         GlobalQuartzJobHandle quartzJobHandle = new GlobalQuartzJobHandle(id, jobname, "jbpm");
         
-        TimerJobInstance jobInstance = ((AcceptsTimerJobFactoryManager) globalTimerService).
-                getTimerJobFactoryManager().createTimerJobInstance( job,
-                                                                    ctx,
-                                                                    trigger,
-                                                                    quartzJobHandle,
-                                                                    (InternalSchedulerService) globalTimerService );
+        TimerJobInstance jobInstance = this.jobFactoryManager.createTimerJobInstance( job, ctx, trigger, quartzJobHandle, this);
         quartzJobHandle.setTimerJobInstance( (TimerJobInstance) jobInstance );
 
         internalSchedule(jobInstance);
@@ -149,7 +165,6 @@ public class QuartzSchedulerService implements GlobalSchedulerService, TimerServ
         }
     }
 
-    @Override
     public void internalSchedule(TimerJobInstance timerJobInstance) {
 
         GlobalQuartzJobHandle quartzJobHandle = (GlobalQuartzJobHandle) timerJobInstance.getJobHandle();
@@ -166,7 +181,7 @@ public class QuartzSchedulerService implements GlobalSchedulerService, TimerServ
             if (scheduler.isShutdown()) {
                 return;
             }
-            ((AcceptsTimerJobFactoryManager) globalTimerService).getTimerJobFactoryManager().addTimerJobInstance( timerJobInstance );
+            this.jobFactoryManager.addTimerJobInstance( timerJobInstance );
             JobDetail jobDetail = scheduler.getJobDetail(quartzJobHandle.getJobName(), quartzJobHandle.getJobGroup());
             if (jobDetail == null) {
                 scheduler.scheduleJob(jobq, triggerq);
@@ -183,18 +198,16 @@ public class QuartzSchedulerService implements GlobalSchedulerService, TimerServ
                 // in case job cannot be persisted, like rule timer then make it in memory
                 //internalSchedule(new InmemoryTimerJobInstanceDelegate(quartzJobHandle.getJobName(), ((GlobalTimerService) globalTimerService).getTimerServiceId()));
             } else {
-                ((AcceptsTimerJobFactoryManager) globalTimerService).getTimerJobFactoryManager().removeTimerJobInstance(timerJobInstance);
+                this.jobFactoryManager.removeTimerJobInstance(timerJobInstance);
                 throw new RuntimeException(e);
             }
         } catch (SchedulerException e) {
-            ((AcceptsTimerJobFactoryManager) globalTimerService).getTimerJobFactoryManager().removeTimerJobInstance(timerJobInstance);
+            this.jobFactoryManager.removeTimerJobInstance(timerJobInstance);
             throw new RuntimeException("Exception while scheduling job", e);
         }
     }
 
-    @Override
-    public synchronized void initScheduler(TimerService timerService) {
-        this.globalTimerService = timerService;
+    public synchronized void initScheduler() {
         timerServiceCounter.incrementAndGet();
         
         if (scheduler == null) {            
@@ -204,21 +217,22 @@ public class QuartzSchedulerService implements GlobalSchedulerService, TimerServ
             } catch (SchedulerException e) {
                 throw new RuntimeException("Exception when initializing QuartzSchedulerService", e);
             }
-        
         }
     }
 
     @Override
     public void shutdown() {
         int current = timerServiceCounter.decrementAndGet();
+        /*
         if (scheduler != null && current == 0) {
             try {
                 scheduler.shutdown();
             } catch (SchedulerException e) {
-//                e.printStackTrace();
+                e.printStackTrace();
             }
             scheduler = null;
         }
+        */
     }
     
     public void forceShutdown() {
@@ -299,10 +313,15 @@ public class QuartzSchedulerService implements GlobalSchedulerService, TimerServ
         @SuppressWarnings("unchecked")
         @Override
         public void execute(JobExecutionContext quartzContext) throws JobExecutionException {
+        	kSessionProxy.processJobExecutionContext(quartzContext);
+        	/*
             TimerJobInstance timerJobInstance = (TimerJobInstance) quartzContext.getJobDetail().getJobDataMap().get("timerJobInstance");
+            log.info("execute() jobInstance = "+quartzContext.getJobDetail().getName());
             try {
                 ((Callable<Void>)timerJobInstance).call();
             } catch (Exception e) {
+            	e.printStackTrace();
+            	
                 boolean reschedule = true;
                 Integer failedCount = (Integer) quartzContext.getJobDetail().getJobDataMap().get("failedCount");
                 if (failedCount == null) {
@@ -311,11 +330,13 @@ public class QuartzSchedulerService implements GlobalSchedulerService, TimerServ
                 failedCount++;
                 quartzContext.getJobDetail().getJobDataMap().put("failedCount", failedCount);
                 if (failedCount > 5) {
-                    logger.error("Timer execution failed 5 times in a roll, unscheduling ({})", quartzContext.getJobDetail().getFullName());
+                    log.error("Timer execution failed 5 times in a roll, unscheduling ({})", quartzContext.getJobDetail().getFullName());
                     reschedule = false;
                 }
                 throw new JobExecutionException("Exception when executing scheduled job", e, reschedule);
+                
             }
+            */
             
         }
         
@@ -380,7 +401,6 @@ public class QuartzSchedulerService implements GlobalSchedulerService, TimerServ
         
     }
 
-    @Override
     public JobHandle buildJobHandleForContext(NamedJobContext ctx) {
         return new GlobalQuartzJobHandle(-1, ctx.getJobName(), "jbpm");
     }

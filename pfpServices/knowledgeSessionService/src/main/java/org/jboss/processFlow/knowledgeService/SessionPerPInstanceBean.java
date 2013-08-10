@@ -22,8 +22,10 @@
 
 package org.jboss.processFlow.knowledgeService;
 
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -56,6 +58,7 @@ import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.Environment;
 import org.drools.runtime.process.ProcessInstance;
 import org.drools.runtime.process.WorkItemHandler;
+import org.drools.time.impl.TimerJobInstance;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
@@ -63,9 +66,9 @@ import org.jbpm.workflow.instance.node.SubProcessNodeInstance;
 import org.jbpm.task.admin.TaskCleanUpProcessEventListener;
 import org.jbpm.task.admin.TasksAdmin;
 import org.jbpm.workflow.instance.WorkflowProcessInstanceUpgrader;
-
 import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
 import org.jboss.processFlow.util.CMTDisposeCommand;
+import org.quartz.JobExecutionContext;
 
 /**
  *<pre>
@@ -171,13 +174,6 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
         return ksession;
     }
 
-    /*
-        -- this method is invoked by numerous methods such as 'completeWorkItem' and 'abortProcessInstance'
-        -- seems that there needs to be verification that StatefuleKnowledgeSession object corresponding to the ksession isn't already in use
-        -- without verification, there is a possibility that ksession corresponding to this ksessionId could be involved in processing of some other operation
-        -- optimistic lock exception could ensue
-        -- the kWrapperHash datastructure is a good candidate to use
-    */
     private StatefulKnowledgeSession loadStatefulKnowledgeSession(Integer sessionId) {
         if(kWrapperHash.containsKey(sessionId)) {
             //log.info("loadStatefulKnowledgeSession() found ksession in cache for ksessionId = " +sessionId);
@@ -187,7 +183,7 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
         //0) initialise knowledge base if it hasn't already been done so
         checkKAgentAndBaseHealth();
 
-        //1) very important that a unique 'Environment' is created per StatefulKnowledgeSession
+        //1) very important that a unique 'Environment' is created every time StatefulKnowledgeSession is loaded
         Environment ksEnv = createKnowledgeSessionEnvironment();
 
         KnowledgeSessionConfiguration ksConfig = KnowledgeBaseFactory.newKnowledgeSessionConfiguration(ksconfigProperties);
@@ -662,4 +658,30 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
             rLogger = x;
         }
     }
+
+	public void processJobExecutionContext(Serializable jContext) {
+		JobExecutionContext quartzContext = (JobExecutionContext)jContext;
+		TimerJobInstance timerJobInstance = (TimerJobInstance) quartzContext.getJobDetail().getJobDataMap().get("timerJobInstance");
+        log.info("processJobExecution() jobInstance = "+quartzContext.getJobDetail().getName());
+        try {
+            ((Callable<Void>)timerJobInstance).call();
+        } catch (Exception e) {
+        	e.printStackTrace();
+        	/*
+            boolean reschedule = true;
+            Integer failedCount = (Integer) quartzContext.getJobDetail().getJobDataMap().get("failedCount");
+            if (failedCount == null) {
+                failedCount = new Integer(0);
+            }
+            failedCount++;
+            quartzContext.getJobDetail().getJobDataMap().put("failedCount", failedCount);
+            if (failedCount > 5) {
+                log.error("Timer execution failed 5 times in a roll, unscheduling ({})", quartzContext.getJobDetail().getFullName());
+                reschedule = false;
+            }
+            throw new JobExecutionException("Exception when executing scheduled job", e, reschedule);
+            */
+        }
+		
+	}
 }

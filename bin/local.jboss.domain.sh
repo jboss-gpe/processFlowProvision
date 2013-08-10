@@ -217,9 +217,22 @@ function killJbossProcesses() {
     for jProc in `ps -C java -o pid=`;
     do
         pInfo=$(ps -p $jProc -f)
-        if [[ $pInfo =~ jboss.modules.system.pkgs ]]; then
-            echo -en "killJbossProcesses() about to kill java process id = $jProc\n"
-            kill -9 $jProc
+        if [[ $pInfo =~ .*ant.jar.* ]];
+        then
+            echo -en "\nkillJavaProcesses() will not kill ant process = $jProc\n"
+        else
+            if [[ $pInfo =~ .*org.eclipse.equinox.launcher.* ]];
+            then
+                echo -en "\nkillJavaProcesses() will not kill eclipse process = $jProc\n"
+            else
+                if [[ $pInfo =~ .*org.jboss.as.cli.* ]];
+                then
+                    echo -en "\nkillJavaProcesses() will not kill jboss cli = $jProc\n"
+                else
+                    echo -en "killJavaProcesses() about to kill java process id = $jProc\n"
+                    kill -9 $jProc
+                fi
+            fi
         fi
     done
 }

@@ -23,6 +23,7 @@
 package org.jboss.processFlow.knowledgeService;
 
 import java.io.File;
+import java.io.Serializable;
 import java.lang.management.ManagementFactory;
 import java.net.ConnectException;
 import java.util.HashMap;
@@ -244,4 +245,8 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
             kBean.completeWorkItem(workItemId, pInstanceVariables, pInstanceId, ksessionId);
         }
     }
+    
+	public void processJobExecutionContext(Serializable jobExecutionContext) {
+		kBean.processJobExecutionContext(jobExecutionContext);
+	}
 }

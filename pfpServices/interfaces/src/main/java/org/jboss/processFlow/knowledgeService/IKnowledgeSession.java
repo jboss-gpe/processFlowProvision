@@ -23,8 +23,8 @@
 package org.jboss.processFlow.knowledgeService;
 
 import java.io.File;
+import java.io.Serializable;
 import java.net.ConnectException;
-
 import java.util.Map;
 import java.util.List;
 
@@ -187,5 +187,4 @@ public interface IKnowledgeSession extends IBaseKnowledgeSession {
     public void upgradeProcessInstance(long processInstanceId, String processId, Map<String, Long> nodeMapping);
     
     public void completeWorkItem(Long workItemId, Map<String, Object> pInstanceVariables, Long pInstanceId, Integer ksessionId);
-
 }

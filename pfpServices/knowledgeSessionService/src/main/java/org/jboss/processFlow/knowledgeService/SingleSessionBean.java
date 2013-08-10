@@ -22,6 +22,7 @@
 
 package org.jboss.processFlow.knowledgeService;
 
+import java.io.Serializable;
 import java.util.*;
 
 import javax.annotation.PostConstruct;
@@ -31,6 +32,7 @@ import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.drools.SystemEventListenerFactory;
@@ -470,4 +472,10 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
     public void beanManagedCompleteWorkItem(Long workItemId, Map<String, Object> pInstanceVariables, Long pInstanceId, Integer ksessionId) {
         this.completeWorkItem(workItemId, pInstanceVariables, pInstanceId, ksessionId);
     }
+
+	@Override
+	public void processJobExecutionContext(Serializable jobExectionContext) {
+		// TODO Auto-generated method stub
+		
+	}
 }
