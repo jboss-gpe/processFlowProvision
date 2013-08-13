@@ -1,0 +1,4 @@
+batch
+deploy ${guvnor.zipped} --name=${guvnor.name} --server-groups=brms-webs-group
+deploy ${designer.zipped} --name=${designer.name} --server-groups=brms-webs-group
+run-batch
