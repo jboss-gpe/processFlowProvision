@@ -166,42 +166,42 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
      *</pre>
      */
     public Map<String, Object> startProcessAndReturnId(String processId, Map<String, Object> pInstanceVariables) {
-    	if(pInstanceVariables != null && pInstanceVariables.containsKey(IKnowledgeSessionService.DELIVER_ASYNC)) {
-    		Session sessionObj = null;
-    		try {
-    			pInstanceVariables.remove(IKnowledgeSessionService.DELIVER_ASYNC);
-    			sessionObj = connectionObj.createSession(false, Session.AUTO_ACKNOWLEDGE);
-    			MessageProducer m_sender = sessionObj.createProducer(gwDObj);
-    			ObjectMessage oMessage = sessionObj.createObjectMessage();
-    			oMessage.setObject((HashMap<String,Object>)pInstanceVariables);
-    			oMessage.setStringProperty(IKnowledgeSessionService.OPERATION_TYPE, IKnowledgeSessionService.START_PROCESS_AND_RETURN_ID);
-    			oMessage.setStringProperty(IKnowledgeSessionService.PROCESS_ID, processId);
-    			m_sender.send(oMessage);
-    			Map<String, Object> returnMap = new HashMap<String, Object>();
-    			returnMap.put(IKnowledgeSession.PROCESS_INSTANCE_ID, new Long(0));
-    			return returnMap;
-    		} catch(JMSException x) {
-    			throw new RuntimeException(x);
-    		}finally {
-    			if(sessionObj != null) {
-    				try { sessionObj.close(); }catch(Exception x){ x.printStackTrace(); }
-    			}
-    		}
-    	} else {
-    		return kBean.startProcessAndReturnId(processId, pInstanceVariables);
-    	}
+        if(pInstanceVariables != null && pInstanceVariables.containsKey(IKnowledgeSessionService.DELIVER_ASYNC)) {
+            Session sessionObj = null;
+            try {
+                pInstanceVariables.remove(IKnowledgeSessionService.DELIVER_ASYNC);
+                sessionObj = connectionObj.createSession(false, Session.AUTO_ACKNOWLEDGE);
+                MessageProducer m_sender = sessionObj.createProducer(gwDObj);
+                ObjectMessage oMessage = sessionObj.createObjectMessage();
+                oMessage.setObject((HashMap<String,Object>)pInstanceVariables);
+                oMessage.setStringProperty(IKnowledgeSessionService.OPERATION_TYPE, IKnowledgeSessionService.START_PROCESS_AND_RETURN_ID);
+                oMessage.setStringProperty(IKnowledgeSessionService.PROCESS_ID, processId);
+                m_sender.send(oMessage);
+                Map<String, Object> returnMap = new HashMap<String, Object>();
+                returnMap.put(IKnowledgeSession.PROCESS_INSTANCE_ID, new Long(0));
+                return returnMap;
+            } catch(JMSException x) {
+                throw new RuntimeException(x);
+            }finally {
+                if(sessionObj != null) {
+                    try { sessionObj.close(); }catch(Exception x){ x.printStackTrace(); }
+                }
+            }
+        } else {
+            return kBean.startProcessAndReturnId(processId, pInstanceVariables);
+        }
     }
     public void signalEvent(String signalType, Object signalValue, Long processInstanceId, Integer ksessionId) {
-    	kBean.signalEvent(signalType, signalValue, processInstanceId, ksessionId);
+        kBean.signalEvent(signalType, signalValue, processInstanceId, ksessionId);
     }
     public void abortProcessInstance(Long processInstanceId, Integer ksessionId) {
-    	kBean.abortProcessInstance(processInstanceId, ksessionId);
+        kBean.abortProcessInstance(processInstanceId, ksessionId);
     }
     public void upgradeProcessInstance(long processInstanceId, String processId, Map<String, Long> nodeMapping) {
-    	kBean.upgradeProcessInstance(processInstanceId, processId, nodeMapping);
+        kBean.upgradeProcessInstance(processInstanceId, processId, nodeMapping);
     }
     public String printActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId) {
-    	return kBean.printActiveProcessInstanceVariables(processInstanceId, ksessionId);
+        return kBean.printActiveProcessInstanceVariables(processInstanceId, ksessionId);
     }
     public Map<String, Object> getActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId) {
         return kBean.getActiveProcessInstanceVariables(processInstanceId, ksessionId);

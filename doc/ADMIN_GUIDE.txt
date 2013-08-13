@@ -251,6 +251,11 @@ POST INSTALL ADMINISTRATION
     databases
         - log into your jbpm and jbpm_bam databases and check for tables
         - those tables were created when JPA persistence of knowledgeSession, task and bam functionality detected that the tables did not exist
+        - what about OOB scripts for jbpm tables ?
+            - it is advised that the safe way is not create the schema by yourself. 
+            - Let BRMS/jBPM generate it, export the schema in a script and then you can use this schema to apply in your other environments for example
+            - The schema in the documentation does not say about things related to database features like oracle sequences
+            - So, doing an export of the schema after it's generation is more appropriate.
 
     jboss-brms
         -- point browser to the following URL   :  http://<$HOSTNAME>:8080/jboss-brms/org.drools.guvnor.Guvnor/Guvnor.jsp
@@ -319,6 +324,12 @@ POST INSTALL ADMINISTRATION
 
         test web app security
             curl -b cookies -L -d "j_username=jboss&j_password=brms" http://localhost:8080/business-central-server/j_security_check 
+
+
+    database table maintenance
+        - how to keep the database tables from growing infinitely in BRMS5.3.1
+            - https://access.redhat.com/site/solutions/240423
+        - TO-DO:  update with PFP specifics
 
 
                 

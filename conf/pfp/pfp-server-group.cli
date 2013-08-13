@@ -51,6 +51,7 @@ batch
 /server-group=${pfp.core.group}/system-property=space.delimited.process.event.listeners/:add(value=${space.delimited.process.event.listeners},boot-time=true)
 /server-group=${pfp.core.group}/system-property=task.clean.up.process.event.listener.impl/:add(value=${task.clean.up.process.event.listener.impl},boot-time=true)
 /server-group=${pfp.core.group}/system-property=org.jboss.processFlow.drools.resource.scanner.interval/:add(value=${org.jboss.processFlow.drools.resource.scanner.interval},boot-time=true)
+/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.change.set.url/:add(value=${org.jboss.processFlow.change.set.url},boot-time=true)
 /server-group=${pfp.core.group}/system-property=org.jbpm.workItemHandler.mail.address/:add(value=${org.jbpm.workItemHandler.mail.address},boot-time=true)
 /server-group=${pfp.core.group}/system-property=org.jbpm.workItemHandler.mail.port/:add(value=${org.jbpm.workItemHandler.mail.port},boot-time=true)
 /server-group=${pfp.core.group}/system-property=org.jbpm.workItemHandler.mail.userId/:add(value=${org.jbpm.workItemHandler.mail.userId},boot-time=true)

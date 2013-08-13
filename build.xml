@@ -894,7 +894,7 @@
         </if>
     </target>
     <target name="download.drools.guvnor">
-        <get src="${drools.guvnor.url}" dest="${install.home}/lib/guvnor-distribution-wars-${drools.guvnor.version}-jboss-as-7.0.war"  skipexisting="true" />
+        <get src="${drools.guvnor.download.url}" dest="${install.home}/lib/guvnor-distribution-wars-${drools.guvnor.version}-jboss-as-7.0.war"  skipexisting="true" />
     </target>
     <target name="download.designer" >
         <get src="${designer.url}/jbpm-designer-${designer.version}.war" dest="${install.home}/lib/jbpm-designer-${designer.version}.war"  skipexisting="true" />
