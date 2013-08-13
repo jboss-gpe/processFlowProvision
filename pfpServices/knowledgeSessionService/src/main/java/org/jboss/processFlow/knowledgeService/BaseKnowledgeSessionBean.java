@@ -162,6 +162,7 @@ public class BaseKnowledgeSessionBean {
     public static final String DROOLS_SESSION_CONF_PATH="/META-INF/drools.session.conf";
     public static final String DROOLS_SESSION_TEMPLATE_PATH="drools.session.template.path";
     public static final String DROOLS_WORK_ITEM_HANDLERS = "drools.workItemHandlers";
+    public static final String CHANGE_SET_URL = "org.jboss.processFlow.change.set.url";
     
     protected Logger log = Logger.getLogger(BaseKnowledgeSessionBean.class);
     protected String droolsResourceScannerInterval = "30";
@@ -403,7 +404,7 @@ public class BaseKnowledgeSessionBean {
     /*
      * intention of this function is to create a knowledgeBase without a strict dependency on guvnor
      * will still query guvnor for packages but will continue on even if problems communicating with guvnor exists
-     * this function could be of use in those scenarious where guvnor is not accessible
+     * this function could be of use in those scenarios where guvnor is not accessible
      * knowledgeBase can subsequently be populated via one of the addProcessToKnowledgeBase(....) functions
      * in all cases, the knowledgeBase created by this function will NOT be registered with a knowledgeAgent that receives updates from guvnor
      */
@@ -435,9 +436,24 @@ public class BaseKnowledgeSessionBean {
                 }else {
                     log.warn("rebuildKnowledgeBaseViaKnowledgeBuilder() no packages returned from Guvnor");
                 }
+            }else if(StringUtils.isNotEmpty(System.getProperty(this.CHANGE_SET_URL))){
+                String changeSetUrl = System.getProperty(this.CHANGE_SET_URL);
+                InputStream iStream = null;
+                try{
+                    iStream = new FileInputStream(changeSetUrl);
+                    Resource rObj = new InputStreamResource(iStream);
+                    kbuilder.add(rObj, ResourceType.PKG);
+                }finally{
+                    if(iStream != null)
+                        iStream.close();
+                }
+            }else {
+                throw new RuntimeException("rebuildKnowledgeBaseViaKnowledgeBuilder() guvnor does not exist and the following property is null: "+this.CHANGE_SET_URL);
             }
             kbase = kbuilder.newKnowledgeBase();
             log.info("rebuildKnowledgeBaseViaKnowledgeBuilder() just created kbase via KnowledgeBase");
+        }catch(RuntimeException x){
+            throw x;
         }catch(Exception x){
             throw new RuntimeException(x);
         }

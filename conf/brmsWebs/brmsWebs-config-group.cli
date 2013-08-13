@@ -53,9 +53,6 @@ batch
 
 /server-group=${brms.webs.group}/system-property=org.jboss.processFlow.colocated.pfp.services/:add(value=false,boot-time=true)
 
-deploy ${guvnor.zipped} --name=${guvnor.name} --server-groups=brms-webs-group
-deploy ${designer.zipped} --name=${designer.name} --server-groups=brms-webs-group
-
 deploy ${console.server.zipped} --name=${console.server.name} --server-groups=brms-webs-group
 deploy ${console.zipped} --name=${console.name} --server-groups=brms-webs-group
 run-batch
