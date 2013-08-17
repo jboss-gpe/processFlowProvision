@@ -100,11 +100,7 @@ batch
 /server-group=${pfp.core.group}/system-property=org.jboss.processFlow.diagnostics.logProcessBean/:add(value=${org.jboss.processFlow.diagnostics.logProcessBean},boot-time=true)
 /server-group=${pfp.core.group}/system-property=org.jboss.processFlow.cdi.space.delimited.veto.classes/:add(value="${org.jboss.processFlow.cdi.space.delimited.veto.classes}",boot-time=true)
 
-/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.vfs.deployment.id/:add(value="${org.jboss.processFlow.vfs.deployment.id}",boot-time=true)
-/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.vfs.repository.alias/:add(value="${org.jboss.processFlow.vfs.repository.alias}",boot-time=true)
-/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.vfs.repository.folder/:add(value="${org.jboss.processFlow.vfs.repository.folder}",boot-time=true)
-/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.vfs.repository.scheme/:add(value="${org.jboss.processFlow.vfs.repository.scheme}",boot-time=true)
-/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.cdi.ksession.strategy/:add(value="${org.jboss.processFlow.cdi.ksession.strategy}",boot-time=true)
+/server-group=${pfp.core.group}/system-property=org.jboss.processFlow.deployments.json.config.path/:add(value="${org.jboss.processFlow.deployments.json.config.path}",boot-time=true)
 run-batch
 
 batch

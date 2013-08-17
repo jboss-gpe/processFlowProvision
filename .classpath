@@ -95,5 +95,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="/kie-nio2-model"/>
+	<classpathentry kind="src" path="/kie-nio2-jgit"/>
 	<classpathentry kind="output" path="target"/>
 </classpath>

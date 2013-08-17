@@ -1,0 +1,18 @@
+{
+    "localFileSystem":{
+        "deploymentId": "testRepo",
+        "ksession.strategy": "PER_PROCESS_INSTANCE",
+        "repoFolder": "/tmp/bpms/processes/testRepo"
+    },
+    "git":{
+        "deploymentId": "git-playground",
+        "ksession.strategy": "PER_PROCESS_INSTANCE",
+        "repoFolder": "processes/HR",
+        "repoAlias": "jbpm-playground",
+        "gitUser": "guvnorngtestuser1",
+        "gitPasswd": "test1234",
+        "localGitUrl": "git://jbpm-playground",
+        "remoteGitUrl": "https://github.com/guvnorngtestuser1/jbpm-console-ng-playground.git",
+        "gitOutDir": "/tmp/.niogit/jbpm-playground.git"
+    }
+}

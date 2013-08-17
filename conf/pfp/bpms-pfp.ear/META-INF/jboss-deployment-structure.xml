@@ -2,11 +2,14 @@
     <deployment>
         <dependencies>
             <module name="org.jbpm.jbpm-kie-services" export="true" meta-inf="import" />
+            <module name="org.codehaus.jackson.jackson-mapper-asl" export="true" />
+            <module name="org.codehaus.jackson.jackson-core-asl" export="true" />
 
             <module name="org.jbpm.jbpm-runtime-manager" export="true" meta-inf="import" />
             <module name="org.jbpm.jbpm-human-task-core" export="true" meta-inf="import" />
             <module name="org.jbpm.jbpm-human-task-workitems" export="true" meta-inf="import" />
             <module name="org.jbpm.jbpm-shared-services" export="true" meta-inf="import" />
+
 
         </dependencies>
     </deployment>
