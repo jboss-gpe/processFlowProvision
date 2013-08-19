@@ -101,7 +101,8 @@ public class RESTApplicationStartup {
     			String fileUri = (String)dHash.get(DeployUnitParser.REPO_FOLDER);
     			URI fsURI = URI.create(fileUri);
     			try{
-    				//SimpleFileSystemProvider.newFileSystem() seems to be unimplemented
+    				//SimpleFileSystemProvider.newFileSystem() seems to be unimplemented ... so instead will just java.io.* to ensure filesystem directory exists
+    				//otherwise, the SimpleFileSystemProvider will subsequently complain that the directory doesn't exist
     				//final Map<String, Object> env = new HashMap<String, Object>();
     				//ioService.newFileSystem(fsURI, env, LocalFileSystemType.LOCAL_FILE_SYSTEM);
     				File sFile = new File(fileUri);
