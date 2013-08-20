@@ -411,8 +411,8 @@
         <attribute name="target"/>
         <sequential>
             <subant target="@{target}">
-                <fileset dir="pfpServices/cdiDiagnostics" includes="build.xml"/>
-                <fileset dir="pfpServices/kie-services-remote" includes="build.xml"/>
+                <fileset dir="services/cdiDiagnostics" includes="build.xml"/>
+                <fileset dir="services/kie-services-remote" includes="build.xml"/>
             </subant>
         </sequential>
     </macrodef>
@@ -420,7 +420,7 @@
 
     <target name="pfp.clean" description="" >
         <if>
-            <available file="pfpServices" type="dir" />
+            <available file="services" type="dir" />
             <then>
                 <iterate target="clean" />
                 <if>
@@ -435,7 +435,6 @@
         </if>
         <delete dir="${distro.clean}" />
         <delete dir="privateServiceTaskRepo/${build.dir}" />
-        <delete dir="pfpServicesTest/${build.dir}" />
         <delete dir="osProvision/${build.dir}" />
     </target>
 
@@ -454,7 +453,7 @@
 
     <target name="pfp.compile" depends="mkPfpDirs" description="" >
         <if>
-            <available file="pfpServices" type="dir" />
+            <available file="services" type="dir" />
             <then><iterate target="all" /></then>
         </if>
     </target>
