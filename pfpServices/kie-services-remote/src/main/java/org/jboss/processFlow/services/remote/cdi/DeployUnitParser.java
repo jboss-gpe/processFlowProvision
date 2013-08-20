@@ -22,17 +22,20 @@ public class DeployUnitParser {
     public static final String LOCAL_FILE_SYSTEM = "localFileSystem";
 	public static final String GIT = "git";
 	public static final String FILE = "file";
-	public static final String KMODULE = "KMODULE";
+	public static final String KJAR = "kjar";
 	public static final String GIT_USER = "gitUser";
     public static final String GIT_PASSWD = "gitPasswd";
     public static final String GIT_LOCAL_REPO_URL = "localGitUrl";
     public static final String GIT_REMOTE_REPO_URL = "remoteGitUrl";
+    public static final String ARTIFACT_ID = "artifactId";
+    public static final String GROUP_ID = "groupId";
+    public static final String VERSION = "version";
 	
 	private static Logger log = LoggerFactory.getLogger("RESTApplicationScopedProducer");
-	private static Map<String, Map<String, Object>> parsedJson;
+	private static Map<String, Map<String, String>> parsedJson;
 	private static Object parseLock = new Object();
 	
-	public static Map<String, Map<String,Object>> getParsedJsonConfig() throws Exception {
+	public static Map<String, Map<String, String>> getParsedJsonConfig() throws Exception {
 		if(parsedJson != null)
 			return parsedJson;
 		

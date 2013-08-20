@@ -1,6 +1,6 @@
 {
     "localFileSystem":{
-        "deploymentId": "testRepo",
+        "deploymentId": "local-playground",
         "ksession.strategy": "PER_PROCESS_INSTANCE",
         "repoFolder": "/tmp/bpms/processes/testRepo"
     },
@@ -14,5 +14,12 @@
         "localGitUrl": "git://jbpm-playground",
         "remoteGitUrl": "https://github.com/guvnorngtestuser1/jbpm-console-ng-playground.git",
         "gitOutDir": "/tmp/.niogit/jbpm-playground.git"
+    },
+    "kjar":{
+        "deploymentId": "mvn-playground",
+        "ksession.strategy": "PER_PROCESS_INSTANCE",
+        "groupId":  "org.jbpm.test",
+        "artifactId":  "test-module",
+        "version":  "1.0.0-SNAPSHOT"
     }
 }

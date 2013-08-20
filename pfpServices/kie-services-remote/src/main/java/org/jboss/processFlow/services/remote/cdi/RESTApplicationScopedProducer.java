@@ -13,6 +13,7 @@ import javax.inject.Named;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
 
+import org.apache.commons.lang.StringUtils;
 import org.jbpm.kie.services.api.DeploymentUnit;
 import org.jbpm.kie.services.api.DeploymentUnit.RuntimeStrategy;
 import org.jbpm.kie.services.impl.KModuleDeploymentUnit;
@@ -57,17 +58,20 @@ public class RESTApplicationScopedProducer {
     	if(dUnits == null ) {
     		dUnits = new CopyOnWriteArrayList<DeploymentUnit>();
     		
-    		Map<String, Map<String, Object>> deployments = DeployUnitParser.getParsedJsonConfig();
+    		Map<String, Map<String, String>> deployments = DeployUnitParser.getParsedJsonConfig();
     		//To-Do:  parse and iterate through a JSON based file 
-    		for(Entry<String, Map<String, Object>> deployment : deployments.entrySet()) {
+    		for(Entry<String, Map<String, String>> deployment : deployments.entrySet()) {
     			DeploymentUnit dUnit = null;
-    			if(DeployUnitParser.GIT.equals(deployment.getKey()))
+    			if(DeployUnitParser.GIT.equals(deployment.getKey())){
+    				validateDeploymentUnitFields(deployment.getValue());
     				dUnit = createGitDeploymentUnit(deployment.getValue());
-    			else if(DeployUnitParser.LOCAL_FILE_SYSTEM.equals(deployment.getKey()))
+    			} else if(DeployUnitParser.LOCAL_FILE_SYSTEM.equals(deployment.getKey())) {
+    				validateDeploymentUnitFields(deployment.getValue());
     				dUnit = this.createLocalFileDeploymentUnit(deployment.getValue());
-    			else if(DeployUnitParser.KMODULE.equals(deployment.getKey()))
+    			} else if(DeployUnitParser.KJAR.equals(deployment.getKey())) {
+    				validateDeploymentUnitFields(deployment.getValue());
     				dUnit = this.createKModuleDeploymentUnit(deployment.getValue());
-    			else
+    			} else
     				throw new Exception("getDeploymentUnits() unknown deployment type: "+deployment.getKey());
     
     			dUnits.add(dUnit);
@@ -76,16 +80,16 @@ public class RESTApplicationScopedProducer {
     	return dUnits;
     }
     
-    private VFSDeploymentUnit createLocalFileDeploymentUnit(Map<String, Object> details){
-    	RuntimeStrategy ksessionStrategy = RuntimeStrategy.valueOf((String)details.get(DeployUnitParser.KSESSION_STRATEGY));
+    private VFSDeploymentUnit createLocalFileDeploymentUnit(Map<String, String> details){
+    	RuntimeStrategy ksessionStrategy = RuntimeStrategy.valueOf(details.get(DeployUnitParser.KSESSION_STRATEGY));
+    	String dId = details.get(DeployUnitParser.DEPLOYMENT_ID);
     	StringBuilder sBuilder = new StringBuilder();
-    	String dId = (String)details.get(DeployUnitParser.DEPLOYMENT_ID);
     	
     	// needs to be prefixed with "file:///"  .... will default to JGITFileSystemProvider
     	// setting repositoryScheme to "file" does not seem to trigger use of SimpleFileSystemProvider
-    	String rFolder = "file://"+(String)details.get(DeployUnitParser.REPO_FOLDER);  
+    	String rFolder = "file://"+details.get(DeployUnitParser.REPO_FOLDER);  
     	
-    	String rAlias = (String)details.get(DeployUnitParser.REPO_ALIAS);
+    	String rAlias = details.get(DeployUnitParser.REPO_ALIAS);
     	sBuilder.append("createLocalFileDeploymentUnit() creating localFile deploymentUnit with \n\tdeploymentId = ");
     	sBuilder.append(dId);
     	sBuilder.append("\n\trepoFolder = ");
@@ -100,12 +104,12 @@ public class RESTApplicationScopedProducer {
     	return vfsUnit;
     }
     
-    private VFSDeploymentUnit createGitDeploymentUnit(Map<String, Object> details){
-    	RuntimeStrategy ksessionStrategy = RuntimeStrategy.valueOf((String)details.get(DeployUnitParser.KSESSION_STRATEGY));
+    private VFSDeploymentUnit createGitDeploymentUnit(Map<String, String> details){
+    	RuntimeStrategy ksessionStrategy = RuntimeStrategy.valueOf(details.get(DeployUnitParser.KSESSION_STRATEGY));
+    	String dId = details.get(DeployUnitParser.DEPLOYMENT_ID);
     	StringBuilder sBuilder = new StringBuilder();
-    	String dId = (String)details.get(DeployUnitParser.DEPLOYMENT_ID);
-    	String rFolder = (String)details.get(DeployUnitParser.REPO_FOLDER);
-    	String rAlias = (String)details.get(DeployUnitParser.REPO_ALIAS);
+    	String rFolder = details.get(DeployUnitParser.REPO_FOLDER);
+    	String rAlias = details.get(DeployUnitParser.REPO_ALIAS);
     	sBuilder.append("createGitDeploymentUnit() creating git deploymentUnit with \n\tdeploymentId = ");
     	sBuilder.append(dId);
     	sBuilder.append("\n\trepoFolder = ");
@@ -122,13 +126,28 @@ public class RESTApplicationScopedProducer {
     }
     
     
-    private KModuleDeploymentUnit createKModuleDeploymentUnit(Map<String, Object> details) {
-    	String ARTIFACT_ID = "test-module";
-        String GROUP_ID = "org.jbpm.test";
-        String VERSION = "1.0.0-SNAPSHOT";
+    private KModuleDeploymentUnit createKModuleDeploymentUnit(Map<String, String> details) {
+    	String ARTIFACT_ID = details.get(DeployUnitParser.ARTIFACT_ID);
+        String GROUP_ID = details.get(DeployUnitParser.GROUP_ID);
+        String VERSION = details.get(DeployUnitParser.VERSION);
 
-    	KModuleDeploymentUnit kUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION, "KBase-test", "ksession-test");
+    	KModuleDeploymentUnit kUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
     	return kUnit;
+    }
+    
+    private void validateDeploymentUnitFields(Map<String, String> details) throws Exception {
+    	if(StringUtils.isEmpty(details.get(DeployUnitParser.DEPLOYMENT_ID)))
+    		throw new Exception("All Deployment Units to register need a: "+DeployUnitParser.DEPLOYMENT_ID);
+    	
+    	String kSessionStrategy = details.get(DeployUnitParser.KSESSION_STRATEGY);
+    	if(StringUtils.isEmpty(kSessionStrategy))
+    	    throw new Exception("All Deployment Units to specify a ksession strategy: "+DeployUnitParser.KSESSION_STRATEGY);
+    	
+    	try {
+    	    RuntimeStrategy.valueOf(kSessionStrategy);
+    	} catch (IllegalArgumentException ex) {  
+    	    throw new Exception("following ksession strategy is not valid: "+kSessionStrategy+" for deploymentId: "+details.get(DeployUnitParser.DEPLOYMENT_ID));
+    	}
     }
     
     /* 
