@@ -96,13 +96,13 @@ public class RESTApplicationScopedProducer {
             for(Entry<String, Map<String, String>> deployment : deployments.entrySet()) {
                 DeploymentUnit dUnit = null;
                 if(DeployUnitParser.GIT.equals(deployment.getKey())){
-                    validateDeploymentUnitFields(deployment.getValue());
+                    validateDeploymentUnitFields(deployment);
                     dUnit = createGitDeploymentUnit(deployment.getValue());
                 } else if(DeployUnitParser.LOCAL_FILE_SYSTEM.equals(deployment.getKey())) {
-                    validateDeploymentUnitFields(deployment.getValue());
+                    validateDeploymentUnitFields(deployment);
                     dUnit = this.createLocalFileDeploymentUnit(deployment.getValue());
                 } else if(DeployUnitParser.KJAR.equals(deployment.getKey())) {
-                    validateDeploymentUnitFields(deployment.getValue());
+                    validateDeploymentUnitFields(deployment);
                     dUnit = this.createKModuleDeploymentUnit(deployment.getValue());
                 } else
                     throw new Exception("getDeploymentUnits() unknown deployment type: "+deployment.getKey());
@@ -140,9 +140,9 @@ public class RESTApplicationScopedProducer {
     private VFSDeploymentUnit createGitDeploymentUnit(Map<String, String> details){
         RuntimeStrategy ksessionStrategy = RuntimeStrategy.valueOf(details.get(DeployUnitParser.KSESSION_STRATEGY));
         String dId = details.get(DeployUnitParser.DEPLOYMENT_ID);
-        StringBuilder sBuilder = new StringBuilder();
         String rFolder = details.get(DeployUnitParser.REPO_FOLDER);
         String rAlias = details.get(DeployUnitParser.REPO_ALIAS);
+        StringBuilder sBuilder = new StringBuilder();
         sBuilder.append("createGitDeploymentUnit() creating git deploymentUnit with \n\tdeploymentId = ");
         sBuilder.append(dId);
         sBuilder.append("\n\trepoFolder = ");
@@ -160,17 +160,34 @@ public class RESTApplicationScopedProducer {
     
     
     private KModuleDeploymentUnit createKModuleDeploymentUnit(Map<String, String> details) {
-        String ARTIFACT_ID = details.get(DeployUnitParser.ARTIFACT_ID);
-        String GROUP_ID = details.get(DeployUnitParser.GROUP_ID);
-        String VERSION = details.get(DeployUnitParser.VERSION);
+        RuntimeStrategy ksessionStrategy = RuntimeStrategy.valueOf(details.get(DeployUnitParser.KSESSION_STRATEGY));
+        String dId = details.get(DeployUnitParser.DEPLOYMENT_ID);
+        String groupId = details.get(DeployUnitParser.GROUP_ID);
+        String artifactId = details.get(DeployUnitParser.ARTIFACT_ID);
+        String version = details.get(DeployUnitParser.VERSION);
 
-        KModuleDeploymentUnit kUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
+        StringBuilder sBuilder = new StringBuilder();
+        sBuilder.append("createKModuleDeploymentUnit() creating KJar deploymentUnit with \n\tdeploymentId = ");
+        sBuilder.append(dId);
+        sBuilder.append("\n\tgroupId = ");
+        sBuilder.append(groupId);
+        sBuilder.append("\n\tartifactId = ");
+        sBuilder.append(artifactId);
+        sBuilder.append("\n\tversion = ");
+        sBuilder.append(version);
+        sBuilder.append("\n\tksessionStrategy = ");
+        sBuilder.append(ksessionStrategy.toString());
+        log.info(sBuilder.toString());
+
+        KModuleDeploymentUnit kUnit = new KModuleDeploymentUnit(groupId, artifactId, version, "KBase-test", "ksession-test");
+        kUnit.setStrategy(ksessionStrategy);
         return kUnit;
     }
     
-    private void validateDeploymentUnitFields(Map<String, String> details) throws Exception {
-        if(StringUtils.isEmpty(details.get(DeployUnitParser.DEPLOYMENT_ID)))
-            throw new Exception("All Deployment Units to register need a: "+DeployUnitParser.DEPLOYMENT_ID);
+    private void validateDeploymentUnitFields(Entry<String, Map<String, String>> deployment) throws Exception {
+        Map<String, String> details = deployment.getValue();
+        if(!(deployment.getKey().equals(DeployUnitParser.KJAR)) && StringUtils.isEmpty(details.get(DeployUnitParser.DEPLOYMENT_ID)))
+            throw new Exception("Deployment Unit needs a property of : "+DeployUnitParser.DEPLOYMENT_ID);
         
         String kSessionStrategy = details.get(DeployUnitParser.KSESSION_STRATEGY);
         if(StringUtils.isEmpty(kSessionStrategy))

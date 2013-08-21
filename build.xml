@@ -42,7 +42,7 @@
                             <classpath refid="classpath"/>
                         </java>
                         <antcall target="filter">
-                            <param name="source.dir" value="conf/jboss/${community.or.supported}/slave"/>
+                            <param name="source.dir" value="conf/jboss/supported/slave"/>
                             <param name="dest.dir" value="${temp.jboss.dir}/domain-${organization.name}/configuration"/>
                         </antcall>
                         <exec executable="bash" failonerror="true" dir=".">
@@ -79,17 +79,8 @@
         <if>
             <not><available file="${jboss.home}/domain/configuration/domain.xml" /></not>
             <then>
-                <if>
-                    <equals arg1="${community.or.supported}" arg2="community" />
-                    <then>
-                        <get src="${as7.download.url}" dest="${install.home}/lib/${as7.name}.zip"  skipexisting="true" />
-                        <unzip src="${install.home}/lib/${as7.name}.zip" dest="${jboss.home}/.." />
-                    </then>
-                    <else>
-                        <get src="${eap6.download.url}" dest="${install.home}/lib/"  skipexisting="true" />
-                        <unzip src="${install.home}/lib/${eap6.name}" dest="${jboss.home}/.." />
-                    </else>
-                </if>
+                <get src="${eap6.download.url}" dest="${install.home}/lib/"  skipexisting="true" />
+                <unzip src="${install.home}/lib/${eap6.name}" dest="${jboss.home}/.." />
             </then>
         </if>
         <delete dir="${jboss.home}/${jboss.domain.base.dir}" />
@@ -97,11 +88,11 @@
             <fileset dir="${jboss.home}/domain" />
         </copy>
         <antcall target="filter">
-            <param name="source.dir" value="conf/jboss/${community.or.supported}"/>
+            <param name="source.dir" value="conf/jboss/supported"/>
             <param name="file.name" value="domain.xml"/>
             <param name="dest.dir" value="${jboss.home}/${jboss.domain.base.dir}/configuration"/>
         </antcall>
-        <copy file="conf/jboss/${community.or.supported}/host.xml" todir="${jboss.home}/${jboss.domain.base.dir}/configuration" overwrite="true" verbose="true" />
+        <copy file="conf/jboss/supported/host.xml" todir="${jboss.home}/${jboss.domain.base.dir}/configuration" overwrite="true" verbose="true" />
     </target>
 
     <target name="provision.jboss.with.jdbc" >

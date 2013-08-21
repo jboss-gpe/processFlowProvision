@@ -16,7 +16,7 @@
         "gitOutDir": "/tmp/.niogit/jbpm-playground.git"
     },
     "kjar":{
-        "deploymentId": "mvn-playground",
+        "comment": "no deploymentId.  instead, unique identifier =  <groupId>:<artifactId>:<version>",
         "ksession.strategy": "PER_PROCESS_INSTANCE",
         "groupId":  "org.jbpm.test",
         "artifactId":  "test-module",
