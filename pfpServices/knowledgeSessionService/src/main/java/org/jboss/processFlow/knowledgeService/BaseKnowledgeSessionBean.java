@@ -448,7 +448,7 @@ public class BaseKnowledgeSessionBean {
                         iStream.close();
                 }
             }else {
-                throw new RuntimeException("rebuildKnowledgeBaseViaKnowledgeBuilder() guvnor does not exist and the following property is null: "+this.CHANGE_SET_URL);
+                log.warn("rebuildKnowledgeBaseViaKnowledgeBuilder() guvnor does not exist and the following property is null: "+this.CHANGE_SET_URL);
             }
             kbase = kbuilder.newKnowledgeBase();
             log.info("rebuildKnowledgeBaseViaKnowledgeBuilder() just created kbase via KnowledgeBase");
