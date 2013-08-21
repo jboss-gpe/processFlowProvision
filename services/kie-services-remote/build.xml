@@ -13,7 +13,7 @@
         </exec>
 
         <!-- filter out unnecessary dependencies associated with kie-services-remote maven artifact -->
-        <jar destfile="target/${ant.project.name}.war" >
+        <!--jar destfile="target/${ant.project.name}.war" >
             <zipfileset dir="target/${ant.project.name}" >
                 <include name="index.html" />
                 <include name="WEB-INF/*" />
@@ -21,7 +21,7 @@
                 <include name="WEB-INF/lib/kie-services-client*.jar" />
                 <include name="WEB-INF/lib/kie-services-remote*.jar" />
             </zipfileset>
-        </jar>
+        </jar -->
         <copy file="${build.dir}/${ant.project.name}.war" toDir="${temp.pfp.services.dir}" overwrite="true" verbose="true" />
     </target>
 

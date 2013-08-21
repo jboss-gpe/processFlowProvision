@@ -2,7 +2,7 @@ package org.jboss.processFlow.services.remote.cdi;
 
 import java.util.List;
 
-import javax.ejb.Stateless;
+import javax.enterprise.context.RequestScoped;
 import javax.servlet.http.HttpServletRequest;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -19,7 +19,7 @@ import org.drools.core.command.runtime.process.GetProcessIdsCommand;
 import org.kie.services.remote.cdi.ProcessRequestBean;
 import org.kie.api.command.Command;
 
-@Stateless
+@RequestScoped
 @Path("/additional/runtime/{id: [a-zA-Z0-9-:\\.]+}")
 public class AdditionalRESTResources {
     

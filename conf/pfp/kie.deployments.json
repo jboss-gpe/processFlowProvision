@@ -2,18 +2,18 @@
     "localFileSystem":{
         "deploymentId": "local-playground",
         "ksession.strategy": "PER_PROCESS_INSTANCE",
-        "repoFolder": "/tmp/bpms/processes/testRepo"
+        "repoFolder": "/tmp/bpms/local-playground"
     },
     "git":{
         "deploymentId": "git-playground",
         "ksession.strategy": "PER_PROCESS_INSTANCE",
-        "repoFolder": "processes/HR",
-        "repoAlias": "jbpm-playground",
+        "remoteGitUrl": "https://github.com/jboss-sso/gpe-playground.git",
+        "repoFolder": "processes/timers",
+        "repoAlias": "gpe-playground",
         "gitUser": "guvnorngtestuser1",
         "gitPasswd": "test1234",
-        "localGitUrl": "git://jbpm-playground",
-        "remoteGitUrl": "https://github.com/guvnorngtestuser1/jbpm-console-ng-playground.git",
-        "gitOutDir": "/tmp/.niogit/jbpm-playground.git"
+        "gitOutDir": "/tmp/bpms/.niogit/gpe-playground.git",
+        "localGitUrl": "git://gpe-playground"
     },
     "kjar":{
         "comment": "no deploymentId.  instead, unique identifier =  <groupId>:<artifactId>:<version>",
@@ -22,4 +22,5 @@
         "artifactId":  "test-module",
         "version":  "1.0.0-SNAPSHOT"
     }
+
 }

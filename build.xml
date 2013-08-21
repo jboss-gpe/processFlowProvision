@@ -278,6 +278,7 @@
                     <then><antcall target="refresh.master" /></then>
                 </if>
                 <copy todir="${jboss.home}/domain-${organization.name}/configuration" file="conf/pfp/kie.deployments.json" overwrite="true" />
+                <copy todir="${jboss.home}/domain-${organization.name}/configuration" file="conf/pfp/${org.quartz.property.file.name}" overwrite="true" />
                 <antcall target="filter">
                     <param name="source.dir" value="conf/pfp/bpms-pfp.ear"/>
                     <param name="dest.dir" value="${temp.pfp.services.dir}/bpms-pfp.ear.work"/>
