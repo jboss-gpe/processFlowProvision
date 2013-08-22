@@ -4,6 +4,8 @@ batch
 /profile=pfpCore/subsystem=datasources/data-source=ExampleDS/:remove
 /profile=pfpCore/subsystem=ejb3/:write-attribute(name=enable-statistics,value=true)
 
+/profile=pfpCore/subsystem=logging/logger=org.quartz/:add(category=org.quartz,level=TRACE,use-parent-handlers=true)
+
 
 # filter out all jbpm5 related log messages related to its inability to correctly parse BPMN2 as per :
 #   https://community.jboss.org/message/784580?tstart=0
