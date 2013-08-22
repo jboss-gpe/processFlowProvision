@@ -43,6 +43,7 @@ import org.drools.SystemEventListenerFactory;
 import org.drools.KnowledgeBaseFactory;
 import org.drools.command.SingleSessionCommandService;
 import org.drools.command.impl.CommandBasedStatefulKnowledgeSession;
+import org.drools.common.InternalKnowledgeRuntime;
 import org.drools.event.process.ProcessCompletedEvent;
 import org.drools.event.process.ProcessEventListener;
 import org.drools.event.process.ProcessNodeLeftEvent;
@@ -52,7 +53,9 @@ import org.drools.event.process.ProcessVariableChangedEvent;
 import org.drools.io.*;
 import org.drools.logger.KnowledgeRuntimeLogger;
 import org.drools.logger.KnowledgeRuntimeLoggerFactory;
+import org.drools.persistence.jpa.JDKCallableJobCommand;
 import org.drools.persistence.jpa.JPAKnowledgeService;
+import org.drools.persistence.jpa.JpaTimerJobInstance;
 import org.drools.runtime.KnowledgeSessionConfiguration;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.Environment;
@@ -61,6 +64,7 @@ import org.drools.runtime.process.WorkItemHandler;
 import org.drools.time.impl.TimerJobInstance;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
+import org.jbpm.process.instance.timer.TimerManager.ProcessJobContext;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.jbpm.workflow.instance.node.SubProcessNodeInstance;
 import org.jbpm.task.admin.TaskCleanUpProcessEventListener;
@@ -113,7 +117,8 @@ import org.quartz.JobExecutionContext;
 @Default
 public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements IKnowledgeSessionBean {
 
-    private ConcurrentMap<Integer, KnowledgeSessionWrapper> kWrapperHash = new ConcurrentHashMap<Integer, KnowledgeSessionWrapper>();
+    private static final String DASH = "-";
+	private ConcurrentMap<Integer, KnowledgeSessionWrapper> kWrapperHash = new ConcurrentHashMap<Integer, KnowledgeSessionWrapper>();
     private Logger log = Logger.getLogger(SessionPerPInstanceBean.class);
     private IKnowledgeSessionPool sessionPool;
 
@@ -659,15 +664,25 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
         }
     }
 
-	public void processJobExecutionContext(Serializable jContext) {
-		JobExecutionContext quartzContext = (JobExecutionContext)jContext;
-		TimerJobInstance timerJobInstance = (TimerJobInstance) quartzContext.getJobDetail().getJobDataMap().get("timerJobInstance");
-        log.info("processJobExecution() jobInstance = "+quartzContext.getJobDetail().getName());
+    public void processJobExecutionContext(Serializable jContext) {
+        JobExecutionContext quartzContext = (JobExecutionContext)jContext;
+        ProcessJobContext oldPJobContext = (ProcessJobContext)jContext;
+        String jName = quartzContext.getJobDetail().getName();
         try {
-            ((Callable<Void>)timerJobInstance).call();
+            int sessionId = Integer.parseInt(StringUtils.substringBetween(jName, DASH, DASH));
+            StatefulKnowledgeSession ksession = this.loadStatefulKnowledgeSessionAndAddExtras(sessionId);
+            ProcessJobContext newPJobContext = new ProcessJobContext(oldPJobContext.getTimer(), oldPJobContext.getTrigger(),
+            		                                       oldPJobContext.getProcessInstanceId(), (InternalKnowledgeRuntime)ksession);
+            
+            quartzContext = (JobExecutionContext)newPJobContext;
+            JpaTimerJobInstance timerJobInstance = (JpaTimerJobInstance) quartzContext.getJobDetail().getJobDataMap().get("timerJobInstance");
+            JDKCallableJobCommand command = new JDKCallableJobCommand( timerJobInstance);
+            log.info("processJobExecution() sessionId = "+sessionId+" : jobInstance = "+jName);
+            //((Callable<Void>)timerJobInstance).call();
+            ksession.execute(command);
         } catch (Exception e) {
-        	e.printStackTrace();
-        	/*
+            e.printStackTrace();
+            /*
             boolean reschedule = true;
             Integer failedCount = (Integer) quartzContext.getJobDetail().getJobDataMap().get("failedCount");
             if (failedCount == null) {
@@ -682,6 +697,6 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
             throw new JobExecutionException("Exception when executing scheduled job", e, reschedule);
             */
         }
-		
-	}
+        
+    }
 }

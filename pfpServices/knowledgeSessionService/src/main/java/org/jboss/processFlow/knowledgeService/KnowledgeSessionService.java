@@ -246,7 +246,7 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
         }
     }
     
-	public void processJobExecutionContext(Serializable jobExecutionContext) {
-		kBean.processJobExecutionContext(jobExecutionContext);
-	}
+    public void processJobExecutionContext(Serializable jobExecutionContext) {
+        kBean.processJobExecutionContext(jobExecutionContext);
+    }
 }

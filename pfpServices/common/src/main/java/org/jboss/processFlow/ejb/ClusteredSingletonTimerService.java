@@ -34,24 +34,24 @@ import org.slf4j.Logger;
  */
 public class ClusteredSingletonTimerService implements TimerService, SessionClock, InternalSchedulerService, AcceptsTimerJobFactoryManager {
 
-	private static ITimerServiceManagement timerMgmt;
-	private static Logger log = LoggerFactory.getLogger("ClusteredSingletonTimerService");
+    private static ITimerServiceManagement timerMgmt;
+    private static Logger log = LoggerFactory.getLogger("ClusteredSingletonTimerService");
     private AtomicLong                    idCounter = new AtomicLong();
     private TimerJobFactoryManager        jobFactoryManager = DefaultTimerJobFactoryManager.instance;
     
     
     public ClusteredSingletonTimerService() throws NamingException {
-    	Context jndiContext = null;
-    	try {
-    		Properties jndiProps = new Properties();
-    		jndiProps.put(javax.naming.Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
-    		jndiContext = new InitialContext(jndiProps);
-    		timerMgmt = (ITimerServiceManagement)jndiContext.lookup(ITimerServiceManagement.TIMER_SERVICE_MANAGEMENT_JNDI);
-    		log.info("ClusteredSingletonTimerService() found TimerServiceMgmt says : "+timerMgmt.sanityCheck());
-    	}finally {
-    		if(jndiContext != null)
-    			jndiContext.close();
-    	}
+        Context jndiContext = null;
+        try {
+            Properties jndiProps = new Properties();
+            jndiProps.put(javax.naming.Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
+            jndiContext = new InitialContext(jndiProps);
+            timerMgmt = (ITimerServiceManagement)jndiContext.lookup(ITimerServiceManagement.TIMER_SERVICE_MANAGEMENT_JNDI);
+            log.info("ClusteredSingletonTimerService() found TimerServiceMgmt says : "+timerMgmt.sanityCheck());
+        }finally {
+            if(jndiContext != null)
+                jndiContext.close();
+        }
     }
 
     public void setTimerJobFactoryManager(TimerJobFactoryManager timerJobFactoryManager) {
@@ -81,8 +81,8 @@ public class ClusteredSingletonTimerService implements TimerService, SessionCloc
     }
     
     public void internalSchedule(TimerJobInstance timerJobInstance){
-    	Date date = timerJobInstance.getTrigger().hasNextFireTime();
-    	Callable<Void> item = (Callable<Void>) timerJobInstance;
+        Date date = timerJobInstance.getTrigger().hasNextFireTime();
+        Callable<Void> item = (Callable<Void>) timerJobInstance;
     }
     
     

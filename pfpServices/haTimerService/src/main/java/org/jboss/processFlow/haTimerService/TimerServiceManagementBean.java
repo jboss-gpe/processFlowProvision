@@ -44,20 +44,20 @@ public class TimerServiceManagementBean implements ITimerServiceManagement {
     }
 
     public void createIntervalTimer(long initialDuration, long intervalDuration, Serializable info) {
-    	TimerConfig tConfig = new TimerConfig(info, true);
+        TimerConfig tConfig = new TimerConfig(info, true);
         timerService.createIntervalTimer(initialDuration, intervalDuration, tConfig);
     }
 
     public void createSingleActionTimer(Date expiration, Serializable info){
-    	TimerConfig tConfig = new TimerConfig(info, true);
+        TimerConfig tConfig = new TimerConfig(info, true);
         timerService.createSingleActionTimer(expiration, tConfig);
     }
     
     public String sanityCheck(){
-    	if(timerService != null)
-    		return "sweet!  timerService != null";
-    	else
-    		return "oh-no!  timerService == null";
+        if(timerService != null)
+            return "sweet!  timerService != null";
+        else
+            return "oh-no!  timerService == null";
     }
     
     public void stop() {

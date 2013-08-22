@@ -473,9 +473,9 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
         this.completeWorkItem(workItemId, pInstanceVariables, pInstanceId, ksessionId);
     }
 
-	@Override
-	public void processJobExecutionContext(Serializable jobExectionContext) {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public void processJobExecutionContext(Serializable jobExectionContext) {
+        // TODO Auto-generated method stub
+        
+    }
 }

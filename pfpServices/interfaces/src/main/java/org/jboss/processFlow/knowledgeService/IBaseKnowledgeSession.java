@@ -26,8 +26,8 @@ import java.io.Serializable;
 import java.util.Map;
 
 public interface IBaseKnowledgeSession {
-	
-	public static final String BASE_JNDI = "java:global/processFlow-knowledgeSessionService/prodKSessionProxy!org.jboss.processFlow.knowledgeService.IBaseKnowledgeSession";
+    
+    public static final String BASE_JNDI = "java:global/processFlow-knowledgeSessionService/prodKSessionProxy!org.jboss.processFlow.knowledgeService.IBaseKnowledgeSession";
 
     /**
      *Given the id of a process definition and a Map of process instance variables, start a process instance.
