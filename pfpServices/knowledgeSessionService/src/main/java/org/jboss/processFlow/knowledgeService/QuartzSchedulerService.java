@@ -13,29 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.processFlow.timer.impl;
+package org.jboss.processFlow.knowledgeService;
 
 import java.io.NotSerializableException;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
-import org.drools.common.InternalKnowledgeRuntime;
 import org.drools.common.InternalWorkingMemory;
 import org.drools.common.Scheduler.ActivationTimerJobContext;
 import org.drools.impl.StatefulKnowledgeSessionImpl;
+import org.drools.persistence.jpa.JpaTimerJobInstance;
+import org.drools.runtime.process.ProcessInstance;
 import org.drools.time.AcceptsTimerJobFactoryManager;
 import org.drools.time.InternalSchedulerService;
 import org.drools.time.Job;
 import org.drools.time.JobContext;
 import org.drools.time.JobHandle;
-import org.drools.time.SelfRemovalJobContext;
 import org.drools.time.TimerService;
 import org.drools.time.Trigger;
 import org.drools.time.impl.DefaultJobHandle;
@@ -50,14 +49,11 @@ import org.quartz.JobExecutionException;
 import org.quartz.JobPersistenceException;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
-import org.quartz.SchedulerMetaData;
 import org.quartz.SimpleTrigger;
 import org.quartz.impl.StdSchedulerFactory;
-import org.quartz.impl.jdbcjobstore.JobStoreCMT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.jboss.processFlow.knowledgeService.IBaseKnowledgeSession;
-import org.jboss.processFlow.knowledgeService.IKnowledgeSession;
 import org.jboss.processFlow.timer.NamedJobContext;
 
 /**
@@ -69,41 +65,43 @@ import org.jboss.processFlow.timer.NamedJobContext;
  */
 public class QuartzSchedulerService implements TimerService, InternalSchedulerService, AcceptsTimerJobFactoryManager, SessionClock  {
     
+	public static final String TIMER_JOB_INSTANCE = "timerJobInstance";
+	public static final String JOB_GROUP = "jbpm";
     private static final Logger log = LoggerFactory.getLogger(QuartzSchedulerService.class);
 
-    private AtomicLong idCounter = new AtomicLong();
-    
-    private TimerJobFactoryManager jobFactoryManager = DefaultTimerJobFactoryManager.instance;
-    
     // global data shared across all scheduler service instances
     private static Scheduler scheduler;    
-    private static AtomicInteger timerServiceCounter = new AtomicInteger();
+    private static TimerJobFactoryManager jobFactoryManager = DefaultTimerJobFactoryManager.instance;
     private static IBaseKnowledgeSession kSessionProxy;
- 
-    public QuartzSchedulerService() throws Exception {
-        log.info("QuartzSchedulerService()");
-        Context jndiContext = new InitialContext();
-        kSessionProxy = (IBaseKnowledgeSession)jndiContext.lookup(IBaseKnowledgeSession.BASE_JNDI);
+    private static AtomicLong idCounter = new AtomicLong();
+    
+    
+    public static void start() throws Exception{
+    	Context jndiContext;
+    	jndiContext = new InitialContext();
+    	kSessionProxy = (IBaseKnowledgeSession)jndiContext.lookup(IBaseKnowledgeSession.BASE_JNDI);
+    	scheduler = StdSchedulerFactory.getDefaultScheduler();            
+    	scheduler.start();
     }
     
-    @Override
+    public static void stop() throws Exception {
+    	scheduler.shutdown();
+    	scheduler = null;
+    }
+    
     public JobHandle scheduleJob(Job job, JobContext ctx, Trigger trigger) {
-        Long id = idCounter.getAndIncrement();
         String jobname = null;
-        
-        if(scheduler == null)
-            this.initScheduler();
-        
+        int sessionId = 0;
         if (ctx instanceof ProcessJobContext) {
             ProcessJobContext processCtx = (ProcessJobContext) ctx;
             StatefulKnowledgeSessionImpl wM = (StatefulKnowledgeSessionImpl)processCtx.getKnowledgeRuntime();
-            
-            jobname = "ProcessJob-"+wM.getId() + "-" + processCtx.getProcessInstanceId() + "-" + processCtx.getTimer().getId();
+            sessionId = wM.getId();
+            jobname = "ProcessJob-"+processCtx.getProcessInstanceId() + "-" + processCtx.getTimer().getId();
         } else if (ctx instanceof NamedJobContext) {
             jobname = "NamedJob-"+((NamedJobContext) ctx).getJobName();
         } else if (ctx instanceof ActivationTimerJobContext) {
             InternalWorkingMemory wM =  (InternalWorkingMemory)((ActivationTimerJobContext)ctx).getAgenda().getWorkingMemory();
-            int sessionId = wM.getId();
+            sessionId = wM.getId();
             jobname = "ActivationTimerJob-"+sessionId;
         } else {
             throw new RuntimeException("scheduleJob() unknown jobContext = "+ctx);
@@ -112,7 +110,14 @@ public class QuartzSchedulerService implements TimerService, InternalSchedulerSe
         
         // check if this scheduler already has such job registered if so there is no need to schedule it again        
         try {
-            JobDetail jobDetail = scheduler.getJobDetail(jobname, "jbpm");
+            JobDetail jobDetail = scheduler.getJobDetail(jobname, JOB_GROUP);
+            
+            String[] jobNames = scheduler.getJobNames(JOB_GROUP);
+            if(jobNames.length > 0){
+            	for(String name : jobNames){
+            		log.info("scheduleJob()  existing job detail name = "+name);
+            	}
+            }
         
             if (jobDetail != null) {
                 TimerJobInstance timerJobInstance = (TimerJobInstance) jobDetail.getJobDataMap().get("timerJobInstance");
@@ -121,7 +126,8 @@ public class QuartzSchedulerService implements TimerService, InternalSchedulerSe
         } catch (SchedulerException e) {
             e.printStackTrace();
         }
-        GlobalQuartzJobHandle quartzJobHandle = new GlobalQuartzJobHandle(id, jobname, "jbpm");
+        Long id = idCounter.getAndIncrement();
+        GlobalQuartzJobHandle quartzJobHandle = new GlobalQuartzJobHandle(id, jobname, JOB_GROUP, sessionId);
         
         TimerJobInstance jobInstance = this.jobFactoryManager.createTimerJobInstance( job, ctx, trigger, quartzJobHandle, this);
         quartzJobHandle.setTimerJobInstance( (TimerJobInstance) jobInstance );
@@ -137,7 +143,7 @@ public class QuartzSchedulerService implements TimerService, InternalSchedulerSe
         // Define job instance
         JobDetail jobq = new JobDetail(quartzJobHandle.getJobName(), quartzJobHandle.getJobGroup(), QuartzJob.class);
 
-        jobq.getJobDataMap().put("timerJobInstance", timerJobInstance);
+        jobq.getJobDataMap().put(TIMER_JOB_INSTANCE, timerJobInstance);
         
         Date nextFireTime = timerJobInstance.getTrigger().hasNextFireTime();
         // Define a Trigger that will fire "now"
@@ -174,86 +180,65 @@ public class QuartzSchedulerService implements TimerService, InternalSchedulerSe
         }
     }
 
-    public synchronized void initScheduler() {
-        timerServiceCounter.incrementAndGet();
-        
-        if (scheduler == null) {            
-            try {
-                scheduler = StdSchedulerFactory.getDefaultScheduler();            
-                scheduler.start();
-            } catch (SchedulerException e) {
-                throw new RuntimeException("Exception when initializing QuartzSchedulerService", e);
-            }
-        }
-    }
+    
 
-    /*  NOTE:  BRMS5.3.1, as part of disposing this session, will invoke this function
-        subsequently, timer will never fire
+    /*  NOTE:  BRMS5.3.1, as part of disposing of a session, this function will be invoked.
+        Subsequently, timer will never fire.
+        Will move this functionality to a 'deleteJob' function that is invoked when needed
     */ 
     @Override
     public boolean removeJob(JobHandle jobHandle) {
-        GlobalQuartzJobHandle quartzJobHandle = (GlobalQuartzJobHandle) jobHandle;
         return true;
-        /*
-        try {
-           
-            boolean removed =  scheduler.deleteJob(quartzJobHandle.getJobName(), quartzJobHandle.getJobGroup());            
-            return removed;
-        } catch (SchedulerException e) {     
-            
-            throw new RuntimeException("Exception while removing job", e);
-        } catch (RuntimeException e) {
-            SchedulerMetaData metadata;
-            try {
-                metadata = scheduler.getMetaData();
-                if (metadata.getJobStoreClass().isAssignableFrom(JobStoreCMT.class)) {
-                    return true;
-                }
-            } catch (SchedulerException e1) {
-                
-            }
-            throw e;
-        }
-        */
+    }
+    
+    public static boolean deleteJob(GlobalQuartzJobHandle jobHandle) {
+    	try {
+    		return scheduler.deleteJob(jobHandle.getJobName(), jobHandle.getJobGroup());            
+    	} catch (Exception x) {
+    		throw new RuntimeException(x);
+    	}
     }
 
-
-    @Override
-    public void shutdown() {
-        int current = timerServiceCounter.decrementAndGet();
-        /*
-        if (scheduler != null && current == 0) {
-            try {
-                scheduler.shutdown();
-            } catch (SchedulerException e) {
-                e.printStackTrace();
-            }
-            scheduler = null;
-        }
-        */
+    public void shutdown() { 
+    	//log.warn("shutdown() function not valid");
     }
     
     public void forceShutdown() {
-        if (scheduler != null) {
-            try {
-                scheduler.shutdown();
-            } catch (SchedulerException e) {
-//                e.printStackTrace();
+    	//log.warn("forceShutdown() function not valid");
+    }
+    public synchronized void initScheduler() {
+    	// will handle this in start() function
+    }
+    
+    public static class QuartzJob implements org.quartz.Job {
+
+        public QuartzJob() {  
+        }
+
+        public void execute(JobExecutionContext qContext) throws JobExecutionException {
+            int pState = kSessionProxy.processJobExecutionContext(qContext);
+            JpaTimerJobInstance timerJInstance = (JpaTimerJobInstance)(qContext.getMergedJobDataMap().get(QuartzSchedulerService.TIMER_JOB_INSTANCE));
+            GlobalQuartzJobHandle jHandle = (GlobalQuartzJobHandle)timerJInstance.getJobHandle();
+            if(ProcessInstance.STATE_COMPLETED == pState){
+            	boolean dSuccess = deleteJob(jHandle);
+            	log.info("execute() just signaled.  pState = "+pState+" : jobName = "+jHandle.getJobName()+" : successful deletion = "+dSuccess);
+            }else {
+            	log.info("execute() just signaled.  pState = "+pState+" : jobName = "+jHandle.getJobName());
             }
-            scheduler = null;
         }
     }
-
-    public static class GlobalQuartzJobHandle extends GlobalJobHandle {
+   
+    public static class GlobalQuartzJobHandle extends DefaultJobHandle  {
         
-        private static final long     serialVersionUID = 510l;
         private String jobName;
         private String jobGroup;
+        private int sessionId;
        
-        public GlobalQuartzJobHandle(long id, String name, String group) {
+        public GlobalQuartzJobHandle(long id, String name, String group, int sessionId) {
             super(id);
             this.jobName = name;
             this.jobGroup = group;
+            this.sessionId = sessionId;
         }
 
         public String getJobName() {
@@ -271,114 +256,13 @@ public class QuartzSchedulerService implements TimerService, InternalSchedulerSe
         public void setJobGroup(String jobGroup) {
             this.jobGroup = jobGroup;
         }
-    
-    }
-    
-    public static class GlobalJobHandle extends DefaultJobHandle implements JobHandle{
-
-        private static final long     serialVersionUID = 510l;
-
-        public GlobalJobHandle(long id) {
-            super(id);
+        public int getSessionId(){
+        	return sessionId;
         }
-
-        public long getTimerId() {
-            JobContext ctx = this.getTimerJobInstance().getJobContext();
-            if (ctx instanceof SelfRemovalJobContext) {
-                ctx = ((SelfRemovalJobContext) ctx).getJobContext();
-            }
-            return ((ProcessJobContext)ctx).getTimer().getId();
-        }
-
-        public int getSessionId() {
-            JobContext ctx = this.getTimerJobInstance().getJobContext();
-            if (ctx instanceof SelfRemovalJobContext) {
-                ctx = ((SelfRemovalJobContext) ctx).getJobContext();
-            }
-            if (ctx instanceof ProcessJobContext) {
-                //return ((ProcessJobContext)ctx).getSessionId();
-                return -1;
-            }
-
-            return -1;
-        }
-
-    }
-
-    
-    public static class QuartzJob implements org.quartz.Job {
-
-        public QuartzJob() {
-            log.info("QuartzJob()");   
-        }
-
-        public void execute(JobExecutionContext quartzContext) throws JobExecutionException {
-            log.info("execute() quartzContext = "+quartzContext);
-            kSessionProxy.processJobExecutionContext(quartzContext);
-        }
-    }
-    
-    public static class InmemoryTimerJobInstanceDelegate implements TimerJobInstance, Serializable, Callable<Void> {
-        
-        private static final long serialVersionUID = 1L;
-        private String jobname;
-        private String timerServiceId;
-        private transient TimerJobInstance delegate;
-        
-        public InmemoryTimerJobInstanceDelegate(String jobName, String timerServiceId) {
-            this.jobname = jobName;
-            this.timerServiceId = timerServiceId;
-        }
-        
-        @Override
-        public JobHandle getJobHandle() {
-            findDelegate();
-            return delegate.getJobHandle();
-        }
-
-        @Override
-        public Job getJob() {
-            findDelegate();
-            return delegate.getJob();
-        }
-
-        @Override
-        public Trigger getTrigger() {
-            findDelegate();
-            return delegate.getTrigger();
-        }
-
-        @Override
-        public JobContext getJobContext() {
-            findDelegate();
-            return delegate.getJobContext();
-        }
-        
-        protected void findDelegate() {
-            if (delegate == null) {
-                /*
-                Collection<TimerJobInstance> timers = ((AcceptsTimerJobFactoryManager)TimerServiceRegistry.getInstance().get(timerServiceId))
-                .getTimerJobFactoryManager().getTimerJobInstances();
-                for (TimerJobInstance instance : timers) {
-                    if (((GlobalQuartzJobHandle)instance.getJobHandle()).getJobName().equals(jobname)) {
-                        delegate = instance;
-                        break;
-                    }
-                }
-                */
-            }
-        }
-
-        @Override
-        public Void call() throws Exception {
-            findDelegate();
-            return ((Callable<Void>)delegate).call();
-        }
-        
     }
 
     public JobHandle buildJobHandleForContext(NamedJobContext ctx) {
-        return new GlobalQuartzJobHandle(-1, ctx.getJobName(), "jbpm");
+        return new GlobalQuartzJobHandle(-1, ctx.getJobName(), "jbpm", 0);
     }
 
     @Override

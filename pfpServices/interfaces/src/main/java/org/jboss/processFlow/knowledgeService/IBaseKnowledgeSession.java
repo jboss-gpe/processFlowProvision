@@ -71,8 +71,9 @@ public interface IBaseKnowledgeSession {
      * @param signalPayload the data associated with this event
      * @param processInstanceId the id of the process instance that should be signaled
      * @param ksessionId the id of the KnowledgeSession that is managing the lifecycle of the process instance
+     * @return State of the Process Instance
      */
-    public void signalEvent(String signalType, Object signalPayload, Long processInstanceId, Integer ksessionId);
+    public int signalEvent(String signalType, Object signalPayload, Long processInstanceId, Integer ksessionId);
     
-    public void processJobExecutionContext(Serializable jobExecutionContext);
+    public int processJobExecutionContext(Serializable jobExecutionContext);
 }

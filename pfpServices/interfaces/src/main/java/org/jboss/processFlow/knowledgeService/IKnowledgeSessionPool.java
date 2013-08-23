@@ -53,6 +53,7 @@ public interface IKnowledgeSessionPool {
      * 
      * @param sessionId the sessionId
      * @param processId the root processId
+     * @return 
      */
     void markAsBorrowed(Integer sessionId, String processId);
 

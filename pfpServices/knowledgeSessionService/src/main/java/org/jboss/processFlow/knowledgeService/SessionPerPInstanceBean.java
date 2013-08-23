@@ -25,7 +25,6 @@ package org.jboss.processFlow.knowledgeService;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.*;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -43,7 +42,6 @@ import org.drools.SystemEventListenerFactory;
 import org.drools.KnowledgeBaseFactory;
 import org.drools.command.SingleSessionCommandService;
 import org.drools.command.impl.CommandBasedStatefulKnowledgeSession;
-import org.drools.common.InternalKnowledgeRuntime;
 import org.drools.event.process.ProcessCompletedEvent;
 import org.drools.event.process.ProcessEventListener;
 import org.drools.event.process.ProcessNodeLeftEvent;
@@ -53,7 +51,6 @@ import org.drools.event.process.ProcessVariableChangedEvent;
 import org.drools.io.*;
 import org.drools.logger.KnowledgeRuntimeLogger;
 import org.drools.logger.KnowledgeRuntimeLoggerFactory;
-import org.drools.persistence.jpa.JDKCallableJobCommand;
 import org.drools.persistence.jpa.JPAKnowledgeService;
 import org.drools.persistence.jpa.JpaTimerJobInstance;
 import org.drools.runtime.KnowledgeSessionConfiguration;
@@ -61,16 +58,16 @@ import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.Environment;
 import org.drools.runtime.process.ProcessInstance;
 import org.drools.runtime.process.WorkItemHandler;
-import org.drools.time.impl.TimerJobInstance;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
-import org.jbpm.process.instance.timer.TimerManager.ProcessJobContext;
+import org.jbpm.process.instance.timer.TimerInstance;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.jbpm.workflow.instance.node.SubProcessNodeInstance;
 import org.jbpm.task.admin.TaskCleanUpProcessEventListener;
 import org.jbpm.task.admin.TasksAdmin;
 import org.jbpm.workflow.instance.WorkflowProcessInstanceUpgrader;
 import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
+import org.jboss.processFlow.knowledgeService.QuartzSchedulerService.GlobalQuartzJobHandle;
 import org.jboss.processFlow.util.CMTDisposeCommand;
 import org.quartz.JobExecutionContext;
 
@@ -118,6 +115,7 @@ import org.quartz.JobExecutionContext;
 public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements IKnowledgeSessionBean {
 
     private static final String DASH = "-";
+    private static final String TIMER_TRIGGERED="timerTriggered";
 	private ConcurrentMap<Integer, KnowledgeSessionWrapper> kWrapperHash = new ConcurrentHashMap<Integer, KnowledgeSessionWrapper>();
     private Logger log = Logger.getLogger(SessionPerPInstanceBean.class);
     private IKnowledgeSessionPool sessionPool;
@@ -138,10 +136,11 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
         else {
             sessionPool = new InMemoryKnowledgeSessionPool();
         }
+        QuartzSchedulerService.start();
     }
   
     @PreDestroy 
-    public void stop() {
+    public void stop() throws Exception {
         log.info("stop");
         // JA Bride :  completely plagarized from David Ward in his org.jboss.internal.soa.esb.services.rules.DroolsResourceChangeService implementation
 
@@ -154,6 +153,8 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
 
          // 3) set the system event listener back to the original implementation
         SystemEventListenerFactory.setSystemEventListener(originalSystemEventListener);
+        
+        QuartzSchedulerService.stop();
     }
 
 /******************************************************************************
@@ -434,7 +435,7 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
 
    
 
-    public void signalEvent(String signalType, Object signalValue, Long processInstanceId, Integer ksessionId) {
+    public int signalEvent(String signalType, Object signalValue, Long processInstanceId, Integer ksessionId) {
         StatefulKnowledgeSession ksession = null;
         try {
             try {
@@ -469,7 +470,13 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
                 log.info(sBuilder.toString());
 
                 ProcessInstance pInstance = ksession.getProcessInstance(processInstanceId);
-                pInstance.signalEvent(signalType, signalValue);
+                if(pInstance == null){
+                	log.warn("signalEvent() not able to locate pInstance with id = "+processInstanceId+" : for sessionId = "+ksessionId);
+                	return ProcessInstance.STATE_COMPLETED;
+                }else {
+                	pInstance.signalEvent(signalType, signalValue);
+                	return pInstance.getState();
+                }
             }finally {
                 if(ksession != null)
                     disposeStatefulKnowledgeSessionAndExtras(ksessionId);
@@ -664,38 +671,28 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
         }
     }
 
-    public void processJobExecutionContext(Serializable jContext) {
-        JobExecutionContext quartzContext = (JobExecutionContext)jContext;
-        ProcessJobContext oldPJobContext = (ProcessJobContext)jContext;
-        String jName = quartzContext.getJobDetail().getName();
+    public int processJobExecutionContext(Serializable jContext) {
+    	JobExecutionContext qContext = (JobExecutionContext)jContext;
+    	JpaTimerJobInstance timerJInstance = (JpaTimerJobInstance)(qContext.getMergedJobDataMap().get(QuartzSchedulerService.TIMER_JOB_INSTANCE));
+        GlobalQuartzJobHandle jHandle = (GlobalQuartzJobHandle)timerJInstance.getJobHandle();
+    	
+        String jName = qContext.getJobDetail().getName();
+        String[] details = StringUtils.split(jName, DASH);
+        int sessionId = jHandle.getSessionId();
+        long pInstanceId = Long.parseLong(details[1]);
+        long timerId = Long.parseLong(details[2]);
         try {
-            int sessionId = Integer.parseInt(StringUtils.substringBetween(jName, DASH, DASH));
-            StatefulKnowledgeSession ksession = this.loadStatefulKnowledgeSessionAndAddExtras(sessionId);
-            ProcessJobContext newPJobContext = new ProcessJobContext(oldPJobContext.getTimer(), oldPJobContext.getTrigger(),
-            		                                       oldPJobContext.getProcessInstanceId(), (InternalKnowledgeRuntime)ksession);
+            log.info("processJobExecution() sessionId = "+sessionId+" : pInstanceId = "+pInstanceId+" : timerId = "+timerId);
+            TimerInstance tInstance = new TimerInstance();
+            tInstance.setId(timerId);
+            tInstance.setPeriod(0L);
+            tInstance.setProcessInstanceId(pInstanceId);
             
-            quartzContext = (JobExecutionContext)newPJobContext;
-            JpaTimerJobInstance timerJobInstance = (JpaTimerJobInstance) quartzContext.getJobDetail().getJobDataMap().get("timerJobInstance");
-            JDKCallableJobCommand command = new JDKCallableJobCommand( timerJobInstance);
-            log.info("processJobExecution() sessionId = "+sessionId+" : jobInstance = "+jName);
-            //((Callable<Void>)timerJobInstance).call();
-            ksession.execute(command);
-        } catch (Exception e) {
-            e.printStackTrace();
-            /*
-            boolean reschedule = true;
-            Integer failedCount = (Integer) quartzContext.getJobDetail().getJobDataMap().get("failedCount");
-            if (failedCount == null) {
-                failedCount = new Integer(0);
-            }
-            failedCount++;
-            quartzContext.getJobDetail().getJobDataMap().put("failedCount", failedCount);
-            if (failedCount > 5) {
-                log.error("Timer execution failed 5 times in a roll, unscheduling ({})", quartzContext.getJobDetail().getFullName());
-                reschedule = false;
-            }
-            throw new JobExecutionException("Exception when executing scheduled job", e, reschedule);
-            */
+            // timerTriggered string constant is required to trigger a timer as per TimerNodeInstance.signalEvent(....)
+            return this.signalEvent( TIMER_TRIGGERED, tInstance, pInstanceId, sessionId);
+            
+        } catch (Exception x) {
+            throw new RuntimeException(x);
         }
         
     }

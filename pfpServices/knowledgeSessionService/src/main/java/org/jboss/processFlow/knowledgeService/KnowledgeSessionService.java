@@ -192,8 +192,8 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
             return kBean.startProcessAndReturnId(processId, pInstanceVariables);
         }
     }
-    public void signalEvent(String signalType, Object signalValue, Long processInstanceId, Integer ksessionId) {
-        kBean.signalEvent(signalType, signalValue, processInstanceId, ksessionId);
+    public int signalEvent(String signalType, Object signalValue, Long processInstanceId, Integer ksessionId) {
+        return kBean.signalEvent(signalType, signalValue, processInstanceId, ksessionId);
     }
     public void abortProcessInstance(Long processInstanceId, Integer ksessionId) {
         kBean.abortProcessInstance(processInstanceId, ksessionId);
@@ -246,7 +246,7 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
         }
     }
     
-    public void processJobExecutionContext(Serializable jobExecutionContext) {
-        kBean.processJobExecutionContext(jobExecutionContext);
+    public int processJobExecutionContext(Serializable jobExecutionContext) {
+        return kBean.processJobExecutionContext(jobExecutionContext);
     }
 }

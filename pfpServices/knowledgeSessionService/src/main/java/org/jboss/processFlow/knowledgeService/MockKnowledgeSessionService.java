@@ -33,13 +33,15 @@ public class MockKnowledgeSessionService implements IBaseKnowledgeSession {
     }
 
     @Override
-    public void signalEvent(String type, Object event, Long processInstanceId, Integer ksessionId) {
+    public int signalEvent(String type, Object event, Long processInstanceId, Integer ksessionId) {
         log.info("signalEvent() type = "+type+" : pInstanceId = "+processInstanceId+" : ksessionId = "+ksessionId);
+        return 0;
     }
 
     @Override
-    public void processJobExecutionContext(Serializable jobExecutionContext) {
+    public int processJobExecutionContext(Serializable jobExecutionContext) {
         // TODO Auto-generated method stub
+    	return 0;
         
     }
 

@@ -144,7 +144,7 @@ public class JpaKnowledgeSessionPool implements IKnowledgeSessionPool {
     @Override
     public void markAsBorrowed(Integer sessionId, String processId) {
         EntityManager em = emf.createEntityManager();
-        try {
+        try {	
             int rows = em.createQuery("UPDATE SessionProcessXref SET status=:status, processId =:processId WHERE sessionId=:sessionId")
                     .setParameter("status", STATUS_BUSY).setParameter("sessionId", sessionId)
                     .setParameter("processId", processId).executeUpdate();
@@ -157,6 +157,7 @@ public class JpaKnowledgeSessionPool implements IKnowledgeSessionPool {
             }
         }
         finally {
+        	em.flush();
             em.close();
         }
     }
@@ -223,13 +224,11 @@ public class JpaKnowledgeSessionPool implements IKnowledgeSessionPool {
         EntityManager em = emf.createEntityManager();
         try {
             int rows = em
-                    .createQuery(
-                            "UPDATE SessionProcessXref xref set xref.processInstanceId=:processInstanceId where xref.sessionId=:ksessionId")
+                    .createQuery("UPDATE SessionProcessXref xref set xref.processInstanceId=:processInstanceId where xref.sessionId=:ksessionId")
                     .setParameter("processInstanceId", pInstanceId).setParameter("ksessionId", ksessionId)
                     .executeUpdate();
             if (rows == 0) {
-                logger.warn("Failed to udpate processInstanceId [{}]: sessionId [{}] not found", pInstanceId,
-                        ksessionId);
+                logger.warn("setProcessInstanceId() Failed to udpate processInstanceId [{}];    sessionId [{}] not found", pInstanceId, ksessionId);
             }
         }
         finally {

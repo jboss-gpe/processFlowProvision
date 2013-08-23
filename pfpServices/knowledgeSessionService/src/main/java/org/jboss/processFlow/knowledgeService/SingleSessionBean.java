@@ -369,14 +369,13 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
         }
     }
 
-    public void signalEvent(String signalType, Object signalValue, Long processInstanceId, Integer ksessionId) {
+    public int signalEvent(String signalType, Object signalValue, Long processInstanceId, Integer ksessionId) {
         try {
-            uTrnx.begin();
             if(enableLog)
                 log.info("signalEvent() \n\tksession = "+ksessionId+"\n\tprocessInstanceId = "+processInstanceId+"\n\tsignalType="+signalType+"\n\tsignalValue="+signalValue);
             ProcessInstance pInstance = ksession.getProcessInstance(processInstanceId);
             pInstance.signalEvent(signalType, signalValue);
-            uTrnx.commit();
+            return pInstance.getState();
         } catch(RuntimeException x) {
             rollbackTrnx();
             throw x;
@@ -474,8 +473,8 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
     }
 
     @Override
-    public void processJobExecutionContext(Serializable jobExectionContext) {
+    public int processJobExecutionContext(Serializable jobExectionContext) {
         // TODO Auto-generated method stub
-        
+    	return 0;
     }
 }
