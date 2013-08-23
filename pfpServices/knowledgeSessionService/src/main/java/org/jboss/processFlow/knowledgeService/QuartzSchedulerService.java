@@ -158,7 +158,10 @@ public class QuartzSchedulerService implements TimerService, InternalSchedulerSe
         if(droolsTrig instanceof IntervalTrigger){
             IntervalTrigger iTrig = (IntervalTrigger)droolsTrig;
             Date firstFire = iTrig.hasNextFireTime();
-            int repeatCount = iTrig.getRepeatCount();
+            
+            // drools repeatLimit = quartz repeatCount
+            int repeatCount = iTrig.getRepeatLimit();
+            
             long interval = iTrig.getPeriod();
             if(interval <= 0)
                 repeatCount = 0;
@@ -191,6 +194,7 @@ public class QuartzSchedulerService implements TimerService, InternalSchedulerSe
             for(String name : jobNames){
                 if(x>0)
                     sBuilder.append(",\n\t");
+                // show the initial jobDetail for now.  could expand by also listing current triggers
                 JobDetail jDetail = scheduler.getJobDetail(name, jobGroup);
                 GlobalQuartzJobHandle jHandle = (GlobalQuartzJobHandle) jDetail.getJobDataMap().get(TIMER_JOB_HANDLE);
                 sBuilder.append("\t{\"jName\":\"");
@@ -210,14 +214,19 @@ public class QuartzSchedulerService implements TimerService, InternalSchedulerSe
         public QuartzJob() {}
 
         public void execute(JobExecutionContext qContext) throws JobExecutionException {
-            int pState = kSessionProxy.processJobExecutionContext(qContext);
             GlobalQuartzJobHandle jHandle = (GlobalQuartzJobHandle)(qContext.getMergedJobDataMap().get(QuartzSchedulerService.TIMER_JOB_HANDLE));
-            if(ProcessInstance.STATE_COMPLETED == pState){
+            if(qContext.getNextFireTime() == null)
+            	jHandle.setInterval(0L);
+            int pState = kSessionProxy.processJobExecutionContext(qContext);
+            /*  does not seem to be a use case where this is required.
+             *  quartz will flush its scheduler of a job once that job no longer has a nextFireTime
+            if(ProcessInstance.STATE_COMPLETED == pState || jHandle.getInterval() == 0){
                 boolean dSuccess = deleteJob(jHandle);
                 log.info("execute() just signaled.  pState = "+pState+" : jobName = "+jHandle.getJobName()+" : successful deletion = "+dSuccess);
             }else {
                 log.info("execute() just signaled.  pState = "+pState+" : jobName = "+jHandle.getJobName());
             }
+            */
         }
     }
    
