@@ -69,10 +69,17 @@ public class QuartzSchedulerService implements TimerService, InternalSchedulerSe
 	public static final String JOB_GROUP = "jbpm";
     private static final Logger log = LoggerFactory.getLogger(QuartzSchedulerService.class);
 
-    // global data shared across all scheduler service instances
-    private static Scheduler scheduler;    
+    // Quartz Scheduler
+    private static Scheduler scheduler;
+    
+    // For purposes of PER_PROCESS_INSTANCE architecture, will never populate that object
+    // subsequently, the session will not include the job trigger
+    // the job trigger will always be managed by the Quartz scheduler
     private static TimerJobFactoryManager jobFactoryManager = DefaultTimerJobFactoryManager.instance;
+   
+    // used to signal the process instance
     private static IBaseKnowledgeSession kSessionProxy;
+    
     private static AtomicLong idCounter = new AtomicLong();
     
     
@@ -141,42 +148,29 @@ public class QuartzSchedulerService implements TimerService, InternalSchedulerSe
 
         GlobalQuartzJobHandle quartzJobHandle = (GlobalQuartzJobHandle) timerJobInstance.getJobHandle();
         // Define job instance
-        JobDetail jobq = new JobDetail(quartzJobHandle.getJobName(), quartzJobHandle.getJobGroup(), QuartzJob.class);
+        JobDetail jdetail = new JobDetail(quartzJobHandle.getJobName(), quartzJobHandle.getJobGroup(), QuartzJob.class);
 
-        jobq.getJobDataMap().put(TIMER_JOB_INSTANCE, timerJobInstance);
+        jdetail.getJobDataMap().put(TIMER_JOB_INSTANCE, timerJobInstance);
         
         Date nextFireTime = timerJobInstance.getTrigger().hasNextFireTime();
         // Define a Trigger that will fire "now"
         org.quartz.Trigger triggerObj = new SimpleTrigger(quartzJobHandle.getJobName()+"_trigger", quartzJobHandle.getJobGroup(), nextFireTime);
             
-        // Schedule the job with the trigger
         try {
-            if (scheduler.isShutdown()) {
-                return;
-            }
-            this.jobFactoryManager.addTimerJobInstance( timerJobInstance );
-            JobDetail jobDetail = scheduler.getJobDetail(quartzJobHandle.getJobName(), quartzJobHandle.getJobGroup());
-            if (jobDetail == null) {
-                scheduler.scheduleJob(jobq, triggerObj);
+        	// triggers are not to be stored in drools sessions
+            //this.jobFactoryManager.addTimerJobInstance( timerJobInstance );
+        	
+            if (null == scheduler.getJobDetail(quartzJobHandle.getJobName(), quartzJobHandle.getJobGroup())) {
+                scheduler.scheduleJob(jdetail, triggerObj);
             } else {
                 // need to add the job again to replace existing especially important if jobs are persisted in db
-                scheduler.addJob(jobq, true);
+                scheduler.addJob(jdetail, true);
                 triggerObj.setJobName(quartzJobHandle.getJobName());
                 triggerObj.setJobGroup(quartzJobHandle.getJobGroup());
                 scheduler.rescheduleJob(quartzJobHandle.getJobName()+"_trigger", quartzJobHandle.getJobGroup(), triggerObj);
             }
-            
-        } catch (JobPersistenceException e) {
-            if (e.getCause() instanceof NotSerializableException) {
-                // in case job cannot be persisted, like rule timer then make it in memory
-                //internalSchedule(new InmemoryTimerJobInstanceDelegate(quartzJobHandle.getJobName(), ((GlobalTimerService) globalTimerService).getTimerServiceId()));
-            } else {
-                this.jobFactoryManager.removeTimerJobInstance(timerJobInstance);
-                throw new RuntimeException(e);
-            }
-        } catch (SchedulerException e) {
-            this.jobFactoryManager.removeTimerJobInstance(timerJobInstance);
-            throw new RuntimeException("Exception while scheduling job", e);
+        } catch (Exception x) {
+            throw new RuntimeException(x);
         }
     }
 
@@ -212,8 +206,7 @@ public class QuartzSchedulerService implements TimerService, InternalSchedulerSe
     
     public static class QuartzJob implements org.quartz.Job {
 
-        public QuartzJob() {  
-        }
+        public QuartzJob() {}
 
         public void execute(JobExecutionContext qContext) throws JobExecutionException {
             int pState = kSessionProxy.processJobExecutionContext(qContext);
@@ -228,7 +221,7 @@ public class QuartzSchedulerService implements TimerService, InternalSchedulerSe
         }
     }
    
-    public static class GlobalQuartzJobHandle extends DefaultJobHandle  {
+    public static class GlobalQuartzJobHandle extends DefaultJobHandle implements java.io.Serializable {
         
         private String jobName;
         private String jobGroup;

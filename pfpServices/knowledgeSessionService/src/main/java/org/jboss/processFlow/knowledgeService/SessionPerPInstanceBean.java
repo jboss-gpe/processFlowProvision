@@ -637,6 +637,31 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
     
    
     
+    public int processJobExecutionContext(Serializable jContext) {
+    	JobExecutionContext qContext = (JobExecutionContext)jContext;
+    	JpaTimerJobInstance timerJInstance = (JpaTimerJobInstance)(qContext.getMergedJobDataMap().get(QuartzSchedulerService.TIMER_JOB_INSTANCE));
+    	GlobalQuartzJobHandle jHandle = (GlobalQuartzJobHandle)timerJInstance.getJobHandle();
+    	
+    	String jName = qContext.getJobDetail().getName();
+    	String[] details = StringUtils.split(jName, DASH);
+    	int sessionId = jHandle.getSessionId();
+    	long pInstanceId = Long.parseLong(details[1]);
+    	long timerId = Long.parseLong(details[2]);
+    	try {
+    		log.info("processJobExecution() sessionId = "+sessionId+" : pInstanceId = "+pInstanceId+" : timerId = "+timerId);
+    		TimerInstance tInstance = new TimerInstance();
+    		tInstance.setId(timerId);
+    		tInstance.setPeriod(0L);
+    		tInstance.setProcessInstanceId(pInstanceId);
+    		
+    		// timerTriggered string constant is required to trigger a timer as per TimerNodeInstance.signalEvent(....)
+    		return this.signalEvent( TIMER_TRIGGERED, tInstance, pInstanceId, sessionId);
+    		
+    	} catch (Exception x) {
+    		throw new RuntimeException(x);
+    	}
+    	
+    }
 
     class KnowledgeSessionWrapper {
 
@@ -671,29 +696,4 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
         }
     }
 
-    public int processJobExecutionContext(Serializable jContext) {
-    	JobExecutionContext qContext = (JobExecutionContext)jContext;
-    	JpaTimerJobInstance timerJInstance = (JpaTimerJobInstance)(qContext.getMergedJobDataMap().get(QuartzSchedulerService.TIMER_JOB_INSTANCE));
-        GlobalQuartzJobHandle jHandle = (GlobalQuartzJobHandle)timerJInstance.getJobHandle();
-    	
-        String jName = qContext.getJobDetail().getName();
-        String[] details = StringUtils.split(jName, DASH);
-        int sessionId = jHandle.getSessionId();
-        long pInstanceId = Long.parseLong(details[1]);
-        long timerId = Long.parseLong(details[2]);
-        try {
-            log.info("processJobExecution() sessionId = "+sessionId+" : pInstanceId = "+pInstanceId+" : timerId = "+timerId);
-            TimerInstance tInstance = new TimerInstance();
-            tInstance.setId(timerId);
-            tInstance.setPeriod(0L);
-            tInstance.setProcessInstanceId(pInstanceId);
-            
-            // timerTriggered string constant is required to trigger a timer as per TimerNodeInstance.signalEvent(....)
-            return this.signalEvent( TIMER_TRIGGERED, tInstance, pInstanceId, sessionId);
-            
-        } catch (Exception x) {
-            throw new RuntimeException(x);
-        }
-        
-    }
 }
