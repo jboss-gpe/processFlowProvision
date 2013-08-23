@@ -76,4 +76,6 @@ public interface IBaseKnowledgeSession {
     public int signalEvent(String signalType, Object signalPayload, Long processInstanceId, Integer ksessionId);
     
     public int processJobExecutionContext(Serializable jobExecutionContext);
+    
+    public String getCurrentTimerJobsAsJson(String jobGroup);
 }

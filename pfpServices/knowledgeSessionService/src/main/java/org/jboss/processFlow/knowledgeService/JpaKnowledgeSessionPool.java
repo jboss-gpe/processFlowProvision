@@ -144,7 +144,7 @@ public class JpaKnowledgeSessionPool implements IKnowledgeSessionPool {
     @Override
     public void markAsBorrowed(Integer sessionId, String processId) {
         EntityManager em = emf.createEntityManager();
-        try {	
+        try {    
             int rows = em.createQuery("UPDATE SessionProcessXref SET status=:status, processId =:processId WHERE sessionId=:sessionId")
                     .setParameter("status", STATUS_BUSY).setParameter("sessionId", sessionId)
                     .setParameter("processId", processId).executeUpdate();
@@ -157,7 +157,7 @@ public class JpaKnowledgeSessionPool implements IKnowledgeSessionPool {
             }
         }
         finally {
-        	em.flush();
+            em.flush();
             em.close();
         }
     }

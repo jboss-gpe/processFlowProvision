@@ -174,6 +174,16 @@ public class KSessionHttp {
         }
         return builder.build();
     }
+    
+    // curl -X GET -HAccept:text/plain $HOSTNAME:8330/knowledgeService/currentTimerJobs/jbpm
+    @GET
+    @Path("currentTimerJobs/{jobGroup: .*}")
+    @Produces({"text/plain"})
+    public Response wer(@PathParam("jobGroup")final String jobGroup){
+        String json = kProxy.getCurrentTimerJobsAsJson(jobGroup);
+        ResponseBuilder builder = Response.ok(json);
+        return builder.build();
+    }
 
     /**
      * sample usage :

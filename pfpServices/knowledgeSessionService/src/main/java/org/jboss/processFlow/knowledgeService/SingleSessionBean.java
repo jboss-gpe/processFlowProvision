@@ -475,6 +475,12 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
     @Override
     public int processJobExecutionContext(Serializable jobExectionContext) {
         // TODO Auto-generated method stub
-    	return 0;
+        return 0;
+    }
+
+    @Override
+    public String getCurrentTimerJobsAsJson(String jobGroup) {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

@@ -116,7 +116,7 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
 
     private static final String DASH = "-";
     private static final String TIMER_TRIGGERED="timerTriggered";
-	private ConcurrentMap<Integer, KnowledgeSessionWrapper> kWrapperHash = new ConcurrentHashMap<Integer, KnowledgeSessionWrapper>();
+    private ConcurrentMap<Integer, KnowledgeSessionWrapper> kWrapperHash = new ConcurrentHashMap<Integer, KnowledgeSessionWrapper>();
     private Logger log = Logger.getLogger(SessionPerPInstanceBean.class);
     private IKnowledgeSessionPool sessionPool;
 
@@ -471,11 +471,11 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
 
                 ProcessInstance pInstance = ksession.getProcessInstance(processInstanceId);
                 if(pInstance == null){
-                	log.warn("signalEvent() not able to locate pInstance with id = "+processInstanceId+" : for sessionId = "+ksessionId);
-                	return ProcessInstance.STATE_COMPLETED;
+                    log.warn("signalEvent() not able to locate pInstance with id = "+processInstanceId+" : for sessionId = "+ksessionId);
+                    return ProcessInstance.STATE_COMPLETED;
                 }else {
-                	pInstance.signalEvent(signalType, signalValue);
-                	return pInstance.getState();
+                    pInstance.signalEvent(signalType, signalValue);
+                    return pInstance.getState();
                 }
             }finally {
                 if(ksession != null)
@@ -637,30 +637,35 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
     
    
     
+    // implementation is expecting jContext parameter to be of type:  org.quartz.JobExecutionContext
     public int processJobExecutionContext(Serializable jContext) {
-    	JobExecutionContext qContext = (JobExecutionContext)jContext;
-    	//JpaTimerJobInstance timerJInstance = (JpaTimerJobInstance)(qContext.getMergedJobDataMap().get(QuartzSchedulerService.TIMER_JOB_INSTANCE));
-    	GlobalQuartzJobHandle jHandle = (GlobalQuartzJobHandle)(qContext.getMergedJobDataMap().get(QuartzSchedulerService.TIMER_JOB_HANDLE));
-    	
-    	String jName = qContext.getJobDetail().getName();
-    	String[] details = StringUtils.split(jName, DASH);
-    	int sessionId = jHandle.getSessionId();
-    	long pInstanceId = Long.parseLong(details[1]);
-    	long timerId = Long.parseLong(details[2]);
-    	try {
-    		log.info("processJobExecution() sessionId = "+sessionId+" : pInstanceId = "+pInstanceId+" : timerId = "+timerId);
-    		TimerInstance tInstance = new TimerInstance();
-    		tInstance.setId(timerId);
-    		tInstance.setPeriod(0L);
-    		tInstance.setProcessInstanceId(pInstanceId);
-    		
-    		// timerTriggered string constant is required to trigger a timer as per TimerNodeInstance.signalEvent(....)
-    		return this.signalEvent( TIMER_TRIGGERED, tInstance, pInstanceId, sessionId);
-    		
-    	} catch (Exception x) {
-    		throw new RuntimeException(x);
-    	}
-    	
+        JobExecutionContext qContext = (JobExecutionContext)jContext;
+        GlobalQuartzJobHandle jHandle = (GlobalQuartzJobHandle)(qContext.getMergedJobDataMap().get(QuartzSchedulerService.TIMER_JOB_HANDLE));
+        
+        String jName = qContext.getJobDetail().getName();
+        String[] details = StringUtils.split(jName, DASH);
+        int sessionId = jHandle.getSessionId();
+        long pInstanceId = Long.parseLong(details[1]);
+        long timerId = Long.parseLong(details[2]);
+        long period = jHandle.getInterval();
+        try {
+            log.info("processJobExecution() sessionId = "+sessionId+" : pInstanceId = "+pInstanceId+" : timerId = "+timerId);
+            TimerInstance tInstance = new TimerInstance();
+            tInstance.setId(timerId);
+            /* A Timer node is set up with a delay and a period. 
+             * The delay specifies the amount of time to wait after node activation before triggering the timer the first time. 
+             * The period defines the time between subsequent trigger activations. 
+             * A period of 0 results in a one-shot timer.
+             */
+            tInstance.setPeriod(period);
+            tInstance.setProcessInstanceId(pInstanceId);
+            
+            // timerTriggered string constant is required to trigger a timer as per TimerNodeInstance.signalEvent(....)
+            return this.signalEvent( TIMER_TRIGGERED, tInstance, pInstanceId, sessionId);
+            
+        } catch (Exception x) {
+            throw new RuntimeException(x);
+        }
     }
 
     class KnowledgeSessionWrapper {
@@ -693,6 +698,14 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
 
         public void setKnowledgeRuntimeLogger(KnowledgeRuntimeLogger x) {
             rLogger = x;
+        }
+    }
+
+    public String getCurrentTimerJobsAsJson(String jobGroup) {
+        try {
+            return QuartzSchedulerService.getCurrentTimerJobsAsJson(jobGroup);
+        }catch(Exception x){
+            throw new RuntimeException(x);
         }
     }
 

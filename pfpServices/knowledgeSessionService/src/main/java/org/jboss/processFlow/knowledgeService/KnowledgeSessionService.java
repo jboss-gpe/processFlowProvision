@@ -249,4 +249,9 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
     public int processJobExecutionContext(Serializable jobExecutionContext) {
         return kBean.processJobExecutionContext(jobExecutionContext);
     }
+
+    @Override
+    public String getCurrentTimerJobsAsJson(String jobGroup) {
+        return kBean.getCurrentTimerJobsAsJson(jobGroup);
+    }
 }

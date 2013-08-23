@@ -30,7 +30,7 @@
 	<classpathentry kind="src" path="pfpServicesTest/src/main/webapp/WEB-INF/classes"/>
 	<classpathentry kind="src" path="pfpServicesTest/src/test/java"/>
 	<classpathentry kind="src" path="pfpServices/haTimerService/src/main/java"/>
-	<classpathentry kind="src" path="pfpServices/pfpRest/src/main/webapp/WEB-INF/classes"/>
+	<classpathentry kind="src" path="pfpServices/knowledgeSessionService/src/main/webapp/WEB-INF/classes"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-bam"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-bpmn2"/>

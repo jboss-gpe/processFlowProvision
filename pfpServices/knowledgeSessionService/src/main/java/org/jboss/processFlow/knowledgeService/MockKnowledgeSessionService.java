@@ -41,8 +41,14 @@ public class MockKnowledgeSessionService implements IBaseKnowledgeSession {
     @Override
     public int processJobExecutionContext(Serializable jobExecutionContext) {
         // TODO Auto-generated method stub
-    	return 0;
+        return 0;
         
+    }
+
+    @Override
+    public String getCurrentTimerJobsAsJson(String jobGroup) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }
