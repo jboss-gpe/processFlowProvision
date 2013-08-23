@@ -639,8 +639,8 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
     
     public int processJobExecutionContext(Serializable jContext) {
     	JobExecutionContext qContext = (JobExecutionContext)jContext;
-    	JpaTimerJobInstance timerJInstance = (JpaTimerJobInstance)(qContext.getMergedJobDataMap().get(QuartzSchedulerService.TIMER_JOB_INSTANCE));
-    	GlobalQuartzJobHandle jHandle = (GlobalQuartzJobHandle)timerJInstance.getJobHandle();
+    	//JpaTimerJobInstance timerJInstance = (JpaTimerJobInstance)(qContext.getMergedJobDataMap().get(QuartzSchedulerService.TIMER_JOB_INSTANCE));
+    	GlobalQuartzJobHandle jHandle = (GlobalQuartzJobHandle)(qContext.getMergedJobDataMap().get(QuartzSchedulerService.TIMER_JOB_HANDLE));
     	
     	String jName = qContext.getJobDetail().getName();
     	String[] details = StringUtils.split(jName, DASH);
