@@ -645,24 +645,29 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
         String jName = qContext.getJobDetail().getName();
         String[] details = StringUtils.split(jName, DASH);
         int sessionId = jHandle.getSessionId();
+        String timerType = details[0];
         long pInstanceId = Long.parseLong(details[1]);
         long timerId = Long.parseLong(details[2]);
         long period = jHandle.getInterval();
         try {
-            log.info("processJobExecution() sessionId = "+sessionId+" : pInstanceId = "+pInstanceId+" : timerId = "+timerId);
-            TimerInstance tInstance = new TimerInstance();
-            tInstance.setId(timerId);
-            /* A Timer node is set up with a delay and a period. 
-             * The delay specifies the amount of time to wait after node activation before triggering the timer the first time. 
-             * The period defines the time between subsequent trigger activations. 
-             * A period of 0 results in a one-shot timer.
-             */
-            tInstance.setPeriod(period);
-            tInstance.setProcessInstanceId(pInstanceId);
-            
-            // timerTriggered string constant is required to trigger a timer as per TimerNodeInstance.signalEvent(....)
-            return this.signalEvent( TIMER_TRIGGERED, tInstance, pInstanceId, sessionId);
-            
+            if(QuartzSchedulerService.PROCESS_JOB.equals(timerType)){
+                log.info("processJobExecution() sessionId = "+sessionId+" : pInstanceId = "+pInstanceId+" : timerId = "+timerId);
+                TimerInstance jbpmTimerInstance = new TimerInstance();
+                jbpmTimerInstance.setId(timerId);
+                /* A Timer node is set up with a delay and a period. 
+                 * The delay specifies the amount of time to wait after node activation before triggering the timer the first time. 
+                 * The period defines the time between subsequent trigger activations. 
+                 * A period of 0 results in a one-shot timer.
+                 */
+                jbpmTimerInstance.setPeriod(period);
+                jbpmTimerInstance.setProcessInstanceId(pInstanceId);
+
+                // timerTriggered string constant is required to trigger a timer as per TimerNodeInstance.signalEvent(....)
+                return this.signalEvent( TIMER_TRIGGERED, jbpmTimerInstance, pInstanceId, sessionId);
+            }else{
+                log.error("processJobExecution() TO-DO :  need to figure out how to implement behavior associated with timer type = "+timerType);
+                return ProcessInstance.STATE_PENDING;
+            }
         } catch (Exception x) {
             throw new RuntimeException(x);
         }

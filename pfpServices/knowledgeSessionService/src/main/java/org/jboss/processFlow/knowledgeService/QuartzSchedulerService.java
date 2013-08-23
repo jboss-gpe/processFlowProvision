@@ -65,6 +65,10 @@ public class QuartzSchedulerService implements TimerService, InternalSchedulerSe
     
     public static final String TIMER_JOB_HANDLE = "timerJobHandle";
     public static final String JOB_GROUP = "jbpm";
+    public static final String PROCESS_JOB = "ProcessJob-";
+    public static final String ACTIVATION_TIMER_JOB = "ActivationTimerJob-";
+    public static final String NAMED_JOB = "NamedJob-";
+    
     private static final Logger log = LoggerFactory.getLogger(QuartzSchedulerService.class);
 
     // Quartz Scheduler
@@ -98,28 +102,29 @@ public class QuartzSchedulerService implements TimerService, InternalSchedulerSe
         String jobname = null;
         int sessionId = 0;
         if (ctx instanceof ProcessJobContext) {
+            // seems to be used with timers using drools timer expression 
             ProcessJobContext processCtx = (ProcessJobContext) ctx;
             StatefulKnowledgeSessionImpl wM = (StatefulKnowledgeSessionImpl)processCtx.getKnowledgeRuntime();
             sessionId = wM.getId();
-            jobname = "ProcessJob-"+processCtx.getProcessInstanceId() + "-" + processCtx.getTimer().getId();
-        } else if (ctx instanceof NamedJobContext) {
-            jobname = "NamedJob-"+((NamedJobContext) ctx).getJobName();
+            jobname = PROCESS_JOB +processCtx.getProcessInstanceId() + "-" + processCtx.getTimer().getId();
         } else if (ctx instanceof ActivationTimerJobContext) {
+            // seems to be used with timers using cron expression
             InternalWorkingMemory wM =  (InternalWorkingMemory)((ActivationTimerJobContext)ctx).getAgenda().getWorkingMemory();
             sessionId = wM.getId();
-            jobname = "ActivationTimerJob-"+sessionId;
+            jobname = ACTIVATION_TIMER_JOB +"0-0";
+        } else if (ctx instanceof NamedJobContext) {
+            jobname = NAMED_JOB +((NamedJobContext) ctx).getJobName();
         } else {
             throw new RuntimeException("scheduleJob() unknown jobContext = "+ctx);
         }
-        log.info("scheduleJob() jobName = "+jobname+" :  trigger = "+trigger);
+        log.info("scheduleJob() jobName = "+jobname+" :  drools trigger = "+trigger);
         
         try {
-            
-        
             // check if this scheduler already has such job registered if so there is no need to schedule it again        
             JobDetail jobDetail = scheduler.getJobDetail(jobname, JOB_GROUP);
             if (jobDetail != null) {
                 TimerJobInstance timerJobInstance = (TimerJobInstance) jobDetail.getJobDataMap().get("timerJobInstance");
+                log.warn("scheduleJob() uh-oh!!!! this job was already scheduled : "+jobname);
                 return timerJobInstance.getJobHandle();
             }
       
@@ -171,7 +176,7 @@ public class QuartzSchedulerService implements TimerService, InternalSchedulerSe
         }else if(droolsTrig instanceof CronTrigger){
             CronTrigger cTrigger = (CronTrigger)droolsTrig;
             CronExpression cExpression = cTrigger.getCronEx();
-            quartzTrig = new org.quartz.CronTrigger(jName, jGroup, cExpression.getExpressionSummary());
+            quartzTrig = new org.quartz.CronTrigger(jName, jGroup, cExpression.getCronExpression());
         }else {
             throw new RuntimeException("configureJobHandleAndQuartzTrigger() need to implement appropriate handling of the following type of trigger : "+droolsTrig.getClass().toString());
         }
@@ -216,7 +221,7 @@ public class QuartzSchedulerService implements TimerService, InternalSchedulerSe
         public void execute(JobExecutionContext qContext) throws JobExecutionException {
             GlobalQuartzJobHandle jHandle = (GlobalQuartzJobHandle)(qContext.getMergedJobDataMap().get(QuartzSchedulerService.TIMER_JOB_HANDLE));
             if(qContext.getNextFireTime() == null)
-            	jHandle.setInterval(0L);
+                jHandle.setInterval(0L);
             int pState = kSessionProxy.processJobExecutionContext(qContext);
             /*  does not seem to be a use case where this is required.
              *  quartz will flush its scheduler of a job once that job no longer has a nextFireTime
