@@ -90,6 +90,9 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
             platformMBeanServer.registerMBean(this, objectName);
 
             connectionObj = cFactory.createConnection();
+
+            // force immediate initialization of CDI ksessionService bean
+            kBean.dumpSessionStatusInfo();
         } catch(Exception x) {
             throw new RuntimeException(x);
         }

@@ -32,5 +32,10 @@
         <module name="org.slf4j"/>
         <module name="org.apache.commons.collections"/>
         <module name="org.apache.commons.logging"/>
+        <module name="javax.resource.api" />
+        <module name="javax.api" />
+
+        <!-- quartz unmarshalls the following PFP class:  org.jboss.processFlow.util.GlobalQuartzJobHandle --> 
+        <module name="org.jboss.processFlow" />
     </dependencies>
 </module>

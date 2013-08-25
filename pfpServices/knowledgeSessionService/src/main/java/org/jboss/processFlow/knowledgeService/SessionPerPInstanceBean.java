@@ -38,6 +38,8 @@ import javax.inject.Inject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.quartz.JobExecutionContext;
+
 import org.drools.SystemEventListenerFactory;
 import org.drools.KnowledgeBaseFactory;
 import org.drools.command.SingleSessionCommandService;
@@ -67,9 +69,8 @@ import org.jbpm.task.admin.TaskCleanUpProcessEventListener;
 import org.jbpm.task.admin.TasksAdmin;
 import org.jbpm.workflow.instance.WorkflowProcessInstanceUpgrader;
 import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
-import org.jboss.processFlow.knowledgeService.QuartzSchedulerService.GlobalQuartzJobHandle;
 import org.jboss.processFlow.util.CMTDisposeCommand;
-import org.quartz.JobExecutionContext;
+import org.jboss.processFlow.util.GlobalQuartzJobHandle;
 
 /**
  *<pre>

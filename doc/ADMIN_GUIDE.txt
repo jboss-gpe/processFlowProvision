@@ -205,7 +205,9 @@ INSTALL   :
                 -- at the following property :                  host    all     all     <network address>/16  md5
                 -- example is provided in :                     conf/postgresql/pg_hba.conf
             -- as 'postgres' user, create users and passwords in postgresql RDBMS
-                psql -d postgres -f /opt/jbossProjects/processFlowProvision/conf/postgresql/processFlowProvision.sql
+                psql -d postgres -f $PFP_HOME/conf/postgresql/processFlowProvision.sql
+            - as 'postgres' user, create quartz tables in jbpm RDBMS
+                psql -d jbpm -f $PFP_HOME/conf/postgresql/quartz_tables_postgres.sql
 
             -- bounce postgresql server process
                 -- (as root) service postgresql restart

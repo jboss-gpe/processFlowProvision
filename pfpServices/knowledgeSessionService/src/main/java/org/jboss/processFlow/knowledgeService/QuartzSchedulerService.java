@@ -53,6 +53,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.jboss.processFlow.knowledgeService.IBaseKnowledgeSession;
 import org.jboss.processFlow.timer.NamedJobContext;
+import org.jboss.processFlow.util.GlobalQuartzJobHandle;
 
 /**
  * Quartz based <code>GlobalSchedulerService</code> that is configured according
@@ -65,9 +66,9 @@ public class QuartzSchedulerService implements TimerService, InternalSchedulerSe
     
     public static final String TIMER_JOB_HANDLE = "timerJobHandle";
     public static final String JOB_GROUP = "jbpm";
-    public static final String PROCESS_JOB = "ProcessJob-";
-    public static final String ACTIVATION_TIMER_JOB = "ActivationTimerJob-";
-    public static final String NAMED_JOB = "NamedJob-";
+    public static final String PROCESS_JOB = "ProcessJob";
+    public static final String ACTIVATION_TIMER_JOB = "ActivationTimerJob";
+    public static final String NAMED_JOB = "NamedJob";
     
     private static final Logger log = LoggerFactory.getLogger(QuartzSchedulerService.class);
 
@@ -106,14 +107,14 @@ public class QuartzSchedulerService implements TimerService, InternalSchedulerSe
             ProcessJobContext processCtx = (ProcessJobContext) ctx;
             StatefulKnowledgeSessionImpl wM = (StatefulKnowledgeSessionImpl)processCtx.getKnowledgeRuntime();
             sessionId = wM.getId();
-            jobname = PROCESS_JOB +processCtx.getProcessInstanceId() + "-" + processCtx.getTimer().getId();
+            jobname = PROCESS_JOB +"-"+processCtx.getProcessInstanceId() + "-" + processCtx.getTimer().getId();
         } else if (ctx instanceof ActivationTimerJobContext) {
             // seems to be used with timers using cron expression
             InternalWorkingMemory wM =  (InternalWorkingMemory)((ActivationTimerJobContext)ctx).getAgenda().getWorkingMemory();
             sessionId = wM.getId();
-            jobname = ACTIVATION_TIMER_JOB +"0-0";
+            jobname = ACTIVATION_TIMER_JOB +"-"+"0-0";
         } else if (ctx instanceof NamedJobContext) {
-            jobname = NAMED_JOB +((NamedJobContext) ctx).getJobName();
+            jobname = NAMED_JOB +"-"+((NamedJobContext) ctx).getJobName();
         } else {
             throw new RuntimeException("scheduleJob() unknown jobContext = "+ctx);
         }
@@ -150,7 +151,9 @@ public class QuartzSchedulerService implements TimerService, InternalSchedulerSe
                 triggerObj.setJobGroup(quartzJobHandle.getJobGroup());
                 scheduler.rescheduleJob(quartzJobHandle.getJobName()+"_trigger", quartzJobHandle.getJobGroup(), triggerObj);
             }
-            return quartzJobHandle;
+
+            // for drools legacy purposes, ruturn a DefaultJobHandle
+            return new DefaultJobHandle(0L);
         } catch (Exception x) {
             throw new RuntimeException(x);
         }
@@ -235,46 +238,6 @@ public class QuartzSchedulerService implements TimerService, InternalSchedulerSe
         }
     }
    
-    // This class will be stored in quartz as part of job detail
-    // will also be passed to kSessionService as part of signalEvent to process
-    public static class GlobalQuartzJobHandle extends DefaultJobHandle implements java.io.Serializable {
-        
-        private String jobName;
-        private String jobGroup;
-        private int sessionId;
-        private long interval;
-        private String timerExpresson;
-       
-        public GlobalQuartzJobHandle(long id, String name, String group, int sessionId) {
-            super(id);
-            this.jobName = name;
-            this.jobGroup = group;
-            this.sessionId = sessionId;
-        }
-        public String getJobName() {
-            return jobName;
-        }
-        public String getJobGroup() {
-            return jobGroup;
-        }
-        public int getSessionId(){
-            return sessionId;
-        }
-        public void setInterval(long x){
-            this.interval = x;
-        }
-        public long getInterval(){
-            return interval;
-        }
-        public void setTimerExpression(String x){
-            this.timerExpresson    = x;
-        }
-        public String getTimerExpression(){
-            return this.timerExpresson;
-        }
-    }
-
-    
     
 /*  ***********************                    LEGACY  FUNCTIONS        *******************************/
     public boolean removeJob(JobHandle jobHandle) {
@@ -298,7 +261,7 @@ public class QuartzSchedulerService implements TimerService, InternalSchedulerSe
     }
     
     public JobHandle buildJobHandleForContext(NamedJobContext ctx) {
-        return new GlobalQuartzJobHandle(-1, ctx.getJobName(), "jbpm", 0);
+        return null;
     }
 
     @Override
