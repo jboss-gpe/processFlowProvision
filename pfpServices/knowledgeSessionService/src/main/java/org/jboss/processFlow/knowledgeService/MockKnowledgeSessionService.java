@@ -51,4 +51,10 @@ public class MockKnowledgeSessionService implements IBaseKnowledgeSession {
         return null;
     }
 
+    @Override
+    public int purgeCurrentTimerJobs(String jobGroup) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
 }

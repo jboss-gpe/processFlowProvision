@@ -129,14 +129,22 @@ FEATURES
     - significantly more performant than persisting BAM event to RDBMS in same
       thread of execution as process engine
     - two implementions:
-        1)  SessionPerPInstance strategy
-          - appropriate when bpmn2 definitions include rules nodes 
+        1)  PER_PROCESS_INSTANCE strategy
+          - one StatefulKnoweldgeSession is dedicated for lifecycle of a process instance
+          - allows for concurrency and scalability
+          - appropriate when bpmn2 definitions do not include rules nodes
           - prevents optimistic lock exceptions that may occur in concurrent
             environments
           - recycles database SessionInfo records after process completion
             -prevents SessionInfo table from continuosly growing
-        2)  SingleSessionForAll strategy
-          - appropriate when bpmn2 definitions do not include rules nodes
+          - quartz timers
+            - timers included in a BPMN2 process definition are scheduled in a 
+              database backed Quartz Scheduler
+            - doing so allows timer triggers to fire in Quartz while a process instance
+              is in a wait state
+        2)  SINGLETON strategy
+          - one StatefulKnowledgeSession is instantiated per JVM
+          - appropriate when bpmn2 definitions include rules nodes 
 
 
 8)  bam functionality

@@ -57,17 +57,17 @@ import org.drools.definition.process.Process;
 import org.drools.io.Resource;
 import org.jbpm.persistence.processinstance.ProcessInstanceInfo;
 
-@Remote(IKnowledgeSessionService.class)
+@Remote(IKnowledgeSession.class)
 @Local(IBaseKnowledgeSession.class)
 @Singleton(name="prodKSessionProxy")
 @Startup
 @Lock(LockType.READ)
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
-public class KnowledgeSessionService implements IKnowledgeSessionService, KnowledgeSessionServiceMXBean {
+public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSessionServiceMXBean {
     
     private static Logger log = Logger.getLogger("KnowledgeSessionService");
     @Inject
-    private IKnowledgeSessionBean kBean;
+    private IKnowledgeSession kBean;
 
     protected ObjectName objectName;
     protected MBeanServer platformMBeanServer;
@@ -166,20 +166,20 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
      *<pre>
      *- this method will block until the newly created process instance either completes or arrives at a wait state
      *- at completion of the process instance (or arrival at a wait state), the StatefulKnowledgeSession will be disposed
-     *  will deliver to KSessionManagement via JMS if inbound pInstanceVariables map contains an entry keyed by IKnowledgeSessionService.DELIVER_ASYNC
+     *  will deliver to KSessionManagement via JMS if inbound pInstanceVariables map contains an entry keyed by IKnowledgeSession.DELIVER_ASYNC
      *</pre>
      */
     public Map<String, Object> startProcessAndReturnId(String processId, Map<String, Object> pInstanceVariables) {
-        if(pInstanceVariables != null && pInstanceVariables.containsKey(IKnowledgeSessionService.DELIVER_ASYNC)) {
+        if(pInstanceVariables != null && pInstanceVariables.containsKey(IKnowledgeSession.DELIVER_ASYNC)) {
             Session sessionObj = null;
             try {
-                pInstanceVariables.remove(IKnowledgeSessionService.DELIVER_ASYNC);
+                pInstanceVariables.remove(IKnowledgeSession.DELIVER_ASYNC);
                 sessionObj = connectionObj.createSession(false, Session.AUTO_ACKNOWLEDGE);
                 MessageProducer m_sender = sessionObj.createProducer(gwDObj);
                 ObjectMessage oMessage = sessionObj.createObjectMessage();
                 oMessage.setObject((HashMap<String,Object>)pInstanceVariables);
-                oMessage.setStringProperty(IKnowledgeSessionService.OPERATION_TYPE, IKnowledgeSessionService.START_PROCESS_AND_RETURN_ID);
-                oMessage.setStringProperty(IKnowledgeSessionService.PROCESS_ID, processId);
+                oMessage.setStringProperty(IKnowledgeSession.OPERATION_TYPE, IKnowledgeSession.START_PROCESS_AND_RETURN_ID);
+                oMessage.setStringProperty(IKnowledgeSession.PROCESS_ID, processId);
                 m_sender.send(oMessage);
                 Map<String, Object> returnMap = new HashMap<String, Object>();
                 returnMap.put(IKnowledgeSession.PROCESS_INSTANCE_ID, new Long(0));
@@ -220,22 +220,22 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
      * <pre>
      * this method will block until the existing process instance either completes or arrives at a wait state
      *
-     * will deliver to KSessionManagement via JMS if inbound pInstanceVariables map contains an entry keyed by IKnowledgeSessionService.DELIVER_ASYNC
+     * will deliver to KSessionManagement via JMS if inbound pInstanceVariables map contains an entry keyed by IKnowledgeSession.DELIVER_ASYNC
      * </pre>
      */ 
     public void completeWorkItem(Long workItemId, Map<String, Object> pInstanceVariables, Long pInstanceId, Integer ksessionId) {
-        if(pInstanceVariables != null && pInstanceVariables.containsKey(IKnowledgeSessionService.DELIVER_ASYNC)) {
+        if(pInstanceVariables != null && pInstanceVariables.containsKey(IKnowledgeSession.DELIVER_ASYNC)) {
             Session sessionObj = null;
             try {
-                pInstanceVariables.remove(IKnowledgeSessionService.DELIVER_ASYNC);
+                pInstanceVariables.remove(IKnowledgeSession.DELIVER_ASYNC);
                 sessionObj = connectionObj.createSession(false, Session.AUTO_ACKNOWLEDGE);
                 MessageProducer m_sender = sessionObj.createProducer(gwDObj);
                 ObjectMessage oMessage = sessionObj.createObjectMessage();
                 oMessage.setObject((HashMap<String,Object>)pInstanceVariables);
-                oMessage.setStringProperty(IKnowledgeSessionService.OPERATION_TYPE, IKnowledgeSessionService.COMPLETE_WORK_ITEM);
-                oMessage.setLongProperty(IKnowledgeSessionService.WORK_ITEM_ID, workItemId);
-                oMessage.setLongProperty(IKnowledgeSessionService.PROCESS_INSTANCE_ID, pInstanceId);
-                oMessage.setIntProperty(IKnowledgeSessionService.KSESSION_ID, ksessionId);
+                oMessage.setStringProperty(IKnowledgeSession.OPERATION_TYPE, IKnowledgeSession.COMPLETE_WORK_ITEM);
+                oMessage.setLongProperty(IKnowledgeSession.WORK_ITEM_ID, workItemId);
+                oMessage.setLongProperty(IKnowledgeSession.PROCESS_INSTANCE_ID, pInstanceId);
+                oMessage.setIntProperty(IKnowledgeSession.KSESSION_ID, ksessionId);
                 m_sender.send(oMessage);
             } catch(JMSException x) {
                 throw new RuntimeException(x);
@@ -256,5 +256,9 @@ public class KnowledgeSessionService implements IKnowledgeSessionService, Knowle
     @Override
     public String getCurrentTimerJobsAsJson(String jobGroup) {
         return kBean.getCurrentTimerJobsAsJson(jobGroup);
+    }
+    @Override
+    public int purgeCurrentTimerJobs(String jobGroup) {
+        return kBean.purgeCurrentTimerJobs(jobGroup);
     }
 }

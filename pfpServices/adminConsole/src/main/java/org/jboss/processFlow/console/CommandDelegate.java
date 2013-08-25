@@ -33,7 +33,7 @@ import javax.naming.InitialContext;
 
 import org.drools.definition.process.Process;
 import org.jboss.processFlow.bam.IBAMService;
-import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
+import org.jboss.processFlow.knowledgeService.IKnowledgeSession;
 import org.jboss.processFlow.knowledgeService.SerializableProcessMetaData;
 import org.jbpm.process.audit.ProcessInstanceLog;
 import org.jboss.processFlow.util.PFPServicesLookupUtil;
@@ -45,7 +45,7 @@ import org.jboss.processFlow.util.PFPServicesLookupUtil;
  */ 
 public class CommandDelegate {
 
-    private static IKnowledgeSessionService ksessionProxy = null;
+    private static IKnowledgeSession ksessionProxy = null;
     private static IBAMService bamProxy = null;
 
     static {
@@ -133,12 +133,12 @@ public class CommandDelegate {
         try {
             Map<String, Object> returnMap = ksessionProxy.startProcessAndReturnId(processId, parameters);
 
-            Long pInstanceId = (Long)returnMap.get(IKnowledgeSessionService.PROCESS_INSTANCE_ID);
+            Long pInstanceId = (Long)returnMap.get(IKnowledgeSession.PROCESS_INSTANCE_ID);
             ProcessInstanceLog pInstanceLog = new ProcessInstanceLog(pInstanceId, processId);
             if(pInstanceId != 0L) {
                 pInstanceLog.setStart(new Date());
             }else {
-                // was invoked with IKnowledgeSessionService.DELIVER_ASYNC == true
+                // was invoked with IKnowledgeSession.DELIVER_ASYNC == true
             }
             return pInstanceLog;
         } catch(RuntimeException x) {

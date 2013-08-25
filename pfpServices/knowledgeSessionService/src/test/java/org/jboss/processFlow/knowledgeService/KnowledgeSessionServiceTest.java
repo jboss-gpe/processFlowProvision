@@ -36,8 +36,8 @@ public class KnowledgeSessionServiceTest {
             .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
     }
 
-    @EJB(lookup="java:module/prodKSessionProxy!org.jboss.processFlow.knowledgeService.IKnowledgeSessionService")
-    IKnowledgeSessionService kProxy;
+    @EJB(lookup="java:module/prodKSessionProxy!org.jboss.processFlow.knowledgeService.IKnowledgeSession")
+    IKnowledgeSession kProxy;
 
     @Test
     public void dumpSessionStatusInfoTest() {

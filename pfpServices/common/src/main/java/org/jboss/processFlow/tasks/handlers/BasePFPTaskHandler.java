@@ -4,7 +4,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 
 import org.drools.runtime.StatefulKnowledgeSession;
-import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
+import org.jboss.processFlow.knowledgeService.IKnowledgeSession;
 import org.jboss.processFlow.tasks.ITaskService;
 
 
@@ -14,7 +14,7 @@ public class BasePFPTaskHandler {
     private static Object lockObj = new Object();
     protected static boolean enableLog = false;
     protected static ITaskService taskProxy = null;
-    protected static IKnowledgeSessionService kSessionProxy = null;
+    protected static IKnowledgeSession kSessionProxy = null;
 
     protected int ksessionId;
 
@@ -33,7 +33,7 @@ public class BasePFPTaskHandler {
                 
                     jndiContext = new InitialContext();
                     taskProxy = (ITaskService)jndiContext.lookup(ITaskService.TASK_SERVICE_JNDI);
-                    kSessionProxy = (IKnowledgeSessionService)jndiContext.lookup((IKnowledgeSessionService.KNOWLEDGE_SESSION_SERVICE_JNDI));
+                    kSessionProxy = (IKnowledgeSession)jndiContext.lookup((IKnowledgeSession.KNOWLEDGE_SESSION_SERVICE_JNDI));
                 } catch(Exception x) {
                         throw new RuntimeException("static()", x);
                 }finally {

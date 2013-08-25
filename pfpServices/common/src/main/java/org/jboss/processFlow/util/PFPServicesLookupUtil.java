@@ -31,18 +31,18 @@ import org.apache.log4j.Logger;
 
 import org.jboss.processFlow.tasks.ITaskService;
 import org.jboss.processFlow.bam.IBAMService;
-import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
+import org.jboss.processFlow.knowledgeService.IKnowledgeSession;
 
 public class PFPServicesLookupUtil {
 
     private static Logger log = Logger.getLogger("PFPServicesLookupUtil");
     private static Object lockObj = new Object();
 
-    private static IKnowledgeSessionService kSessionProxy = null;
+    private static IKnowledgeSession kSessionProxy = null;
     private static IBAMService bamProxy = null;
     private static ITaskService taskProxy = null;
 
-    public static IKnowledgeSessionService getKSessionProxy() {
+    public static IKnowledgeSession getKSessionProxy() {
         if(kSessionProxy == null)
             init();
         return kSessionProxy;
@@ -80,7 +80,7 @@ public class PFPServicesLookupUtil {
 
                     jndiContext = new InitialContext(jndiProps);
                     taskProxy = (ITaskService)jndiContext.lookup(ITaskService.TASK_SERVICE_JNDI);
-                    kSessionProxy = (IKnowledgeSessionService)jndiContext.lookup((IKnowledgeSessionService.KNOWLEDGE_SESSION_SERVICE_JNDI));
+                    kSessionProxy = (IKnowledgeSession)jndiContext.lookup((IKnowledgeSession.KNOWLEDGE_SESSION_SERVICE_JNDI));
                     bamProxy = (IBAMService)jndiContext.lookup(IBAMService.BAM_SERVICE_JNDI);
 
                 } catch(Exception x) {

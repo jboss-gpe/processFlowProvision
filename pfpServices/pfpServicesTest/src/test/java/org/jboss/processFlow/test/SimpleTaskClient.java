@@ -16,14 +16,14 @@ import org.jbpm.task.query.TaskSummary;
 import org.jbpm.task.service.TaskException;
 
 import org.jboss.processFlow.tasks.ITaskService;
-import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
+import org.jboss.processFlow.knowledgeService.IKnowledgeSession;
 
 public class SimpleTaskClient {
 
     private static final String JBOSS_EJB_CLIENT_PROPERTIES = "jboss-ejb-client.properties";
     private static Logger log = Logger.getLogger("SimpleTaskClient");
     private static ITaskService taskServiceProxy = null;
-    private static IKnowledgeSessionService kSessionProxy = null;
+    private static IKnowledgeSession kSessionProxy = null;
     private static String absolutePathToBpmn = null;
 
     public static void main(String args[]) throws Exception {
@@ -47,7 +47,7 @@ public class SimpleTaskClient {
             jndiContext = new InitialContext(jndiProps);
 
             taskServiceProxy = (ITaskService)jndiContext.lookup(ITaskService.TASK_SERVICE_JNDI);
-            kSessionProxy = (IKnowledgeSessionService)jndiContext.lookup(IKnowledgeSessionService.KNOWLEDGE_SESSION_SERVICE_JNDI);
+            kSessionProxy = (IKnowledgeSession)jndiContext.lookup(IKnowledgeSession.KNOWLEDGE_SESSION_SERVICE_JNDI);
             log.info("lookupProxies() taskServiceProxy = "+taskServiceProxy+" : kSessionProxy = "+kSessionProxy);
         } finally {
             if(jndiContext != null)
@@ -75,8 +75,8 @@ public class SimpleTaskClient {
 
         // 1)  start new process instance
         Map<String, Object> returnMap = kSessionProxy.startProcessAndReturnId("simpleTask", parameters);
-        long processInstanceId = (Long)returnMap.get(IKnowledgeSessionService.PROCESS_INSTANCE_ID);
-        int ksessionId = (Integer)returnMap.get(IKnowledgeSessionService.KSESSION_ID);
+        long processInstanceId = (Long)returnMap.get(IKnowledgeSession.PROCESS_INSTANCE_ID);
+        int ksessionId = (Integer)returnMap.get(IKnowledgeSession.KSESSION_ID);
         Map<String, Object> pVariables = kSessionProxy.getActiveProcessInstanceVariables(processInstanceId, ksessionId);
         log.info("executeProcessInstanceLifecycle() created pInstance w/ id = "+processInstanceId+ " : # of pInstance variables = "+pVariables.size());
 

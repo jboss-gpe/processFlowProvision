@@ -129,7 +129,7 @@ public interface ITaskService {
      *
      *  please see the following section WS-HT specification:  4.7.1  Normal Processing of a Human Task
      *
-     *  implementations of this function will invoke IKnowledgeSessionService.completeWorkItem(...) to continue process instance execution
+     *  implementations of this function will invoke IKnowledgeSession.completeWorkItem(...) to continue process instance execution
      * 
      * </pre>
      */

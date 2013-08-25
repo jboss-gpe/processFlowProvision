@@ -68,7 +68,7 @@ import org.jbpm.workflow.instance.node.SubProcessNodeInstance;
 import org.jbpm.task.admin.TaskCleanUpProcessEventListener;
 import org.jbpm.task.admin.TasksAdmin;
 import org.jbpm.workflow.instance.WorkflowProcessInstanceUpgrader;
-import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
+import org.jboss.processFlow.knowledgeService.IKnowledgeSession;
 import org.jboss.processFlow.util.CMTDisposeCommand;
 import org.jboss.processFlow.util.GlobalQuartzJobHandle;
 
@@ -86,7 +86,7 @@ import org.jboss.processFlow.util.GlobalQuartzJobHandle;
  *
  *      
  *ksession management
- *  - in this IKnowledgeSessionService implementation, a ksessionId is allocated to a process instance (and any subprocesses) for its entire lifecycle 
+ *  - in this IKnowledgeSession implementation, a ksessionId is allocated to a process instance (and any subprocesses) for its entire lifecycle 
  *  - upon completion of a process instance, the ksessionId is made available again for a new process instance
  *  - this singleton utilizes two data structures, busySessions & availableSessions, to maintain which ksessionIds are available for reuse
  *  - a sessioninfo record in the jbpm database corresponds to a single StatefulKnowledgeSession
@@ -113,7 +113,7 @@ import org.jboss.processFlow.util.GlobalQuartzJobHandle;
 @ApplicationScoped
 @Alternative
 @Default
-public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements IKnowledgeSessionBean {
+public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements IKnowledgeSession {
 
     private static final String DASH = "-";
     private static final String TIMER_TRIGGERED="timerTriggered";
@@ -331,7 +331,7 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
                 try {
                     Class peClass = Class.forName(peString);
                     ProcessEventListener peListener = (ProcessEventListener)peClass.newInstance();
-                    if(IKnowledgeSessionService.ASYNC_BAM_PRODUCER.equals(peListener.getClass().getName()))
+                    if(IKnowledgeSession.ASYNC_BAM_PRODUCER.equals(peListener.getClass().getName()))
                         bamProducer = (AsyncBAMProducer)peListener;
                     ksession.addEventListener(peListener);
                 } catch(Exception x) {
@@ -416,9 +416,9 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
             for (String key : variables.keySet()) {
                 returnMap.put(key, variables.get(key));
             }
-            returnMap.put(IKnowledgeSessionService.PROCESS_INSTANCE_ID, pInstance.getId());
-            returnMap.put(IKnowledgeSessionService.PROCESS_INSTANCE_STATE, pInstance.getState());
-            returnMap.put(IKnowledgeSessionService.KSESSION_ID, ksessionId);
+            returnMap.put(IKnowledgeSession.PROCESS_INSTANCE_ID, pInstance.getId());
+            returnMap.put(IKnowledgeSession.PROCESS_INSTANCE_STATE, pInstance.getState());
+            returnMap.put(IKnowledgeSession.KSESSION_ID, ksessionId);
             
             sessionPool.setProcessInstanceId(ksessionId, pInstance.getId());
         }catch(Throwable x){
@@ -710,6 +710,15 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
     public String getCurrentTimerJobsAsJson(String jobGroup) {
         try {
             return QuartzSchedulerService.getCurrentTimerJobsAsJson(jobGroup);
+        }catch(Exception x){
+            throw new RuntimeException(x);
+        }
+    }
+
+    @Override
+    public int purgeCurrentTimerJobs(String jobGroup) {
+        try {
+            return QuartzSchedulerService.purgeCurrentTimerJobs(jobGroup);
         }catch(Exception x){
             throw new RuntimeException(x);
         }

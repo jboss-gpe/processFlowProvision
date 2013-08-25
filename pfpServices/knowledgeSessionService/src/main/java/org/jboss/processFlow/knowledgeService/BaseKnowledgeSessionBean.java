@@ -85,7 +85,7 @@ import org.jbpm.persistence.processinstance.ProcessInstanceInfo;
 import org.jbpm.task.service.TaskService;
 
 import org.jboss.processFlow.haTimerService.ITimerServiceManagement;
-import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
+import org.jboss.processFlow.knowledgeService.IKnowledgeSession;
 import org.jboss.processFlow.tasks.ITaskService;
 import org.jboss.processFlow.util.LogSystemEventListener;
 import org.jboss.processFlow.workItem.WorkItemHandlerLifecycle;
@@ -100,7 +100,7 @@ import org.mvel2.ParserContext;
  * Drools knowledgeBase management
  *  - this implementation instantiates a single instance of org.drools.KnowledgeBase
  *  - this KnowledgeBase is kept current by interacting with a remote BRMS guvnor service
- *  - note: this KnowledgeBase instance is instantiated the first time any IKnowledgeSessionService operation is invoked
+ *  - note: this KnowledgeBase instance is instantiated the first time any IKnowledgeSession operation is invoked
  *  - the KnowledgeBase is not instantiated in a start() method because the BRMS guvnor may be co-located on the same jvm
  *      as this KnowledgeSessionService and may not yet be available (depending on boot-loader order)
  *      
@@ -133,7 +133,7 @@ import org.mvel2.ParserContext;
  *      - ProcessEventListeners get registered with the knowledgeSession/processEngine
  *      - when any of the corresponding events occurs in the lifecycle of a process instance, those processevent listeners get invoked
  *      - a configurable list of process event listeners can be registered with the process engine via the following system prroperty:
- *          IKnowledgeSessionService.SPACE_DELIMITED_PROCESS_EVENT_LISTENERS
+ *          IKnowledgeSession.SPACE_DELIMITED_PROCESS_EVENT_LISTENERS
  *
  *      - in processFlowProvision, we have two classes that implement org.drools.event.process.ProcessEventListener :
  *          1)  the 'busySessionsListener' inner class constructed in this knowledgeSessionService    
@@ -141,14 +141,14 @@ import org.mvel2.ParserContext;
  *              -- a new instance is automatically registered with a ksession with new ksession creation or ksession re-load
  *          2)  org.jboss.processFlow.bam.AsyncBAMProducer
  *              -- sends BAM events to a hornetq queue
- *              -- registered by including it in IKnowledgeSessionService.SPACE_DELIMITED_PROCESS_EVENT_LISTENERS system property
+ *              -- registered by including it in IKnowledgeSession.SPACE_DELIMITED_PROCESS_EVENT_LISTENERS system property
  *
  *
  * BAM audit logging
  *  - this implementation leverages a pool of JMS producers to send BAM events to a JMS provider
  *  - a corresponding BAM consumer receives those BAM events and persists to the BRMS BAM database
  *  - it is possible to disable the production of BAM events by NOT including 'org.jboss.processFlow.bam.AsyncBAMProducer' as a value
- *    in the IKnowledgeSessionService.SPACE_DELIMITED_PROCESS_EVENT_LISTENERS property
+ *    in the IKnowledgeSession.SPACE_DELIMITED_PROCESS_EVENT_LISTENERS property
  *  - note:  if 'org.jboss.processFlow.bam.AsyncBAMProducer' is not included, then any clients that query the BRMS BAM database will be affected
  *  - an example is the BRMS gwt-console-server
  *      the gwt-console-server queries the BRMS BAM database for listing of active process instances
@@ -214,7 +214,7 @@ public class BaseKnowledgeSessionBean {
          if(System.getProperty("org.jboss.processFlow.drools.resource.scanner.interval") != null)
              droolsResourceScannerInterval = System.getProperty("org.jboss.processFlow.drools.resource.scanner.interval");
          
-         taskCleanUpImpl = System.getProperty(IKnowledgeSessionService.TASK_CLEAN_UP_PROCESS_EVENT_LISTENER_IMPL);
+         taskCleanUpImpl = System.getProperty(IKnowledgeSession.TASK_CLEAN_UP_PROCESS_EVENT_LISTENER_IMPL);
 
          String timerService = System.getProperty("drools.timerService", JpaJDKTimerService.class.getName());
          ksconfigProperties.setProperty( "drools.timerService", timerService);
@@ -223,8 +223,8 @@ public class BaseKnowledgeSessionBean {
          guvnorUtils = new GuvnorConnectionUtils();
          enableLog = Boolean.parseBoolean(System.getProperty("org.jboss.enableLog", "TRUE"));
          
-         if(System.getProperty(IKnowledgeSessionService.SPACE_DELIMITED_PROCESS_EVENT_LISTENERS) != null)
-             processEventListeners = System.getProperty(IKnowledgeSessionService.SPACE_DELIMITED_PROCESS_EVENT_LISTENERS).split("\\s");
+         if(System.getProperty(IKnowledgeSession.SPACE_DELIMITED_PROCESS_EVENT_LISTENERS) != null)
+             processEventListeners = System.getProperty(IKnowledgeSession.SPACE_DELIMITED_PROCESS_EVENT_LISTENERS).split("\\s");
 
          kAgentRefreshHours = Integer.parseInt(System.getProperty("org.jboss.processFlow.kAgentRefreshHours", "12"));
          kAgentMonitor = Boolean.parseBoolean(System.getProperty("org.jboss.processFlow.kAgentMonitor", "TRUE"));
@@ -245,7 +245,7 @@ public class BaseKnowledgeSessionBean {
          programmaticallyLoadedWorkItemHandlers.put(ITaskService.HUMAN_TASK, Class.forName("org.jboss.processFlow.tasks.handlers.PFPAddHumanTaskHandler"));
          programmaticallyLoadedWorkItemHandlers.put(ITaskService.SKIP_TASK, Class.forName("org.jboss.processFlow.tasks.handlers.PFPSkipTaskHandler"));
          programmaticallyLoadedWorkItemHandlers.put(ITaskService.FAIL_TASK, Class.forName("org.jboss.processFlow.tasks.handlers.PFPFailTaskHandler"));
-         programmaticallyLoadedWorkItemHandlers.put(IKnowledgeSessionService.EMAIL, Class.forName("org.jboss.processFlow.email.PFPEmailWorkItemHandler"));
+         programmaticallyLoadedWorkItemHandlers.put(IKnowledgeSession.EMAIL, Class.forName("org.jboss.processFlow.email.PFPEmailWorkItemHandler"));
     
          StringBuilder logBuilder = new StringBuilder();
          logBuilder.append("start() ksession props as follows :\n\tdrools guvnor scanner interval = ");
@@ -760,12 +760,12 @@ public class BaseKnowledgeSessionBean {
         String password = System.getProperty("org.jbpm.workItemHandler.mail.password");
         WorkItemHandlerLifecycle handler = null;
         try {
-            Class workItemHandlerClass = programmaticallyLoadedWorkItemHandlers.get(IKnowledgeSessionService.EMAIL);
+            Class workItemHandlerClass = programmaticallyLoadedWorkItemHandlers.get(IKnowledgeSession.EMAIL);
             Class[] classParams = new Class[] {String.class, String.class, String.class, String.class};
             Object[] objParams = new Object[] {address, port, userId, password};
             Constructor cObj = workItemHandlerClass.getConstructor(classParams);
             handler = (WorkItemHandlerLifecycle)cObj.newInstance(objParams);
-            registerWorkItemHandler(ksession, IKnowledgeSessionService.EMAIL, handler);
+            registerWorkItemHandler(ksession, IKnowledgeSession.EMAIL, handler);
         }catch(Exception x) {
             throw new RuntimeException(x);
         }
@@ -894,7 +894,7 @@ public class BaseKnowledgeSessionBean {
          sqlBuilder.append("FROM ProcessInstanceInfo p ");
          if(queryCriteria != null && queryCriteria.size() > 0){
              sqlBuilder.append("WHERE ");
-             if(queryCriteria.containsKey(IKnowledgeSessionService.PROCESS_ID)){
+             if(queryCriteria.containsKey(IKnowledgeSession.PROCESS_ID)){
                  sqlBuilder.append("p.processid = :processId");
              }
          }
@@ -902,8 +902,8 @@ public class BaseKnowledgeSessionBean {
              psqlEm = jbpmCoreEMF.createEntityManager();
              Query processInstanceQuery = psqlEm.createQuery(sqlBuilder.toString());
              if(queryCriteria != null && queryCriteria.size() > 0){
-                 if(queryCriteria.containsKey(IKnowledgeSessionService.PROCESS_ID)){
-                     processInstanceQuery = processInstanceQuery.setParameter(IKnowledgeSessionService.PROCESS_ID, queryCriteria.get(IKnowledgeSessionService.PROCESS_ID));
+                 if(queryCriteria.containsKey(IKnowledgeSession.PROCESS_ID)){
+                     processInstanceQuery = processInstanceQuery.setParameter(IKnowledgeSession.PROCESS_ID, queryCriteria.get(IKnowledgeSession.PROCESS_ID));
                  }
              }
              results = processInstanceQuery.getResultList();

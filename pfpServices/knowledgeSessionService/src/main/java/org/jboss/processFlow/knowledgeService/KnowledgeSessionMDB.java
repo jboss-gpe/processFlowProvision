@@ -38,8 +38,8 @@ public class KnowledgeSessionMDB implements MessageListener {
     private Logger log = LoggerFactory.getLogger("KnowledgeSessionMDB");
     private static String jbossNodeName;
     
-    @EJB(lookup=IKnowledgeSessionService.KNOWLEDGE_SESSION_SERVICE_JNDI)
-    IKnowledgeSessionService kProxy;
+    @EJB(lookup=IKnowledgeSession.KNOWLEDGE_SESSION_SERVICE_JNDI)
+    IKnowledgeSession kProxy;
     
     @Resource MessageDrivenContext mCtx;
     @Resource(name=MessagingUtil.CONNECTION_FACTORY_JNDI_NAME) ConnectionFactory cFactory;
@@ -59,29 +59,29 @@ public class KnowledgeSessionMDB implements MessageListener {
             if(!(mObj instanceof ObjectMessage))
                 throw new MessageFormatException("onMessage() following message type not supported: "+mObj.getClass().toString());
             ObjectMessage oMessage = (ObjectMessage)mObj;
-            String operationType = mObj.getStringProperty(IKnowledgeSessionService.OPERATION_TYPE);
+            String operationType = mObj.getStringProperty(IKnowledgeSession.OPERATION_TYPE);
             if(StringUtils.isEmpty(operationType))
-                throw new MessageFormatException("onMessage() need to include String property with key = "+IKnowledgeSessionService.OPERATION_TYPE);
+                throw new MessageFormatException("onMessage() need to include String property with key = "+IKnowledgeSession.OPERATION_TYPE);
             Integer ksessionId = null;
-            if(mObj.propertyExists(IKnowledgeSessionService.KSESSION_ID))
-                ksessionId = mObj.getIntProperty(IKnowledgeSessionService.KSESSION_ID);
+            if(mObj.propertyExists(IKnowledgeSession.KSESSION_ID))
+                ksessionId = mObj.getIntProperty(IKnowledgeSession.KSESSION_ID);
             Long pInstanceId = null;
-            if(mObj.propertyExists(IKnowledgeSessionService.PROCESS_INSTANCE_ID))
-                pInstanceId = mObj.getLongProperty(IKnowledgeSessionService.PROCESS_INSTANCE_ID);
+            if(mObj.propertyExists(IKnowledgeSession.PROCESS_INSTANCE_ID))
+                pInstanceId = mObj.getLongProperty(IKnowledgeSession.PROCESS_INSTANCE_ID);
             
             // ADD PROCESS TO KNOWLEDGE BASE
-            if(operationType.equals(IKnowledgeSessionService.ADD_PROCESS_TO_KNOWLEDGE_BASE)){
+            if(operationType.equals(IKnowledgeSession.ADD_PROCESS_TO_KNOWLEDGE_BASE)){
                 File bpmnFile = (File)oMessage.getObject();
                 if(bpmnFile == null)
-                    throw new MessageFormatException("onMessage() need to include Object property with key = "+IKnowledgeSessionService.BPMN_FILE);
+                    throw new MessageFormatException("onMessage() need to include Object property with key = "+IKnowledgeSession.BPMN_FILE);
                 kProxy.addProcessToKnowledgeBase(bpmnFile);
                 
                
             // START PROCESSS AND RETURN ID    
-            }else if(operationType.equals(IKnowledgeSessionService.START_PROCESS_AND_RETURN_ID)){
-                String processId = mObj.getStringProperty(IKnowledgeSessionService.PROCESS_ID);
+            }else if(operationType.equals(IKnowledgeSession.START_PROCESS_AND_RETURN_ID)){
+                String processId = mObj.getStringProperty(IKnowledgeSession.PROCESS_ID);
                 if(StringUtils.isEmpty(processId))
-                    throw new MessageFormatException("onMessage() need to include String property with key = "+IKnowledgeSessionService.PROCESS_ID);
+                    throw new MessageFormatException("onMessage() need to include String property with key = "+IKnowledgeSession.PROCESS_ID);
                 Map<String, Object> pInstanceVariables = (Map<String,Object>)oMessage.getObject();
                 log.info("onMessage() about to startProcessInstance for processId = "+processId);
                 Map<String, Object> responseFromKProxy = kProxy.startProcessAndReturnId(processId, pInstanceVariables);
@@ -91,7 +91,7 @@ public class KnowledgeSessionMDB implements MessageListener {
                         producerSession = connectObj.createSession(false, Session.AUTO_ACKNOWLEDGE);
                         Message mResponse = producerSession.createObjectMessage((Serializable) responseFromKProxy);
                         mResponse.setJMSCorrelationID(mObj.getJMSCorrelationID());
-                        mResponse.setStringProperty(IKnowledgeSessionService.NODE_ID, jbossNodeName);
+                        mResponse.setStringProperty(IKnowledgeSession.NODE_ID, jbossNodeName);
                         MessageProducer producer = producerSession.createProducer(null);
                         producer.send(mObj.getJMSReplyTo(), mResponse);
                     }finally{
@@ -102,27 +102,27 @@ public class KnowledgeSessionMDB implements MessageListener {
                 
             
             //COMPLETE WORK ITEM
-            }else if(operationType.equals(IKnowledgeSessionService.COMPLETE_WORK_ITEM)){
+            }else if(operationType.equals(IKnowledgeSession.COMPLETE_WORK_ITEM)){
                 Map<String, Object> pInstanceVariables = (Map<String,Object>)oMessage.getObject();
-                Long workItemId = mObj.getLongProperty(IKnowledgeSessionService.WORK_ITEM_ID);
+                Long workItemId = mObj.getLongProperty(IKnowledgeSession.WORK_ITEM_ID);
                 if(workItemId == 0)
-                    throw new MessageFormatException("onMessage() need to include Int property with key = "+IKnowledgeSessionService.WORK_ITEM_ID);
+                    throw new MessageFormatException("onMessage() need to include Int property with key = "+IKnowledgeSession.WORK_ITEM_ID);
                 if(pInstanceId == 0L)
-                    throw new MessageFormatException("onMessage() need to include Long property with key = "+IKnowledgeSessionService.PROCESS_INSTANCE_ID);
+                    throw new MessageFormatException("onMessage() need to include Long property with key = "+IKnowledgeSession.PROCESS_INSTANCE_ID);
                 kProxy.completeWorkItem(workItemId, pInstanceVariables, pInstanceId, ksessionId);
                 
             
                 
             //SIGNAL EVENT
-            }else if(operationType.equals(IKnowledgeSessionService.SIGNAL_EVENT)){
-                String type = mObj.getStringProperty(IKnowledgeSessionService.SIGNAL_TYPE);
+            }else if(operationType.equals(IKnowledgeSession.SIGNAL_EVENT)){
+                String type = mObj.getStringProperty(IKnowledgeSession.SIGNAL_TYPE);
                 if(StringUtils.isEmpty(type))
-                    throw new MessageFormatException("onMessage() need to include String property with key = "+IKnowledgeSessionService.SIGNAL_TYPE);
+                    throw new MessageFormatException("onMessage() need to include String property with key = "+IKnowledgeSession.SIGNAL_TYPE);
                 Object eventData = oMessage.getObject();
                 if(eventData == null)
                     throw new MessageFormatException("onMessage() need to include Object property in body of message");
                 if(pInstanceId == 0L)
-                    throw new MessageFormatException("onMessage() need to include Long property with key = "+IKnowledgeSessionService.PROCESS_INSTANCE_ID);
+                    throw new MessageFormatException("onMessage() need to include Long property with key = "+IKnowledgeSession.PROCESS_INSTANCE_ID);
                 kProxy.signalEvent(type, eventData, pInstanceId, ksessionId);
                 
                 

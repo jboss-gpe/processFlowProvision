@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -33,8 +34,8 @@ import org.slf4j.LoggerFactory;
 @Path("/")
 public class KSessionHttp {
 
-    @EJB(lookup="java:global/processFlow-knowledgeSessionService/prodKSessionProxy!org.jboss.processFlow.knowledgeService.IKnowledgeSessionService")
-    IKnowledgeSessionService kProxy;
+    @EJB(lookup="java:global/processFlow-knowledgeSessionService/prodKSessionProxy!org.jboss.processFlow.knowledgeService.IKnowledgeSession")
+    IKnowledgeSession kProxy;
 
     private Logger log = LoggerFactory.getLogger("KSessionHttp");
     private boolean enableLog = true;
@@ -179,9 +180,19 @@ public class KSessionHttp {
     @GET
     @Path("currentTimerJobs/{jobGroup: .*}")
     @Produces({"text/plain"})
-    public Response wer(@PathParam("jobGroup")final String jobGroup){
+    public Response getCurrentTimerJobsAsJson(@PathParam("jobGroup")final String jobGroup){
         String json = kProxy.getCurrentTimerJobsAsJson(jobGroup);
         ResponseBuilder builder = Response.ok(json);
+        return builder.build();
+    }
+    
+     // curl -X DELETE -HAccept:text/plain $HOSTNAME:8330/knowledgeService/currentTimerJobs/jbpm
+    @DELETE
+    @Path("currentTimerJobs/{jobGroup: .*}")
+    @Produces({"text/plain"})
+    public Response purgeCurrentTimerJobs(@PathParam("jobGroup")final String jobGroup){
+        int jobsDeleted = kProxy.purgeCurrentTimerJobs(jobGroup);
+        ResponseBuilder builder = Response.ok(jobsDeleted);
         return builder.build();
     }
 

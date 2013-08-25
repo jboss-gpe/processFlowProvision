@@ -17,6 +17,7 @@ package org.jboss.processFlow.knowledgeService;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.naming.Context;
@@ -215,6 +216,14 @@ public class QuartzSchedulerService implements TimerService, InternalSchedulerSe
         }
         sBuilder.append("\n\t]\n}");
         return sBuilder.toString();
+    }
+    
+    public static int purgeCurrentTimerJobs(String jobGroup) throws SchedulerException{
+        String[] jobNames = scheduler.getJobNames(jobGroup);
+        for(String name	 : jobNames){
+            scheduler.deleteJob(name, jobGroup);
+        }
+        return jobNames.length;
     }
     
     public static class QuartzJob implements org.quartz.Job {

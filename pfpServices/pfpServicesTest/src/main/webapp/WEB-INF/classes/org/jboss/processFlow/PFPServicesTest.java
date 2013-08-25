@@ -29,7 +29,7 @@ import org.jbpm.task.query.TaskSummary;
 import org.jbpm.task.service.TaskException;
 
 import org.jboss.processFlow.tasks.ITaskService;
-import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
+import org.jboss.processFlow.knowledgeService.IKnowledgeSession;
 
 @Path("/")
 public class PFPServicesTest {
@@ -37,7 +37,7 @@ public class PFPServicesTest {
     private static final String JBOSS_BIND_ADDRESS="jboss.bind.address";
     private static Logger log = LoggerFactory.getLogger("PFPServicesTest");
     private static ITaskService taskServiceProxy = null;
-    private static IKnowledgeSessionService kSessionProxy = null;
+    private static IKnowledgeSession kSessionProxy = null;
     private static String absolutePathToBpmn = null;
 
     /* 
@@ -86,7 +86,7 @@ public class PFPServicesTest {
             jndiProps.put(javax.naming.Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
             jndiContext = new InitialContext(jndiProps);
             taskServiceProxy = (ITaskService)jndiContext.lookup(ITaskService.TASK_SERVICE_JNDI);
-            kSessionProxy = (IKnowledgeSessionService)jndiContext.lookup(IKnowledgeSessionService.KNOWLEDGE_SESSION_SERVICE_JNDI);
+            kSessionProxy = (IKnowledgeSession)jndiContext.lookup(IKnowledgeSession.KNOWLEDGE_SESSION_SERVICE_JNDI);
         }finally {
             if(jndiContext != null) {
                 try {
@@ -146,7 +146,7 @@ public class PFPServicesTest {
 
         // 1)  start new process instance
         Map<String, Object> returnMap = kSessionProxy.startProcessAndReturnId("org.jboss.processFlow.simpleTask", parameters);
-        long processInstanceId = (Long)returnMap.get(IKnowledgeSessionService.PROCESS_INSTANCE_ID);
+        long processInstanceId = (Long)returnMap.get(IKnowledgeSession.PROCESS_INSTANCE_ID);
         Map<String, Object> pVariables = kSessionProxy.getActiveProcessInstanceVariables(processInstanceId, null);
         log.info("executeProcessInstanceLifecycle() created pInstance w/ id = "+processInstanceId+ " : # of pInstance variables = "+pVariables.size());
 

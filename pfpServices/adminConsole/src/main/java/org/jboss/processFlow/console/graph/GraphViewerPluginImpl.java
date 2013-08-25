@@ -55,7 +55,7 @@ import org.jboss.bpm.console.client.model.ActiveNodeInfo;
 import org.jboss.bpm.console.client.model.DiagramInfo;
 import org.jboss.bpm.console.client.model.DiagramNodeInfo;
 import org.jboss.processFlow.bam.IBAMService;
-import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
+import org.jboss.processFlow.knowledgeService.IKnowledgeSession;
 import org.jboss.processFlow.knowledgeService.SerializableNodeMetaData;
 import org.jboss.processFlow.knowledgeService.SerializableProcessMetaData;
 import org.jbpm.process.audit.NodeInstanceLog;
@@ -69,7 +69,7 @@ import org.jbpm.process.audit.ProcessInstanceLog;
 public class GraphViewerPluginImpl extends org.jbpm.integration.console.graph.GraphViewerPluginImpl {
 
     private static final int BUFFER_SIZE = 512;
-    private static IKnowledgeSessionService ksessionProxy = null;
+    private static IKnowledgeSession ksessionProxy = null;
     private static IBAMService bamProxy = null;
     
     static {
@@ -79,7 +79,7 @@ public class GraphViewerPluginImpl extends org.jbpm.integration.console.graph.Gr
             Properties jndiProps = new Properties();
             jndiProps.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
             ksessionContext = new InitialContext(jndiProps);
-            ksessionProxy = (IKnowledgeSessionService)ksessionContext.lookup(IKnowledgeSessionService.KNOWLEDGE_SESSION_SERVICE_JNDI);
+            ksessionProxy = (IKnowledgeSession)ksessionContext.lookup(IKnowledgeSession.KNOWLEDGE_SESSION_SERVICE_JNDI);
 
             bamContext = new InitialContext(jndiProps);
             bamProxy = (IBAMService)bamContext.lookup(IBAMService.BAM_SERVICE_JNDI);

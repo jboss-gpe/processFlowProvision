@@ -67,7 +67,7 @@ import org.jbpm.integration.console.shared.GuvnorConnectionUtils;
 import org.jbpm.task.admin.TaskCleanUpProcessEventListener;
 import org.jbpm.task.admin.TasksAdmin;
 import org.jboss.processFlow.bam.IBAMService;
-import org.jboss.processFlow.knowledgeService.IKnowledgeSessionService;
+import org.jboss.processFlow.knowledgeService.IKnowledgeSession;
 import org.jboss.processFlow.tasks.ITaskService;
 import org.jboss.processFlow.util.LogSystemEventListener;
 import org.jboss.processFlow.util.CMTDisposeCommand;
@@ -89,7 +89,7 @@ import org.jboss.processFlow.util.CMTDisposeCommand;
  */
 @ApplicationScoped
 @Alternative
-public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnowledgeSessionBean {
+public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnowledgeSession {
 
     private Logger log = Logger.getLogger(SingleSessionBean.class);
     private StatefulKnowledgeSession ksession;
@@ -265,7 +265,7 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
                 try {
                     Class peClass = Class.forName(peString);
                     ProcessEventListener peListener = (ProcessEventListener)peClass.newInstance();
-                    if(IKnowledgeSessionService.ASYNC_BAM_PRODUCER.equals(peListener.getClass().getName())){
+                    if(IKnowledgeSession.ASYNC_BAM_PRODUCER.equals(peListener.getClass().getName())){
                         bamProducer = (AsyncBAMProducer)peListener;
                         BAMProducerWrapper pWrapper = bamProducerPool.borrowObject();
                         bamProducer.setBAMProducerWrapper(pWrapper);
@@ -339,8 +339,8 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
             for (String key : variables.keySet()) {
                 returnMap.put(key, variables.get(key));
             }
-            returnMap.put(IKnowledgeSessionService.PROCESS_INSTANCE_ID, pInstance.getId());
-            returnMap.put(IKnowledgeSessionService.KSESSION_ID, ksessionId);
+            returnMap.put(IKnowledgeSession.PROCESS_INSTANCE_ID, pInstance.getId());
+            returnMap.put(IKnowledgeSession.KSESSION_ID, ksessionId);
             sBuilder.append(" : pInstanceId = "+pInstance.getId()+" : now completed");
             log.info(sBuilder.toString());
             return returnMap;
@@ -483,4 +483,10 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
         // TODO Auto-generated method stub
         return null;
     }
+
+	@Override
+	public int purgeCurrentTimerJobs(String jobGroup) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }
