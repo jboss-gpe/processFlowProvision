@@ -53,7 +53,6 @@ import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.jboss.processFlow.knowledgeService.IBaseKnowledgeSession;
-import org.jboss.processFlow.timer.NamedJobContext;
 import org.jboss.processFlow.util.GlobalQuartzJobHandle;
 
 /**
@@ -69,7 +68,6 @@ public class QuartzSchedulerService implements TimerService, InternalSchedulerSe
     public static final String JOB_GROUP = "jbpm";
     public static final String PROCESS_JOB = "ProcessJob";
     public static final String ACTIVATION_TIMER_JOB = "ActivationTimerJob";
-    public static final String NAMED_JOB = "NamedJob";
     
     private static final Logger log = LoggerFactory.getLogger(QuartzSchedulerService.class);
 
@@ -114,8 +112,6 @@ public class QuartzSchedulerService implements TimerService, InternalSchedulerSe
             InternalWorkingMemory wM =  (InternalWorkingMemory)((ActivationTimerJobContext)ctx).getAgenda().getWorkingMemory();
             sessionId = wM.getId();
             jobname = ACTIVATION_TIMER_JOB +"-"+"0-0";
-        } else if (ctx instanceof NamedJobContext) {
-            jobname = NAMED_JOB +"-"+((NamedJobContext) ctx).getJobName();
         } else {
             throw new RuntimeException("scheduleJob() unknown jobContext = "+ctx);
         }
@@ -268,10 +264,12 @@ public class QuartzSchedulerService implements TimerService, InternalSchedulerSe
     public synchronized void initScheduler() {
         // will handle this in start() function
     }
-    
+   
+    /* 
     public JobHandle buildJobHandleForContext(NamedJobContext ctx) {
         return null;
     }
+    */
 
     @Override
     public long getCurrentTime() {
