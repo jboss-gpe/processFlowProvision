@@ -17,16 +17,14 @@ package org.jboss.processFlow.knowledgeService;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
+import org.apache.commons.lang.StringUtils;
 import org.drools.common.InternalWorkingMemory;
 import org.drools.common.Scheduler.ActivationTimerJobContext;
 import org.drools.impl.StatefulKnowledgeSessionImpl;
-import org.drools.runtime.process.ProcessInstance;
 import org.drools.time.AcceptsTimerJobFactoryManager;
 import org.drools.time.InternalSchedulerService;
 import org.drools.time.Job;
@@ -68,6 +66,7 @@ public class QuartzSchedulerService implements TimerService, InternalSchedulerSe
     public static final String JOB_GROUP = "jbpm";
     public static final String PROCESS_JOB = "ProcessJob";
     public static final String ACTIVATION_TIMER_JOB = "ActivationTimerJob";
+    public static final String RULE_NAME_START_PREFIX = "RuleFlow-Start-";
     
     private static final Logger log = LoggerFactory.getLogger(QuartzSchedulerService.class);
 
@@ -81,9 +80,6 @@ public class QuartzSchedulerService implements TimerService, InternalSchedulerSe
    
     // used to signal the process instance
     private static IBaseKnowledgeSession kSessionProxy;
-    
-    private static AtomicLong newJobIdCounter = new AtomicLong();
-    
     
     public static void start() throws Exception{
         Context jndiContext;
@@ -99,57 +95,48 @@ public class QuartzSchedulerService implements TimerService, InternalSchedulerSe
     }
     
     public JobHandle scheduleJob(Job job, JobContext ctx, Trigger trigger) {
-        String jobname = null;
-        int sessionId = 0;
+        GlobalQuartzJobHandle quartzJobHandle= null;
         if (ctx instanceof ProcessJobContext) {
             // seems to be used with timers using drools timer expression 
             ProcessJobContext processCtx = (ProcessJobContext) ctx;
             StatefulKnowledgeSessionImpl wM = (StatefulKnowledgeSessionImpl)processCtx.getKnowledgeRuntime();
-            sessionId = wM.getId();
-            jobname = PROCESS_JOB +"-"+processCtx.getProcessInstanceId() + "-" + processCtx.getTimer().getId();
+            String jobname = PROCESS_JOB +"-"+processCtx.getProcessInstanceId() + "-" + processCtx.getTimer().getId();
+            quartzJobHandle = new GlobalQuartzJobHandle(jobname, JOB_GROUP, wM.getId());
         } else if (ctx instanceof ActivationTimerJobContext) {
             // seems to be used with timers using cron expression
             InternalWorkingMemory wM =  (InternalWorkingMemory)((ActivationTimerJobContext)ctx).getAgenda().getWorkingMemory();
-            sessionId = wM.getId();
-            jobname = ACTIVATION_TIMER_JOB +"-"+"0-0";
+            //String processId = ((ActivationTimerJobContext) ctx).getScheduledAgendaItem().
+            String ruleName = ((ActivationTimerJobContext)ctx).getScheduledAgendaItem().getRule().getName();
+            String processId = StringUtils.substringAfter(ruleName, RULE_NAME_START_PREFIX);
+            String jobname = ACTIVATION_TIMER_JOB +"-"+processId+"-"+wM.getId();
+            quartzJobHandle = new GlobalQuartzJobHandle(jobname, JOB_GROUP, wM.getId());
         } else {
             throw new RuntimeException("scheduleJob() unknown jobContext = "+ctx);
         }
-        log.info("scheduleJob() jobName = "+jobname+" :  drools trigger = "+trigger);
         
         try {
-            // check if this scheduler already has such job registered if so there is no need to schedule it again        
-            JobDetail jobDetail = scheduler.getJobDetail(jobname, JOB_GROUP);
-            if (jobDetail != null) {
-                TimerJobInstance timerJobInstance = (TimerJobInstance) jobDetail.getJobDataMap().get("timerJobInstance");
-                log.warn("scheduleJob() uh-oh!!!! this job was already scheduled : "+jobname);
-                return timerJobInstance.getJobHandle();
-            }
-      
-            Long id = newJobIdCounter.getAndIncrement();
-            GlobalQuartzJobHandle quartzJobHandle = new GlobalQuartzJobHandle(id, jobname, JOB_GROUP, sessionId);
             org.quartz.Trigger triggerObj = configureJobHandleAndQuartzTrigger(quartzJobHandle, trigger);
-            
-            // triggers are not to be stored in drools sessions
-            //TimerJobInstance jobInstance = this.jobFactoryManager.createTimerJobInstance( job, ctx, trigger, quartzJobHandle, this);
-            //this.jobFactoryManager.addTimerJobInstance( timerJobInstance );
             
             // Define a quartz job detail instance and add jobHandle to its Map
             JobDetail jdetail = new JobDetail(quartzJobHandle.getJobName(), quartzJobHandle.getJobGroup(), QuartzJob.class);
             jdetail.getJobDataMap().put(TIMER_JOB_HANDLE, quartzJobHandle);
             
-            
             if (null == scheduler.getJobDetail(quartzJobHandle.getJobName(), quartzJobHandle.getJobGroup())) {
                 scheduler.scheduleJob(jdetail, triggerObj);
             } else {
                 // need to add the job again to replace existing especially important if jobs are persisted in db
+            	log.warn("scheduleJob() uh-oh!!!! this job was already scheduled : "+quartzJobHandle.getJobName());
                 scheduler.addJob(jdetail, true);
                 triggerObj.setJobName(quartzJobHandle.getJobName());
                 triggerObj.setJobGroup(quartzJobHandle.getJobGroup());
                 scheduler.rescheduleJob(quartzJobHandle.getJobName()+"_trigger", quartzJobHandle.getJobGroup(), triggerObj);
             }
 
-            // for drools legacy purposes, ruturn a DefaultJobHandle
+            // drools legacy:   triggers are not to be stored in drools sessions
+            //TimerJobInstance jobInstance = this.jobFactoryManager.createTimerJobInstance( job, ctx, trigger, quartzJobHandle, this);
+            //this.jobFactoryManager.addTimerJobInstance( timerJobInstance );
+            
+            // drools legacy:   return a DefaultJobHandle
             return new DefaultJobHandle(0L);
         } catch (Exception x) {
             throw new RuntimeException(x);
@@ -231,7 +218,7 @@ public class QuartzSchedulerService implements TimerService, InternalSchedulerSe
             if(qContext.getNextFireTime() == null)
                 jHandle.setInterval(0L);
             int pState = kSessionProxy.processJobExecutionContext(qContext);
-            /*  does not seem to be a use case where this is required.
+            /*  could delete job in quartz scheduler;  but does not seem to be a use case where this is required.
              *  quartz will flush its scheduler of a job once that job no longer has a nextFireTime
             if(ProcessInstance.STATE_COMPLETED == pState || jHandle.getInterval() == 0){
                 boolean dSuccess = deleteJob(jHandle);
