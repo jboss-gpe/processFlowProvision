@@ -154,6 +154,8 @@ INSTALL   :
                                 
      -- Apache Ant
         -- this project requires Apache Ant v. 1.8.3 (or more recent) along with the ant-contrib library
+        -- RHEL 6.4 has a version of ant that meets this requirement.  Thus, install via Red Hat Network:
+            (as root):  yum install ant
 
         -- if Ant v. 1.8.3 is not already installed, download from the following : http://ant.apache.org/bindownload.cgi
 
@@ -220,16 +222,17 @@ INSTALL   :
 
 
     -- messaging
-        - hornetq 2.2.16 is provided out-of-the-box with jboss-eap-6.0.0    ..... which is sufficient
+        - hornetq 2.2.16 is provided out-of-the-box with jboss-eap-6.1    ..... no additional download is needed
         - multi-cast cluster routing 
-            -- route HornetQ broadcast traffic to a specific network interface card (if Hornetq is bound to a NIC that is not the default for the OS)
-            -- (as root) : route add -net 231.0.0.0 netmask 255.0.0.0 eth0
+            -- ensure that multi-cast network packets are being routed to the desired NIC
+            -- if JBoss EAP6 (with embedded Hornetq) is bound to a NIC that is not the default for the OS, then
+                -- (as root) : route add -net 231.0.0.0 netmask 255.0.0.0 <desired NIC>
 
 
     - deploy jBPM5/PFP "core" and "brms-webs" artifacts to JBoss EAP
         (as jboss)
             cd $JBOSS_PROJECTS/processFlowProvision
-            vi build.properties    (please review/modify properties as appropriate as explained in this configuration file)
+            vi build.properties    (please review/modify properties as appropriate as explained in this properties file)
             execute:   ant
 
             NOTE:  executing the default ant target will attempt to download the following files (if they do not already exist) 
