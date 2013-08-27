@@ -29,6 +29,15 @@ killExistingJavaProcesses() {
     rm -f ~/${openshift.jboss.cartridge.type}/standalone/log/boot.log
 }
 
+cleanRuntime() {
+    if [ -e $HOME/${openshift.jboss.cartridge.type}/standalone/log/server.log ]
+    then
+        echo -en "cleanRuntime() \n";
+        rm $HOME/${openshift.jboss.cartridge.type}/standalone/log/server.log
+    fi
+
+}
 printJvmCount
 killExistingJavaProcesses
+cleanRuntime
 modifyJvmSettings

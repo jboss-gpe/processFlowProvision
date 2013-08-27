@@ -76,7 +76,7 @@ ${openshift.jdbc.module.name}_DBModifications() {
 
 
 printJvmCount
-cleanRuntime
-createSoftLinksToWebArchives
-checkRemotePort
-${openshift.jdbc.module.name}_DBModifications
+#cleanRuntime
+#createSoftLinksToWebArchives
+#checkRemotePort
+#${openshift.jdbc.module.name}_DBModifications
