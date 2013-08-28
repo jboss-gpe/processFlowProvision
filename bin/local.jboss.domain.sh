@@ -90,7 +90,7 @@ start() {
     cd $jbossHome
     chmod 755 $jbossHome/bin/*.sh
     rm nohup.out
-    nohup ./bin/domain.sh -b=$hostName -bmanagement=$hostName -Djboss.domain.base.dir=$jbossDomainBaseDir -Ddomain-config=$domainConfig &
+    nohup ./bin/domain.sh -b=$hostName -bmanagement=$hostName -Djboss.management.http.port=9999 -Djboss.management.http.port=9990 -Djboss.management.https.port=9443 -Djboss.domain.base.dir=$jbossDomainBaseDir -Ddomain-config=$domainConfig &
     if [ "x$sleepSec" !=  "x" ]; then
         sleep $sleepSec
     else
