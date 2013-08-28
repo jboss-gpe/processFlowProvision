@@ -650,8 +650,8 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
         long period = jHandle.getInterval();
         try {
             if(QuartzSchedulerService.PROCESS_JOB.equals(timerType)){
-            	long pInstanceId = Long.parseLong(details[1]);
-            	long timerId = Long.parseLong(details[2]);
+                long pInstanceId = Long.parseLong(details[1]);
+                long timerId = Long.parseLong(details[2]);
                 log.info("processJobExecution() sessionId = "+sessionId+" : pInstanceId = "+pInstanceId+" : timerId = "+timerId);
                 TimerInstance jbpmTimerInstance = new TimerInstance();
                 jbpmTimerInstance.setId(timerId);
@@ -666,16 +666,16 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
                 // timerTriggered string constant is required to trigger a timer as per TimerNodeInstance.signalEvent(....)
                 return this.signalEvent( TIMER_TRIGGERED, jbpmTimerInstance, pInstanceId, sessionId);
             }else if (QuartzSchedulerService.ACTIVATION_TIMER_JOB.equals(timerType)){
-            	String processId = details[1];
-            	// investigate how to kick off pInstances where process definition has a startNode with a cron expression
-            	// two problems :
-            	//   1)  what to do with the initial process instance that was started just to kick off the cron expression ?
-            	//   2)  how to instantiate new pInstances but have them signaled to start on node downstream to cron expression ???
+                String processId = details[1];
+                // investigate how to kick off pInstances where process definition has a startNode with a cron expression
+                // two problems :
+                //   1)  what to do with the initial process instance that was started just to kick off the cron expression ?
+                //   2)  how to instantiate new pInstances but have them signaled to start on node downstream to cron expression ???
                 log.error("processJobExecution() TO-DO :  need to figure out how to implement behavior associated with timer type = "+timerType);
                 return ProcessInstance.STATE_PENDING;
             }else {
-            	log.error("processJobExecution() TO-DO :  need to figure out how to implement behavior associated with timer type = "+timerType);
-            	return ProcessInstance.STATE_PENDING;
+                log.error("processJobExecution() TO-DO :  need to figure out how to implement behavior associated with timer type = "+timerType);
+                return ProcessInstance.STATE_PENDING;
             }
         } catch (Exception x) {
             throw new RuntimeException(x);

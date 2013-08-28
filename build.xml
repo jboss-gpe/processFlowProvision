@@ -902,19 +902,24 @@
         </if>
     </target>
     <target name="download.and.unzip.sy.deployer">
-        <get src="${switchyard.deployer.download.url}" dest="${install.home}/lib/"  skipexisting="true" />
         <if>
-            <equals arg1="${switchyard.zip.name}" arg2="switchyard.deployer.zip" />
-            <then><unzip src="${install.home}/lib/${switchyard.zip.name}" dest="${jboss.home}" /></then>
-            <else>
+            <equals arg1="${org.jboss.processFlow.provision.switchyard}" arg2="true" />
+            <then>
+                <get src="${switchyard.deployer.download.url}" dest="${install.home}/lib/"  skipexisting="true" />
                 <if>
-                    <not><available file="${temp.soa.unzip.dir}/${guvnor.name}" type="dir" /></not> 
-                    <then><unzip src="${install.home}/lib/${switchyard.zip.name}" dest="${temp.soa.unzip.dir}" /></then>
+                    <equals arg1="${switchyard.zip.name}" arg2="switchyard.deployer.zip" />
+                    <then><unzip src="${install.home}/lib/${switchyard.zip.name}" dest="${jboss.home}" /></then>
+                    <else>
+                        <if>
+                            <not><available file="${temp.soa.unzip.dir}/${guvnor.name}" type="dir" /></not> 
+                            <then><unzip src="${install.home}/lib/${switchyard.zip.name}" dest="${temp.soa.unzip.dir}" /></then>
+                        </if>
+                        <copy todir="${jboss.home}/modules" overwrite="true">
+                            <fileset dir="${temp.soa.unzip.dir}/${eap6.name}/modules" />
+                        </copy>
+                    </else>
                 </if>
-                <copy todir="${jboss.home}/modules" overwrite="true">
-                    <fileset dir="${temp.soa.unzip.dir}/${eap6.name}/modules" />
-                </copy>
-            </else>
+            </then>
         </if>
     </target>
     <target name="download.drools.guvnor">
@@ -943,7 +948,12 @@
         <mkdir dir="${temp.pfp.services.dir}" />
         <mkdir dir="${install.home}/lib" />
         <mkdir dir="${pfp.module.path}" />
-        <mkdir dir="${sy.module.path}" />
+        <if>
+            <equals arg1="${org.jboss.processFlow.provision.switchyard}" arg2="true" />
+            <then>
+                <mkdir dir="${sy.module.path}" />
+            </then>
+        </if>
     </target>
 
     <target name="pfp.compile" depends="mkPfpDirs" description="" >

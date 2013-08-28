@@ -484,9 +484,9 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
         return null;
     }
 
-	@Override
-	public int purgeCurrentTimerJobs(String jobGroup) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    @Override
+    public int purgeCurrentTimerJobs(String jobGroup) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 }

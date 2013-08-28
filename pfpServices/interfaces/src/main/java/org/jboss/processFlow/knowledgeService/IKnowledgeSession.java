@@ -84,6 +84,7 @@ public interface IKnowledgeSession extends IBaseKnowledgeSession {
     public static final String NODE_ID="nodeId";
     public static final String DELIVER_ASYNC="deliverAsync";
     public static final String ASYNC_BAM_PRODUCER="org.jboss.processFlow.knowledgeService.AsyncBAMProducer";
+    public static final String CHANGE_SET_URLS = "org.jboss.processFlow.space.delimited.change.set.urls";
 
     /**
      * printWorkItemHandlers

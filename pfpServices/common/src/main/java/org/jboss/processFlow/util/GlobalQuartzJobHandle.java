@@ -4,8 +4,8 @@ package org.jboss.processFlow.util;
 // will also be passed to kSessionService as part of signalEvent to process
 public class GlobalQuartzJobHandle implements java.io.Serializable {
 
-	private static final long serialVersionUID = 1L;
-	private String jobName;
+    private static final long serialVersionUID = 1L;
+    private String jobName;
     private String jobGroup;
     private int sessionId;
     private long interval;
@@ -41,11 +41,11 @@ public class GlobalQuartzJobHandle implements java.io.Serializable {
         return this.timerExpresson;
     }
 
-	public String getProcessId() {
-		return processId;
-	}
+    public String getProcessId() {
+        return processId;
+    }
 
-	public void setProcessId(String processId) {
-		this.processId = processId;
-	}
+    public void setProcessId(String processId) {
+        this.processId = processId;
+    }
 }

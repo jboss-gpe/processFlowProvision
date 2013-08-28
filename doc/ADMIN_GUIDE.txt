@@ -281,6 +281,15 @@ POST INSTALL ADMINISTRATION
             -- a nice tutorial on custom 'Service Tasks' in designer can be found here :  http://vimeo.com/26126678
             -- example bpmn2 diagrams developed by designer can be found in the jbpm5 source code :  $JBOSS_PROJECTS/jboss/jbpm/jbpm-examples/src/main/resources
 
+        Guvnor's role in a production deployment architecture
+            - Guvnor and BPM Designer are typically design time web tools for authoring and managing of rules, process definitions and workItemHandler definitions
+            - some customers elect not to use Guvnor in a production environment for either security reasons and/or as part of enforcement change management workflows, ie:
+                modification of bpmn2 process definitions must not happen in a production environment and instead need to flow from dev --> QA --> stage --> prod
+            - if Guvnor is not to be used, then the KnowledgeBase that the process engine references needs to be populated from valid URLs to packages that are not maintained
+                in Guvnor.
+            - In PFP, this can be done by setting the following property in $PFP_HOME/build.properties :
+                org.jboss.processFlow.space.delimited.change.set.urls
+
 
     HornetQ queues
         -- upon start-up of JBossEAP, several queues will be created in the local HornetQ messaging provider
@@ -661,6 +670,29 @@ BIRT reporting
         INFO  [org.jboss.bpm.report.ReportFacade] (MSC service thread 1-14) Output dir: /shared/source/jboss/jbossProjects/jboss/birt/output/
         INFO  [org.jboss.bpm.report.ReportFacade] (MSC service thread 1-14) Report dir: /shared/source/jboss/jbossProjects/jboss/birt/
         INFO  [org.jboss.bpm.report.BirtService] (BirtService-Init) Creating BIRT service in the background
+
+
+SOA-6 dependency
+    - SOA-P 6 is a Red Hat product that allows for SOA service composition, implementation of EAI patterns as well as both design-time and run-time governance.
+    - the master branch of PFP assumes that SOA-P 6 is part of the application architecture.
+    - for applications that do not make use of SOA-P 6, the following are instructions to disable this dependency:
+    1)  $PFP_HOME/build.properties
+        - set:   org.jboss.processFlow.provision.switchyard=false
+        - set:   org.jboss.processFlow.module.layers=pfp,${organization.name}
+    2)  $PFP_HOME/conf/jboss/supported/domain.xml
+        manually comment out the following sections :
+            35         <!-- JA Bride:  manually comment this next line out if  not using soa-6 / switchyard -->
+            36         <!-- extension module="org.switchyard"/ -->
+
+            561             <!-- JA Bride:  manually comment this entire next subsystem out if  not using soa-6 / switchyard -->
+            562             <!--subsystem xmlns="urn:jboss:domain:switchyard:1.0">
+            563                 <modules>
+                                        ...
+            595                 </modules>
+            596             </subsystem -->
+
+
+
 
 
 

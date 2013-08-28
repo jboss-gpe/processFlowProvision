@@ -125,7 +125,7 @@ public class QuartzSchedulerService implements TimerService, InternalSchedulerSe
                 scheduler.scheduleJob(jdetail, triggerObj);
             } else {
                 // need to add the job again to replace existing especially important if jobs are persisted in db
-            	log.warn("scheduleJob() uh-oh!!!! this job was already scheduled : "+quartzJobHandle.getJobName());
+                log.warn("scheduleJob() uh-oh!!!! this job was already scheduled : "+quartzJobHandle.getJobName());
                 scheduler.addJob(jdetail, true);
                 triggerObj.setJobName(quartzJobHandle.getJobName());
                 triggerObj.setJobGroup(quartzJobHandle.getJobGroup());
@@ -203,7 +203,7 @@ public class QuartzSchedulerService implements TimerService, InternalSchedulerSe
     
     public static int purgeCurrentTimerJobs(String jobGroup) throws SchedulerException{
         String[] jobNames = scheduler.getJobNames(jobGroup);
-        for(String name	 : jobNames){
+        for(String name     : jobNames){
             scheduler.deleteJob(name, jobGroup);
         }
         return jobNames.length;

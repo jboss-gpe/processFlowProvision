@@ -32,8 +32,8 @@
         <extension module="org.jboss.as.webservices"/>
         <extension module="org.jboss.as.weld"/>
 
-        <!-- JA Bride -->
-        <extension module="org.switchyard"/>
+        <!-- JA Bride:  manually comment this next line out if  not using soa-6 / switchyard -->
+        <!--extension module="org.switchyard"/ -->
     </extensions>
     <system-properties>
         <!-- IPv4 is not required, but setting this helps avoid unintended use of IPv6 -->
@@ -558,7 +558,8 @@
                                      using full profile for switchyard because still need hornetq remote resource adaptor functionality
                     which, needs hornetq subsystem as per:  https://community.jboss.org/message/756775
             -->
-            <subsystem xmlns="urn:jboss:domain:switchyard:1.0">
+            <!-- JA Bride:  manually comment this entire next subsystem out if  not using soa-6 / switchyard -->
+            <!--subsystem xmlns="urn:jboss:domain:switchyard:1.0">
                 <modules>
                     <module identifier="org.switchyard.component.bean" implClass="org.switchyard.component.bean.deploy.BeanComponent"/>
                     <module identifier="org.switchyard.component.soap" implClass="org.switchyard.component.soap.deploy.SOAPComponent">
@@ -582,8 +583,6 @@
                     <module identifier="org.switchyard.component.camel.netty" implClass="org.switchyard.component.camel.netty.deploy.CamelNettyComponent"/>
                     <module identifier="org.switchyard.component.camel.quartz" implClass="org.switchyard.component.camel.quartz.deploy.CamelQuartzComponent"/>
                     <module identifier="org.switchyard.component.camel.sql" implClass="org.switchyard.component.camel.sql.deploy.CamelSqlComponent"/>
-                    <!--module identifier="org.switchyard.component.rules" implClass="org.switchyard.component.rules.deploy.RulesComponent"/ -->
-                    <!--module identifier="org.switchyard.component.bpm" implClass="org.switchyard.component.bpm.deploy.BPMComponent"/ -->
                     <module identifier="org.switchyard.component.bpel" implClass="org.switchyard.component.bpel.deploy.BPELComponent"/>
                     <module identifier="org.switchyard.component.http" implClass="org.switchyard.component.http.deploy.HttpComponent"/>
                     <module identifier="org.switchyard.component.jca" implClass="org.switchyard.component.jca.deploy.JCAComponent"/>
@@ -594,7 +593,7 @@
                     </module>
                     <module identifier="org.switchyard.component.resteasy" implClass="org.switchyard.component.resteasy.deploy.RESTEasyComponent"/>
                 </modules>
-            </subsystem>
+            </subsystem -->
 
             <subsystem xmlns="urn:jboss:domain:logging:1.2">
                 <console-handler name="CONSOLE">

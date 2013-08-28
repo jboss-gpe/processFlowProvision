@@ -162,7 +162,6 @@ public class BaseKnowledgeSessionBean {
     public static final String DROOLS_SESSION_CONF_PATH="/META-INF/drools.session.conf";
     public static final String DROOLS_SESSION_TEMPLATE_PATH="drools.session.template.path";
     public static final String DROOLS_WORK_ITEM_HANDLERS = "drools.workItemHandlers";
-    public static final String CHANGE_SET_URL = "org.jboss.processFlow.change.set.url";
     
     protected Logger log = Logger.getLogger(BaseKnowledgeSessionBean.class);
     protected String droolsResourceScannerInterval = "30";
@@ -436,19 +435,22 @@ public class BaseKnowledgeSessionBean {
                 }else {
                     log.warn("rebuildKnowledgeBaseViaKnowledgeBuilder() no packages returned from Guvnor");
                 }
-            }else if(StringUtils.isNotEmpty(System.getProperty(this.CHANGE_SET_URL))){
-                String changeSetUrl = System.getProperty(this.CHANGE_SET_URL);
-                InputStream iStream = null;
-                try{
-                    iStream = new FileInputStream(changeSetUrl);
-                    Resource rObj = new InputStreamResource(iStream);
-                    kbuilder.add(rObj, ResourceType.PKG);
-                }finally{
-                    if(iStream != null)
-                        iStream.close();
+            }else if(StringUtils.isNotEmpty(System.getProperty(IKnowledgeSession.CHANGE_SET_URLS))){
+                processEventListeners = System.getProperty(IKnowledgeSession.SPACE_DELIMITED_PROCESS_EVENT_LISTENERS).split("\\s");
+                String[] changeSetUrls = System.getProperty(IKnowledgeSession.CHANGE_SET_URLS).split("\\s");
+                for(String changeSetUrl : changeSetUrls){
+                    InputStream iStream = null;
+                    try{
+                        iStream = new FileInputStream(changeSetUrl);
+                        Resource rObj = new InputStreamResource(iStream);
+                        kbuilder.add(rObj, ResourceType.PKG);
+                    }finally{
+                        if(iStream != null)
+                            iStream.close();
+                    }
                 }
             }else {
-                log.warn("rebuildKnowledgeBaseViaKnowledgeBuilder() guvnor does not exist and the following property is null: "+this.CHANGE_SET_URL);
+                log.warn("rebuildKnowledgeBaseViaKnowledgeBuilder() guvnor does not exist and the following property is null: "+IKnowledgeSession.CHANGE_SET_URLS);
             }
             kbase = kbuilder.newKnowledgeBase();
             log.info("rebuildKnowledgeBaseViaKnowledgeBuilder() just created kbase via KnowledgeBase");
