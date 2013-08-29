@@ -34,7 +34,8 @@ import org.slf4j.LoggerFactory;
 @Singleton
 @Startup
 public class RESTApplicationStartup {
-    
+
+    public static final String GIT_ENV_PROP_DEST_PATH = "out-dir";
     private static Logger log = LoggerFactory.getLogger("RESTApplicationStartup");
     
     @Inject
@@ -158,7 +159,7 @@ public class RESTApplicationStartup {
                         throw new Exception("ensureDeployFileSystemsExist() remoteGitUrl can not be null for deploymendId: "+dHash.get(DeployUnitParser.DEPLOYMENT_ID) );
                     env.put( JGitFileSystemProvider.GIT_DEFAULT_REMOTE_NAME, remoteGitUrl);
                     if(gitOutDir != null && !gitOutDir.equals(""))
-                        env.put(JGitFileSystemProvider.GIT_ENV_PROP_DEST_PATH, gitOutDir);
+                        env.put(GIT_ENV_PROP_DEST_PATH, gitOutDir);
                     log.info("ensureDeploymentFileSystemsExist() will clone remote git repo to local as per:  {}", sBuilder.toString());
                     ioService.newFileSystem(fsURI, env, BOOTSTRAP_INSTANCE);
                 }else {
