@@ -33,7 +33,7 @@
         <extension module="org.jboss.as.weld"/>
 
         <!-- JA Bride -->
-        <extension module="org.switchyard"/>
+        <!--extension module="org.switchyard"/ -->
     </extensions>
     <system-properties>
         <!-- IPv4 is not required, but setting this helps avoid unintended use of IPv6 -->
@@ -887,7 +887,7 @@
                     using full profile for switchyard because still need hornetq remote resource adaptor functionality
                     which, needs hornetq subsystem as per:  https://community.jboss.org/message/756775
             -->
-            <subsystem xmlns="urn:jboss:domain:switchyard:1.0">
+            <!--subsystem xmlns="urn:jboss:domain:switchyard:1.0">
                 <modules>
                     <module identifier="org.switchyard.component.bean" implClass="org.switchyard.component.bean.deploy.BeanComponent"/>
                     <module identifier="org.switchyard.component.soap" implClass="org.switchyard.component.soap.deploy.SOAPComponent">
@@ -923,7 +923,7 @@
                     </module>
                     <module identifier="org.switchyard.component.resteasy" implClass="org.switchyard.component.resteasy.deploy.RESTEasyComponent"/>
                 </modules>
-            </subsystem>
+            </subsystem -->
             <subsystem xmlns="urn:jboss:domain:logging:1.1">
                 <console-handler name="CONSOLE">
                     <level name="INFO"/>

@@ -128,9 +128,10 @@
         <get src="${brms.download.url}" dest="${install.home}/lib/${brms.deployer.zip.name}"  skipexisting="true" />
     </target>
 
+    <!-- https://github.com/jboss-sso/processFlowProvision/issues/3 -->
     <target name="download.and.unzip.bpms.deployer">
-        <get src="${bpms.download.url}" dest="${install.home}/lib/${bpms.deployer.zip.name}"  skipexisting="true" />
-        <unzip src="${install.home}/lib/${bpms.deployer.zip.name}" dest="${jboss.home}" />
+        <!-- get src="${bpms.download.url}" dest="${install.home}/lib/${bpms.deployer.zip.name}"  skipexisting="true" />
+        <unzip src="${install.home}/lib/${bpms.deployer.zip.name}" dest="${jboss.home}" / -->
     </target>
 
     <!-- re-create guvnor filesystem and copy over repository.xml -->
@@ -186,7 +187,7 @@
 
     <target name="local.deploy.jboss.modules" >
         <antcall target="configure.bpms.modules" />
-        <antcall target="configure.sy.modules" />
+        <!-- antcall target="configure.sy.modules" / -->
         <!-- https://community.jboss.org/wiki/LayeredDistributionsAndModulePathOrganization -->
         <copy todir="${jboss.home}/modules" file="conf/jboss/layers.conf" overwrite="true" />
     </target>
