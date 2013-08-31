@@ -94,7 +94,7 @@ public class QuartzSchedulerService implements TimerService, InternalSchedulerSe
         scheduler = null;
     }
     
-    public JobHandle scheduleJob(Job job, JobContext ctx, Trigger trigger) {
+    public JobHandle scheduleJob(Job job, JobContext ctx, Trigger droolsTrig) {
         GlobalQuartzJobHandle quartzJobHandle= null;
         if (ctx instanceof ProcessJobContext) {
             // seems to be used with timers using drools timer expression 
@@ -115,7 +115,7 @@ public class QuartzSchedulerService implements TimerService, InternalSchedulerSe
         }
         
         try {
-            org.quartz.Trigger triggerObj = configureJobHandleAndQuartzTrigger(quartzJobHandle, trigger);
+            org.quartz.Trigger triggerObj = configureJobHandleAndQuartzTrigger(quartzJobHandle, droolsTrig);
             
             // Define a quartz job detail instance and add jobHandle to its Map
             JobDetail jdetail = new JobDetail(quartzJobHandle.getJobName(), quartzJobHandle.getJobGroup(), QuartzJob.class);
@@ -163,6 +163,8 @@ public class QuartzSchedulerService implements TimerService, InternalSchedulerSe
         }else if(droolsTrig instanceof CronTrigger){
             CronTrigger cTrigger = (CronTrigger)droolsTrig;
             CronExpression cExpression = cTrigger.getCronEx();
+            //Date onlyFire = cTrigger.getNextFireTime();
+            //quartzTrig = new SimpleTrigger(jName, jGroup, onlyFire);  // fires one time and does not repeat
             quartzTrig = new org.quartz.CronTrigger(jName, jGroup, cExpression.getCronExpression());
         }else {
             throw new RuntimeException("configureJobHandleAndQuartzTrigger() need to implement appropriate handling of the following type of trigger : "+droolsTrig.getClass().toString());

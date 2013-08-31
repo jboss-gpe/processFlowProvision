@@ -667,12 +667,10 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
                 return this.signalEvent( TIMER_TRIGGERED, jbpmTimerInstance, pInstanceId, sessionId);
             }else if (QuartzSchedulerService.ACTIVATION_TIMER_JOB.equals(timerType)){
                 String processId = details[1];
-                // investigate how to kick off pInstances where process definition has a startNode with a cron expression
-                // two problems :
-                //   1)  what to do with the initial process instance that was started just to kick off the cron expression ?
-                //   2)  how to instantiate new pInstances but have them signaled to start on node downstream to cron expression ???
-                log.error("processJobExecution() TO-DO :  need to figure out how to implement behavior associated with timer type = "+timerType);
-                return ProcessInstance.STATE_PENDING;
+                // in ProcessRuntimeImpl.startProcessInstance(..), the actionQueue appears to be empty after the initial timer invocation
+                // so, can continue to execute startProcessAndReturnId(...) with the cron trigger 
+                Map<String, Object> returnMap = this.startProcessAndReturnId(processId, null);
+                return (Integer)returnMap.get(IKnowledgeSession.PROCESS_INSTANCE_STATE);
             }else {
                 log.error("processJobExecution() TO-DO :  need to figure out how to implement behavior associated with timer type = "+timerType);
                 return ProcessInstance.STATE_PENDING;

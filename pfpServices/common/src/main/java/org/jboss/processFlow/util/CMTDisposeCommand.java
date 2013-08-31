@@ -41,6 +41,7 @@ public class CMTDisposeCommand implements GenericCommand<Void> {
 
                 @Override
                 public void afterCompletion(int arg0) {
+                    ksession.getAgenda().clear();
                     ksession.dispose();
                     
                 }
