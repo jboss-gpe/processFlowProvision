@@ -44,7 +44,7 @@ public class AdditionalRESTResources {
     @Path("/processes")
     public Response listProcesses() {
         Command<?> cmd = new GetProcessIdsCommand();
-        List<String> pList = (List<String>) processRequestBean.doKieSessionOperation(cmd, deploymentId);
+        List<String> pList = (List<String>) processRequestBean.doKieSessionOperation(cmd, deploymentId, null);
         StringBuilder sBuilder = new StringBuilder();
         if(pList != null && pList.size() > 0){
             sBuilder.append("processes from deploymentId : "+deploymentId);
