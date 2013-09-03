@@ -182,6 +182,8 @@ public class RESTApplicationScopedProducer {
         String groupId = details.get(DeployUnitParser.GROUP_ID);
         String artifactId = details.get(DeployUnitParser.ARTIFACT_ID);
         String version = details.get(DeployUnitParser.VERSION);
+        String kbaseName = details.get(DeployUnitParser.KBASE_NAME);
+        String ksessionName = details.get(DeployUnitParser.KSESSION_NAME);
 
         StringBuilder sBuilder = new StringBuilder();
         sBuilder.append("createKModuleDeploymentUnit() creating KJar deploymentUnit with \n\tdeploymentId = ");
@@ -194,9 +196,19 @@ public class RESTApplicationScopedProducer {
         sBuilder.append(version);
         sBuilder.append("\n\tksessionStrategy = ");
         sBuilder.append(ksessionStrategy.toString());
+        sBuilder.append("\n\tkieBase name = ");
+        sBuilder.append(kbaseName);
+        sBuilder.append("\n\tkieSession name = ");
+        sBuilder.append(ksessionName);
         log.info(sBuilder.toString());
 
-        KModuleDeploymentUnit kUnit = new KModuleDeploymentUnit(groupId, artifactId, version, "KBase-test", "ksession-test");
+        KModuleDeploymentUnit kUnit = new KModuleDeploymentUnit(groupId, artifactId, version);
+        if (StringUtils.isNotEmpty(kbaseName)) {
+            kUnit.setKbaseName(kbaseName);
+        }
+        if (StringUtils.isNotEmpty(ksessionName)) {
+            kUnit.setKsessionName(ksessionName);
+        }
         kUnit.setStrategy(ksessionStrategy);
         return kUnit;
     }

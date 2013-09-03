@@ -30,6 +30,8 @@ public class DeployUnitParser {
     public static final String ARTIFACT_ID = "artifactId";
     public static final String GROUP_ID = "groupId";
     public static final String VERSION = "version";
+    public static final String KBASE_NAME = "kbase-name";
+    public static final String KSESSION_NAME = "ksession-name";
     
     private static Logger log = LoggerFactory.getLogger("RESTApplicationScopedProducer");
     private static Map<String, Map<String, String>> parsedJson;
