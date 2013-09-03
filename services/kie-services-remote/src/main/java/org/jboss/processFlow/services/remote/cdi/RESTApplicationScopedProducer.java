@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Default;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -14,7 +15,9 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
 
 import org.apache.commons.lang.StringUtils;
+import org.jbpm.kie.services.api.DeploymentService;
 import org.jbpm.kie.services.api.DeploymentUnit;
+import org.jbpm.kie.services.api.Kjar;
 import org.jbpm.kie.services.api.DeploymentUnit.RuntimeStrategy;
 import org.jbpm.kie.services.impl.KModuleDeploymentUnit;
 import org.jbpm.kie.services.impl.VFSDeploymentUnit;
@@ -50,6 +53,9 @@ public class RESTApplicationScopedProducer {
     @Selectable
     private UserGroupCallback userGroupCallback;
     
+    @Inject
+    @Kjar
+    DeploymentService deploymentService;    
     
     /* 
      * required for ioStrategy field in:  
@@ -111,6 +117,17 @@ public class RESTApplicationScopedProducer {
             }
         }
         return dUnits;
+    }
+    
+    /**
+     * Required because org.jbpm.kie.services.impl.form.FormProviderServiceImpl in jbpm-kie-services.jar
+     * has an injection point for org.jbpm.kie.services.api.DeploymentService without qualifier
+     * 
+     */
+    @Produces
+    @Default
+    public DeploymentService produceDeploymentService() { 
+        return deploymentService;
     }
     
     private VFSDeploymentUnit createLocalFileDeploymentUnit(Map<String, String> details){
