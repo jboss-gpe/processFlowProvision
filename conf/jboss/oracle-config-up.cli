@@ -3,10 +3,10 @@
 batch
 
 # "full-ha" profile is used by pfpCore
-/profile=pfpCore/subsystem=datasources/jdbc-driver=oracle/:add(driver-module-name=com.oracle.jdbc,driver-xa-datasource-class-name=oracle.jdbc.xa.client.OracleXADataSource,jdbc-compliant=false)
+/profile=pfpCore/subsystem=datasources/jdbc-driver=oracle/:add(driver-name=oracle,driver-module-name=com.oracle.jdbc,driver-xa-datasource-class-name=oracle.jdbc.xa.client.OracleXADataSource,jdbc-compliant=false)
 
 
 # "default" profile is used by brmsWebs
-/profile=default/subsystem=datasources/jdbc-driver=oracle/:add(driver-module-name=com.oracle.jdbc,driver-xa-datasource-class-name=oracle.jdbc.xa.client.OracleXADataSource,jdbc-compliant=false)
+/profile=default/subsystem=datasources/jdbc-driver=oracle/:add(driver-name=oracle,driver-module-name=com.oracle.jdbc,driver-xa-datasource-class-name=oracle.jdbc.xa.client.OracleXADataSource,jdbc-compliant=false)
 
 run-batch
