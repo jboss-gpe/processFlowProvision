@@ -63,8 +63,8 @@ do
         -skipFullBuild=*)
             skipFullBuild=`echo $var | cut -f2 -d\=`
             ;;
-        -refreshExistingAccount=*)
-            refreshExistingAccount=`echo $var | cut -f2 -d\=`
+        -refreshExistingAccountOnly=*)
+            refreshExistingAccountOnly=`echo $var | cut -f2 -d\=`
             ;;
     esac
 done
@@ -289,10 +289,10 @@ provisionAccountsWithPFP() {
         echo -n "is.deployment.local=false" >> target/openshiftAccount.properties
 
         # either provision fully or just refresh an account
-        if [ "$refreshExistingAccount" != "true" ]; 
+        if [ "$refreshExistingAccountOnly" != "true" ]; 
             then
                 echo -en "\n\nprovisionAccountsWithPFP() ***** now provisioning: $i with brms/pfp :  log can be found in /tmp/$i.log\n\n"; 
-                if ant openshift.provision.pfp.core -Dbounce.servers=false > /tmp/$i.log 2>&1
+                if ant openshift.provision.pfp.core -Dbounce.servers=true > /tmp/$i.log 2>&1
                 then
                     echo "just provisioned $i with brms/pfp"
                 else
@@ -393,14 +393,14 @@ executeCommandsAcrossAllAccounts() {
         git_url=${git_url:0:$urlLength}
         echo -en "\n"
         echo -en "\n*********   git_url = $git_url\t$totalLength\t$urlLength    **************\n"
-        ssh $git_url "ps -aef | grep java"
+        #ssh $git_url "ps -aef | grep java"
+        ssh $git_url 'rm $OPENSHIFT_REPO_DIR/.openshift/action_hooks/pre_start'
 
         #localFile=target/lib/brmsUnzip/jboss-brms.war/WEB-INF/classes/org/drools/guvnor/server/configurations/ApplicationPreferencesInitializer.class
         #remoteFile=jbosseap/tmp/deployments/jboss-brms.war/WEB-INF/classes/org/drools/guvnor/server/configurations/ApplicationPreferencesInitializer.class
         #scp $localFile $git_url:$remoteFile
         #ssh $git_url "ls -l $remoteFile"
 
-        #ssh $git_url "ls -l jbosseap/standalone/log/boot.log; cd jbosseap/standalone/deployments/; rm *war*; app_ctl.sh stop; app_ctl.sh start"
         #ssh $git_url "rm -rf  jbosseap/tmp/guvnor; app_ctl.sh stop;  app_ctl.sh start"
         #numJVMs=$(ssh $git_url "
         #    ps -aef | grep -c '\[Standalone\]'

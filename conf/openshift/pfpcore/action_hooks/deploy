@@ -3,80 +3,12 @@
 echo "** inside deploy"
 
 printJvmCount() {
-    mkdir -p ~/${openshift.jboss.cartridge.type}/tmp/log
-    echo `date` > ~/${openshift.jboss.cartridge.type}/tmp/log/deploy.log
+    mkdir -p ${OPENSHIFT_DATA_DIR}/log
+    echo `date` > ${OPENSHIFT_DATA_DIR}/log/deploy.log
     for jProc in `ps -C java -o pid=`;
     do
-        echo "java process id = $jProc\t" >> ~/${openshift.jboss.cartridge.type}/tmp/log/deploy.log
+        echo "java process id = $jProc\t" >> ${OPENSHIFT_DATA_DIR}/log/deploy.log
     done
 }
-cleanRuntime() {
-    if [ -e $HOME/${openshift.jboss.cartridge.type}/standalone/log/server.log ]
-    then
-        echo -en "cleanRuntime() \n";
-        rm $HOME/${openshift.jboss.cartridge.type}/standalone/log/server.log
-    fi
-
-}
-
-createSoftLinksToWebArchives() {
-    #cd $OPENSHIFT_REPO_DIR/deployments
-    cd ~/${openshift.jboss.cartridge.type}/standalone/deployments
-    echo -en "createSoftLinksToWebArchives() will now create soft links \n";
-
-    # remove any stale links or status files referencing the brms web archives
-    rm -f b*war* d*war* j*war*
-
-    ln -s ${openshift.pfpcore.config.dir}/deployments/${console.server.name}
-    touch ${console.server.name}.dodeploy
-
-
-    ln -s ${openshift.pfpcore.config.dir}/deployments/${console.name}
-    touch ${console.name}.dodeploy
-
-    ln -s ${openshift.pfpcore.config.dir}/deployments/${designer.name}
-    touch ${designer.name}.dodeploy
-
-    ln -s ${openshift.pfpcore.config.dir}/deployments/${guvnor.name}
-    touch ${guvnor.name}.dodeploy
-}
-
-# Test remote host:port availability (TCP-only as UDP does not reply)
-function checkRemotePort() {
-    (echo >/dev/tcp/$OPENSHIFT_${openshift.jdbc.module.name}_DB_HOST/$OPENSHIFT_${openshift.jdbc.module.name}_DB_PORT) &>/dev/null
-    if [ $? -eq 0 ]; then
-        echo -en "\ndeploy.checkRemotePort() : $OPENSHIFT_${openshift.jdbc.module.name}_DB_HOST:$OPENSHIFT_${openshift.jdbc.module.name}_DB_PORT is open.\n\n"
-    else
-        echo -en "\ndeploy.checkRemotePort() : $OPENSHIFT_${openshift.jdbc.module.name}_DB_HOST:$OPENSHIFT_${openshift.jdbc.module.name}_DB_PORT is closed. ... will now exit\n\n"
-        exit 1
-    fi
-}
-
-
-# TO_DO:  this should be configurable as per 'hibernate.hbm2ddl.auto' property
-${openshift.jdbc.module.name}_DBModifications() {
-    echo -en "deploy.${openshift.jdbc.module.name}_DBModifications() ... start\n"
-    psql -c "drop database if exists jbpm;"
-    psql -c "drop user if exists jbpm;"
-    psql -c "create user jbpm with password 'jbpm';"
-    psql -c "create database jbpm with owner=jbpm;"
-
-    psql -c "drop database if exists jbpm_bam;"
-    psql -c "drop user if exists jbpm_bam;"
-    psql -c "create user jbpm_bam with password 'jbpm_bam';"
-    psql -c "create database jbpm_bam with owner=jbpm_bam;"
-
-    psql -c "drop database if exists guvnor;"
-    psql -c "drop user if exists guvnor;"
-    psql -c "create user guvnor with password 'guvnor';"
-    psql -c "create database guvnor with owner=guvnor;"
-
-    echo -en "deploy.${openshift.jdbc.module.name}_DBModifications()  ... completed.\n\n"
-}
-
 
 printJvmCount
-#cleanRuntime
-#createSoftLinksToWebArchives
-#checkRemotePort
-#${openshift.jdbc.module.name}_DBModifications

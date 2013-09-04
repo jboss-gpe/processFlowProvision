@@ -1,0 +1,2 @@
+#!/bin/bash
+. $OPENSHIFT_REPO_DIR/.openshift/action_hooks/pre_start_jbosseap

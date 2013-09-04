@@ -10,11 +10,11 @@ modifyJvmSettings() {
 }
 
 printJvmCount() {
-    mkdir -p ~/${openshift.jboss.cartridge.type}/tmp/log
-    echo `date` > ~/${openshift.jboss.cartridge.type}/tmp/log/pre_start_jbosseap.log
+    mkdir -p ${OPENSHIFT_DATA_DIR}/log
+    echo `date` > ${OPENSHIFT_DATA_DIR}/log/pre_start_jbosseap.log
     for jProc in `ps -C java -o pid=`;
     do
-        echo "java process id = $jProc\t" >> ~/${openshift.jboss.cartridge.type}/tmp/log/pre_start_jbosseap.log
+        echo "java process id = $jProc\t" >> ${OPENSHIFT_DATA_DIR}/log/pre_start_jbosseap.log
     done 
 }
 
@@ -26,7 +26,7 @@ killExistingJavaProcesses() {
         kill -9 $jProc
     done
 
-    rm -f ~/${openshift.jboss.cartridge.type}/standalone/log/boot.log
+    rm -f ${openshift.jboss.cartridge.type}/standalone/log/boot.log
 }
 
 cleanRuntime() {

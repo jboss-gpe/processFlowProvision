@@ -59,7 +59,7 @@ import org.apache.log4j.Logger;
 @Remote(IKnowledgeSessionService.class)
 @Local(IBaseKnowledgeSession.class)
 @Singleton(name="prodKSessionProxy")
-@Startup
+//@Startup
 @Lock(LockType.READ)
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class KnowledgeSessionService implements IKnowledgeSessionService, KnowledgeSessionServiceMXBean {

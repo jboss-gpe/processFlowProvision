@@ -181,6 +181,11 @@
 						<user-name>${env.OPENSHIFT_POSTGRESQL_DB_USERNAME}</user-name>
 						<password>${env.OPENSHIFT_POSTGRESQL_DB_PASSWORD}</password>
 					</security>
+                                        <timeout>
+                                            <allocation-retry>12</allocation-retry>
+                                            <allocation-retry-wait-millis>10000</allocation-retry-wait-millis>
+                                        </timeout>
+
 					<validation>
                       <check-valid-connection-sql>SELECT 1</check-valid-connection-sql>
                 	</validation>
@@ -200,6 +205,10 @@
                                                 <user-name>${env.OPENSHIFT_POSTGRESQL_DB_USERNAME}</user-name>
                                                 <password>${env.OPENSHIFT_POSTGRESQL_DB_PASSWORD}</password>
                                         </security>
+                                        <timeout>
+                                            <allocation-retry>12</allocation-retry>
+                                            <allocation-retry-wait-millis>10000</allocation-retry-wait-millis>
+                                        </timeout>
                                         <validation>
                       <check-valid-connection-sql>SELECT 1</check-valid-connection-sql>
                         </validation>
@@ -219,6 +228,10 @@
                                                 <user-name>${env.OPENSHIFT_POSTGRESQL_DB_USERNAME}</user-name>
                                                 <password>${env.OPENSHIFT_POSTGRESQL_DB_PASSWORD}</password>
                                         </security>
+                                        <timeout>
+                                            <allocation-retry>12</allocation-retry>
+                                            <allocation-retry-wait-millis>10000</allocation-retry-wait-millis>
+                                        </timeout>
                                         <validation>
                       <check-valid-connection-sql>SELECT 1</check-valid-connection-sql>
                         </validation>
@@ -237,6 +250,10 @@
                                                 <user-name>${env.OPENSHIFT_POSTGRESQL_DB_USERNAME}</user-name>
                                                 <password>${env.OPENSHIFT_POSTGRESQL_DB_PASSWORD}</password>
                                         </security>
+                                        <timeout>
+                                            <allocation-retry>12</allocation-retry>
+                                            <allocation-retry-wait-millis>10000</allocation-retry-wait-millis>
+                                        </timeout>
                                         <validation>
                       <check-valid-connection-sql>SELECT 1</check-valid-connection-sql>
                         </validation>

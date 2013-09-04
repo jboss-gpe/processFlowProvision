@@ -8,7 +8,7 @@
 
     <!--    
         pass following parameters to this target :
-        1)  bounce.servers  :   optional 
+        1)  openshift.bounce.servers  :   optional 
     -->
     <target name="openshift.provision.pfp.core" depends="openshift.provision.prep" >
         <delete dir="${openshift.pfpcore.app.location}" />
@@ -24,6 +24,7 @@
         <antcall target="openshift.deploy.jboss.modules" >
             <param name="app.location" value="${openshift.pfpcore.app.location}"/>
         </antcall>
+        <delete dir="${openshift.pfpcore.app.location}/.openshift/action_hooks" verbose="true" />
         <antcall target="filter">
             <param name="source.dir" value="conf/openshift/pfpcore"/>
             <param name="dest.dir" value="${openshift.pfpcore.app.location}/.openshift"/>
@@ -45,27 +46,30 @@
             </fileset>
         </copy>
         <antcall target="openshift.provision.brms.webs" />
-        <!-- rsync to exploded web archives to :  ${openshift.jboss.cartridge.type}/tmp/deployments
-            this directory will not get blown away when executing 'git push' on openshift app
-        -->
-        <exec executable="bash" failonerror="true" dir="." >
-           <arg value="${development.base}/bin/openshift.sh"/>
-           <arg value="openshiftRsync"/>
-           <arg value="-localDir=${temp.brmsWebs.dir}/${console.server.name}/*"/>
-           <arg value="-sshUrl=${openshift.pfpcore.ssh.url}"/>
-           <arg value="-remoteDir=${openshift.pfpcore.config.dir}/deployments/${console.server.name}"/>
-           <arg value="-rsyncDelete=true"/>
-        </exec> 
-        <exec executable="bash" failonerror="true" dir="." >
-           <arg value="${development.base}/bin/openshift.sh"/>
-           <arg value="openshiftRsync"/>
-           <arg value="-localDir=${temp.brmsWebs.dir}/${console.name}/*"/>
-           <arg value="-sshUrl=${openshift.pfpcore.ssh.url}"/>
-           <arg value="-remoteDir=${openshift.pfpcore.config.dir}/deployments/${console.name}"/>
-           <arg value="-rsyncDelete=true"/>
-        </exec> 
         <if>
-            <not><equals arg1="${bounce.servers}" arg2="false" /></not>
+            <equals arg1="${openshift.rsync.to.gear}" arg2="true" />
+            <then>
+                <exec executable="bash" failonerror="true" dir="." >
+                    <arg value="${development.base}/bin/openshift.sh"/>
+                    <arg value="openshiftRsync"/>
+                    <arg value="-localDir=${temp.brmsWebs.dir}/${console.server.name}/*"/>
+                    <arg value="-sshUrl=${openshift.pfpcore.ssh.url}"/>
+                    <arg value="-remoteDir=${openshift.pfpcore.config.dir}/deployments/${console.server.name}"/>
+                    <arg value="-rsyncDelete=true"/>
+                </exec> 
+                <exec executable="bash" failonerror="true" dir="." >
+                    <arg value="${development.base}/bin/openshift.sh"/>
+                    <arg value="openshiftRsync"/>
+                    <arg value="-localDir=${temp.brmsWebs.dir}/${console.name}/*"/>
+                    <arg value="-sshUrl=${openshift.pfpcore.ssh.url}"/>
+                    <arg value="-remoteDir=${openshift.pfpcore.config.dir}/deployments/${console.name}"/>
+                    <arg value="-rsyncDelete=true"/>
+                </exec> 
+            </then>
+            <else><echo message="will not rsync to gear" /></else>
+        </if>
+        <if>
+            <equals arg1="${openshift.git.push.to.gear}" arg2="true" />
             <then>
                 <exec executable="bash" failonerror="true" dir="." >
                 <arg value="${development.base}/bin/openshift.sh"/>
@@ -74,6 +78,7 @@
                 <arg value="-domainName=${openshift.domain.name}"/>
                 </exec> 
             </then>
+            <else><echo message="will not git push to gear" /></else>
         </if>
     </target>
 
@@ -205,7 +210,7 @@
            <arg value="provisionAccountsWithPFP"/>
            <arg value="-bldwProvisionProjectLocation=${bldw.provision.project.location}"/>
            <arg value="-skipFullBuild=${openshift.skip.full.build}"/>
-           <arg value="-refreshExistingAccount=${openshift.refresh.existing.account}"/>
+           <arg value="-refreshExistingAccountOnly=${openshift.refresh.existing.account.only}"/>
         </exec> 
     </target>
 

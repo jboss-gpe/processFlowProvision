@@ -1,12 +1,34 @@
 #!/bin/bash
 
 printJvmCount() {
-    mkdir  -p ~/${openshift.jboss.cartridge.type}/tmp/log
-    echo `date` > ~/${openshift.jboss.cartridge.type}/tmp/log/post_start_jbosseap.log
+    mkdir  -p ${OPENSHIFT_DATA_DIR}/log
+    echo `date` > ${OPENSHIFT_DATA_DIR}/log/post_start_jbosseap.log
     for jProc in `ps -C java -o pid=`;
     do
-        echo "java process id = $jProc\t" >> ~/${openshift.jboss.cartridge.type}/tmp/log/post_start_jbosseap.log
+        echo "java process id = $jProc\t" >> ${OPENSHIFT_DATA_DIR}/log/post_start_jbosseap.log
     done
 }
+createSoftLinksToWebArchives() {
+    cd $OPENSHIFT_JBOSSEAP_DIR/standalone/deployments
+    echo -en "createSoftLinksToWebArchives() will now create soft links \n";
+
+    # remove any stale links or status files referencing the brms web archives
+    rm -f b*war* d*war* j*war*
+
+    ln -s $OPENSHIFT_DATA_DIR/deployments/business-central-server.war
+    touch business-central-server.war.dodeploy
+
+
+    ln -s $OPENSHIFT_DATA_DIR/deployments/business-central.war
+    touch business-central.war.dodeploy
+
+    ln -s $OPENSHIFT_DATA_DIR/deployments/designer.war
+    touch designer.war.dodeploy
+
+    ln -s $OPENSHIFT_DATA_DIR/deployments/jboss-brms.war
+    touch jboss-brms.war.dodeploy
+}
+
 printJvmCount
+createSoftLinksToWebArchives
 

@@ -142,7 +142,7 @@ public class ShifterProvisioner {
     public static final String MEDIUM = "medium";
     public static final String SMALL = "small";
     public static final String JBOSSAS7 = "jbossas-7";
-    public static final String EAP6 = "jbosseap-6.0";
+    public static final String EAP6 = "jbosseap";
     public static final String MESSAGES = "messages";
     public static final String ADD_DATABASE_CARTRIDGE = "ADD_DATABASE_CARTRIDGE";
     public static final String POSTGRESQL_8_4 = "postgresql-8.4";
