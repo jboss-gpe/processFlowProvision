@@ -16,7 +16,7 @@ batch
     /profile=pfpCore/subsystem=resource-adapters/resource-adapter=jbossamq/config-properties=UseInboundSession/:add(value=false)
     /profile=pfpCore/subsystem=resource-adapters/resource-adapter=jbossamq/config-properties=UserName/:add(value=${org.activemq.user.name})
     /profile=pfpCore/subsystem=resource-adapters/resource-adapter=jbossamq/config-properties=Password/:add(value=${org.activemq.password})
-    /profile=pfpCore/subsystem=resource-adapters/resource-adapter=jbossamq/config-properties=ServerUrl/:add(value=${org.activemq.server.url})
+    /profile=pfpCore/subsystem=resource-adapters/resource-adapter=jbossamq/config-properties=ServerUrl/:add(value="${org.activemq.server.url}")
 
 
     #  no need to define queues in $AMQ_HOME/etc/activemq.xml because they will be dynamically created via this client entry if 
