@@ -18,8 +18,14 @@ batch
     /profile=pfpCore/subsystem=resource-adapters/resource-adapter=jbossamq/config-properties=Password/:add(value=${org.activemq.password})
     /profile=pfpCore/subsystem=resource-adapters/resource-adapter=jbossamq/config-properties=ServerUrl/:add(value=${org.activemq.server.url})
 
+
+    #  no need to define queues in $AMQ_HOME/etc/activemq.xml because they will be dynamically created via this client entry if 
+    #  they currently do not exist in the broker
     /profile=pfpCore/subsystem=resource-adapters/resource-adapter=jbossamq/admin-objects=${org.jboss.processFlow.ksession.queue}/:add(class-name=org.apache.activemq.command.ActiveMQQueue,jndi-name=queue/${org.jboss.processFlow.ksession.queue})
+    /profile=pfpCore/subsystem=resource-adapters/resource-adapter=jbossamq/admin-objects=${org.jboss.processFlow.ksession.queue}/config-properties=physicalName/:add(value=knowledgeSessionQueue)
+
     /profile=pfpCore/subsystem=resource-adapters/resource-adapter=jbossamq/admin-objects=${org.jboss.processFlow.bam.queue}/:add(class-name=org.apache.activemq.command.ActiveMQQueue,jndi-name=queue/${org.jboss.processFlow.bam.queue})
+    /profile=pfpCore/subsystem=resource-adapters/resource-adapter=jbossamq/admin-objects=${org.jboss.processFlow.bam.queue}/config-properties=physicalName/:add(value=asyncWorkingMemoryLogger)
    
 run-batch
 

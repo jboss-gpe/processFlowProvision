@@ -48,6 +48,7 @@ import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
+import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.naming.Context;
@@ -87,7 +88,12 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
         try {
             objectName = new ObjectName("org.jboss.processFlow:type="+this.getClass().getName());
             platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
-            platformMBeanServer.registerMBean(this, objectName);
+            try {
+            	platformMBeanServer.getObjectInstance(objectName);
+            	log.warn("start() following MBean already registered with Platform MBean Server : "+objectName);
+            }catch(InstanceNotFoundException x){
+            	platformMBeanServer.registerMBean(this, objectName);            	
+            }
 
             connectionObj = cFactory.createConnection();
 
