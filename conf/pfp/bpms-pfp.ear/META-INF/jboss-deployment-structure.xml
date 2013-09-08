@@ -11,6 +11,17 @@
             <module name="org.apache.commons.codec" export="true" />
             <module name="org.apache.commons.collections" export="true" />
             <module name="org.apache.commons.io" />
+            <module name="org.dom4j" />
+            <module name="org.jboss.as.web" /> <!-- ecj -->
+            <module name="org.codehaus.jackson.jackson-core-asl" />
+            <module name="org.codehaus.jackson.jackson-mapper-asl" />
+            <module name="org.javassist" />
+            <module name="org.joda.time" />
+            <module name="org.slf4j" />
+            <module name="org.slf4j.ext" />
+            <module name="com.google.guava" />
+            
+            <module name="javax.servlet.api" />
 
             <!--module name="org.jbpm.jbpm-kie-services" export="true" meta-inf="import" />
 
