@@ -502,19 +502,53 @@ Work Item Handlers in ProcessFlowProvision
 
 
         2)  defining configurable work item handlers
-          -- jbpm5 allows for more than one META-INF/drools.session.conf in the runtime classpath 
+          - jbpm5 allows for more than one META-INF/drools.session.conf in the runtime classpath 
             -- subsequently, there is the potential for mulitple locations that define custom work item handlers
-          -- the abiity to have multiple META-INF/drools.session.conf files on the runtime classpath most likely will lead to 
+          - the abiity to have multiple META-INF/drools.session.conf files on the runtime classpath most likely will lead to 
                  increased difficulty isolating problems encountered with defining and registering custom work item handlers
-          -- processFlowProvision/build.properties includes the following property:  space.delimited.workItemHandler.configs
-          -- rather than allowing for multiple locations to define custom work item handlers, 
-                use of the 'space.delimited.workItemHandler.configs' property centralalizes where to define additional custom workItemHandlers 
-          -- please see documentation provided for that property in the build.properties
+          - processFlowProvision/build.properties includes the following as an alternative to base product drools.session.conf:
+            -  drools.session.template
+                - the PFP KnowledgeSessionService will parse a mapping file whose path and name is configurable in the following property from $PFP_HOME/build.properties:
+                    drools.session.template.path
+
+                - the default value of this property is:  $JBOSS_HOME/domain-${organization.name}/configuration/drools.session.tempate
+                - an example drools.session.template can be found in $PFP_HOME/conf/pfp/default.session.template
+
+            - as part of an customer applications build process, an equivalent default.session.template should be created, renamed and moved to the filesystem path
+              specified by the property:  drools.session.template.path
 
 
-        3)  org.jboss.processFlow.knowledgeService.IKnowledgeSessionService.printWorkItemHandlers()
-          -- helper function to troubleshoot runtime configuration and classpath issues regarding custom work item handlers
-          -- please see the javadocs for the 'printWorkItemHandlers' function for IKnowledgeSessionService
+        3)  placing custom work item handler classes on the jbpm engine classpath
+            - PFP deploys the jbpm and drools java libraries (and its dependencies) very differently than stock BPMS5.*
+            - specifically, PFP deploys most jbpm and drools java libraries as JBoss Modules.
+            - the location of these jbpm & drools libraries can be found in $JBOSS_HOME/modules/system/layers/pfp
+            - since the jbpm engine functionality is loaded into JBoss as a module, customer application jar files with custom workItemHandlers also need 
+                to be deployed to JBoss as modules
+            - mvel, in particular, is the module that parses drools.session.template and attempts to load custom workItemHandlers
+            - subsequently, the module configuration for mvel needs to be updated to include dependencies on an application's custom workItem handler(s).
+            - the stock $JBOSS_HOME/modules/system/layers/pfp/org/mvel/mvel2/main/module.xml is as follows:
+        
+                    25 <module xmlns="urn:jboss:module:1.1" name="org.mvel.mvel2">
+                    26 
+                    27     <resources>
+                    28         <resource-root path="mvel2-2-2.1.3.jar"/>
+                    29     </resources>
+                    30 
+                    31     <dependencies>
+                    32         <module name="org.jboss.processFlow.workItemHandlers" export="true" />
+                    33     </dependencies>
+                    34 </module>
+
+            - line #32 from above is what will need to change
+            - in particular, change name attribute to the name of an application's custom work Item Handler module
+
+
+
+        4)  org.jboss.processFlow.knowledgeService.IKnowledgeSessionService.printWorkItemHandlers()
+          - helper function to troubleshoot runtime configuration and classpath issues regarding custom work item handlers
+          - please see the javadocs for the 'printWorkItemHandlers' function for IKnowledgeSessionService
+          - this same function can also be invoked via a REST API as follows :
+                curl -v -X GET -HAccept:text/plain <serverIp address>:8330/knowledgeService/workItemHandlers
 
 
 Task Validation in PFP

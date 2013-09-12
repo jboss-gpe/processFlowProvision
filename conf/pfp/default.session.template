@@ -1,8 +1,6 @@
 new SessionTemplate().{  
 
-    /*
     workItemHandlers = [
         "HelloWorkItem": new com.example.workItem.HelloWorkItemHandler()
     ]
-    */
 };
