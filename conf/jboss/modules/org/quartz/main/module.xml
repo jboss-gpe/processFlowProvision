@@ -26,6 +26,7 @@
 
     <resources>
         <resource-root path="quartz-${version.quartz}.jar"/>
+        <resource-root path="quartz-oracle-${version.quartz}.jar"/>
     </resources>
 
     <dependencies>
