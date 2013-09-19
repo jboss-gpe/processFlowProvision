@@ -6,22 +6,10 @@
     <import file="${development.base}/base-build.xml"/>
 
     <target name="all" depends="clean,setClasspath" >
-        <exec executable="mvn" failonerror="true" dir="." >
-            <arg value="clean" />
-            <arg value="install" />
-            <arg value="-Dmaven.test.skip=true" />
-        </exec>
-
-        <!-- filter out unnecessary dependencies associated with kie-services-remote maven artifact -->
-        <!--jar destfile="target/${ant.project.name}.war" >
-            <zipfileset dir="target/${ant.project.name}" >
-                <include name="index.html" />
-                <include name="WEB-INF/*" />
-                <include name="WEB-INF/classes/**/*" />
-                <include name="WEB-INF/lib/kie-services-client*.jar" />
-                <include name="WEB-INF/lib/kie-services-remote*.jar" />
-            </zipfileset>
-        </jar -->
+        <antcall target="war">
+            <param name="war.name" value="${ant.project.name}" />
+            <param name="lib.path" value="../../lib/bpms" />
+        </antcall>
         <copy file="${build.dir}/${ant.project.name}.war" toDir="${temp.pfp.services.dir}" overwrite="true" verbose="true" />
     </target>
 

@@ -146,18 +146,27 @@
           parameters to pass to this target:
             1) war.name
             2) project.path.property (optional: defaults to empty)
+            3) lib.path
 
         note:  jboss-deployment-structure.xml belongs directly in WEB-INF
     -->
-    <!-- 3 May 2012:  wars and jars can't have the same name in EAP6.  will add '-war' to name to all web archives to avoid possible name confliction -->
     <target name="war" depends="setClasspath">
         <fail unless="war.name" message="war:  need to pass 'war.name' property" />
         <mkdir dir="${build.dir}/webapp/WEB-INF/classes" />
+        <if><not><isset property="lib.path"/></not>
+        <then><property name="lib.path" value="disregard" /></then></if>
+        <copy todir="${build.dir}/webapp/WEB-INF/lib" failonerror="false" >
+            <fileset dir="${lib.path}" />
+        </copy>
         <antcall target="filter">
             <param name="source.dir" value="src/main/webapp"/>
             <param name="dest.dir" value="${build.dir}/webapp"/>
         </antcall>
-        <javac debug="true" srcdir="src/main/webapp/WEB-INF/classes" destdir="${build.dir}/webapp/WEB-INF/classes" >
+        <antcall target="filter">
+            <param name="source.dir" value="src/main/resources"/>
+            <param name="dest.dir" value="${build.dir}/webapp/WEB-INF/classes"/>
+        </antcall>
+        <javac debug="true" srcdir="src/main/java" destdir="${build.dir}/webapp/WEB-INF/classes" >
             <classpath refid="classpath" />
         </javac>
         <jar jarfile="${build.dir}/${war.name}.war" >

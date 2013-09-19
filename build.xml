@@ -130,8 +130,8 @@
 
     <!-- https://github.com/jboss-sso/processFlowProvision/issues/3 -->
     <target name="download.and.unzip.bpms.deployer">
-        <!-- get src="${bpms.download.url}" dest="${install.home}/lib/${bpms.deployer.zip.name}"  skipexisting="true" />
-        <unzip src="${install.home}/lib/${bpms.deployer.zip.name}" dest="${jboss.home}" / -->
+        <!-- get src="${bpms.download.url}" dest="${bpms.deployer.zip.path}"  skipexisting="true" / -->
+        <unzip src="${bpms.deployer.zip.path}" dest="${jboss.home}" />
     </target>
 
     <!-- re-create guvnor filesystem and copy over repository.xml -->
