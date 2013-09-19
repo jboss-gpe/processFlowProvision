@@ -70,6 +70,26 @@
             <levelDB directory="/u01/projects/pfpFileSystem/amq/leveldb" />
         </persistenceAdapter>
 
+        <!-- knowledgeSessionQueue should be set for enableJournalDiskSyncs=true;  BAM could have enableJournalDiskSyncs set to false -->
+        <!--persistenceAdapter>
+            <mKahaDB>
+                <filteredPersistenceAdapters>
+                    <filteredKahaDB queue="test.queue.simple" >
+                      <persistenceAdapter>
+                        <!-- JMS durability requirements are relaxed -->
+                        <kahaDB journalMaxFileLength="32mb" enableJournalDiskSyncs="false" directory="/tmp/simpleData/kahadb" />
+                      </persistenceAdapter>
+                    </filteredKahaDB>
+                    <filteredKahaDB queue="test.queue.complex" >
+                      <persistenceAdapter>
+                        <!-- these configs satisfy JMS durability requirements -->
+                        <kahaDB enableJournalDiskSyncs="true" concurrentStoreAndDispatchQueues="false" directory="/tmp/complexData/kahadb" />
+                      </persistenceAdapter>
+                    </filteredKahaDB>
+                </filteredPersistenceAdapters>
+            </mKahaDB>
+        </persistenceAdapter -->
+
         <plugins>
             <jaasAuthenticationPlugin configuration="karaf" />
         </plugins>
