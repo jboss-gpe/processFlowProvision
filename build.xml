@@ -280,17 +280,6 @@
                 </if>
                 <copy todir="${jboss.home}/domain-${organization.name}/configuration" file="conf/pfp/kie.deployments.json" overwrite="true" />
                 <copy todir="${jboss.home}/domain-${organization.name}/configuration" file="conf/pfp/${org.quartz.property.file.name}" overwrite="true" />
-                <antcall target="filter">
-                    <param name="source.dir" value="conf/pfp/bpms-pfp.ear"/>
-                    <param name="dest.dir" value="${temp.pfp.services.dir}/bpms-pfp.ear.work"/>
-                </antcall>
-                <zip destfile="${temp.pfp.services.dir}/bpms-pfp.ear">
-                    <zipfileset dir="${temp.pfp.services.dir}/bpms-pfp.ear.work" />
-                    <zipfileset dir="${temp.pfp.services.dir}" >
-                        <include name="processFlow-cdiDiagnostics.jar" />
-                        <include name="kie-services-remote.war" />
-                    </zipfileset>
-                </zip>
                 <math result="hornetq.remoting.port" operand1="${base.remoting.port}" operation="+" operand2="${ha.group.port.offset}" datatype="int" />
                 <antcall target="cli.batch">
                     <param name="cli.source.dir" value="conf/pfp"/>

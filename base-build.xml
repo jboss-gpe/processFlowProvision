@@ -381,7 +381,7 @@
         </exec>
         <exec executable="bash" failonerror="true" dir="." >
            <arg value="${development.base}/bin/local.jboss.domain.sh"/>
-           <arg value="killJavaProcesses"/>
+           <arg value="killJbossProcesses"/>
         </exec>
     </target>
     <target name="local.start.master">

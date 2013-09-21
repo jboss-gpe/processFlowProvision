@@ -1,40 +1,6 @@
 CHALLENGES
     1) https://www.openshift.com/forums/openshift/automate-addition-of-database-in-cartridge
 
-    2) jbpm REST API and implementation bundled with everything else
-       A runtime artifact that only exposes the jbpm engine via a REST API doesn't currently exist.
-       So for the purposes of this cartridge, this runtime artifact was built by cherry-picking functionality found in a variety of different locations:
-         a) jbpm functionality is found here:
-             https://github.com/droolsjbpm/jbpm
-
-            -in particular, CDI beans are found here:
-                1)  https://github.com/droolsjbpm/jbpm/jbpm-runtime-manager
-                2)  https://github.com/droolsjbpm/jbpm/jbpm-services/jbpm-kie-services
-         b) the REST API that exposes jbpm is found here:
-             https://github.com/droolsjbpm/droolsjbpm-integration/tree/master/kie-remote/kie-services-remote
-         c) the 'kitchen-sink' runtime web artifact of all droolsjbpm family functionality is found here:
-             https://github.com/droolsjbpm/kie-wb-distributions
-
-    3) jbpm-kie-services-6.0.0.jar
-        - this library includes both API and CDI service implementations.  Ideal would be separation between the two. 
-        - I'm interested in only a sub-set of API & CDI services packaged in this library
-        - Yet if i choose to use this library, I'm forced to include dependencies in my runtime for services that I don't want.
-
-
-
-TO-DO
-    - use bpms.deployer.zip from official jbpm / drools community projects once finalized by jbpm engineering team
-    - package contents of existing bpms.deployer.zip as RPMs
-    - begin process of submittal of jbpm6 RPMs to Fedora packaging team 
-    - inject JMS AuditLogger from org.jbpm.process.audit.AuditLoggerFactory into kieSession
 
 ADDITIONAL
     1)  REST API:  history/clear ..... alternative would be to accept the DELETE http method on the /history resource
-
-
-
-undeploy with SINGLETON ksession strategy with active process instances
-    Caused by: java.lang.IllegalStateException: Undeploy forbidden - there are active processes instances for deployment general
-        at org.jbpm.kie.services.impl.AbstractDeploymentService.undeploy(AbstractDeploymentService.java:97)
-        at org.jbpm.kie.services.impl.VFSDeploymentService$Proxy$_$$_WeldClientProxy.undeploy(VFSDeploymentService$Proxy$_$$_WeldClientProxy.java)
-

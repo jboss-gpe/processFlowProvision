@@ -197,37 +197,32 @@ function checkRemotePort() {
 }
 
 
-function killJavaProcesses() {
+function killJbossProcesses() {
     sleep 2;
     for jProc in `ps -C java -o pid=`;
     do
         pInfo=$(ps -p $jProc -f)
-        if [[ $pInfo =~ .*ant.jar.* ]];
+        if [[ $pInfo =~ .*jboss.modules.system.pkgs.* ]];
         then
-            echo -en "\nkillJavaProcesses() will not kill ant process = $jProc\n"
-        else
-            if [[ $pInfo =~ .*org.eclipse.equinox.launcher.* ]];
+            if [[ $pInfo =~ .*org.jboss.as.cli.* ]];
             then
-                echo -en "\nkillJavaProcesses() will not kill eclipse process = $jProc\n"
+                echo -en "\nkillJavaProcesses() will not kill jboss cli = $jProc\n"
             else
-                if [[ $pInfo =~ .*org.jboss.as.cli.* ]];
-                then
-                    echo -en "\nkillJavaProcesses() will not kill jboss cli = $jProc\n"
-                else
-                    echo -en "killJavaProcesses() about to kill java process id = $jProc\n"
-                    kill -9 $jProc
-                fi
+                echo -en "killJavaProcesses() about to kill jboss process id = $jProc\n"
+                kill -9 $jProc
             fi
+        else
+            echo -en "\nkillJavaProcesses() will not kill java process = $jProc\n"
         fi
     done
 }
 
 
 case "$1" in
-    start|stop|restart|executeCli|refreshSlaveHosts|killJavaProcesses)
+    start|stop|restart|executeCli|refreshSlaveHosts|killJbossProcesses)
         $1
         ;;
     *)
-    echo 1>&2 $"Usage: $0 {start|stop|restart|executeAddUser|executeCli|refreshSlaveHosts|killJavaProcesses}"
+    echo 1>&2 $"Usage: $0 {start|stop|restart|executeAddUser|executeCli|refreshSlaveHosts|killJbossProcesses}"
     exit 1
 esac

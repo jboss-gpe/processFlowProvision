@@ -9,6 +9,20 @@
         <url-pattern>/rest/*</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+      <servlet-name>rest-api.jsp</servlet-name>
+      <jsp-file>/rest-api.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+      <servlet-name>rest-api.jsp</servlet-name>
+      <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+
+
+    <welcome-file-list>
+      <welcome-file>rest-api.jsp</welcome-file>
+    </welcome-file-list>
+
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>rest</web-resource-name>
