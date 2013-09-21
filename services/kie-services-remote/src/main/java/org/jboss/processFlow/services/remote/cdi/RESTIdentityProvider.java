@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.jbpm.kie.services.api.IdentityProvider;
 
 /*
-    - required by org.jboss.processFlow.rest.TaskResource 
+    - required by org.kie.services.remote.rest.TaskResource 
     - not quite sure why it needs it considering it already has an HttpServletRequest
 */
 @SessionScoped

@@ -393,7 +393,6 @@
         <attribute name="target"/>
         <sequential>
             <subant target="@{target}">
-                <fileset dir="services/cdiDiagnostics" includes="build.xml"/>
                 <fileset dir="services/kie-services-remote" includes="build.xml"/>
             </subant>
         </sequential>
