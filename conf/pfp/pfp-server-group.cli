@@ -108,5 +108,5 @@ batch
 run-batch
 
 batch
-deploy ${temp.pfp.services.dir}/bpms-pfp.ear --name=bpms-pfp.ear --server-groups=${pfp.core.group}
+deploy ${temp.pfp.services.dir}/${pfp.archive} --name=${pfp.archive} --server-groups=${pfp.core.group}
 run-batch
