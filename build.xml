@@ -159,6 +159,16 @@
 
     <target name="configure.pfp.app" >
         <antcall target="pfp.compile" />
+        <if>
+            <equals arg1="${pfp.skinny.war.enabled}" arg2="true" />
+	        <then>
+                <copy todir="${pfp.module.path}">
+                    <fileset dir="${temp.pfp.module.build.dir}/dist/modules/system/layers/bpms">
+                        <include name="**/*"/>
+                    </fileset>
+                </copy>	
+		    </then>	
+        </if>
 
         <!-- database drivers -->
                 <echo message="deploying following db modules locally:  ${jdbc.module.name}" />
@@ -449,6 +459,13 @@
             <available file="services" type="dir" />
             <then><iterate target="all" /></then>
         </if>
+        <if>
+            <equals arg1="${pfp.skinny.war.enabled}" arg2="true" />
+            <then>
+    		    <antcall target="pfp.make.skinny.war" />
+    		    <copy todir="${temp.pfp.services.dir}" file="${temp.pfp.module.build.dir}/dist/standalone/deployments/bpms-pfp.war" overwrite="true" />
+            </then>
+        </if>
     </target>
 
     <target name="pfp.refresh.bpms" description="">
@@ -457,6 +474,21 @@
         <copy todir="${jboss.home}/modules" file="conf/jboss/layers.conf" overwrite="true" />
         <antcall target="local.bounce.pfp.core" />
     </target>
+	
+    <target name="pfp.make.skinny.war" description="">
+	    <mkdir dir="${temp.pfp.module.build.dir}" />
+        <antcall target="filter">
+            <param name="source.dir" value="conf/pfp/pfp-modules"/>
+            <param name="dest.dir" value="${temp.pfp.module.build.dir}"/>
+        </antcall>
+        <exec executable="bash" failonerror="true" dir="." >
+           <arg value="${development.base}/bin/build-modules.sh"/>
+           <arg value="modules/bpms-pfp-modules.list"/>
+           <arg value="modules/eap-6.1.0-modules.list"/>
+           <arg value="bpms-pfp"/>
+           <arg value="${temp.pfp.services.dir}/kie-services-remote.war"/>
+        </exec>
+    </target>	
 
     <target name="all" >
         <antcall target="download.and.unzip.bpms.deployer" />

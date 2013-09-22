@@ -1,0 +1,17 @@
+org.codehaus.jackson.jackson-mapper-asl
+org.codehaus.jackson.jackson-core-asl
+org.apache.commons.lang
+org.apache.commons.cli
+org.apache.commons.codec
+org.apache.commons.collections
+org.apache.commons.io
+org.dom4j
+com.google.guava
+org.jboss.as.web
+org.javassist
+org.joda.time
+org.slf4j
+org.slf4j.ext
+javax.servlet.api
+javax.activation.api
+org.mvel
