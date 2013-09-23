@@ -129,7 +129,8 @@ public class RESTApplicationScopedProducer {
     public DeploymentService produceDeploymentService() { 
         return deploymentService;
     }
-    
+   
+    // see:  org.kie.commons.java.nio.fs.file.SimpleFileSystemProvider 
     private VFSDeploymentUnit createLocalFileDeploymentUnit(Map<String, String> details){
         RuntimeStrategy ksessionStrategy = RuntimeStrategy.valueOf(details.get(DeployUnitParser.KSESSION_STRATEGY));
         String dId = details.get(DeployUnitParser.DEPLOYMENT_ID);
@@ -154,6 +155,7 @@ public class RESTApplicationScopedProducer {
         return vfsUnit;
     }
     
+    // see:  org.kie.commons.java.nio.fs.jgit.JGitFileSystemProvider 
     private VFSDeploymentUnit createGitDeploymentUnit(Map<String, String> details){
         RuntimeStrategy ksessionStrategy = RuntimeStrategy.valueOf(details.get(DeployUnitParser.KSESSION_STRATEGY));
         String dId = details.get(DeployUnitParser.DEPLOYMENT_ID);
