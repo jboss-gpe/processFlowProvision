@@ -37,7 +37,7 @@ public class AdditionalRESTResources {
     
     /**
      * sample usage :
-     *  curl -X GET -HAccept:text/plain $HOSTNAME:8330/kie-jbpm-services/rest/additional/runtime/general/processes
+     *  curl -X GET -HAccept:text/plain $HOSTNAME:8330/kie-jbpm-services/rest/additional/runtime/local-playground/processes
      */
     @GET
     @Produces({ "text/plain" })

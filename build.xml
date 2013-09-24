@@ -190,6 +190,10 @@
         <!-- antcall target="configure.sy.modules" / -->
         <!-- https://community.jboss.org/wiki/LayeredDistributionsAndModulePathOrganization -->
         <copy todir="${jboss.home}/modules" file="conf/jboss/layers.conf" overwrite="true" />
+        <antcall target="filter">
+            <param name="source.dir" value="conf/jboss/modules/"/>
+            <param name="dest.dir" value="${jboss.home}/modules/system/layers"/>
+        </antcall>
     </target>
 
     <target name="resolve.droolsjbpm.dependencies" >
@@ -444,6 +448,11 @@
         <antcall target="download.and.unzip.bpms.deployer" />
         <copy todir="${jboss.home}/modules" file="conf/jboss/layers.conf" overwrite="true" />
         <antcall target="local.bounce.pfp.core" />
+    </target>
+    <target name="pfp.print.common.test.rest.calls" description="">
+        <math result="pfp.core.http.port" operand1="8080" operation="+" operand2="${pfp.core.base.port.offset}" datatype="int" />
+        <echo message="curl -v -X GET http://${os.hostname}:${pfp.core.http.port}/${org.jboss.processFlow.kie.services.web.context}/rest/additional/runtime/local-playground/processes" />
+        <echo message="curl -v -X POST http://${os.hostname}:${pfp.core.http.port}/${org.jboss.processFlow.kie.services.web.context}/rest/runtime/local-playground/process/" />
     </target>
 
     <target name="all" >

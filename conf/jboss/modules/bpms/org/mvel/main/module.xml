@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module xmlns="urn:jboss:module:1.0" name="org.mvel">
+  <resources>
+     <resource-root path="mvel2-2.1.6.Final.jar"/>
+  </resources>
+
+  <dependencies>
+        <!-- JA Bride:  ADD APPLICATION SPECIFIC WORKITEM HANDLER DEPENDENCIES HERE -->
+
+        <!-- contains:
+            - org.jbpm.process.workitem.bpmn2.ServiceTaskHandler
+        -->
+        <module name="org.jbpm" />
+  </dependencies>
+</module>
