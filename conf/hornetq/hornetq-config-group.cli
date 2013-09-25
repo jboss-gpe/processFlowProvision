@@ -21,12 +21,6 @@ batch
 
 
 
-
-# Async KnowledgeSession queue
-/profile=full-ha/subsystem=messaging/hornetq-server=default/jms-queue=${org.jboss.processFlow.ksession.queue}/:add(entries=["queue/${org.jboss.processFlow.ksession.queue}","java:jboss/exported/jms/${org.jboss.processFlow.ksession.queue}"],durable=true)
-/profile=full-ha/subsystem=messaging/hornetq-server=default/address-setting=jms.queue.${org.jboss.processFlow.ksession.queue}/:add(address-full-policy=PAGE,dead-letter-address=jms.queue.DLQ,last-value-queue=false,max-size-bytes=10485760,page-size-bytes=1048576,send-to-dla-on-no-route=false,message-redistribution=0)
-
-
 # BAM queue 
 /profile=full-ha/subsystem=messaging/hornetq-server=default/jms-queue=${org.jboss.processFlow.bam.queue}/:add(entries=["queue/${org.jboss.processFlow.bam.queue}","java:jboss/exported/jms/${org.jboss.processFlow.bam.queue}"],durable=true)
 /profile=full-ha/subsystem=messaging/hornetq-server=default/address-setting=jms.queue.${org.jboss.processFlow.bam.queue}/:add(address-full-policy=PAGE,dead-letter-address=jms.queue.DLQ,last-value-queue=false,max-size-bytes=10485760,page-size-bytes=1048576,send-to-dla-on-no-route=false,message-redistribution=0)

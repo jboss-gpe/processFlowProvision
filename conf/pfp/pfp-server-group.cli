@@ -65,12 +65,15 @@ batch
 /profile=pfpCore/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=ha,value=true)
 /profile=pfpCore/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=reconnect-attempts,value=-1)
 
+# Add a JNDI entry of "java:/ConnectionFactory" to ensure that it's used in the following class:  org.kie.services.remote.jms.RequestMessageBean
+/profile=pfpCore/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=entries,value=["java:/JmsXA","java:/ConnectionFactory"])
+
+
 # define an ejb outbound socket binding (called "remote-ejb") to point to hornetq-ha server
 # allows remote invocation of any ha EJB service on hornetq-ha server from pfp-core servers
 /socket-binding-group=full-sockets/remote-destination-outbound-socket-binding=remote-ejb/:add(fixed-source-port=false, port=${hornetq.remoting.port},host=${pfp.core.host.name})
 
 ##################################################################################################################################
-
 
 
 

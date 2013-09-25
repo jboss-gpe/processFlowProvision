@@ -8,7 +8,7 @@
         "deploymentId": "git-playground",
         "ksession.strategy": "PER_PROCESS_INSTANCE",
         "remoteGitUrl": "https://github.com/jboss-sso/gpe-playground.git",
-        "repoFolder": "processes/timers",
+        "repoFolder": "processes/general",
         "repoAlias": "gpe-playground",
         "gitUser": "guvnorngtestuser1",
         "gitPasswd": "test1234",

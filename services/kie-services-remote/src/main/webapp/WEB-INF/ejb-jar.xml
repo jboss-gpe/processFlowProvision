@@ -11,7 +11,7 @@
         <session-type>Singleton</session-type>
         <init-on-startup>true</init-on-startup>
     </session>
-    <!--message-driven>
+    <message-driven>
       <ejb-name>KieSessionRequesMessageBean</ejb-name>
       <ejb-class>org.kie.services.remote.jms.RequestMessageBean</ejb-class>
       <transaction-type>Container</transaction-type>
@@ -40,6 +40,6 @@
           <activation-config-property-value>java:/queue/KIE.TASK</activation-config-property-value>
         </activation-config-property> 
       </activation-config>
-    </message-driven -->  
+    </message-driven>  
   </enterprise-beans>
 </ejb-jar>

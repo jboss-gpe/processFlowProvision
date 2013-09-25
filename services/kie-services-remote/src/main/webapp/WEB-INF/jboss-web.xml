@@ -5,5 +5,5 @@
   "http://www.jboss.org/j2ee/dtd/jboss-web_4_0.dtd">
 
 <jboss-web>
-   <context-root>${org.jboss.processFlow.kie.services.web.context}</context-root>
+   <context-root>kie-jbpm-services</context-root>
 </jboss-web>

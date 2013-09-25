@@ -5,7 +5,7 @@
   </resources>
 
   <dependencies>
-        <!-- JA Bride:  ADD APPLICATION SPECIFIC WORKITEM HANDLER DEPENDENCIES HERE -->
+        <!-- ADD APPLICATION SPECIFIC WORKITEM HANDLER DEPENDENCIES HERE -->
 
         <!-- contains:
             - org.jbpm.process.workitem.bpmn2.ServiceTaskHandler
