@@ -12,6 +12,10 @@ import javax.enterprise.inject.Alternative;
   details
     - in some scenarios, it might be desirable not to by-pass UserGroupCallback security required by jbpm
     - the assumption would be that the invocation to task resources via REST API would already have been authorized by a service upstream of this call
+    - 25 Sept 2013
+        - probably want to stick with one of the out-of-the-box jbpm UserGroupCallback implementations
+        - otherwise, queries that rely on UserGroupCallback in org.jbpm.services.task.identity.UserGroupTaskQueryServiceDecorator
+          (such as getTasksAssignedAsPotentialOwnerByStatus(...) will query by an empty list of groupIds
 */
 @Alternative
 @Selectable

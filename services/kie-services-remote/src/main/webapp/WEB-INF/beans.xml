@@ -6,10 +6,17 @@
 
     <alternatives>
         <class>org.jbpm.services.task.lifecycle.listeners.JPATaskLifeCycleEventListener</class>
-        <class>org.jboss.processFlow.services.remote.cdi.NoOpUserGroupCallbackImpl</class>
+        <class>org.jbpm.services.task.identity.JAASUserGroupCallbackImpl</class>
     </alternatives>
     <decorators>
+        <!-- 
+         - in the jbpm getTasks* operations that accept a List of groupIds as a query filter, 
+            this Decorator will invoke UserGroupCallback implementation to retrieve that List of groupIds.
+         - This decorator is required when using the kie-services-remote REST API  because the API does not offer an option to include a list of groupIds
+            as part of the request parameters
+        -->
         <class>org.jbpm.services.task.identity.UserGroupTaskQueryServiceDecorator</class>
+
         <class>org.jbpm.services.task.identity.UserGroupTaskInstanceServiceDecorator</class>
         <class>org.jbpm.services.task.identity.UserGroupLifeCycleManagerDecorator</class>
         <class>org.jbpm.services.task.subtask.SubTaskDecorator</class>

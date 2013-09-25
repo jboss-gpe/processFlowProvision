@@ -461,8 +461,8 @@
     </target>
     <target name="pfp.print.common.test.rest.calls" description="">
         <math result="pfp.core.http.port" operand1="8080" operation="+" operand2="${pfp.core.base.port.offset}" datatype="int" />
-        <echo message="curl -v -X GET http://${os.hostname}:${pfp.core.http.port}/${org.jboss.processFlow.kie.services.web.context}/rest/additional/runtime/git-playground/processes" />
-        <echo message="curl -v -X POST http://${os.hostname}:${pfp.core.http.port}/${org.jboss.processFlow.kie.services.web.context}/rest/runtime/git-playground/process/simpleTask/start" />
+        <echo message="curl -v -u ${pfp.core.remoting.user.name}:${pfp.core.remoting.password} -X GET http://${os.hostname}:${pfp.core.http.port}/${org.jboss.processFlow.kie.services.web.context}/rest/additional/runtime/git-playground/processes" />
+        <echo message="curl -v -u ${pfp.core.remoting.user.name}:${pfp.core.remoting.password} -X POST http://${os.hostname}:${pfp.core.http.port}/${org.jboss.processFlow.kie.services.web.context}/rest/runtime/git-playground/process/simpleTask/start" />
     </target>
 
     <target name="all" >

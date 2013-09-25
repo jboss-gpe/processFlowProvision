@@ -23,11 +23,16 @@
 <h2>jBPM REST API description</h2>
 Entry point for REST interface is at <%= request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+""+request.getContextPath()+"/"%>rest/
 
+<br/>
 examples
-    clear history
+<br/>
+    clear history:
+<br/>
         curl -v -X POST $HOSTNAME:8330/kie-jbpm-services/rest/runtime/general/history/clear
 
-    start 'Minimal' process
+<br/>
+    start 'Minimal' process:
+<br/>
         curl -v -X POST -d '{"author":"test_user","description":"this is a test notebook","name":"test notebook","tags":"test,hello-world"}' $HOSTNAME:8330/kie-jbpm-services/rest/runtime/general/process/Minimal/start
 
 <br/>

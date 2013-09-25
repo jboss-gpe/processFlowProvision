@@ -4,6 +4,7 @@ import java.util.Set;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.transaction.Status;
 import javax.transaction.TransactionManager;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.ext.Provider;
@@ -36,7 +37,9 @@ public class TransactionPreProcessInterceptor extends BaseInterceptor implements
     @Override
     public ServerResponse preProcess(HttpRequest hRequest, ResourceMethod rMethod) throws Failure, WebApplicationException {
         Set<String> httpMethods = rMethod.getHttpMethods();
-        if(!httpMethods.contains(this.HTTP_GET)) {
+        // in postgresql, jbpm queries need to be in a transaction to avoid the following:
+        //  Large Objects may not be used in auto-commit mode
+        if(POSTGRESQL.equals(dbType) || !httpMethods.contains(this.HTTP_GET)) {
             try {
                 tMgr.begin();
             } catch (Exception e) {
@@ -48,14 +51,17 @@ public class TransactionPreProcessInterceptor extends BaseInterceptor implements
 }
 
 class BaseInterceptor {
-    
+   
+    protected static final String POSTGRESQL="postgresql"; 
     protected static final String HTTP_GET    = "GET";
     protected static TransactionManager tMgr = null;
+    protected static String dbType;
     
     static{
         try {
             Context jndiContext = new InitialContext();
             tMgr = (TransactionManager)jndiContext.lookup("java:/TransactionManager");
+            dbType = System.getProperty("jdbc.module.name", POSTGRESQL);
         }catch(Exception x){
             throw new RuntimeException(x);
         }

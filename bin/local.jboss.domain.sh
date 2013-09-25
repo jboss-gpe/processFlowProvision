@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 for var in $@
 do
@@ -56,6 +56,9 @@ do
             ;;
         -orgName=*)
             orgName=`echo $var | cut -f2 -d\=` 
+            ;;
+        -webContext=*)
+            webContext=`echo $var | cut -f2 -d\=` 
             ;;
     esac
 done
@@ -217,12 +220,54 @@ function killJbossProcesses() {
     done
 }
 
+function smokeTest() {
+    if [ "x$userId" = "x" ]; then
+        userId=jboss
+    fi
+    if [ "x$password" = "x" ]; then
+        password=brms
+    fi
+    if [ "x$port" = "x" ]; then
+        port=8330
+    fi
+    if [ "x$webContext" = "x" ]; then
+        webContext=kie-jbpm-services
+    fi
+
+    # list all process definitions for git-playground
+    curl -v -u $userId:$password -X GET http://$HOSTNAME:$port/$webContext/rest/additional/runtime/git-playground/processes
+
+    # start an instance of simpleTask
+    curl -v -u $userId:$password -X POST -d '{"bonusAmount":"1500", "selectedEmployee":"Alex"}' http://$HOSTNAME:$port/$webContext/rest/runtime/git-playground/process/simpleTask/start
+
+    #  NOTE:  as per org.kie.services.remote.rest.TaskResource, query paramter logic as follows:
+    #    1)  specify value for one of the following:   businessAdministrator, potentialOwner or taskOwner
+    #                    or
+    #            a value for:  processInstanceId 
+    #
+    #         NOTE:  "status" and "language" are optional query paramters
+    #
+    #                OR
+    #
+    #     2)  specify value for taskId
+    #                OR
+    #     3)  specify value for workItemId
+
+    # query for all tasks with status=Ready and any potential owner (which includes task that don't currently have an owner)
+    curl -v -u $userId:$password -X GET http://$HOSTNAME:$port/$webContext/rest/task/query?potentialOwner=
+
+    # claim next available task
+    # study org.kie.services.client.serialization.jaxb.JaxbCommandsRequest to understand http request payload
+    #curl -v -u $userId:$password -H "Content-Type:application/xml" -d '<command-request><deployment-id>git-playground</deployment-id><process-instance-id>1</process-instance-id><claim-next-available-task/></command-request>' -X POST http://$HOSTNAME:$port/$webContext/rest/task/execute
+    #curl -v -u $userId:$password -H "Content-Type:application/xml" -d '<command-request><deployment-id>git-playground</deployment-id><process-instance-id>1</process-instance-id><claim-task id="1" /></command-request>' -X POST http://$HOSTNAME:$port/$webContext/rest/task/execute
+}
+
 
 case "$1" in
-    start|stop|restart|executeCli|refreshSlaveHosts|killJbossProcesses)
+    start|stop|restart|executeCli|refreshSlaveHosts|killJbossProcesses|smokeTest)
         $1
         ;;
     *)
-    echo 1>&2 $"Usage: $0 {start|stop|restart|executeAddUser|executeCli|refreshSlaveHosts|killJbossProcesses}"
+    echo 1>&2 $"Usage: $0 {start|stop|restart|executeAddUser|executeCli|refreshSlaveHosts|killJbossProcesses|smokeTest}"
     exit 1
 esac
