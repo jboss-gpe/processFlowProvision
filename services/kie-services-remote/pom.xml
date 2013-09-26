@@ -73,6 +73,17 @@
       <groupId>org.codehaus.jackson</groupId>
       <artifactId>jackson-core-asl</artifactId>
     </dependency>
+      <dependency>
+        <groupId>javax.security.jacc</groupId>
+        <artifactId>javax.security.jacc-api</artifactId>
+        <version>1.4</version>
+        <scope>provided</scope>
+      </dependency>
+    <dependency>
+        <groupId>org.picketbox</groupId>
+        <artifactId>picketbox</artifactId>
+        <version>4.0.17.Final</version>
+    </dependency>
   </dependencies>
   <build>
     <finalName>kie-services-remote</finalName>

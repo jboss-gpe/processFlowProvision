@@ -60,6 +60,9 @@ do
         -webContext=*)
             webContext=`echo $var | cut -f2 -d\=` 
             ;;
+        -taskId=*)
+            taskId=`echo $var | cut -f2 -d\=` 
+            ;;
     esac
 done
 
@@ -238,7 +241,7 @@ function smokeTest() {
     curl -v -u $userId:$password -X GET http://$HOSTNAME:$port/$webContext/rest/additional/runtime/git-playground/processes
 
     # start an instance of simpleTask
-    curl -v -u $userId:$password -X POST -d '{"bonusAmount":"1500", "selectedEmployee":"Alex"}' http://$HOSTNAME:$port/$webContext/rest/runtime/git-playground/process/simpleTask/start
+    curl -v -u $userId:$password -X POST -d 'bonusAmount=1500' -d 'selectedEmployee=Alex' http://$HOSTNAME:$port/$webContext/rest/runtime/git-playground/process/simpleTask/start
 
     #  NOTE:  as per org.kie.services.remote.rest.TaskResource, query paramter logic as follows:
     #    1)  specify value for one of the following:   businessAdministrator, potentialOwner or taskOwner
@@ -254,12 +257,19 @@ function smokeTest() {
     #     3)  specify value for workItemId
 
     # query for all tasks with status=Ready and any potential owner (which includes task that don't currently have an owner)
-    curl -v -u $userId:$password -X GET http://$HOSTNAME:$port/$webContext/rest/task/query?potentialOwner=
+    curl -v -u $userId:$password -X GET http://$HOSTNAME:$port/$webContext/rest/task/query?potentialOwner= > /tmp/humanTasks.txt
+    eval taskId=\"`xmlstarlet sel -t -n -m '//task-summary-list/task-summary[1]' -v 'id' -n /tmp/humanTasks.txt`\"
 
     # claim next available task
     # study org.kie.services.client.serialization.jaxb.JaxbCommandsRequest to understand http request payload
     #curl -v -u $userId:$password -H "Content-Type:application/xml" -d '<command-request><deployment-id>git-playground</deployment-id><process-instance-id>1</process-instance-id><claim-next-available-task/></command-request>' -X POST http://$HOSTNAME:$port/$webContext/rest/task/execute
     #curl -v -u $userId:$password -H "Content-Type:application/xml" -d '<command-request><deployment-id>git-playground</deployment-id><process-instance-id>1</process-instance-id><claim-task id="1" /></command-request>' -X POST http://$HOSTNAME:$port/$webContext/rest/task/execute
+
+    echo taskId = $taskId
+    #curl -u $userId:$password -X POST http://$HOSTNAME:$port/$webContext/rest/task/$taskId/claim
+    #curl -v -u $userId:$password -X POST http://$HOSTNAME:$port/$webContext/rest/task/$taskId/start
+    #curl -v -u $userId:$password -X GET http://$HOSTNAME:$port/$webContext/rest/task/$taskId/content
+    #curl -v -u $userId:$password -X POST -d 'bonusAmount=1501' -d 'selectedEmployee=Azra' http://$HOSTNAME:$port/$webContext/rest/task/$taskId/complete
 }
 
 

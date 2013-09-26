@@ -17,7 +17,9 @@
         -->
         <class>org.jbpm.services.task.identity.UserGroupTaskQueryServiceDecorator</class>
 
+        <!-- UserGroupCallback on operations that change state of Human Task -->
         <class>org.jbpm.services.task.identity.UserGroupTaskInstanceServiceDecorator</class>
+
         <class>org.jbpm.services.task.identity.UserGroupLifeCycleManagerDecorator</class>
         <class>org.jbpm.services.task.subtask.SubTaskDecorator</class>
     </decorators>
