@@ -260,16 +260,18 @@ function smokeTest() {
     curl -v -u $userId:$password -X GET http://$HOSTNAME:$port/$webContext/rest/task/query?potentialOwner= > /tmp/humanTasks.txt
     eval taskId=\"`xmlstarlet sel -t -n -m '//task-summary-list/task-summary[1]' -v 'id' -n /tmp/humanTasks.txt`\"
 
+    #ensure no whitespace in taskId
+    taskId=`echo $taskId | tr -d ' '`
+
+    curl -u $userId:$password -X POST http://$HOSTNAME:$port/$webContext/rest/task/$taskId/claim
+    curl -v -u $userId:$password -X POST http://$HOSTNAME:$port/$webContext/rest/task/$taskId/start
+    curl -v -u $userId:$password -X GET http://$HOSTNAME:$port/$webContext/rest/task/$taskId/content
+    curl -v -u $userId:$password -X POST -d 'bonusAmount=1501' -d 'selectedEmployee=Azra' http://$HOSTNAME:$port/$webContext/rest/task/$taskId/complete
+
     # claim next available task
     # study org.kie.services.client.serialization.jaxb.JaxbCommandsRequest to understand http request payload
     #curl -v -u $userId:$password -H "Content-Type:application/xml" -d '<command-request><deployment-id>git-playground</deployment-id><process-instance-id>1</process-instance-id><claim-next-available-task/></command-request>' -X POST http://$HOSTNAME:$port/$webContext/rest/task/execute
     #curl -v -u $userId:$password -H "Content-Type:application/xml" -d '<command-request><deployment-id>git-playground</deployment-id><process-instance-id>1</process-instance-id><claim-task id="1" /></command-request>' -X POST http://$HOSTNAME:$port/$webContext/rest/task/execute
-
-    echo taskId = $taskId
-    #curl -u $userId:$password -X POST http://$HOSTNAME:$port/$webContext/rest/task/$taskId/claim
-    #curl -v -u $userId:$password -X POST http://$HOSTNAME:$port/$webContext/rest/task/$taskId/start
-    #curl -v -u $userId:$password -X GET http://$HOSTNAME:$port/$webContext/rest/task/$taskId/content
-    #curl -v -u $userId:$password -X POST -d 'bonusAmount=1501' -d 'selectedEmployee=Azra' http://$HOSTNAME:$port/$webContext/rest/task/$taskId/complete
 }
 
 
