@@ -86,5 +86,6 @@
 	<classpathentry kind="src" path="/kie-nio2-jgit"/>
 	<classpathentry kind="var" path="JBOSS_HOME/modules/system/layers/base/javax/security/jacc/api/main/jboss-jacc-api_1.4_spec-1.0.2.Final-redhat-2.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/modules/system/layers/base/org/picketbox/main/picketbox-4.0.17.Final-redhat-1.jar"/>
+	<classpathentry kind="src" path="/kie-api"/>
 	<classpathentry kind="output" path="target"/>
 </classpath>

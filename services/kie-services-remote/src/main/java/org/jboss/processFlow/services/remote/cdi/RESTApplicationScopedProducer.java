@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
     2)  VFS based IOService
     3)  UserGroupCallback
     4)  List<DeploymentUnit>
-        - a configurable JSON data file is parsed of one or more 'deployments' that the jbpm engine should use from which to build a kieBase
+        - a configurable JSON data file is parsed. JSON consists of one or more 'deployments' that the jbpm engine should use from which to build a kieBase
         - these deployments can be of type:  simpleFile, git of kjar
  */
 
@@ -50,7 +50,7 @@ public class RESTApplicationScopedProducer {
     EntityManagerFactory jbpmCoreEMF;
     
     @Inject
-    @Selectable
+    @Selectable  // specified in this runtime artifact's META-INF/beans.xml
     private UserGroupCallback userGroupCallback;
     
     @Inject

@@ -30,19 +30,19 @@ public class RESTIdentityProvider implements IdentityProvider, Serializable {
 
     @Override
     public String getName() {
-    	
-    	String callerPrincipalName = "Unable to locate callerPrincipal";
+        
+        String callerPrincipalName = "Unable to locate callerPrincipal";
         try {
-        	Subject subject = (Subject) PolicyContext.getContext("javax.security.auth.Subject.container");
-        	Set<Principal> principals = subject.getPrincipals();
-        	for (Principal principal : principals) {
-        		if(principal.getClass().toString().equals(SIMPLE_PRINCIPAL)){
-        			callerPrincipalName = ((org.jboss.security.SimplePrincipal)principal).getName();
-        		}
-        	}
-        	return callerPrincipalName;
+            Subject subject = (Subject) PolicyContext.getContext("javax.security.auth.Subject.container");
+            Set<Principal> principals = subject.getPrincipals();
+            for (Principal principal : principals) {
+                if(principal.getClass().toString().equals(SIMPLE_PRINCIPAL)){
+                    callerPrincipalName = ((org.jboss.security.SimplePrincipal)principal).getName();
+                }
+            }
+            return callerPrincipalName;
         }catch(Exception x){
-        	throw new RuntimeException();
+            throw new RuntimeException();
         }
         
     }
@@ -53,9 +53,9 @@ public class RESTIdentityProvider implements IdentityProvider, Serializable {
 
         Subject subject = null;
         try {
-        	subject = (Subject) PolicyContext.getContext("javax.security.auth.Subject.container");
+            subject = (Subject) PolicyContext.getContext("javax.security.auth.Subject.container");
         }catch(Exception x){
-        	throw new RuntimeException();
+            throw new RuntimeException();
         }
 
         if (subject != null) {

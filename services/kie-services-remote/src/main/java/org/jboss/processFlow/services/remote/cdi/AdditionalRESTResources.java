@@ -27,6 +27,9 @@ public class AdditionalRESTResources {
     
     @Inject
     private ProcessRequestBean processRequestBean;
+    
+    @Inject
+    private IDeploymentMgmtBean dBean;
 
     @PathParam("id")
     private String deploymentId;

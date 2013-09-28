@@ -52,7 +52,8 @@
 
 
         <!-- Event Classes -->
-        <class>org.jbpm.services.task.impl.model.TaskEventImpl</class>
+        <!-- 28 Sept:  TO-DO:  investigate why community jbpm-kie-services doesn't pull down with this class -->
+        <!-- class>org.jbpm.services.task.audit.TaskEventImpl</class -->
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 

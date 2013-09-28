@@ -195,6 +195,10 @@
                 <param name="dest.dir" value="${jboss.home}/modules/system/layers/bpms"/>
             </antcall>
           </then>
+          <else>
+            <!-- create empty bpms modules directory to satisfy list of modules in $JBOSS_HOME/modules/layers.conf -->
+            <mkdir dir="${jboss.home}/modules/system/layers/bpms" />
+          </else>
         </if>
         <!-- antcall target="configure.sy.modules" / -->
         <!-- https://community.jboss.org/wiki/LayeredDistributionsAndModulePathOrganization -->
