@@ -38,9 +38,12 @@ import org.slf4j.LoggerFactory;
 
     - Note:  
         - KieContainer, KModule and KieBase objects are all created via use of either KModuleDeploymentUnit and/or VFSDeploymentUnit
-            - KnowledgeSession strategy is defined in these *DeploymentUnit objects
-            - workItemHandler mappings are registered with a kieSession via CDI producers
-        - this approach seems to be an alternative to creating a KModule instance via contents of a kJar's kmodule.xml
+        - VFSDeploymentUnit(s)
+            - KnowledgeSession strategy is defined in this DeploymentUnit as it processes PFP's :  kie.deployments.json
+            - workItemHandler mappings are registered with a kieSession via:
+               1)  org.jbpm.kie.services.impl.VfsMVELWorkItemHandlerProducer
+        - KModuleDeploymentUnit(s)
+             - both ksession strategy and workItemHandler mappings are included in kJar's META-INF/kmodule.xml
 */
 @ApplicationScoped
 public class DeploymentMgmtBean implements IDeploymentMgmtBean {
@@ -49,11 +52,11 @@ public class DeploymentMgmtBean implements IDeploymentMgmtBean {
     private static Logger log = LoggerFactory.getLogger("RESTApplicationStartup");
     
     @Inject
-    @Vfs
+    @Vfs  // org.jbpm.kie.services.impl.VFSDeploymentService
     private DeploymentService vfsService;
     
     @Inject
-    @Kjar
+    @Kjar  // org.jbpm.kie.services.impl.KModuleDeploymentService
     private DeploymentService kjarService;
     
     
@@ -189,7 +192,7 @@ public class DeploymentMgmtBean implements IDeploymentMgmtBean {
                 log.warn("ensureDeploymentFileSystemsExist() following FileSystem already created: {} : scheme = {}", fsURI.toString(), fSystem.provider().getScheme());
             }
         }else{
-            log.warn("ensureDeploymentFileSystemsExist() no need to ensure file system exists for type {}"+deploymentType);
+            log.warn("ensureDeploymentFileSystemsExist() no need to ensure file system exists for type "+deploymentType);
         }
     }
 }

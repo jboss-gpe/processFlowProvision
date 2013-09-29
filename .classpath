@@ -22,6 +22,7 @@
 	<classpathentry kind="var" path="JBOSS_HOME/modules/system/layers/base/org/jboss/msc/main/jboss-msc-1.0.2.GA-redhat-2.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/modules/system/layers/base/org/jboss/logging/main/jboss-logging-3.1.2.GA-redhat-1.jar"/>
 	<classpathentry kind="src" path="services/kie-services-remote/src/main/java"/>
+	<classpathentry kind="src" path="services/kie-services-remote/src/test/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="JBOSS_HOME"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/drools-compiler"/>
@@ -87,5 +88,26 @@
 	<classpathentry kind="var" path="JBOSS_HOME/modules/system/layers/base/javax/security/jacc/api/main/jboss-jacc-api_1.4_spec-1.0.2.Final-redhat-2.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/modules/system/layers/base/org/picketbox/main/picketbox-4.0.17.Final-redhat-1.jar"/>
 	<classpathentry kind="src" path="/kie-api"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="src" path="/kie-internal"/>
+	<classpathentry kind="lib" path="/home/jbride/.m2/repository/org/drools/drools-compiler/6.1.0-SNAPSHOT/drools-compiler-6.1.0-SNAPSHOT.jar">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.groupId" value="org.drools"/>
+			<attribute name="maven.artifactId" value="drools-compiler"/>
+			<attribute name="maven.version" value="6.1.0-SNAPSHOT"/>
+			<attribute name="maven.scope" value="compile"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/home/jbride/.m2/repository/org/mvel/mvel2/2.1.6.Final/mvel2-2.1.6.Final.jar">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.groupId" value="org.mvel"/>
+			<attribute name="maven.artifactId" value="mvel2"/>
+			<attribute name="maven.version" value="2.1.6.Final"/>
+			<attribute name="maven.scope" value="compile"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path="/kie-nio2-api"/>
 	<classpathentry kind="output" path="target"/>
 </classpath>

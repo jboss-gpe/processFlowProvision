@@ -19,7 +19,6 @@
             <exec executable="mvn" failonerror="true" dir="." >
                 <arg value="clean" />
                 <arg value="package" />
-                <arg value="-Dmaven.test.skip=true" />
             </exec>
             <jar destfile="target/${ant.project.name}.war" >
                 <zipfileset dir="target/${ant.project.name}" >

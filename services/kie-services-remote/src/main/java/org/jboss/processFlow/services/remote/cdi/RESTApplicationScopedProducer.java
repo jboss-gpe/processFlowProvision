@@ -7,7 +7,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Default;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -17,10 +16,13 @@ import javax.persistence.PersistenceUnit;
 import org.apache.commons.lang.StringUtils;
 import org.jbpm.kie.services.api.DeploymentService;
 import org.jbpm.kie.services.api.DeploymentUnit;
-import org.jbpm.kie.services.api.Kjar;
+import org.jbpm.kie.services.api.Vfs;
 import org.jbpm.kie.services.api.DeploymentUnit.RuntimeStrategy;
 import org.jbpm.kie.services.impl.KModuleDeploymentUnit;
 import org.jbpm.kie.services.impl.VFSDeploymentUnit;
+import org.jbpm.kie.services.impl.VFSDeploymentService;
+import org.jbpm.runtime.manager.api.WorkItemHandlerProducer;
+import org.jbpm.shared.services.api.FileService;
 import org.jbpm.shared.services.cdi.Selectable;
 import org.kie.internal.task.api.UserGroupCallback;
 import org.kie.commons.io.IOService;
@@ -54,8 +56,9 @@ public class RESTApplicationScopedProducer {
     private UserGroupCallback userGroupCallback;
     
     @Inject
-    @Kjar
-    DeploymentService deploymentService;    
+    @Vfs  // org.jbpm.kie.services.impl.VFSDeploymentService
+    private DeploymentService vfsService;
+    
     
     /* 
      * required for ioStrategy field in:  
@@ -83,6 +86,12 @@ public class RESTApplicationScopedProducer {
     @Produces
     public UserGroupCallback produceSelectedUserGroupCallback() {
         return userGroupCallback;
+    }
+    
+    @Produces
+    public WorkItemHandlerProducer setWorkItemHandlerProducer() {
+        log.info("setWorkItemHandlerProducer() fs = "+getIOService());
+        return new VfsMVELWorkItemHandlerProducer((VFSDeploymentService)vfsService, getIOService());
     }
     
     @Produces
@@ -117,17 +126,6 @@ public class RESTApplicationScopedProducer {
             }
         }
         return dUnits;
-    }
-    
-    /**
-     * Required because org.jbpm.kie.services.impl.form.FormProviderServiceImpl in jbpm-kie-services.jar
-     * has an injection point for org.jbpm.kie.services.api.DeploymentService without qualifier
-     * 
-     */
-    @Produces
-    @Default
-    public DeploymentService produceDeploymentService() { 
-        return deploymentService;
     }
    
     // see:  org.kie.commons.java.nio.fs.file.SimpleFileSystemProvider 
@@ -211,6 +209,9 @@ public class RESTApplicationScopedProducer {
         if (StringUtils.isNotEmpty(ksessionName)) {
             kUnit.setKsessionName(ksessionName);
         }
+        
+        // confused about kmodule.xml schema:  https://github.com/droolsjbpm/droolsjbpm-knowledge/blob/master/kie-api/src/main/resources/org/kie/api/kmodule.xsd
+        // ksessionType can only be "stateless" or "stateful" ?? .... what about SINGLETON or PER_PROCESS_INSTANCE ??
         kUnit.setStrategy(ksessionStrategy);
         return kUnit;
     }

@@ -63,6 +63,9 @@ do
         -taskId=*)
             taskId=`echo $var | cut -f2 -d\=` 
             ;;
+        -deployId=*)
+            deployId=`echo $var | cut -f2 -d\=` 
+            ;;
     esac
 done
 
@@ -223,6 +226,7 @@ function killJbossProcesses() {
     done
 }
 
+# example:   ./bin/local.jboss.domain.sh smokeTest -deployId=com.redhat.gpe.test:test-module:1.0.0-SNAPSHOT
 function smokeTest() {
     if [ "x$userId" = "x" ]; then
         userId=jboss
@@ -236,12 +240,15 @@ function smokeTest() {
     if [ "x$webContext" = "x" ]; then
         webContext=kie-jbpm-services
     fi
+    if [ "x$deployId" = "x" ]; then
+        deployId=git-playground
+    fi
 
-    # list all process definitions for git-playground
-    curl -v -u $userId:$password -X GET http://$HOSTNAME:$port/$webContext/rest/additional/runtime/git-playground/processes
+    # list all process definitions for designated deployment
+    curl -v -u $userId:$password -X GET http://$HOSTNAME:$port/$webContext/rest/additional/runtime/$deployId/processes
 
     # start an instance of simpleTask
-    curl -v -u $userId:$password -X POST -d 'bonusAmount=1500' -d 'selectedEmployee=Alex' http://$HOSTNAME:$port/$webContext/rest/runtime/git-playground/process/simpleTask/start
+    curl -v -u $userId:$password -X POST -d 'bonusAmount=1500' -d 'selectedEmployee=Alex' http://$HOSTNAME:$port/$webContext/rest/runtime/$deployId/process/simpleTask/start
 
     #  NOTE:  as per org.kie.services.remote.rest.TaskResource, query paramter logic as follows:
     #    1)  specify value for one of the following:   businessAdministrator, potentialOwner or taskOwner
@@ -270,8 +277,8 @@ function smokeTest() {
 
     # claim next available task
     # study org.kie.services.client.serialization.jaxb.JaxbCommandsRequest to understand http request payload
-    #curl -v -u $userId:$password -H "Content-Type:application/xml" -d '<command-request><deployment-id>git-playground</deployment-id><process-instance-id>1</process-instance-id><claim-next-available-task/></command-request>' -X POST http://$HOSTNAME:$port/$webContext/rest/task/execute
-    #curl -v -u $userId:$password -H "Content-Type:application/xml" -d '<command-request><deployment-id>git-playground</deployment-id><process-instance-id>1</process-instance-id><claim-task id="1" /></command-request>' -X POST http://$HOSTNAME:$port/$webContext/rest/task/execute
+    #curl -v -u $userId:$password -H "Content-Type:application/xml" -d '<command-request><deployment-id>$deployId</deployment-id><process-instance-id>1</process-instance-id><claim-next-available-task/></command-request>' -X POST http://$HOSTNAME:$port/$webContext/rest/task/execute
+    #curl -v -u $userId:$password -H "Content-Type:application/xml" -d '<command-request><deployment-id>$deployId</deployment-id><process-instance-id>1</process-instance-id><claim-task id="1" /></command-request>' -X POST http://$HOSTNAME:$port/$webContext/rest/task/execute
 }
 
 
