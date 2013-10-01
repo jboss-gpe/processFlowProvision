@@ -29,7 +29,10 @@
             <url-pattern>/rest/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
-            <role-name>kie-user</role-name>
+            <!-- as per roles defined in kie-wb web.xml
+                https://github.com/droolsjbpm/kie-wb-distributions/blob/master/kie-wb/kie-wb-distribution-wars/src/main/eap6_1/WEB-INF/web.xml#L507
+            --> 
+            <role-name>analyst</role-name>
         </auth-constraint>
     </security-constraint>
 
@@ -37,8 +40,12 @@
         <auth-method>BASIC</auth-method>
     </login-config>
 
+   
+    <!-- as per roles defined in kie-wb web.xml
+         https://github.com/droolsjbpm/kie-wb-distributions/blob/master/kie-wb/kie-wb-distribution-wars/src/main/eap6_1/WEB-INF/web.xml#L507
+    --> 
     <security-role>
-        <role-name>kie-user</role-name>
+        <role-name>analyst</role-name>
     </security-role>
 
 </web-app>

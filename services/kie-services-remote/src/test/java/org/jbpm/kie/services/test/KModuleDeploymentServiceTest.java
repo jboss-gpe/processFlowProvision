@@ -24,13 +24,19 @@ import org.kie.scanner.MavenRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/*
+   Purpose :  build and deploy a maven artifact that can be used for smoke testing of KJar functionality
+
+   Note:
+    1)  completely plagarized from jbpm/jbpm-services/droolsjbpm-knowledge-services/src/test/java/org/droolsjbpm/services/test/KModuleDeploymentServiceTest.java
+*/
 public class KModuleDeploymentServiceTest {
     
     private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentServiceTest.class);
     
     private static final String ARTIFACT_ID = "test-module";
-    private static final String GROUP_ID = "com.redhat.gpe.test";
-    private static final String VERSION = "1.0.0-SNAPSHOT";
+    private static final String GROUP_ID = "com.redhat.gpe";
+    private static final String VERSION = "1.0";
     
     @Test
     public void prepare() {
@@ -56,7 +62,6 @@ public class KModuleDeploymentServiceTest {
     
     protected InternalKieModule createKieJar(KieServices ks, ReleaseId releaseId, List<String> resources ) {
 
-
         KieFileSystem kfs = createKieFileSystemWithKProject(ks);
         kfs.writePomXML( getPom(releaseId) );
 
@@ -70,10 +75,9 @@ public class KModuleDeploymentServiceTest {
         KieBuilder kieBuilder = ks.newKieBuilder(kfs);
         if (!kieBuilder.buildAll().getResults().getMessages().isEmpty()) {
             for (Message message : kieBuilder.buildAll().getResults().getMessages()) {
-                logger.error("Error Message: ({}) {}", message.getPath(), message.getText());
+                System.out.println("Error Message path: "+message.getPath()+" : text = "+message.getText());
             }
-            throw new RuntimeException(
-                    "There are errors builing the package, please check your knowledge assets!");
+            throw new RuntimeException("There are errors builing the package, please check your knowledge assets!");
         }
 
         return ( InternalKieModule ) kieBuilder.getKieModule();
@@ -92,7 +96,7 @@ public class KModuleDeploymentServiceTest {
                 .setType(KieSessionModel.KieSessionType.STATEFUL)
                 .setClockType( ClockTypeOption.get("realtime") );
         ksessionModel.newWorkItemHandlerModel("Log", "new org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler()");
-        ksessionModel.newWorkItemHandlerModel("Service Task", "new org.jbpm.process.workitem.bpmn2.ServiceTaskHandler()");
+        ksessionModel.newWorkItemHandlerModel("Service Task", "new org.jbpm.process.workitem.bpmn2.ServiceTaskHandler(ksession)");
         KieFileSystem kfs = ks.newKieFileSystem();
         kfs.writeKModuleXML(kproj.toXML());
         return kfs;
@@ -123,7 +127,4 @@ public class KModuleDeploymentServiceTest {
         pom += "</project>";
         return pom;
     }
-
-
-   
 } 

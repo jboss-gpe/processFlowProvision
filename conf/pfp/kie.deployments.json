@@ -18,9 +18,9 @@
     "kjar":{
         "comment": "no deploymentId.  instead, unique identifier =  <groupId>:<artifactId>:<version>",
         "ksession.strategy": "PER_PROCESS_INSTANCE",
-        "groupId":  "com.redhat.gpe.test",
+        "groupId":  "com.redhat.gpe",
         "artifactId":  "test-module",
-        "version":  "1.0.0-SNAPSHOT"
+        "version":  "1.0"
     }
 
 }

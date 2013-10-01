@@ -6,8 +6,4 @@ batch
 /host=${serverIpAddr}/core-service=management/security-realm=ejb-security-realm:add()
 /host=${serverIpAddr}/core-service=management/security-realm=ejb-security-realm/server-identity=secret:add(value="${pfp.core.remoting.base64.passcode}")
 
-# set up security and networking to invoke remote HA Timer Management service
-# set up ejb client side pre-reqs as per :  https://docs.jboss.org/author/display/AS71/EJB+invocations+from+a+remote+server+instance
-/host=${serverIpAddr}/core-service=management/security-realm=ha-timer-ejb-security-realm:add()
-/host=${serverIpAddr}/core-service=management/security-realm=ha-timer-ejb-security-realm/server-identity=secret:add(value="${pfp.core.remoting.base64.passcode}")
 run-batch

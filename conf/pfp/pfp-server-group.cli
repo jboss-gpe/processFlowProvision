@@ -5,6 +5,7 @@ batch
 /profile=pfpCore/subsystem=ejb3/:write-attribute(name=enable-statistics,value=true)
 
 /profile=pfpCore/subsystem=logging/logger=org.quartz/:add(category=org.quartz,level=TRACE,use-parent-handlers=true)
+/profile=pfpCore/subsystem=logging/logger=org.jbpm.process.workitem.bpmn2/:add(category=org.jbpm.process.workitem.bpmn2,level=TRACE,use-parent-handlers=true)
 
 
 # filter out all jbpm5 related log messages related to its inability to correctly parse BPMN2 as per :
@@ -110,6 +111,8 @@ batch
 /server-group=${pfp.core.group}/system-property=org.kie.nio.git.deamon.enabled/:add(value="${org.kie.nio.git.deamon.enabled}",boot-time=true)
 /server-group=${pfp.core.group}/system-property=org.quartz.properties/:add(value="${org.quartz.properties}",boot-time=true)
 /server-group=${pfp.core.group}/system-property=jdbc.module.name/:add(value="${jdbc.module.name}",boot-time=true)
+
+/server-group=${pfp.core.group}/system-property=org.apache.cxf.stax.allowInsecureParser/:add(value="${org.apache.cxf.stax.allowInsecureParser}",boot-time=true)
 run-batch
 
 batch

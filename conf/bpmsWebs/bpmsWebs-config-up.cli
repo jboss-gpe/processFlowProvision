@@ -1,0 +1,4 @@
+batch
+/host=master/server-config=bpms-webs/:write-attribute(name=socket-binding-port-offset,value=${bpms.webs.port.offset})
+/host=master/server-config=bpms-webs/:start(server=bpms-webs,blocking=true)
+run-batch

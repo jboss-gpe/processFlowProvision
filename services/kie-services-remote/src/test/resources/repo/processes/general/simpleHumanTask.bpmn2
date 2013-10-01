@@ -4,7 +4,7 @@
   <bpmn2:itemDefinition id="_bonusAmountItem" structureRef="Integer"/>
   <bpmn2:itemDefinition id="__BFEAE12B-9E58-41A4-B037-4BBD4C87ADB3_taskSelectedEmployeeOutputItem" structureRef="String"/>
   <bpmn2:itemDefinition id="__BFEAE12B-9E58-41A4-B037-4BBD4C87ADB3_taskBonusAmountOutputItem" structureRef="Integer"/>
-  <bpmn2:process id="simpleTask" drools:packageName="org.jboss.processFlow" drools:version="1" name="Simple Task" isExecutable="true">
+  <bpmn2:process id="simpleTask" drools:packageName="com.redhat.gpe" drools:version="1" name="Simple Task" isExecutable="true">
     <bpmn2:property id="selectedEmployee" itemSubjectRef="_selectedEmployeeItem"/>
     <bpmn2:property id="bonusAmount" itemSubjectRef="_bonusAmountItem"/>
     <bpmn2:endEvent id="_58B50BD2-2C26-493C-B67D-0F6496AA87B2" drools:bgcolor="#f5deb3" drools:selectable="true" name="EndProcess">

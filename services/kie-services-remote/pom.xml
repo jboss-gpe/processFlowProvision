@@ -1,12 +1,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.rht.gpe</groupId>
+  <groupId>com.redhat.gpe</groupId>
   <artifactId>kie-services-remote</artifactId>
   <packaging>war</packaging>
   <version>1.0-SNAPSHOT</version>
   <name>kie-services-remote Maven Webapp</name>
-  <url>http://maven.apache.org</url>
+  <properties>
+    <version.drools>6.1.0-SNAPSHOT</version.drools>
+    <version.org.codehaus.jackson>1.9.9</version.org.codehaus.jackson>
+    <version.org.apache.camel>2.10.3</version.org.apache.camel>
+    <version.org.jboss.resteasy>2.3.6.Final</version.org.jboss.resteasy>
+  </properties>
   <dependencies>
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
@@ -317,10 +322,4 @@
 
     </dependencies>
   </dependencyManagement>
-  <properties>
-    <version.drools>6.1.0-SNAPSHOT</version.drools>
-    <version.org.codehaus.jackson>1.9.9</version.org.codehaus.jackson>
-    <version.org.apache.camel>2.10.3</version.org.apache.camel>
-    <version.org.jboss.resteasy>2.3.6.Final</version.org.jboss.resteasy>
-  </properties>
 </project>

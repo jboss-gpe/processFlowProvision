@@ -90,7 +90,6 @@ public class RESTApplicationScopedProducer {
     
     @Produces
     public WorkItemHandlerProducer setWorkItemHandlerProducer() {
-        log.info("setWorkItemHandlerProducer() fs = "+getIOService());
         return new VfsMVELWorkItemHandlerProducer((VFSDeploymentService)vfsService, getIOService());
     }
     

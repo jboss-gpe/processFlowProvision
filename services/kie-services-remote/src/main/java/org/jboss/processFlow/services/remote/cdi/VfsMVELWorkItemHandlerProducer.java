@@ -16,6 +16,9 @@ import org.kie.commons.java.nio.file.DirectoryStream;
 import org.kie.commons.java.nio.file.Path;
 import org.mvel2.MVEL;
 
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+
 /*
  * purpose:   inject workItemHandlers for VFS based deployment units
  *            workItemHandlers for KJar deployments are defined in the kJar's kmodule.xml
@@ -30,6 +33,7 @@ import org.mvel2.MVEL;
  */
 public class VfsMVELWorkItemHandlerProducer implements WorkItemHandlerProducer {
 
+    private static Logger log = LoggerFactory.getLogger("VfsMVELWorkItemHandlerProducer");
 
     // key = deploymentId
     // value = workItemHandlers defined for this deploymentId from MVEL formatted *.conf files
@@ -53,15 +57,19 @@ public class VfsMVELWorkItemHandlerProducer implements WorkItemHandlerProducer {
 
         try {
             if(!mvelContentMap.containsKey(deploymentId)){
-                DeployedUnit deployedUnit = deploymentService.getDeployedUnit(deploymentId);
-                VFSDeploymentUnit vfsUnit = (VFSDeploymentUnit) deployedUnit.getDeploymentUnit();
-                Path assetFolder = ioService.get(vfsUnit.getRepository()+vfsUnit.getRepositoryFolder());
-                Iterable<Path> widFiles = loadFilesByType(assetFolder, "conf");
                 List<String> mvelContentList = new ArrayList<String>();
-                for (Path widPath : widFiles) {
-                    byte[] contentBytes = ioService.readAllBytes(widPath);
-                    String content = new String(contentBytes, "UTF-8");
-                    mvelContentList.add(content);
+                DeployedUnit deployedUnit = deploymentService.getDeployedUnit(deploymentId);
+                if(deployedUnit != null){
+                    VFSDeploymentUnit vfsUnit = (VFSDeploymentUnit) deployedUnit.getDeploymentUnit();
+                    Path assetFolder = ioService.get(vfsUnit.getRepository()+vfsUnit.getRepositoryFolder());
+                    Iterable<Path> widFiles = loadFilesByType(assetFolder, "conf");
+                    for (Path widPath : widFiles) {
+                        byte[] contentBytes = ioService.readAllBytes(widPath);
+                        String content = new String(contentBytes, "UTF-8");
+                        mvelContentList.add(content);
+                    }
+                }else{
+                    log.warn("getWorkItemHandlers() no deployedUnit for id = "+deploymentId);
                 }
                 mvelContentMap.put(deploymentId, mvelContentList);
             }

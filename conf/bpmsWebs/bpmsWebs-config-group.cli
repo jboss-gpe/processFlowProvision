@@ -1,0 +1,8 @@
+batch
+
+/profile=full/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=append,value=false)
+
+/server-group=${bpms.webs.group}/:add(profile=full,socket-binding-group=full-sockets)
+
+deploy ${biz.central.zipped} --name=${biz.central.name} --server-groups=${bpms.webs.group}
+run-batch

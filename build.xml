@@ -382,27 +382,36 @@
 
     <!--
       pass following parameters to this target :
-        1) org.jboss.processFlow.provision.brmsWebs (optional)
+        1) org.jboss.processFlow.provision.bpmsWebs (optional)
         2) refresh.master (optional)
     -->
-    <target name="local.provision.brms.webs">
+    <target name="local.provision.bpms.webs">
         <if>
-            <equals arg1="${org.jboss.processFlow.provision.brmsWebs}" arg2="true" />
+            <equals arg1="${org.jboss.processFlow.provision.bpmsWebs}" arg2="true" />
             <then>
                 <if>
                     <equals arg1="${refresh.master}" arg2="true" />
                     <then><antcall target="refresh.master" /></then>
                 </if>
-                <!-- in clustered environment, needs to change to HA EJB ?  -->
+                <antcall target="cli.batch">
+                    <param name="cli.source.dir" value="conf/bpmsWebs"/>
+                    <param name="cli.to.filter.and.execute" value="bpmsWebs-config-group.cli"/>
+                    <param name="cli.fail.on.error" value="true"/>
+                </antcall>
+                <antcall target="cli.batch">
+                    <param name="cli.source.dir" value="conf/bpmsWebs"/>
+                    <param name="cli.to.filter.and.execute" value="bpmsWebs-config-server.cli"/>
+                    <param name="cli.fail.on.error" value="false"/>
+                </antcall>
                 <math result="pfp.core.remoting.port" operand1="${base.remoting.port}" operation="+" operand2="${pfp.core.base.port.offset}" datatype="int" />
                 <antcall target="cli.batch">
-                    <param name="cli.source.dir" value="conf/brmsWebs"/>
-                    <param name="cli.to.filter.and.execute" value="brmsWebs-config-up.cli"/>
+                    <param name="cli.source.dir" value="conf/bpmsWebs"/>
+                    <param name="cli.to.filter.and.execute" value="bpmsWebs-config-up.cli"/>
                     <param name="cli.fail.on.error" value="true"/>
                 </antcall> 
             </then>
             <else>
-                <echo message="local.provision.brms.webs:  org.jboss.processFlow.provision.brmsWebs = ${org.jboss.processFlow.provision.brmsWebs}" />
+                <echo message="local.provision.bpms.webs:  org.jboss.processFlow.provision.bpmsWebs = ${org.jboss.processFlow.provision.bpmsWebs}" />
             </else>
         </if>
     </target>
@@ -466,9 +475,9 @@
     <target name="pfp.print.common.test.rest.calls" description="">
         <math result="pfp.core.http.port" operand1="8080" operation="+" operand2="${pfp.core.base.port.offset}" datatype="int" />
         <echo message="curl -v -u ${pfp.core.remoting.user.name}:${pfp.core.remoting.password} -X GET http://${os.hostname}:${pfp.core.http.port}/${org.jboss.processFlow.kie.services.web.context}/rest/additional/runtime/git-playground/processes" />
-        <echo message="curl -v -u ${pfp.core.remoting.user.name}:${pfp.core.remoting.password} -X GET http://${os.hostname}:${pfp.core.http.port}/${org.jboss.processFlow.kie.services.web.context}/rest/additional/runtime/com.redhat.gpe.test:test-module:1.0.0-SNAPSHOT/processes" />
+        <echo message="curl -v -u ${pfp.core.remoting.user.name}:${pfp.core.remoting.password} -X GET http://${os.hostname}:${pfp.core.http.port}/${org.jboss.processFlow.kie.services.web.context}/rest/additional/runtime/com.redhat.gpe:test-module:1.0/processes" />
         <echo message="curl -v -u ${pfp.core.remoting.user.name}:${pfp.core.remoting.password} -X POST http://${os.hostname}:${pfp.core.http.port}/${org.jboss.processFlow.kie.services.web.context}/rest/runtime/git-playground/process/simpleTask/start" />
-        <echo message="curl -v -u ${pfp.core.remoting.user.name}:${pfp.core.remoting.password} -X POST http://${os.hostname}:${pfp.core.http.port}/${org.jboss.processFlow.kie.services.web.context}/rest/runtime/com.redhat.gpe.test:test-module:1.0.0-SNAPSHOT/process/simpleTask/start" />
+        <echo message="curl -v -u ${pfp.core.remoting.user.name}:${pfp.core.remoting.password} -X POST http://${os.hostname}:${pfp.core.http.port}/${org.jboss.processFlow.kie.services.web.context}/rest/runtime/com.redhat.gpe:test-module:1.0/process/simpleTask/start" />
     </target>
 
     <target name="all" >
@@ -480,7 +489,7 @@
         <antcall target="refresh.master" />
         <antcall target="refresh.slave.hosts" />
         <antcall target="local.configure.core.services" />
-        <antcall target="local.provision.brms.webs">
+        <antcall target="local.provision.bpms.webs">
             <param name="refresh.master" value="false"/>
         </antcall>
         <antcall target="local.provision.ha.jvms" />
