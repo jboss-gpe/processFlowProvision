@@ -248,7 +248,7 @@ function smokeTest() {
     curl -v -u $userId:$password -X GET http://$HOSTNAME:$port/$webContext/rest/additional/runtime/$deployId/processes
 
     # start an instance of simpleTask
-    curl -v -u $userId:$password -X POST -d 'bonusAmount=1500' -d 'selectedEmployee=Alex' http://$HOSTNAME:$port/$webContext/rest/runtime/$deployId/process/simpleTask/start
+    curl -v -u $userId:$password -X POST -d 'map_bonusAmount=1500' -d 'map_selectedEmployee=Alex' http://$HOSTNAME:$port/$webContext/rest/runtime/$deployId/process/simpleTask/start
 
     #  NOTE:  as per org.kie.services.remote.rest.TaskResource, query paramter logic as follows:
     #    1)  specify value for one of the following:   businessAdministrator, potentialOwner or taskOwner
@@ -269,11 +269,15 @@ function smokeTest() {
 
     #ensure no whitespace in taskId
     taskId=`echo $taskId | tr -d ' '`
+    if [ "x$taskId" = "x" ]; then
+        echo -en "\n unable to locate any tasks in any Ready state\n"
+        exit 1;
+    fi
 
     curl -u $userId:$password -X POST http://$HOSTNAME:$port/$webContext/rest/task/$taskId/claim
     curl -v -u $userId:$password -X POST http://$HOSTNAME:$port/$webContext/rest/task/$taskId/start
     curl -v -u $userId:$password -X GET http://$HOSTNAME:$port/$webContext/rest/task/$taskId/content
-    curl -v -u $userId:$password -X POST -d 'bonusAmount=1501' -d 'selectedEmployee=Azra' http://$HOSTNAME:$port/$webContext/rest/task/$taskId/complete
+    curl -v -u $userId:$password -X POST -d 'map_bonusAmount=1501' -d 'map_selectedEmployee=Azra' http://$HOSTNAME:$port/$webContext/rest/task/$taskId/complete
 
     # claim next available task
     # study org.kie.services.client.serialization.jaxb.JaxbCommandsRequest to understand http request payload

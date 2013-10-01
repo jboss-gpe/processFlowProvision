@@ -11,7 +11,7 @@
   -->
   <bpmn2:import importType="http://schemas.xmlsoap.org/wsdl/" location="http://zareason:8330/auditReview/AuditReview?wsdl" namespace="urn:com.redhat.gpe.auditReview:1.0"/>
   <bpmn2:itemDefinition id="_ParameterItem" structureRef="Object"/>
-  <bpmn2:itemDefinition id="_ResultItem" structureRef="java.util.Map"/>
+  <bpmn2:itemDefinition id="_ResultItem" structureRef="java.lang.String"/>
   <bpmn2:itemDefinition id="_437E424E-55F2-43BF-8765-1C146703B6A1_InMessageType"/>
   <bpmn2:message id="_437E424E-55F2-43BF-8765-1C146703B6A1_InMessage" itemRef="_437E424E-55F2-43BF-8765-1C146703B6A1_InMessageType"/>
   <bpmn2:interface id="_437E424E-55F2-43BF-8765-1C146703B6A1_ServiceInterface" name="AuditReview" implementationRef="AuditReview">
@@ -20,7 +20,7 @@
     </bpmn2:operation>
   </bpmn2:interface>
   <bpmn2:itemDefinition id="__437E424E-55F2-43BF-8765-1C146703B6A1_ParameterInputItem" structureRef="Object"/>
-  <bpmn2:itemDefinition id="__437E424E-55F2-43BF-8765-1C146703B6A1_ResultOutputItem" structureRef="java.util.Map"/>
+  <bpmn2:itemDefinition id="__437E424E-55F2-43BF-8765-1C146703B6A1_ResultOutputItem" structureRef="java.lang.String"/>
   <bpmn2:process id="Service_Task_WS_Test" drools:packageName="com.redhat.gpe" drools:version="1.0" name="ws_serviceTask" isExecutable="true">
     <bpmn2:property id="Parameter" itemSubjectRef="_ParameterItem"/>
     <bpmn2:property id="Result" itemSubjectRef="_ResultItem"/>
@@ -32,7 +32,7 @@
       <bpmn2:outgoing>_FE919B0B-42C2-4930-A373-29BF57AEAE50</bpmn2:outgoing>
       <bpmn2:ioSpecification id="_Kfb0YSqZEeOhos0J7a1c9Q">
         <bpmn2:dataInput id="_437E424E-55F2-43BF-8765-1C146703B6A1_ParameterInput" drools:dtype="Object" itemSubjectRef="__437E424E-55F2-43BF-8765-1C146703B6A1_ParameterInputItem" name="Parameter"/>
-        <bpmn2:dataOutput id="_437E424E-55F2-43BF-8765-1C146703B6A1_ResultOutput" drools:dtype="java.util.Map" itemSubjectRef="__437E424E-55F2-43BF-8765-1C146703B6A1_ResultOutputItem" name="Result"/>
+        <bpmn2:dataOutput id="_437E424E-55F2-43BF-8765-1C146703B6A1_ResultOutput" drools:dtype="java.lang.String" itemSubjectRef="__437E424E-55F2-43BF-8765-1C146703B6A1_ResultOutputItem" name="Result"/>
         <bpmn2:inputSet id="_Kfb0YiqZEeOhos0J7a1c9Q">
           <bpmn2:dataInputRefs>_437E424E-55F2-43BF-8765-1C146703B6A1_ParameterInput</bpmn2:dataInputRefs>
         </bpmn2:inputSet>

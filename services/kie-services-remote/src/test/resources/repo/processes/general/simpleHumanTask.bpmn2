@@ -52,7 +52,7 @@
       <bpmn2:dataInputAssociation id="_lnbWMTsnEeKZ_8uXhW_4Nw">
         <bpmn2:targetRef>_BFEAE12B-9E58-41A4-B037-4BBD4C87ADB3_GroupIdInput</bpmn2:targetRef>
         <bpmn2:assignment id="_lnbWMjsnEeKZ_8uXhW_4Nw">
-          <bpmn2:from xsi:type="bpmn2:tFormalExpression" id="_lnbWMzsnEeKZ_8uXhW_4Nw">creditController</bpmn2:from>
+          <bpmn2:from xsi:type="bpmn2:tFormalExpression" id="_lnbWMzsnEeKZ_8uXhW_4Nw">analyst</bpmn2:from>
           <bpmn2:to xsi:type="bpmn2:tFormalExpression" id="_lnbWNDsnEeKZ_8uXhW_4Nw">_BFEAE12B-9E58-41A4-B037-4BBD4C87ADB3_GroupIdInput</bpmn2:to>
         </bpmn2:assignment>
       </bpmn2:dataInputAssociation>
