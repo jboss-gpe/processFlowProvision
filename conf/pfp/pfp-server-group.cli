@@ -6,8 +6,6 @@ batch
 
 /profile=pfpCore/subsystem=logging/logger=org.quartz/:add(category=org.quartz,level=TRACE,use-parent-handlers=true)
 
-/profile=pfpCore/subsystem=logging/logger=org.jbpm.process.workitem.bpmn2/:add(category=org.jbpm.process.workitem.bpmn2,level=${org.jbpm.process.workitem.bpmn2.log.level},use-parent-handlers=true)
-
 
 # filter out all jbpm5 related log messages related to its inability to correctly parse BPMN2 as per :
 #   https://community.jboss.org/message/784580?tstart=0
