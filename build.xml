@@ -949,12 +949,7 @@
         <mkdir dir="${temp.pfp.services.dir}" />
         <mkdir dir="${install.home}/lib" />
         <mkdir dir="${pfp.module.path}" />
-        <if>
-            <equals arg1="${org.jboss.processFlow.provision.switchyard}" arg2="true" />
-            <then>
-                <mkdir dir="${sy.module.path}" />
-            </then>
-        </if>
+        <mkdir dir="${sy.module.path}" />
     </target>
 
     <target name="pfp.compile" depends="mkPfpDirs" description="" >

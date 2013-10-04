@@ -48,6 +48,7 @@
         <!-- otherwise :  java.lang.ClassNotFoundException: org.jbpm.bpmn2.BPMN2ProcessProviderImpl from [Module "org.drools:main" -->
         <module name="org.jbpm" slot="5" />
 
+
         <!-- otherwise :  java.lang.IllegalArgumentException: Timer service 'org.jboss.processFlow.ejb.ClusteredSingletonTimerService' not found -->
         <module name="org.jboss.processFlow" />
     </dependencies>

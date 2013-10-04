@@ -1,4 +1,4 @@
-<jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.0">
+<jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.1">
     <deployment>
         <dependencies>
             <!-- process definitions using TaskChangeDetails need guvnor to be aware of processFlow-interfaces.jar -->

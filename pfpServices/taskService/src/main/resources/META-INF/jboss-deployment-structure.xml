@@ -1,7 +1,8 @@
 <jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.1">
     <deployment>
         <dependencies>
-            <module name="org.jboss.processFlow" />
+            <!-- meta-inf="export" required to allow hibernate visibility to ORM files in jBPM static modules -->
+            <module name="org.jboss.processFlow" export="true" meta-inf="export" />
         </dependencies>
     </deployment>
 </jboss-deployment-structure>
