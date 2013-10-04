@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module xmlns="urn:jboss:module:1.0" name="org.jbpm">
+<module xmlns="urn:jboss:module:1.1" name="org.jbpm">
   <resources>
      <resource-root path="jbpm-audit-6.1.0-SNAPSHOT.jar"/>     <resource-root path="jbpm-bpmn2-6.1.0-SNAPSHOT.jar"/>     <resource-root path="jbpm-bpmn2-emfextmodel-6.1.0-SNAPSHOT.jar"/>     <resource-root path="jbpm-executor-6.1.0-SNAPSHOT.jar"/>     <resource-root path="jbpm-flow-6.1.0-SNAPSHOT.jar"/>     <resource-root path="jbpm-flow-builder-6.1.0-SNAPSHOT.jar"/>     <resource-root path="jbpm-form-services-6.1.0-SNAPSHOT.jar"/>     <resource-root path="jbpm-human-task-core-6.1.0-SNAPSHOT.jar"/>     <resource-root path="jbpm-human-task-workitems-6.1.0-SNAPSHOT.jar"/>     <resource-root path="jbpm-kie-services-6.1.0-SNAPSHOT.jar"/>     <resource-root path="jbpm-persistence-jpa-6.1.0-SNAPSHOT.jar"/>     <resource-root path="jbpm-runtime-manager-6.1.0-SNAPSHOT.jar"/>     <resource-root path="jbpm-shared-services-6.1.0-SNAPSHOT.jar"/>     <resource-root path="jbpm-simulation-6.1.0-SNAPSHOT.jar"/>     <resource-root path="jbpm-workitems-6.1.0-SNAPSHOT.jar"/>     <resource-root path="META-INF"/>
   </resources>
