@@ -312,7 +312,7 @@
              - expects a valid jbpm.console.properties in root of classpath
         -->
         <antcall target="filter">
-            <param name="source.dir" value="conf/jboss/modules/org/jbpm/configuration/main"/>
+            <param name="source.dir" value="conf/jboss/modules/pfp/org/jbpm/configuration/main"/>
             <param name="file.name" value="jbpm.console.properties"/>
             <param name="dest.dir" value="${console.server.target}/WEB-INF/classes"/>
         </antcall>
@@ -383,7 +383,7 @@
             <then><antcall target="pfp.compile" /></then>
         </if>
         <antcall target="filter">
-            <param name="source.dir" value="conf/jboss/modules"/>
+            <param name="source.dir" value="conf/jboss/modules/pfp"/>
             <param name="dest.dir" value="${temp.pfp.modules.dir}"/>
         </antcall>
 
@@ -525,7 +525,6 @@
             <param name="non.openshift.environment" value="true"/>
         </antcall>
         <!-- https://community.jboss.org/wiki/LayeredDistributionsAndModulePathOrganization -->
-        <!--copy todir="${temp.jboss.dir}/modules" file="conf/jboss/modules/layers.conf" overwrite="true" / -->
         <mkdir dir="${jboss.home}/modules/system/layers/${organization.name}" />
         <antcall target="filter">
             <param name="source.dir" value="conf/jboss/modules/"/>
