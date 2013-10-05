@@ -144,7 +144,7 @@ executeCli() {
     fi
 }
 
-# ./bin/local.jboss.domain.sh refreshSlaveHosts -serverIpAddr=eap6cluster1 -orgName=gpse
+# ./bin/local.jboss.domain.sh refreshSlaveHosts -serverIpAddr=eap6cluster1 -orgName=gpe
 refreshSlaveHosts() {
     echo -en "refreshSlaveHosts() serverIpAddr = $serverIpAddr : orgName=$orgName : localGuvnorRepoLocation=$localGuvnorRepoLocation : eap6DownloadName=$eap6DownloadName : switchyardZipName=$switchyardZipName\n"
     #  0)  verify network connectivity to remote host
