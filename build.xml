@@ -981,13 +981,16 @@
         <if>
             <equals arg1="${org.jboss.processFlow.provision.pfpCore}" arg2="true" />
             <then>
-                <echo message="you may find executing the following will be helpful to diagnose your environment :" />
-                <echo message="    curl -v -X PUT -HAccept:text/plain ${os.hostname}:8330/knowledgeService/kbase               :   refresh kBase in PFP's kSessionService" />
-                <echo message="    curl -v -X GET -HAccept:text/plain ${os.hostname}:8330/knowledgeService/kbase/content       :   view contents of kbase" />
-                <echo message="    curl -v -X GET -HAccept:text/plain ${os.hostname}:8330/knowledgeService/workItemHandlers    :   view all registerd workItemHandlers with kSessions" />
+                <antcall target="pfp.print.common.test.rest.calls" />
             </then>
         </if>
-        
+    </target>
+
+    <target name="pfp.print.common.test.rest.calls" description="">
+        <echo message="you may find executing the following will be helpful to diagnose your environment :" />
+        <echo message="    curl -v -X PUT -HAccept:text/plain ${os.hostname}:8330/knowledgeService/kbase               :   refresh kBase in PFP's kSessionService" />
+        <echo message="    curl -v -X GET -HAccept:text/plain ${os.hostname}:8330/knowledgeService/kbase/content       :   view contents of kbase" />
+        <echo message="    curl -v -X GET -HAccept:text/plain ${os.hostname}:8330/knowledgeService/workItemHandlers    :   view all registerd workItemHandlers with kSessions" />
     </target>
     <target name="pfp.distro" depends="" >
         <property name="distro.name" value="processFlow-bin-${brms.major.version}-${brms.minor.version}" />

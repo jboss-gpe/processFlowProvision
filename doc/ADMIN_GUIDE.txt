@@ -198,10 +198,10 @@ INSTALL   :
                 createdb jbpm
                 createdb jbpm_bam
                 createdb guvnor
-            -- as 'postgres' user, modify socket that postgresql will listen on
+            -- as 'postgres' user, modify socket that postgresql will listen on and enabled preparted transactions
                 -- modify the following configuration file  :   /var/lib/pgsql/data/postgresql.conf 
                 -- at the following property :                  listen_addresses = '*'
-                -- example is provided in :                     conf/postgresql/postgresql.conf
+                -- at the following property :                  max_prepared_transactions = 10
             -- as 'postgres' user, modify network permissions for remote connections to postgresql
                 -- modify the following configuration file  :   /var/lib/pgsql/data/pg_hba.conf
                 -- at the following property :                  host    all     all     <network address>/16  md5
