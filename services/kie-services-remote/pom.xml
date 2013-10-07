@@ -5,13 +5,27 @@
   <artifactId>kie-services-remote</artifactId>
   <packaging>war</packaging>
   <version>1.0-SNAPSHOT</version>
-  <name>kie-services-remote Maven Webapp</name>
+  <name>kie-services-remote</name>
   <properties>
     <version.drools>6.1.0-SNAPSHOT</version.drools>
     <version.org.codehaus.jackson>1.9.9</version.org.codehaus.jackson>
     <version.org.apache.camel>2.10.3</version.org.apache.camel>
     <version.org.jboss.resteasy>2.3.6.Final</version.org.jboss.resteasy>
   </properties>
+
+  <build>
+    <finalName>kie-services-remote</finalName>
+    <filters>
+      <filter>../../build.properties</filter>
+    </filters>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+  </build>
+
   <dependencies>
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
@@ -104,9 +118,6 @@
     </dependency>
 
   </dependencies>
-  <build>
-    <finalName>kie-services-remote</finalName>
-  </build>
   <dependencyManagement>
     <dependencies>
       <dependency>

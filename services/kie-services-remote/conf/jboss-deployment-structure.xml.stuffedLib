@@ -37,6 +37,7 @@
     <module name="org.slf4j" />
     <module name="org.slf4j.ext" />
     <module name="com.google.guava" />
+    <module name="org.hibernate" />
             
     <module name="javax.servlet.api" />
   </dependencies>

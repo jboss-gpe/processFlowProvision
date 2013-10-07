@@ -4,11 +4,11 @@
    manual steps:
      1)  cp -r $JBOSS_HOME/domain $JBOSS_HOME/domain-${organization.name}
      2)  cp <path.to.this.file> $JBOSS_HOME/domain-${organization.name}/configuration/host.xml
-     3)  copy syModules, pfpModules and gpseModules to $JBOSS_HOME
+     3)  copy syModules, pfpModules and gpeModules to $JBOSS_HOME
 
    eap6 server startup:  
-       export JBOSS_MODULEPATH=$JBOSS_HOME/modules:$JBOSS_HOME/pfpModules:$JBOSS_HOME/syModules:$JBOSS_HOME/gpseModules
-       $JBOSS_HOME/bin/domain.sh -b=$HOSTNAME -bmanagement=$HOSTNAME -Djboss.domain.base.dir=domain-gpse -Djboss.domain.master.address=192.168.122.1 -Djboss.domain.master.port=9999
+       export JBOSS_MODULEPATH=$JBOSS_HOME/modules:$JBOSS_HOME/pfpModules:$JBOSS_HOME/syModules:$JBOSS_HOME/gpeModules
+       $JBOSS_HOME/bin/domain.sh -b=$HOSTNAME -bmanagement=$HOSTNAME -Djboss.domain.base.dir=domain-gpe -Djboss.domain.master.address=192.168.122.1 -Djboss.domain.master.port=9999
 -->
 
 <!-- JA Bride:  ensure name value is unique across cluster, thus use hostname of VM -->
@@ -61,7 +61,7 @@
 
     <servers>
         <!-- JA Bride:  copied from master host.xml -->
-    	<server name="pfp-core-0" group="gpse-core-group" auto-start="false">
+    	<server name="pfp-core-0" group="gpe-core-group" auto-start="false">
     	    <jvm name="pfp-core-0" env-classpath-ignored="false">
     	        <heap size="128m" max-size="512m"/>
     	        <permgen size="64m" max-size="256m"/>

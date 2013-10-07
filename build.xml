@@ -238,10 +238,10 @@
         </for>
     </target> 
 
-    <target name="hornetq-config" >
+    <target name="ha-config" >
         <antcall target="cli.batch">
-            <param name="cli.source.dir" value="conf/hornetq/"/>
-            <param name="cli.to.filter.and.execute" value="hornetq-config-down.cli"/>
+            <param name="cli.source.dir" value="conf/ha/"/>
+            <param name="cli.to.filter.and.execute" value="ha-config-down.cli"/>
             <param name="cli.fail.on.error" value="false"/>
         </antcall>
     </target>
@@ -250,8 +250,8 @@
     <target name="local.provision.ha.jvms">
         <sleep seconds="2"/>
         <antcall target="cli.batch">
-            <param name="cli.source.dir" value="conf/hornetq/"/>
-            <param name="cli.to.filter.and.execute" value="hornetq-config-group.cli"/>
+            <param name="cli.source.dir" value="conf/ha/"/>
+            <param name="cli.to.filter.and.execute" value="ha-config-group.cli"/>
             <param name="cli.fail.on.error" value="true"/>
         </antcall>
         <for list="${org.jboss.eap.host.list}" param="serverIpAddr">
@@ -269,13 +269,13 @@
                         <else><var name="ha.block" value="false" /></else>
                     </if>
                     <antcall target="cli.batch">
-                        <param name="cli.source.dir" value="conf/hornetq/"/>
-                        <param name="cli.to.filter.and.execute" value="hornetq-config-server.cli"/>
+                        <param name="cli.source.dir" value="conf/ha/"/>
+                        <param name="cli.to.filter.and.execute" value="ha-config-server.cli"/>
                         <param name="cli.fail.on.error" value="true"/>
                     </antcall>
                         <antcall target="cli.batch">
-                        <param name="cli.source.dir" value="conf/hornetq/"/>
-                        <param name="cli.to.filter.and.execute" value="hornetq-config-up.cli"/>
+                        <param name="cli.source.dir" value="conf/ha/"/>
+                        <param name="cli.to.filter.and.execute" value="ha-config-up.cli"/>
                         <param name="cli.fail.on.error" value="true"/>
                     </antcall>
                   </sequential>
@@ -298,7 +298,7 @@
                 </if>
                 <copy todir="${jboss.home}/domain-${organization.name}/configuration" file="conf/pfp/kie.deployments.json" overwrite="true" />
                 <copy todir="${jboss.home}/domain-${organization.name}/configuration" file="conf/pfp/${org.quartz.property.file.name}" overwrite="true" />
-                <math result="hornetq.remoting.port" operand1="${base.remoting.port}" operation="+" operand2="${ha.group.port.offset}" datatype="int" />
+                <math result="ha.remoting.port" operand1="${base.remoting.port}" operation="+" operand2="${ha.group.port.offset}" datatype="int" />
                 <antcall target="cli.batch">
                     <param name="cli.source.dir" value="conf/pfp"/>
                     <param name="cli.to.filter.and.execute" value="pfp-server-group.cli"/>

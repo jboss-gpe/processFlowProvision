@@ -16,17 +16,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.drools.core.command.runtime.process.GetProcessIdsCommand;
-import org.kie.services.remote.cdi.ProcessRequestBean;
+import org.kie.services.remote.rest.RestProcessRequestBean;
 import org.kie.api.command.Command;
+
+/**
+    - what about a function to check status of registered workItemHandlers
+    - jbpm-services/jbpm-kie-services/src/main/java/org/jbpm/kie/services/api/bpmn2/BPMN2DataService.java
+        - has a function get getAllServiceTasks(...) .... which might be similar ?
+        - it also has a bunch of other valueable functions that should be exposed via REST /JMS API
+*/
 
 @RequestScoped
 @Path("/additional/runtime/{id: [a-zA-Z0-9-:\\.]+}")
 public class AdditionalRESTResources {
-    
+   
+    private static final String LIST_PROCESSES_EXCEPTION = "listProcessesException"; 
     private static final Logger logger = LoggerFactory.getLogger(AdditionalRESTResources.class);
     
     @Inject
-    private ProcessRequestBean processRequestBean;
+    private RestProcessRequestBean processRequestBean;
     
     @Inject
     private IDeploymentMgmtBean dBean;
@@ -47,7 +55,7 @@ public class AdditionalRESTResources {
     @Path("/processes")
     public Response listProcesses() {
         Command<?> cmd = new GetProcessIdsCommand();
-        List<String> pList = (List<String>) processRequestBean.doKieSessionOperation(cmd, deploymentId, null);
+        List<String> pList = (List<String>) processRequestBean.doKieSessionOperation(cmd, deploymentId, null, LIST_PROCESSES_EXCEPTION, false, false);
         StringBuilder sBuilder = new StringBuilder();
         if(pList != null && pList.size() > 0){
             sBuilder.append("processes from deploymentId : "+deploymentId);
