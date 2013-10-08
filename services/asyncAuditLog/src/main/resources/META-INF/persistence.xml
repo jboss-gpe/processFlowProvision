@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<persistence
+    version="2.0"
+    xmlns="http://java.sun.com/xml/ns/persistence" 
+             xmlns:orm="http://java.sun.com/xml/ns/persistence/orm" 
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd http://java.sun.com/xml/ns/persistence/orm http://java.sun.com/xml/ns/persistence/orm_2_0.xsd">
+
+    <persistence-unit name="org.jbpm.audit.jpa" transaction-type="JTA">
+        <jta-data-source>java:jboss/datasources/jbpm-bam-cp</jta-data-source>
+        <mapping-file>META-INF/Servicesorm.xml</mapping-file>
+
+        <class>org.jbpm.process.audit.ProcessInstanceLog</class>
+        <class>org.jbpm.process.audit.NodeInstanceLog</class>
+        <class>org.jbpm.process.audit.VariableInstanceLog</class>
+
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
+        <properties>
+            <property name="hibernate.dialect" value="${hibernate.dialect}"/>            
+            <property name="hibernate.max_fetch_depth" value="3"/>
+            <property name="hibernate.hbm2ddl.auto" value="${hibernate.hbm2ddl.auto}" />
+            <property name="hibernate.show_sql" value="${hibernate.show.sql}" />
+            <property name="hibernate.format_sql" value="true"/>
+
+            <property name="jboss.entity.manager.factory.jndi.name" value="java:/app/jbpmAuditEMF"/>
+
+            <!-- BZ 841786: AS7/EAP 6/Hib 4 uses new (sequence) generators which seem to cause problems -->
+            <property name="hibernate.id.new_generator_mappings" value="false" />
+            <property name="hibernate.transaction.jta.platform" value="org.hibernate.service.jta.platform.internal.JBossAppServerJtaPlatform" />
+        </properties>        
+    </persistence-unit>
+    
+</persistence>

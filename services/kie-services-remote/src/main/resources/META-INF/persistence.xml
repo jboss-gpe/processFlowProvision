@@ -10,7 +10,6 @@
         <jta-data-source>java:jboss/datasources/jbpm-core-cp</jta-data-source>
         <mapping-file>META-INF/JBPMorm.xml</mapping-file>
         <mapping-file>META-INF/Taskorm.xml</mapping-file>
-        <mapping-file>META-INF/Servicesorm.xml</mapping-file>
 
         <class>org.jbpm.persistence.processinstance.ProcessInstanceInfo</class>
         <class>org.drools.persistence.info.SessionInfo</class>
@@ -44,12 +43,6 @@
 
         <!--BAM for task service -->
         <class>org.jbpm.services.task.impl.model.BAMTaskSummaryImpl</class>
-
-        <!-- remove me once using JMS based org.jbpm.process.audit.AuditLoggerFactory -->
-        <class>org.jbpm.process.audit.ProcessInstanceLog</class>
-        <class>org.jbpm.process.audit.NodeInstanceLog</class>
-        <class>org.jbpm.process.audit.VariableInstanceLog</class>
-
 
         <!-- Event Classes -->
         <!-- 28 Sept:  TO-DO:  investigate why community jbpm-kie-services doesn't pull down with this class -->

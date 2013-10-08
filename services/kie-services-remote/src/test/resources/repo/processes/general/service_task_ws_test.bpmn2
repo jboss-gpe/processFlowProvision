@@ -6,7 +6,7 @@
 
       Questions:
         1)  what if the WSDL location is to be set dynamically.  Currently hard-coding wsdl location URL as a bpmn2:import
-        2)  in org.jbpm.process.workitem.bpmn2.ServiceTaskHanler :  does it make sense to cache or pool the following:
+        2)  in org.jbpm.process.workitem.bpmn2.ServiceTaskHandler :  does it make sense to cache or pool the following:
             a)  JaxWsDynamicClientFactory object  (is it multi-threaded ???)
             b)  ConcurrentHashMap<String, Client> clients
   -->

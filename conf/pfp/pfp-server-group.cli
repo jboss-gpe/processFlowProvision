@@ -26,13 +26,10 @@ batch
 ###  TRACE logging of hornetq client
 #/profile=pfpCore/subsystem=logging/logger=org.hornetq.core.client.impl/:add(category=org.hornetq.core.client.impl,level=TRACE,use-parent-handlers=true)
 
-### non-XA datasource connection pools to jbpm and jbpm_bam databases
-##  can get away with using a non-XA datasource for jbpm / jbpm_bam databases due to Last Resource Commit optimization of JBoss Transaction Manager
+### non-XA datasource connection pools to jbpm core database
+##  can get away with using a non-XA datasource for jbpm core database due to Last Resource Commit optimization of JBoss Transaction Manager
 /profile=pfpCore/subsystem=datasources/data-source=jbpm-core-cp:add(jndi-name=java:jboss/datasources/jbpm-core-cp,connection-url=${jbpm_connection_url},driver-class=${jbpm_driver_class},driver-name=${jdbc.module.name},user-name=${jbpm_db_user},password=${jbpm_db_password},pool-name=jbpm-core_ds_pool,max-pool-size=50,min-pool-size=10)
 /profile=pfpCore/subsystem=datasources/data-source=jbpm-core-cp:enable()
-
-/profile=pfpCore/subsystem=datasources/data-source=jbpm-bam-cp:add(jndi-name=java:jboss/datasources/jbpm-bam-cp,connection-url=${bam_connection_url},driver-class=${bam_driver_class},driver-name=${jdbc.module.name},user-name=${bam_db_user},password=${bam_db_password},pool-name=jbpm-bam_ds_pool,max-pool-size=50,min-pool-size=10)
-/profile=pfpCore/subsystem=datasources/data-source=jbpm-bam-cp:enable()
 
 ###################################       configure pfpCore profile to support hosting of MDB          #######################################
 ## use pfpCore profile for switchyard because still need hornetq remote resource adaptor functionality
@@ -49,7 +46,7 @@ batch
 /profile=pfpCore/subsystem=messaging/hornetq-server=default/remote-acceptor=netty/:remove
 /profile=pfpCore/subsystem=messaging/hornetq-server=default/remote-connector=netty-throughput/:remove
 
-# BAM queue
+# BAM queue (need to create local reference to remote queue  so that jbpm AsyncAuditLogProducer can send messages)
 /profile=pfpCore/subsystem=messaging/hornetq-server=default/jms-queue=${org.jboss.processFlow.bam.queue}/:add(entries=["queue/${org.jboss.processFlow.bam.queue}","java:jboss/exported/jms/${org.jboss.processFlow.bam.queue}"],durable=true)
 
 #  define a discovery-group for the messaging subcomponent of the pfpCore profile

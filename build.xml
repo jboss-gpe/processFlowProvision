@@ -421,6 +421,7 @@
         <sequential>
             <subant target="@{target}">
                 <fileset dir="services/kie-services-remote" includes="build.xml"/>
+                <fileset dir="services/asyncAuditLog" includes="build.xml"/>
             </subant>
         </sequential>
     </macrodef>
