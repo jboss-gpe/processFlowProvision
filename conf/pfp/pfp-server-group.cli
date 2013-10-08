@@ -49,6 +49,9 @@ batch
 /profile=pfpCore/subsystem=messaging/hornetq-server=default/remote-acceptor=netty/:remove
 /profile=pfpCore/subsystem=messaging/hornetq-server=default/remote-connector=netty-throughput/:remove
 
+# BAM queue
+/profile=pfpCore/subsystem=messaging/hornetq-server=default/jms-queue=${org.jboss.processFlow.bam.queue}/:add(entries=["queue/${org.jboss.processFlow.bam.queue}","java:jboss/exported/jms/${org.jboss.processFlow.bam.queue}"],durable=true)
+
 #  define a discovery-group for the messaging subcomponent of the pfpCore profile
 #  both hornetq-ra.rar as well as JMS connection factories will use this discovery-group rather than lookup via static IPs
 /profile=pfpCore/subsystem=messaging/hornetq-server=default/discovery-group=dg-group1/:add(socket-binding=messaging-group,refresh-timeout=10000)
