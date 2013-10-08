@@ -4,6 +4,6 @@ batch
 # pfpServicesTest:  useful for demonstrating a container managed client invoking PFP core ejb services
 # NOTE:  the following 'ejb-security-realm' will be found in $JBOSS_HOME/default-pfp/configuration/host.xml
 /host=${serverIpAddr}/core-service=management/security-realm=ejb-security-realm:add()
-/host=${serverIpAddr}/core-service=management/security-realm=ejb-security-realm/server-identity=secret:add(value="${pfp.core.remoting.base64.passcode}")
+/host=${serverIpAddr}/core-service=management/security-realm=ejb-security-realm/server-identity=secret:add(value="${bpm.core.remoting.base64.passcode}")
 
 run-batch

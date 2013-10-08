@@ -2,7 +2,7 @@
 
 batch
 
-/profile=pfpCore/subsystem=datasources/jdbc-driver=postgresql/:add(driver-name=postgresql,driver-module-name=org.postgresql.jdbc,driver-xa-datasource-class-name=org.postgresql.xa.PGXADataSource,jdbc-compliant=false)
+/profile=bpmCore/subsystem=datasources/jdbc-driver=postgresql/:add(driver-name=postgresql,driver-module-name=org.postgresql.jdbc,driver-xa-datasource-class-name=org.postgresql.xa.PGXADataSource,jdbc-compliant=false)
 
 # "full-ha" profile is used by ha JVMs 
 /profile=full-ha/subsystem=datasources/jdbc-driver=postgresql/:add(driver-name=postgresql,driver-module-name=org.postgresql.jdbc,driver-xa-datasource-class-name=org.postgresql.xa.PGXADataSource,jdbc-compliant=false)

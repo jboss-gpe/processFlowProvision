@@ -530,7 +530,7 @@ in general, what does the PFP ant script do ???
     - provisions an AS7 server called "domain-brmsWebs" that includes guvnor, bpm-console and web designer artifacts
     - configures embedded Hornetq such that its journal, paging and large-message directories could potentially be directed to different hard-disk partitions
     - configures Hornetq queue used to support PFP's async BAM event producer / consumer architecture
-    - creates an AS7 server-group called "pfp-core-group" with appropriate jvm and port settings to support deployment of PFP runtime services
+    - creates an AS7 server-group called "bpm-core-group" with appropriate jvm and port settings to support deployment of PFP runtime services
     - provisions an AS7 server called "domain-pfp" that includes PFP's bam, humanTask and knowledgeSession services
 
 
@@ -545,7 +545,7 @@ remote client examples
                 - implements the 'EJB client API' approach documented here:  https://docs.jboss.org/author/display/AS71/EJB+invocations+from+a+remote+client+using+JNDI
                 - procedure
                     - command terminal 1 
-                        - tail -f $JBOSS_HOME/domain-pfp/servers/pfp-core/log/server.log
+                        - tail -f $JBOSS_HOME/domain-pfp/servers/bpm-core/log/server.log
                     - command terminal 2 :  
                         - cd $PFP_HOME
                         - ant test.standaloneTask
@@ -553,15 +553,15 @@ remote client examples
                 - contains an example of conducting a lookup of the PFP kSessionService and taskService from a web archive in the same domain
                 - implements the approach documented here:  https://docs.jboss.org/author/display/AS71/EJB+invocations+from+a+remote+server+instance#
                 - deployment
-                    - pfp-core server hosts the PFP ksession, task and bam services
+                    - bpm-core server hosts the PFP ksession, task and bam services
                     - brms-webs server is used to host a test web archive called :  pfpServicesTest.war
-                    - the GETful functions of pfpServicesTest.war will invoke PFP EJB services hosted in pfp-core server
+                    - the GETful functions of pfpServicesTest.war will invoke PFP EJB services hosted in bpm-core server
                 - procedure
                     - create new application user
                         - new application user used for the following purposes :
                             1)  web access to business-central hosted in brmsWebs
                                 - the 'creditController' role is the group that the human task in simpleTask.bpmn is assigned to
-                            2)  access to the JBoss Remoting subsystem of pfpCore
+                            2)  access to the JBoss Remoting subsystem of bpmCore
                         - cd $JBOSS_HOME
                         - ./bin/add-user.sh
                             - What type of user do you wish to add?             :   (b) Application User
@@ -577,7 +577,7 @@ remote client examples
                         - tail -f domain-pfp/servers/brms-webs/log/server.log
 
                     - deploy pfpServicesTest.war into brmsWebs
-                        - pfpServicesTest.war has a sample http GETful application that will invoke the ksession service running on pfpCore
+                        - pfpServicesTest.war has a sample http GETful application that will invoke the ksession service running on bpmCore
 
                         - open a different terminal window
                         - cd $PFP_HOME
@@ -589,16 +589,16 @@ remote client examples
                         - should authentication problems occur, will see this error in terminal #1 :
                             ERROR [org.jboss.remoting.remote.connection] (Remoting "master:brms-webs" read-1) JBREM000200: Remote connection failed: javax.security.sasl.SaslException: Authentication failed: all available authentication mechanisms failed
 
-                    - start pfpCore server (containing ksessionService) 
-                        - ant local.provision.pfp.core
+                    - start bpmCore server (containing ksessionService) 
+                        - ant local.provision.bpm.core
 
-                    - invoke pfpServicesTest.war and proxy requests to ksessionService on pfpCore through ejb-security-realm
+                    - invoke pfpServicesTest.war and proxy requests to ksessionService on bpmCore through ejb-security-realm
                         - curl $HOSTNAME:8230/pfpServicesTest/all 
                             - should return:  Great Success!!
                             - in the brmsWebs log, you'll also see various logs regarding claiming and completing a task
-                            - look for the following indicating successful hand-shake between remote-outbound-connection from brmsWebs to JBoss Remoting on pfpCore:
+                            - look for the following indicating successful hand-shake between remote-outbound-connection from brmsWebs to JBoss Remoting on bpmCore:
 
-13:43:27,517 INFO  [org.jboss.ejb.client.remoting] (ejb-client-remote-connection-reconnect-4-thread-1) EJBCLIENT000013: Successful version handshake completed for receiver context EJBReceiverContext{clientContext=org.jboss.ejb.client.EJBClientContext@4a08e396, receiver=Remoting connection EJB receiver [connection=Remoting connection <73f8dfc4>,channel=jboss.ejb,nodename=master:pfp-core]} on channel Channel ID ee2b32a0 (outbound) of Remoting connection 3c21fd47 to ratwaterIBM/192.168.122.1:4697
+13:43:27,517 INFO  [org.jboss.ejb.client.remoting] (ejb-client-remote-connection-reconnect-4-thread-1) EJBCLIENT000013: Successful version handshake completed for receiver context EJBReceiverContext{clientContext=org.jboss.ejb.client.EJBClientContext@4a08e396, receiver=Remoting connection EJB receiver [connection=Remoting connection <73f8dfc4>,channel=jboss.ejb,nodename=master:bpm-core]} on channel Channel ID ee2b32a0 (outbound) of Remoting connection 3c21fd47 to ratwaterIBM/192.168.122.1:4697
 
 
 
@@ -619,11 +619,11 @@ openshift provisioning
 
   - implementation approach
     - PFP is a client to one or more remote openshift accounts
-    - PFP uses account information provided in an xml file to provision an empty 'pfpCore' application (based on the jbosseap-6.0 cartridge) of those accounts
+    - PFP uses account information provided in an xml file to provision an empty 'bpmCore' application (based on the jbosseap-6.0 cartridge) of those accounts
     - PFP does so using the REST API exposed by Openshift as documented here :  
             http://docs.redhat.com/docs/en-US/OpenShift/2.0/html-single/REST_API_Guide/#chap-API_Guide-Add_Domain
     - the provisioning of multipe openshift accounts with empty applications can happen in parellel
-    - after each account has been provisioned with the empty pfpCore and brmsWebs applications, PFP then customizes each app with BRMS related components via ssh, rsync and git
+    - after each account has been provisioned with the empty bpmCore and brmsWebs applications, PFP then customizes each app with BRMS related components via ssh, rsync and git
 
   - pre-requisites : (applicable to both the public openshift as well as an internal Origin PaaS)
     1)  create one or more accounts with the following
@@ -642,26 +642,26 @@ openshift provisioning
     
     - ant openshift.provision.empty.accounts
         - reads as input the contents of ${openshift.account.details.file.location}
-        - multi-threaded java standalone app to provision empty pfpCore and brmsWebs apps in each account
+        - multi-threaded java standalone app to provision empty bpmCore and brmsWebs apps in each account
         if(openshift.account.refresh.domain)
             - will blow away any pre-existing accounts in openshift with the same account names defined in ${openshift.account.details.file.location}
-        if(openshift.account.create.pfp.core)
-            - will create pfpCore application with postgresql database
-            - will append pfpCore app details to ${openshift.account.details.file.location}
+        if(openshift.account.create.bpm.core)
+            - will create bpmCore application with postgresql database
+            - will append bpmCore app details to ${openshift.account.details.file.location}
         if(openshift.account.create.brms.webs)
             - will create brmsWebs application with postgresql database
             - will append brmsWebs app details to ${openshift.account.details.file.location}
 
     - ./bin/openshift.sh provisionAccountsWithPFP
         - reads as input the contents of ${openshift.account.details.file.location} and loops with every account
-        - uploads pfpCore and brmsWebs binaries
-        - modifies pfpCore and brmsWebs app configuration settings
+        - uploads bpmCore and brmsWebs binaries
+        - modifies bpmCore and brmsWebs app configuration settings
 
 
 openshift troubleshooting
     $ cd $PFP_HOME
     $  ./bin/openshift.sh bounceMultipleAccounts
-        - bounces brmsWebs and pfpCore apps in one or more accounts
+        - bounces brmsWebs and bpmCore apps in one or more accounts
         - reads as input the contents of ${openshift.account.details.file.location} and loops with every account
         - assumes the following is installed in the local operating system :
             1)  xmlstarlet
@@ -669,11 +669,11 @@ openshift troubleshooting
 
 
     $ ./bin/openshift.sh bounceMultipleKBase
-        - refreshes kbase in pfpCore from packages in guvnor hosted in brmsWebs
+        - refreshes kbase in bpmCore from packages in guvnor hosted in brmsWebs
         - reads as input the contents of ${openshift.account.details.file.location} and loops with every account
         - executes the following commands per account :
-            curl -X PUT -HAccept:text/plain ${pfp.core.app.url}/knowledgeService/kbase
-            curl -X GET -HAccept:text/plain ${pfp.core.app.url}/knowledgeService/kbase/content  
+            curl -X PUT -HAccept:text/plain ${bpm.core.app.url}/knowledgeService/kbase
+            curl -X GET -HAccept:text/plain ${bpm.core.app.url}/knowledgeService/kbase/content  
                 - prints content of kbase to /tmp/kbaseRefreshResults.log
         - assumes the following is installed in the local operating system :
             1)  xmlstarlet

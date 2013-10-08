@@ -1,0 +1,115 @@
+batch
+
+/profile=bpmCore/subsystem=datasources/data-source=ExampleDS/:disable
+/profile=bpmCore/subsystem=datasources/data-source=ExampleDS/:remove
+/profile=bpmCore/subsystem=ejb3/:write-attribute(name=enable-statistics,value=true)
+
+/profile=bpmCore/subsystem=logging/logger=org.quartz/:add(category=org.quartz,level=TRACE,use-parent-handlers=true)
+
+
+# filter out all jbpm5 related log messages related to its inability to correctly parse BPMN2 as per :
+#   https://community.jboss.org/message/784580?tstart=0
+/profile=bpmCore/subsystem=logging/periodic-rotating-file-handler=FILE:update-properties(filter={"not" => {"match"=>tFormalExpression|bpsim:|bpsim.xsd|drools.xsd|BPMN20.xsd|dc:Point|bpmn2:tFormalExpression|bpmn2:definitions}})
+
+/profile=bpmCore/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:undefine-attribute(name=connector)
+/profile=bpmCore/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:undefine-attribute(name=connector)
+run-batch
+
+
+batch
+
+###  TRACE logging of hornetq client
+#/profile=bpmCore/subsystem=logging/logger=org.hornetq.core.client.impl/:add(category=org.hornetq.core.client.impl,level=TRACE,use-parent-handlers=true)
+
+### non-XA datasource connection pools to jbpm core database
+##  can get away with using a non-XA datasource for jbpm core database due to Last Resource Commit optimization of JBoss Transaction Manager
+/profile=bpmCore/subsystem=datasources/data-source=jbpm-core-cp:add(jndi-name=java:jboss/datasources/jbpm-core-cp,connection-url=${jbpm_connection_url},driver-class=${jbpm_driver_class},driver-name=${jdbc.module.name},user-name=${jbpm_db_user},password=${jbpm_db_password},pool-name=jbpm-core_ds_pool,max-pool-size=50,min-pool-size=10)
+/profile=bpmCore/subsystem=datasources/data-source=jbpm-core-cp:enable()
+
+###################################       configure bpmCore profile to support hosting of MDB          #######################################
+## use bpmCore profile for switchyard because still need hornetq remote resource adaptor functionality
+## which, needs hornetq subsystem as per:  https://community.jboss.org/message/756775
+/profile=bpmCore/subsystem=messaging/hornetq-server=default/:write-attribute(name=persistence-enabled,value=false)
+/profile=bpmCore/subsystem=messaging/hornetq-server=default/:undefine-attribute(name=journal-file-size)
+/profile=bpmCore/subsystem=messaging/hornetq-server=default/:undefine-attribute(name=journal-min-files)
+/profile=bpmCore/subsystem=messaging/hornetq-server=default/address-setting=#/:remove
+/profile=bpmCore/subsystem=messaging/hornetq-server=default/security-setting=#/:remove
+/profile=bpmCore/subsystem=messaging/hornetq-server=default/connection-factory=InVmConnectionFactory/:remove
+/profile=bpmCore/subsystem=messaging/hornetq-server=default/in-vm-acceptor=in-vm/:remove
+/profile=bpmCore/subsystem=messaging/hornetq-server=default/in-vm-connector=in-vm/:remove
+/profile=bpmCore/subsystem=messaging/hornetq-server=default/remote-acceptor=netty-throughput/:remove
+/profile=bpmCore/subsystem=messaging/hornetq-server=default/remote-acceptor=netty/:remove
+/profile=bpmCore/subsystem=messaging/hornetq-server=default/remote-connector=netty-throughput/:remove
+
+# BAM queue (need to create local reference to remote queue  so that jbpm AsyncAuditLogProducer can send messages)
+/profile=bpmCore/subsystem=messaging/hornetq-server=default/jms-queue=${org.jboss.processFlow.bam.queue}/:add(entries=["queue/${org.jboss.processFlow.bam.queue}","java:jboss/exported/jms/${org.jboss.processFlow.bam.queue}"],durable=true)
+
+#  define a discovery-group for the messaging subcomponent of the bpmCore profile
+#  both hornetq-ra.rar as well as JMS connection factories will use this discovery-group rather than lookup via static IPs
+/profile=bpmCore/subsystem=messaging/hornetq-server=default/discovery-group=dg-group1/:add(socket-binding=messaging-group,refresh-timeout=10000)
+
+# change pooled connection factory to use discovery-group rather than immediately using a netty connector
+/profile=bpmCore/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=discovery-group-name,value=dg-group1)
+
+ # configure hornetq-ra for HA behavior
+/profile=bpmCore/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=ha,value=true)
+/profile=bpmCore/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=reconnect-attempts,value=-1)
+
+#  # configure JMS connection factory avialable internally to beans;  ensure it uses correct discovery group and is HA
+/profile=bpmCore/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=discovery-group-name,value=dg-group1)
+/profile=bpmCore/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=entries,value=["java:/RemoteConnectionFactory"])
+/profile=bpmCore/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=ha,value=true)
+/profile=bpmCore/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=reconnect-attempts,value=-1)
+
+# Add a JNDI entry of "java:/ConnectionFactory" to ensure that it's used in the following class:  org.kie.services.remote.jms.RequestMessageBean
+/profile=bpmCore/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=entries,value=["java:/JmsXA","java:/ConnectionFactory"])
+
+
+# define an ejb outbound socket binding (called "remote-ejb") to point to hornetq-ha server
+# allows remote invocation of any ha EJB service on hornetq-ha server from bpm-core servers
+/socket-binding-group=full-sockets/remote-destination-outbound-socket-binding=remote-ejb/:add(fixed-source-port=false, port=${ha.remoting.port},host=${bpm.core.host.name})
+
+##################################################################################################################################
+
+
+
+# create bpmCore server group and start
+/server-group=${bpm.core.group}/:add(profile=bpmCore,socket-binding-group=full-sockets)
+
+# set hornetq specific system properties that reference broker discovery groups
+/server-group=${bpm.core.group}/system-property=jboss.messaging.group.address/:add(value=${jboss.messaging.group.address},boot-time=true)
+/server-group=${bpm.core.group}/system-property=jboss.messaging.group.port/:add(value=${jboss.messaging.group.port},boot-time=true)
+
+###  bpm-core-group system properties
+/server-group=${bpm.core.group}/system-property=organization.name/:add(value=${organization.name},boot-time=true)
+
+# enabled until JBAS014803: Duplicate resource [(\"system-property\" => \"hibernate.hbm2ddl.auto\")] problem is corrected in bpm-core-server.cli
+/server-group=${bpm.core.group}/system-property=hibernate.hbm2ddl.auto/:add(value=${hibernate.hbm2ddl.auto},boot-time=true)
+
+/server-group=${bpm.core.group}/system-property=hibernate.jdbc.batch_size/:add(value=${hibernate.jdbc.batch_size},boot-time=true)
+/server-group=${bpm.core.group}/system-property=hibernate.cache.use_second_level_cache/:add(value=${hibernate.cache.use_second_level_cache},boot-time=true)
+/server-group=${bpm.core.group}/system-property=hibernate.dialect/:add(value=${hibernate.dialect},boot-time=true)
+/server-group=${bpm.core.group}/system-property=hibernate.show_sql/:add(value=${hibernate.show_sql},boot-time=true)
+
+/server-group=${bpm.core.group}/system-property=org.jboss.processFlow.diagnostics.logBeforeBeanDiscovery/:add(value=${org.jboss.processFlow.diagnostics.logBeforeBeanDiscovery},boot-time=true)
+/server-group=${bpm.core.group}/system-property=org.jboss.processFlow.diagnostics.logProcessAnnotatedType/:add(value=${org.jboss.processFlow.diagnostics.logProcessAnnotatedType},boot-time=true)
+/server-group=${bpm.core.group}/system-property=org.jboss.processFlow.diagnostics.logAfterBeanDiscovery/:add(value=${org.jboss.processFlow.diagnostics.logAfterBeanDiscovery},boot-time=true)
+/server-group=${bpm.core.group}/system-property=org.jboss.processFlow.diagnostics.logProcessInjectionTarget/:add(value=${org.jboss.processFlow.diagnostics.logProcessInjectionTarget},boot-time=true)
+/server-group=${bpm.core.group}/system-property=org.jboss.processFlow.diagnostics.logProcessProducer/:add(value=${org.jboss.processFlow.diagnostics.logProcessProducer},boot-time=true)
+/server-group=${bpm.core.group}/system-property=org.jboss.processFlow.diagnostics.logAfterDeploymentValidation/:add(value=${org.jboss.processFlow.diagnostics.logAfterDeploymentValidation},boot-time=true)
+/server-group=${bpm.core.group}/system-property=org.jboss.processFlow.diagnostics.logBeforeShutdown/:add(value=${org.jboss.processFlow.diagnostics.logBeforeShutdown},boot-time=true)
+/server-group=${bpm.core.group}/system-property=org.jboss.processFlow.diagnostics.logProcessBean/:add(value=${org.jboss.processFlow.diagnostics.logProcessBean},boot-time=true)
+/server-group=${bpm.core.group}/system-property=org.jboss.processFlow.cdi.space.delimited.veto.classes/:add(value="${org.jboss.processFlow.cdi.space.delimited.veto.classes}",boot-time=true)
+
+/server-group=${bpm.core.group}/system-property=org.jboss.processFlow.deployments.json.config.path/:add(value="${org.jboss.processFlow.deployments.json.config.path}",boot-time=true)
+/server-group=${bpm.core.group}/system-property=org.kie.nio.git.deamon.enabled/:add(value="${org.kie.nio.git.deamon.enabled}",boot-time=true)
+/server-group=${bpm.core.group}/system-property=org.quartz.properties/:add(value="${org.quartz.properties}",boot-time=true)
+/server-group=${bpm.core.group}/system-property=jdbc.module.name/:add(value="${jdbc.module.name}",boot-time=true)
+
+/server-group=${bpm.core.group}/system-property=org.apache.cxf.stax.allowInsecureParser/:add(value="${org.apache.cxf.stax.allowInsecureParser}",boot-time=true)
+/server-group=${bpm.core.group}/system-property=jbpm.audit.jms.enabled/:add(value="${jbpm.audit.jms.enabled}",boot-time=true)
+run-batch
+
+batch
+deploy ${temp.pfp.services.dir}/kie-services-remote.war --name=kie-services-remote.war --server-groups=${bpm.core.group}
+run-batch

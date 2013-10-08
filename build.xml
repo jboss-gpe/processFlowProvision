@@ -161,28 +161,28 @@
         <antcall target="pfp.compile" />
 
         <!-- database drivers -->
-                <echo message="deploying following db modules locally:  ${jdbc.module.name}" />
-                <antcall target="filter">
-                    <param name="source.dir" value="conf/${jdbc.module.name}/modules"/>
-                    <param name="dest.dir" value="${pfp.module.path}"/>
-                </antcall>
-                <if><equals arg1="${jdbc.module.name}" arg2="postgresql" />
-                    <then>
-                        <copy overwrite="true" verbose="true" file="${postgresql.jdbc.lib.path}" todir="${temp.pfp.modules.dir}/org/postgresql/jdbc/main" />
-                        <copy overwrite="true" verbose="true" file="${postgresql.jdbc.lib.path}" todir="${pfp.module.path}/org/postgresql/jdbc/main" />
-                    </then></if>
-                <if><equals arg1="${jdbc.module.name}" arg2="mysql" />
-                    <then>
-                        <copy overwrite="true" verbose="true" file="${mysql.jdbc.lib.path}" todir="${temp.pfp.modules.dir}/com/mysql/jdbc/main" />
-                        <copy overwrite="true" verbose="true" file="${mysql.jdbc.lib.path}" todir="${pfp.module.path}/com/mysql/jdbc/main" />
-                    </then></if>
-                <if><equals arg1="${jdbc.module.name}" arg2="oracle" />
-                    <then>
-                        <copy overwrite="true" verbose="true" file="${oracle.jdbc.lib.path}" todir="${temp.pfp.modules.dir}/com/oracle/jdbc/main" />
-                        <copy overwrite="true" verbose="true" file="${oracle.jdbc.lib.path}" todir="${pfp.module.path}/com/oracle/jdbc/main" />
-                    </then></if>
-                <if><equals arg1="${jdbc.module.name}" arg2="h2" />
-                    <then><echo message="configure.jboss.modules() h2 driver already in eap6.*" /></then></if>
+        <echo message="deploying following db modules locally:  ${jdbc.module.name}" />
+        <antcall target="filter">
+            <param name="source.dir" value="conf/${jdbc.module.name}/modules"/>
+            <param name="dest.dir" value="${pfp.module.path}"/>
+        </antcall>
+        <if><equals arg1="${jdbc.module.name}" arg2="postgresql" />
+            <then>
+                <copy overwrite="true" verbose="true" file="${postgresql.jdbc.lib.path}" todir="${temp.pfp.modules.dir}/org/postgresql/jdbc/main" />
+                <copy overwrite="true" verbose="true" file="${postgresql.jdbc.lib.path}" todir="${pfp.module.path}/org/postgresql/jdbc/main" />
+            </then></if>
+        <if><equals arg1="${jdbc.module.name}" arg2="mysql" />
+            <then>
+                <copy overwrite="true" verbose="true" file="${mysql.jdbc.lib.path}" todir="${temp.pfp.modules.dir}/com/mysql/jdbc/main" />
+                <copy overwrite="true" verbose="true" file="${mysql.jdbc.lib.path}" todir="${pfp.module.path}/com/mysql/jdbc/main" />
+            </then></if>
+        <if><equals arg1="${jdbc.module.name}" arg2="oracle" />
+            <then>
+                <copy overwrite="true" verbose="true" file="${oracle.jdbc.lib.path}" todir="${temp.pfp.modules.dir}/com/oracle/jdbc/main" />
+                <copy overwrite="true" verbose="true" file="${oracle.jdbc.lib.path}" todir="${pfp.module.path}/com/oracle/jdbc/main" />
+            </then></if>
+        <if><equals arg1="${jdbc.module.name}" arg2="h2" />
+            <then><echo message="configure.jboss.modules() h2 driver already in eap6.*" /></then></if>
     </target> 
 
     <target name="local.deploy.jboss.modules" >
@@ -285,43 +285,43 @@
     </target>
     <!--
       pass following parameters to this target :
-        1) org.jboss.processFlow.provision.pfpCore
+        1) org.jboss.processFlow.provision.bpmCore
         2) refresh.master (optional)
     -->
-    <target name="local.provision.pfp.core">
+    <target name="local.provision.bpm.core">
         <if>
-            <equals arg1="${org.jboss.processFlow.provision.pfpCore}" arg2="true" />
+            <equals arg1="${org.jboss.processFlow.provision.bpmCore}" arg2="true" />
             <then>
                 <if>
                     <equals arg1="${refresh.master}" arg2="true" />
                     <then><antcall target="refresh.master" /></then>
                 </if>
-                <copy todir="${jboss.home}/domain-${organization.name}/configuration" file="conf/pfp/kie.deployments.json" overwrite="true" />
-                <copy todir="${jboss.home}/domain-${organization.name}/configuration" file="conf/pfp/${org.quartz.property.file.name}" overwrite="true" />
+                <copy todir="${jboss.home}/domain-${organization.name}/configuration" file="conf/bpm/kie.deployments.json" overwrite="true" />
+                <copy todir="${jboss.home}/domain-${organization.name}/configuration" file="conf/bpm/${org.quartz.property.file.name}" overwrite="true" />
                 <math result="ha.remoting.port" operand1="${base.remoting.port}" operation="+" operand2="${ha.group.port.offset}" datatype="int" />
                 <antcall target="cli.batch">
-                    <param name="cli.source.dir" value="conf/pfp"/>
-                    <param name="cli.to.filter.and.execute" value="pfp-server-group.cli"/>
+                    <param name="cli.source.dir" value="conf/bpm"/>
+                    <param name="cli.to.filter.and.execute" value="bpm-server-group.cli"/>
                     <param name="cli.fail.on.error" value="true"/>
                 </antcall>
                 <for list="${org.jboss.eap.host.list}" param="serverIpAddr">
                     <sequential>
                         <var name="serverIpAddr" value="@{serverIpAddr}" />
-                        <for list="${pfp.core.server.number.list}" param="serverNum">
+                        <for list="${bpm.core.server.number.list}" param="serverNum">
                             <sequential>
-                              <var name="pfp.core.server.id" value="pfp-core-@{serverNum}" />
-                              <math result="pfp.core.port.increment" operand1="100" operation="*" operand2="@{serverNum}" datatype="int" />
-                              <math result="pfp.core.port.offset" operand1="${pfp.core.base.port.offset}" operation="+" operand2="${pfp.core.port.increment}" datatype="int" />
-                              <math result="pfp.core.debugger.port" operand1="${pfp.core.base.debugger.port}" operation="+" operand2="${pfp.core.port.increment}" datatype="int" />
+                              <var name="bpm.core.server.id" value="bpm-core-@{serverNum}" />
+                              <math result="bpm.core.port.increment" operand1="100" operation="*" operand2="@{serverNum}" datatype="int" />
+                              <math result="bpm.core.port.offset" operand1="${bpm.core.base.port.offset}" operation="+" operand2="${bpm.core.port.increment}" datatype="int" />
+                              <math result="bpm.core.debugger.port" operand1="${bpm.core.base.debugger.port}" operation="+" operand2="${bpm.core.port.increment}" datatype="int" />
                               <var name="server.specific.hibernate.hbm2ddl.auto" value="validate" />
                               <if>
-                                <equals arg1="${pfp.core.server.id}" arg2="pfp-core-0" />
+                                <equals arg1="${bpm.core.server.id}" arg2="bpm-core-0" />
                                 <then><var name="server.specific.hibernate.hbm2ddl.auto" value="${hibernate.hbm2ddl.auto}" /></then>
                               </if>
-                              <echo message="local.provision.pfp.core() serverIpAddr=${serverIpAddr}  : pfp.core.server.id=${pfp.core.server.id} : pfp.core.port.offset=${pfp.core.port.offset} : pfp.core.debugger.port = ${pfp.core.debugger.port}  : server.specific.hibernate.hbm2ddl.auto = ${server.specific.hibernate.hbm2ddl.auto} " />
+                              <echo message="local.provision.bpm.core() serverIpAddr=${serverIpAddr}  : bpm.core.server.id=${bpm.core.server.id} : bpm.core.port.offset=${bpm.core.port.offset} : bpm.core.debugger.port = ${bpm.core.debugger.port}  : server.specific.hibernate.hbm2ddl.auto = ${server.specific.hibernate.hbm2ddl.auto} " />
                               <antcall target="cli.batch">
-                                <param name="cli.source.dir" value="conf/pfp"/>
-                                <param name="cli.to.filter.and.execute" value="pfp-server-up.cli"/>
+                                <param name="cli.source.dir" value="conf/bpm"/>
+                                <param name="cli.to.filter.and.execute" value="bpm-server-up.cli"/>
                                 <param name="cli.fail.on.error" value="true"/>
                               </antcall>
                             </sequential>
@@ -330,7 +330,7 @@
                 </for>
             </then>
             <else>
-                <echo message="local.provision.pfp.core:  org.jboss.processFlow.provision.pfpCore = ${org.jboss.processFlow.provision.pfpCore}" />
+                <echo message="local.provision.bpm.core:  org.jboss.processFlow.provision.bpmCore = ${org.jboss.processFlow.provision.bpmCore}" />
             </else>
         </if>
     </target>
@@ -403,7 +403,7 @@
                     <param name="cli.to.filter.and.execute" value="bpmsWebs-config-server.cli"/>
                     <param name="cli.fail.on.error" value="false"/>
                 </antcall>
-                <math result="pfp.core.remoting.port" operand1="${base.remoting.port}" operation="+" operand2="${pfp.core.base.port.offset}" datatype="int" />
+                <math result="bpm.core.remoting.port" operand1="${base.remoting.port}" operation="+" operand2="${bpm.core.base.port.offset}" datatype="int" />
                 <antcall target="cli.batch">
                     <param name="cli.source.dir" value="conf/bpmsWebs"/>
                     <param name="cli.to.filter.and.execute" value="bpmsWebs-config-up.cli"/>
@@ -471,14 +471,14 @@
         <delete file="${install.home}/lib/${bpms.deployer.zip.name}" />
         <antcall target="download.and.unzip.bpms.deployer" />
         <copy todir="${jboss.home}/modules" file="conf/jboss/layers.conf" overwrite="true" />
-        <antcall target="local.bounce.pfp.core" />
+        <antcall target="local.bounce.bpm.core" />
     </target>
     <target name="pfp.print.common.test.rest.calls" description="">
-        <math result="pfp.core.http.port" operand1="8080" operation="+" operand2="${pfp.core.base.port.offset}" datatype="int" />
-        <echo message="curl -v -u ${pfp.core.remoting.user.name}:${pfp.core.remoting.password} -X GET http://${os.hostname}:${pfp.core.http.port}/${org.jboss.processFlow.kie.services.web.context}/rest/additional/runtime/git-playground/processes" />
-        <echo message="curl -v -u ${pfp.core.remoting.user.name}:${pfp.core.remoting.password} -X GET http://${os.hostname}:${pfp.core.http.port}/${org.jboss.processFlow.kie.services.web.context}/rest/additional/runtime/com.redhat.gpe:test-module:1.0/processes" />
-        <echo message="curl -v -u ${pfp.core.remoting.user.name}:${pfp.core.remoting.password} -X POST http://${os.hostname}:${pfp.core.http.port}/${org.jboss.processFlow.kie.services.web.context}/rest/runtime/git-playground/process/simpleTask/start" />
-        <echo message="curl -v -u ${pfp.core.remoting.user.name}:${pfp.core.remoting.password} -X POST http://${os.hostname}:${pfp.core.http.port}/${org.jboss.processFlow.kie.services.web.context}/rest/runtime/com.redhat.gpe:test-module:1.0/process/simpleTask/start" />
+        <math result="bpm.core.http.port" operand1="8080" operation="+" operand2="${bpm.core.base.port.offset}" datatype="int" />
+        <echo message="curl -v -u ${bpm.core.remoting.user.name}:${bpm.core.remoting.password} -X GET http://${os.hostname}:${bpm.core.http.port}/${org.jboss.processFlow.kie.services.web.context}/rest/additional/runtime/git-playground/processes" />
+        <echo message="curl -v -u ${bpm.core.remoting.user.name}:${bpm.core.remoting.password} -X GET http://${os.hostname}:${bpm.core.http.port}/${org.jboss.processFlow.kie.services.web.context}/rest/additional/runtime/com.redhat.gpe:test-module:1.0/processes" />
+        <echo message="curl -v -u ${bpm.core.remoting.user.name}:${bpm.core.remoting.password} -X POST http://${os.hostname}:${bpm.core.http.port}/${org.jboss.processFlow.kie.services.web.context}/rest/runtime/git-playground/process/simpleTask/start" />
+        <echo message="curl -v -u ${bpm.core.remoting.user.name}:${bpm.core.remoting.password} -X POST http://${os.hostname}:${bpm.core.http.port}/${org.jboss.processFlow.kie.services.web.context}/rest/runtime/com.redhat.gpe:test-module:1.0/process/simpleTask/start" />
     </target>
 
     <target name="all" >
@@ -494,7 +494,7 @@
             <param name="refresh.master" value="false"/>
         </antcall>
         <antcall target="local.provision.ha.jvms" />
-        <antcall target="local.provision.pfp.core">
+        <antcall target="local.provision.bpm.core">
             <param name="refresh.master" value="false"/>
         </antcall>
         <antcall target="local.provision.switchyard">

@@ -264,34 +264,6 @@
         </exec>
     </target>
 
-    <target name="resolve.local.or.openshift.properties" >
-        <!--echo message="resolve.local.or.openshift.properties:  is.deployment.local = ${is.deployment.local}" / -->
-        <if>
-            <equals arg1="${is.deployment.local}" arg2="false" />
-            <then>
-                <property name="jbpm.console.server.host" value="${openshift.pfpCore.uri}"/>
-                <property name="jbpm.console.server.port" value="80"/>
-                <property name="jbpm.conf.dir" value="/var/lib/stickshift/${openshift.pfpCore.user.hash}/pfpCore/${openshift.jboss.cartridge.type}/standalone/configuration/modules/org/jbpm/configuration/main"/>
-                <property name="guvnor.host" value="${openshift.pfpCore.internal.ip}:8080"/>
-                <property name="guvnor.external.host" value="${openshift.pfpCore.uri}"/>
-                <property name="org.jboss.processFlow.remoting.ejb.receiver" value=""/>
-                <property name="openshift.drools.session.template.path" 
-                        value="${openshift.pfpCore.home.dir}/${openshift.jboss.cartridge.type}/${openshift.jboss.cartridge.type}/standalone/configuration/drools.session.template"/>
-            </then>
-            <else>
-                <property name="jbpm.console.server.host" value="${os.hostname}"/>
-                <property name="jbpm.console.server.port" value="${brms.webs.http.port}"/>
-                <property name="jbpm.conf.dir" value="${pfp.module.path}/org/jbpm/configuration/main"/>
-                <property name="guvnor.host" value="${os.hostname}:${brms.webs.http.port}"/>
-                <property name="guvnor.external.host" value="${guvnor.host}"/>
-                <property name="org.jboss.processFlow.remoting.ejb.receiver" value="${local.org.jboss.processFlow.remoting.ejb.receiver}"/>
-                <property name="org.jboss.remoting.host.name" value="${os.hostname}"/>
-                <property name="org.jboss.remoting.port" value="${ha.remoting.port}"/>
-                <property name="org.jboss.processFlow.is.hornetq.inVm" value="false"/>
-            </else>
-        </if>
-    </target>
-
     <target name="local.bounce.hornetq" description="">
         <if><not><equals arg1="group.stop" arg2="false" /></not><then>
             <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
@@ -306,18 +278,18 @@
             <arg value="/server-group=ha.group/:start-servers"/>
         </exec>
     </target>
-    <target name="local.bounce.pfp.core" description="">
+    <target name="local.bounce.bpm.core" description="">
         <if><not><equals arg1="group.stop" arg2="false" /></not><then>
             <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
                 <arg value="--connect"/>
                 <arg value="--controller=${os.hostname}:${management.port}"/>
-                <arg value="/server-group=${pfp.core.group}/:stop-servers"/>
+                <arg value="/server-group=${bpm.core.group}/:stop-servers"/>
             </exec>
         </then></if>
         <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
             <arg value="--connect"/>
             <arg value="--controller=${os.hostname}:${management.port}"/>
-            <arg value="/server-group=${pfp.core.group}/:start-servers"/>
+            <arg value="/server-group=${bpm.core.group}/:start-servers"/>
         </exec>
     </target>
     <target name="local.bounce.brms.webs" description="">
@@ -358,12 +330,12 @@
         <antcall target="local.start.master" />
         <antcall target="local.bounce.hornetq" />
         <if>
-            <equals arg1="${org.jboss.processFlow.provision.pfpCore}" arg2="true" />
-            <then><antcall target="local.bounce.pfp.core"  ><param name="group.stop" value="false"/></antcall></then>
+            <equals arg1="${org.jboss.processFlow.provision.bpmCore}" arg2="true" />
+            <then><antcall target="local.bounce.bpm.core"  ><param name="group.stop" value="false"/></antcall></then>
         </if>
         <if>
             <equals arg1="${org.jboss.processFlow.provision.brmsWebs}" arg2="true" />
-            <then><antcall target="local.bounce.brms.webs"  ><param name="group.stop" value="false"/></antcall></then>
+            <then><antcall target="local.bounce.bpm.webs"  ><param name="group.stop" value="false"/></antcall></then>
         </if>
         <if>
             <equals arg1="${org.jboss.processFlow.provision.switchyard}" arg2="true" />
@@ -410,7 +382,7 @@
         - using depends because with antcall :  The called target(s) are run in a new project; 
         - be aware that this means properties, references, etc. set by called targets will not persist back to the calling project.
     -->
-    <target name="filter" depends="resolve.local.or.openshift.properties" >
+    <target name="filter">
         <fail unless="source.dir" message="filter:  need to pass 'source.dir' property" />
         <fail unless="dest.dir" message="filter:  need to pass 'dest.dir' property" />
         <!--echo message="filter:  source.dir = ${source.dir} :  dest.dir = ${dest.dir}" / -->
