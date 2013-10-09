@@ -28,17 +28,17 @@ batch
 
 ### jta/non-XA datasource connection pools to jbpm and jbpm_bam databases
 ##  can get away with using a non-XA datasource for jbpm / jbpm_bam databases due to Last Resource Commit optimization of JBoss Transaction Manager
-/profile=pfpCore/subsystem=datasources/data-source=jbpm-core-cp:add(jndi-name=java:jboss/datasources/jbpm-core-cp,connection-url=${jbpm_connection_url},driver-class=${jbpm_driver_class},driver-name=${jdbc.module.name},user-name=${jbpm_db_user},password=${jbpm_db_password},pool-name=jbpm-core_ds_pool,max-pool-size=50,min-pool-size=0,jta=true,allocation-retry=12,allocation-retry-wait-millis=10000)
-/profile=pfpCore/subsystem=datasources/data-source=jbpm-core-cp/:write-attribute(name=new-connection-sql,value="select 1;")
+/profile=pfpCore/subsystem=datasources/data-source=jbpm-core-cp:add(jndi-name=java:jboss/datasources/jbpm-core-cp,connection-url="${jbpm_connection_url}",driver-class=${jbpm_driver_class},driver-name=${jdbc.module.name},user-name=${jbpm_db_user},password=${jbpm_db_password},pool-name=jbpm-core_ds_pool,max-pool-size=50,min-pool-size=0,jta=true,allocation-retry=12,allocation-retry-wait-millis=10000)
+/profile=pfpCore/subsystem=datasources/data-source=jbpm-core-cp/:write-attribute(name=new-connection-sql,value="${org.jboss.processFlow.connection.test}")
 /profile=pfpCore/subsystem=datasources/data-source=jbpm-core-cp:enable()
 
-/profile=pfpCore/subsystem=datasources/data-source=jbpm-bam-cp:add(jndi-name=java:jboss/datasources/jbpm-bam-cp,connection-url=${bam_connection_url},driver-class=${bam_driver_class},driver-name=${jdbc.module.name},user-name=${bam_db_user},password=${bam_db_password},pool-name=jbpm-bam_ds_pool,max-pool-size=50,min-pool-size=0,jta=true,allocation-retry=12,allocation-retry-wait-millis=10000)
-/profile=pfpCore/subsystem=datasources/data-source=jbpm-bam-cp/:write-attribute(name=new-connection-sql,value="select 1;")
+/profile=pfpCore/subsystem=datasources/data-source=jbpm-bam-cp:add(jndi-name=java:jboss/datasources/jbpm-bam-cp,connection-url="${bam_connection_url}",driver-class=${bam_driver_class},driver-name=${jdbc.module.name},user-name=${bam_db_user},password=${bam_db_password},pool-name=jbpm-bam_ds_pool,max-pool-size=50,min-pool-size=0,jta=true,allocation-retry=12,allocation-retry-wait-millis=10000)
+/profile=pfpCore/subsystem=datasources/data-source=jbpm-bam-cp/:write-attribute(name=new-connection-sql,value="${org.jboss.processFlow.connection.test}")
 /profile=pfpCore/subsystem=datasources/data-source=jbpm-bam-cp:enable()
 
 ### non-jta/non-XA datasource connection pools to jbpm database for Quartz requirements
-/profile=pfpCore/subsystem=datasources/data-source=jbpm-core-cp-non-jta:add(jndi-name=java:jboss/datasources/jbpm-core-cp-non-jta,connection-url=${jbpm_connection_url},driver-class=${jbpm_driver_class},driver-name=${jdbc.module.name},user-name=${jbpm_db_user},password=${jbpm_db_password},pool-name=jbpm-core_ds_pool,max-pool-size=5,min-pool-size=1,jta=false,allocation-retry=12,allocation-retry-wait-millis=10000)
-/profile=pfpCore/subsystem=datasources/data-source=jbpm-core-cp-non-jta/:write-attribute(name=new-connection-sql,value="select 1;")
+/profile=pfpCore/subsystem=datasources/data-source=jbpm-core-cp-non-jta:add(jndi-name=java:jboss/datasources/jbpm-core-cp-non-jta,connection-url="${jbpm_connection_url}",driver-class=${jbpm_driver_class},driver-name=${jdbc.module.name},user-name=${jbpm_db_user},password=${jbpm_db_password},pool-name=jbpm-core_ds_pool,max-pool-size=5,min-pool-size=1,jta=false,allocation-retry=12,allocation-retry-wait-millis=10000)
+/profile=pfpCore/subsystem=datasources/data-source=jbpm-core-cp-non-jta/:write-attribute(name=new-connection-sql,value="${org.jboss.processFlow.connection.test}")
 /profile=pfpCore/subsystem=datasources/data-source=jbpm-core-cp-non-jta:enable()
 
 
