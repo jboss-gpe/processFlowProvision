@@ -92,10 +92,17 @@ public class RESTApplicationScopedProducer {
     public WorkItemHandlerProducer setWorkItemHandlerProducer() {
         return new VfsMVELWorkItemHandlerProducer((VFSDeploymentService)vfsService, getIOService());
     }
-    
+   
+    /* injects into:  
+        1) org.jbpm.kie.service.impl.AbstractDeploymentService 
+        2) org.jboss.processFlow.services.remote.cdi.RESTRequestScopedProducer
+    /* 
     @Produces
     public EntityManagerFactory getEntityManagerFactory() {
-        return jbpmCoreEMF;
+        if(true)
+            return null;
+        else
+            return jbpmCoreEMF;
     }
     
     @Produces
