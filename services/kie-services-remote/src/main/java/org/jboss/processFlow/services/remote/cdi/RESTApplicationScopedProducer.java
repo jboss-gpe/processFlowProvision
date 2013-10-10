@@ -96,13 +96,10 @@ public class RESTApplicationScopedProducer {
     /* injects into:  
         1) org.jbpm.kie.service.impl.AbstractDeploymentService 
         2) org.jboss.processFlow.services.remote.cdi.RESTRequestScopedProducer
-    /* 
+    */ 
     @Produces
     public EntityManagerFactory getEntityManagerFactory() {
-        if(true)
-            return null;
-        else
-            return jbpmCoreEMF;
+        return jbpmCoreEMF;
     }
     
     @Produces
