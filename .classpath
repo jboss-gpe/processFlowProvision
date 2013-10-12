@@ -109,5 +109,14 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="/kie-nio2-api"/>
+	<classpathentry kind="lib" path="/home/jbride/.m2/repository/commons-codec/commons-codec/1.4/commons-codec-1.4.jar">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.groupId" value="commons-codec"/>
+			<attribute name="maven.artifactId" value="commons-codec"/>
+			<attribute name="maven.version" value="1.4"/>
+			<attribute name="maven.scope" value="compile"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="target"/>
 </classpath>

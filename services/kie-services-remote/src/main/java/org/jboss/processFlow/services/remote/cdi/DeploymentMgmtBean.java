@@ -17,6 +17,7 @@ import org.jbpm.kie.services.api.Kjar;
 import org.jbpm.kie.services.api.Vfs;
 import org.jbpm.kie.services.impl.KModuleDeploymentUnit;
 import org.jbpm.kie.services.impl.VFSDeploymentUnit;
+import org.kie.api.marshalling.ObjectMarshallingStrategy;
 import org.kie.commons.io.FileSystemType;
 import org.kie.commons.io.IOService;
 import org.kie.commons.java.nio.file.FileSystem;
@@ -31,15 +32,15 @@ import org.slf4j.LoggerFactory;
  purpose:  Create and trigger org.jbpm.kie.services.impl.event.Deploy &  org.jbpm.kie.services.impl.event.UnDeploy events.
     - there are two types of Deploy events:
         1)  import org.jbpm.kie.services.impl.KModuleDeploymentUnit
-        2)  import org.jbpm.kie.services.impl.VFSDeploymentUnit; 
+        2)  import org.jbpm.kie.services.impl.PfpVFSDeploymentUnit; 
     - These events are captured by org.kie.services.remote.cdi.RuntimeManagerManager (which is the entry point into the BPMS "Execution Server")
         - the Execution Server subsequently uses these Deploy events to instantiate and populate corresponding kieBase objects via a KieContainer
         - org.kie.api.runtime.KieContainer is the container for all the KieBases of a given KieModule
 
     - Note:  
-        - KieContainer, KModule and KieBase objects are all created via use of either KModuleDeploymentUnit and/or VFSDeploymentUnit
-        - VFSDeploymentUnit(s)
-            - KnowledgeSession strategy is defined in this DeploymentUnit as it processes PFP's :  kie.deployments.json
+        - KieContainer, KModule and KieBase objects are all created via use of either KModuleDeploymentUnit and/or PfpVFSDeploymentUnit
+        - PfpVFSDeploymentUnit(s)
+            - KnowledgeSession strategy is defined in this DeploymentUnit as per:  kie.deployments.json
             - workItemHandler mappings are registered with a kieSession via:
                1)  org.jbpm.kie.services.impl.VfsMVELWorkItemHandlerProducer
         - KModuleDeploymentUnit(s)
@@ -52,11 +53,11 @@ public class DeploymentMgmtBean implements IDeploymentMgmtBean {
     private static Logger log = LoggerFactory.getLogger("RESTApplicationStartup");
     
     @Inject
-    @Vfs  // org.jbpm.kie.services.impl.VFSDeploymentService
+    @Vfs  // org.jboss.processFlow.services.remote.cdi.PfpVFSDeploymentService extends org.jbpm.kie.services.impl.VFSDeploymentService
     private DeploymentService vfsService;
     
     @Inject
-    @Kjar  // org.jbpm.kie.services.impl.KModuleDeploymentService
+    @Kjar // org.jboss.processFlow.services.remote.cdi.PfpKModuleDeploymentService extends org.jbpm.kie.services.impl.KModuleDeploymentService
     private DeploymentService kjarService;
     
     
@@ -76,7 +77,10 @@ public class DeploymentMgmtBean implements IDeploymentMgmtBean {
         }
     }
 
-    public void deployVFS(VFSDeploymentUnit dUnit) {
+   /* new ObjectMarshallingStrategy[]{
+            new TestStrategy(),
+            new SerializablePlaceholderResolverStrategy( ClassObjectMarshallingStrategyAcceptor.DEFAULT  )*/
+    public void deployVFS(IPfpDeploymentUnit dUnit) {
         String dIdentifier = dUnit.getIdentifier();
         if(vfsService.getDeployedUnit(dIdentifier) == null){
             // there is the potential that a DeployedUnit could still be registered with :
@@ -92,7 +96,7 @@ public class DeploymentMgmtBean implements IDeploymentMgmtBean {
             log.error("start() uh-oh .... not going to attempt to start the following VFS dUnit cause already registered : {}", dIdentifier);
         }
     }
-    public void deployKJar(KModuleDeploymentUnit dUnit) {
+    public void deployKJar(IPfpDeploymentUnit dUnit) {
         String dIdentifier = dUnit.getIdentifier();
         if(kjarService.getDeployedUnit(dIdentifier) == null){
             try {
@@ -116,16 +120,17 @@ public class DeploymentMgmtBean implements IDeploymentMgmtBean {
     }
     public void start() throws Exception {
         // ensureDeploymentFileSystemsExist 
-         Map<String, Map<String, String>> deployments = DeployUnitParser.getParsedJsonConfig();
+         Map<String, Map<String, String>> deployments = DeployUnitParser.reloadParsedJsonConfig();
          for(Entry<String, Map<String, String>> deployment : deployments.entrySet()) {
              Map<String, String> dHash = deployment.getValue();
             this.ensureDeploymentFileSystemExists(deployment.getKey(), dHash);
          }
+         log.info("start() org.kie.nio.git.daemon.enabled = "+System.getProperty("org.kie.nio.git.daemon.enabled"));
         for(DeploymentUnit dUnit : dUnits){
-            if(dUnit instanceof VFSDeploymentUnit ) {
-                deployVFS((VFSDeploymentUnit)dUnit);
+            if(dUnit instanceof PfpVFSDeploymentUnit ) {
+                deployVFS((PfpVFSDeploymentUnit)dUnit);
             }else if (dUnit instanceof KModuleDeploymentUnit){
-                deployKJar((KModuleDeploymentUnit)dUnit);
+                deployKJar((PfpKModuleDeploymentUnit)dUnit);
             }else{
                 log.error("start() unknown DeploymentUnit type: "+dUnit);
             }
@@ -169,12 +174,10 @@ public class DeploymentMgmtBean implements IDeploymentMgmtBean {
             if(fSystem == null){
                 String gitUser = dHash.get(DeployUnitParser.GIT_USER);
                 String gitPasswd = dHash.get(DeployUnitParser.GIT_PASSWD);
-                String localGitUrl = dHash.get(DeployUnitParser.GIT_LOCAL_REPO_URL);
                 String remoteGitUrl = dHash.get(DeployUnitParser.GIT_REMOTE_REPO_URL);
                 String gitOutDir = dHash.get(DeployUnitParser.GIT_OUT_DIR);
                 StringBuilder sBuilder = new StringBuilder();
                 sBuilder.append("\n\tdeploymentId = "+dHash.get(DeployUnitParser.DEPLOYMENT_ID));
-                sBuilder.append("\n\tlocalGitUrl = "+localGitUrl);
                 sBuilder.append("\n\tgitUser = "+gitUser);
                 sBuilder.append("\n\torigin = "+remoteGitUrl);
                 sBuilder.append("\n\tgitOutDir = "+gitOutDir);

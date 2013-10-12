@@ -264,7 +264,7 @@
         </exec>
     </target>
 
-    <target name="local.bounce.hornetq" description="">
+    <target name="local.bounce.ha" description="">
         <if><not><equals arg1="group.stop" arg2="false" /></not><then>
             <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
                 <arg value="--connect"/>
@@ -292,18 +292,18 @@
             <arg value="/server-group=${bpm.core.group}/:start-servers"/>
         </exec>
     </target>
-    <target name="local.bounce.brms.webs" description="">
+    <target name="local.bounce.bpms.webs" description="">
         <if><not><equals arg1="group.stop" arg2="false" /></not><then>
             <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
                 <arg value="--connect"/>
                 <arg value="--controller=${os.hostname}:${management.port}"/>
-                <arg value="/server-group=${brms.webs.group}/:stop-servers"/>
+                <arg value="/server-group=${bpms.webs.group}/:stop-servers"/>
             </exec>
         </then></if>
         <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
             <arg value="--connect"/>
             <arg value="--controller=${os.hostname}:${management.port}"/>
-            <arg value="/server-group=${brms.webs.group}/:start-servers"/>
+            <arg value="/server-group=${bpms.webs.group}/:start-servers"/>
         </exec>
     </target>
     <target name="local.bounce.sy" description="">
@@ -328,14 +328,14 @@
         </if>
         <antcall target="local.stop.master"  />
         <antcall target="local.start.master" />
-        <antcall target="local.bounce.hornetq" />
+        <antcall target="local.bounce.ha" />
         <if>
             <equals arg1="${org.jboss.processFlow.provision.bpmCore}" arg2="true" />
             <then><antcall target="local.bounce.bpm.core"  ><param name="group.stop" value="false"/></antcall></then>
         </if>
         <if>
-            <equals arg1="${org.jboss.processFlow.provision.brmsWebs}" arg2="true" />
-            <then><antcall target="local.bounce.bpm.webs"  ><param name="group.stop" value="false"/></antcall></then>
+            <equals arg1="${org.jboss.processFlow.provision.bpmsWebs}" arg2="true" />
+            <then><antcall target="local.bounce.bpms.webs"  ><param name="group.stop" value="false"/></antcall></then>
         </if>
         <if>
             <equals arg1="${org.jboss.processFlow.provision.switchyard}" arg2="true" />

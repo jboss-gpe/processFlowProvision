@@ -1,8 +1,19 @@
 batch
 
+# will use full profile until can remove local messaging requirements from business central
+
 /profile=full/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=append,value=false)
 
+# disable messaging persistence in this business-central JVM hornetq
+/profile=full/subsystem=messaging/hornetq-server=default/:write-attribute(name=persistence-enabled,value=false)
+
 /server-group=${bpms.webs.group}/:add(profile=full,socket-binding-group=full-sockets)
+
+/server-group=${bpms.webs.group}/system-property=org.kie.nio.git.daemon.enabled/:add(value="${org.kie.nio.git.daemon.enabled.web.tier}",boot-time=true)
+/server-group=${bpms.webs.group}/system-property=org.kie.nio.git.daemon.host/:add(value="${org.kie.nio.git.daemon.host}",boot-time=true)
+/server-group=${bpms.webs.group}/system-property=org.kie.nio.git.daemon.port/:add(value="${org.kie.nio.git.daemon.port}",boot-time=true)
+/server-group=${bpms.webs.group}/system-property=org.kie.nio.git.dir/:add(value="${org.kie.nio.git.dir}",boot-time=true)
+
 
 deploy ${biz.central.zipped} --name=${biz.central.name} --server-groups=${bpms.webs.group}
 run-batch

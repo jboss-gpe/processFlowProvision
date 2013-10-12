@@ -6,15 +6,17 @@ import javax.enterprise.context.RequestScoped;
 import javax.servlet.http.HttpServletRequest;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.Response.Status;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.drools.core.command.runtime.process.GetProcessIdsCommand;
 import org.kie.services.remote.rest.RestProcessRequestBean;
 import org.kie.api.command.Command;
@@ -68,6 +70,24 @@ public class AdditionalRESTResources {
         }
         ResponseBuilder builder = Response.ok(sBuilder.toString());
         return builder.build();
+    }
+    
+    /**
+     * sample usage :
+     *   curl -X PUT $HOSTNAME:8330/kie-jbpm-services/rest/additional/runtime/all/deploymentUnits
+     */
+    @PUT
+    @Produces({ "text/plain" })
+    @Path("/deploymentUnits")
+    public Response refreshDeploymentUnits() {
+        try {
+            dBean.stop();
+            dBean.start();
+            return Response.ok().build();
+        }catch(Exception x){
+            x.printStackTrace();
+            return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+        }
     }
     
     /**

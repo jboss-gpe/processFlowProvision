@@ -14,6 +14,8 @@ public class DeployUnitParser {
     public static final String DEPLOYMENTS_JSON_CONFIG_PATH = "org.jboss.processFlow.deployments.json.config.path";
     
     public static final String KSESSION_STRATEGY = "ksession.strategy";
+    public static final String ENGINE_TYPE = "engine.type";
+    public static final String MARSHALLING_STRATEGIES = "marshalling.strategies";
     public static final String DEPLOYMENT_ID = "deploymentId";
     public static final String REPO_FOLDER = "repoFolder";
     public static final String REPO_ALIAS = "repoAlias";
@@ -25,7 +27,6 @@ public class DeployUnitParser {
     public static final String KJAR = "kjar";
     public static final String GIT_USER = "gitUser";
     public static final String GIT_PASSWD = "gitPasswd";
-    public static final String GIT_LOCAL_REPO_URL = "localGitUrl";
     public static final String GIT_REMOTE_REPO_URL = "remoteGitUrl";
     public static final String ARTIFACT_ID = "artifactId";
     public static final String GROUP_ID = "groupId";
@@ -37,6 +38,9 @@ public class DeployUnitParser {
     private static Map<String, Map<String, String>> parsedJson;
     private static Object parseLock = new Object();
     
+    /*
+     * parse a json file of KieContainer properties.
+     */
     public static Map<String, Map<String, String>> getParsedJsonConfig() throws Exception {
         if(parsedJson != null)
             return parsedJson;
@@ -62,6 +66,11 @@ public class DeployUnitParser {
             iStream.close();
             return parsedJson;
         }
+    }
+    
+    public static Map<String, Map<String, String>> reloadParsedJsonConfig() throws Exception {
+        parsedJson = null;
+        return getParsedJsonConfig();
     }
 
 }

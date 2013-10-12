@@ -10,8 +10,8 @@ ASSUMPTIONS
 
 
 OVERVIEW
-    - PFP offers BRMS administrators & developers the following :
-      1)  this document which outlines the entire provisioning process of one example of a production BRMS deployable environment
+    - PFP offers BPMS administrators & developers the following :
+      1)  this document which outlines the entire provisioning process of one example of a production BPMS deployable environment
         - NOTE:  the tasks outlined in this document are written in sequential order
         - subsequently, it's best to start at the beginning of this document and progress in the order this doc is written
         - this document includes the following chapters:
@@ -20,22 +20,22 @@ OVERVIEW
             3)  INSTALL
             4)  POST INSTALL ADMINISTRATION
 
-      2)  an ant script which is executed as part of this BRMS deployable provisioning
+      2)  an ant script which is executed as part of this BPMS deployable provisioning
         - what does the ant script do ?
             - once Apache Ant 1.8.3 has been installed (as outlined below in this document), 
               you'll be able to view a description of the various ant targets by executing from the root of this project:   ant -p
         - how is the ant script executed ?
-            - there is a section towards the latter part of this document entitled:  "deploy BRMS runtime artifacts to JBoss EAP"
-            - if provisioning a new BRMS environment, then this section explains the how to execute the ant script to do that
+            - there is a section towards the latter part of this document entitled:  "deploy BPMS runtime artifacts to JBoss EAP"
+            - if provisioning a new BPMS environment, then this section explains the how to execute the ant script to do that
             - please ensure all of the previous steps outlined in this document have been completed prior to executing the ant script
 
 
-  - why doesn't PFP leverage BRMS Standalone rather than BRMS Deployable ?
-        - there are architectural decisions implemented in BRMS Standalone that are sufficient for a demo, but problably would not do well in production
-        - BRMS Deployable provides maximum flexibility by allowing a software team to embed supported Drools and jbpm5 libraries 
+  - why doesn't PFP leverage BPMS Standalone rather than BPMS Deployable ?
+        - there are architectural decisions implemented in BPMS Standalone that are sufficient for a demo, but problably would not do well in production
+        - BPMS Deployable provides maximum flexibility by allowing a software team to embed supported Drools and jbpm5 libraries 
           into a customer solution tailored toward their specific production requirements
-        - the PFP team has taken advantage of the flexibility provided by BRMS Deployable and built one example of an optimized, fully-featured and
-          easily administered BRMS production deployment.
+        - the PFP team has taken advantage of the flexibility provided by BPMS Deployable and built one example of an optimized, fully-featured and
+          easily administered BPMS production deployment.
 
 
 
@@ -228,7 +228,7 @@ INSTALL   :
             -- (as root) : route add -net 231.0.0.0 netmask 255.0.0.0 eth0
 
 
-    - deploy jBPM5/PFP "core" and "brms-webs" artifacts to JBoss EAP
+    - deploy jBPM5/PFP "core" and "bpms-webs" artifacts to JBoss EAP
         (as jboss)
             cd $JBOSS_PROJECTS/processFlowProvision
             vi build.properties    (please review/modify properties as appropriate as explained in this configuration file)
@@ -238,9 +238,9 @@ INSTALL   :
 
 POST INSTALL ADMINISTRATION
 
-    jboss-brms
-        -- point browser to the following URL   :  http://<$HOSTNAME>:8230/jboss-brms/org.drools.guvnor.Guvnor/Guvnor.jsp
-            - userId / password = admin/brms
+    jboss-bpms
+        -- point browser to the following URL   :  http://<$HOSTNAME>:8230/jboss-bpms/org.drools.guvnor.Guvnor/Guvnor.jsp
+            - userId / password = admin/bpms
             
             -- building "defaultPackage"
                 - it's been observed that defaultPackage needs to be built in Guvnor even if that package will not being used
@@ -276,9 +276,9 @@ POST INSTALL ADMINISTRATION
         - please reference privateServiceTaskRepo/README.txt for more details
 
 
-    BRMS business-central console
+    BPMS business-central console
         -- point browser to the following URL   :  http://<$HOSTNAME>:8230/business-central/app.html
-        -- login as:  jboss / brms
+        -- login as:  jboss / bpms
 
 
     REST interfaces
@@ -340,19 +340,19 @@ modifications to runtime directory structure
   - $JBOSS_HOME/server/default-${organization.name}             
         - PFP enabled JBoss runtime
         - created with execution of 'ant' from $JBOSS_PROJECTS/processFlowProvision
-        - new directory is cloned from $JBOSS_HOME/server/default and then modified with BRMS and PFP enhancements
+        - new directory is cloned from $JBOSS_HOME/server/default and then modified with BPMS and PFP enhancements
 
 
   - $JBOSS_HOME/server/default-${organization.name}/deploy/${organization.name}
-        - hot deployable runtime directory with most BRMS and PFP artifacts
+        - hot deployable runtime directory with most BPMS and PFP artifacts
 
   
   - $JBOSS_HOME/server/default-${organization.name}/deploy/properties-service.xml
-        - MBean that registers various BRMS and PFP system properties
+        - MBean that registers various BPMS and PFP system properties
 
 
   - $JBOSS_HOME/server/default-${organization.name}/lib/${organization.name}
-        - location of all BRMS and PFP static libraries
+        - location of all BPMS and PFP static libraries
         - JBoss adds these static libraries to its unifiedclassloader where these classes are accessible by all runtime artifacts
 
 
@@ -397,9 +397,9 @@ Guvnor Configurations
 
 Guvnor automation
     -   guvnor-webapp-core/src/test/java/org/drools/guvnor/server/jaxrs/BasicPackageResourceTest.java
-    - curl -u admin:admin -HAccept:application/xml http://ratwaterIBM:8080/jboss-brms/rest/packages       > allPackages.xml
-    - curl -u admin:admin $HOSTNAME:8080/jboss-brms/rest/packages/org.jboss.processFlow/binary   > org.jboss.processFlow_LATEST.pkg
-    - curl -u admin:admin $HOSTNMAME:8080/jboss-brms/rest/packages/test-pfp-snapshot/binary   > org.jboss.processFlow_test-pfp-snapshot.pkg 
+    - curl -u admin:admin -HAccept:application/xml http://ratwaterIBM:8080/jboss-bpms/rest/packages       > allPackages.xml
+    - curl -u admin:admin $HOSTNAME:8080/jboss-bpms/rest/packages/org.jboss.processFlow/binary   > org.jboss.processFlow_LATEST.pkg
+    - curl -u admin:admin $HOSTNMAME:8080/jboss-bpms/rest/packages/test-pfp-snapshot/binary   > org.jboss.processFlow_test-pfp-snapshot.pkg 
 
     - Publish Drools artifacts from a production environment
         - https://community.jboss.org/wiki/PublishDroolsartifactsfromaproductionenvironment
@@ -429,7 +429,7 @@ Work Item Handlers in ProcessFlowProvision
 
 
     runtime considerations as follows :
-        -- Creating & configuring custom work item handlers in processFlowProvision is almost identical to creating custom work item handlers in stock BRMS
+        -- Creating & configuring custom work item handlers in processFlowProvision is almost identical to creating custom work item handlers in stock BPMS
         -- Background Documentation :       12.1.3  Registering your own service handlers
         -- The following are a few processFlowProvision additions :
 
@@ -521,13 +521,13 @@ in general, what does the PFP ant script do ???
     - returns AS7 environment to original state (promoting a repeatable runtime environment)
     - configures AS7 modules from drools, jbpm5 and PFP libraries
     - configures AS7 modules of either mysql or postgresql libraries
-    - creates an AS7 server-group called "brms-webs-group" with appropriate jvm and port settings to support the deployment of guvnor, designer and bpm-console
+    - creates an AS7 server-group called "bpms-webs-group" with appropriate jvm and port settings to support the deployment of guvnor, designer and bpm-console
     - configures the following AS7 datasource pools from either mysql or postgresql drivers:
         1) guvnor-cp
         2)  jbpm-core-cp
         3)  jbpm-bam-cp
     - downloads latest community drools guvnor, bpm-console and web designer releases (if not already present on local drive)
-    - provisions an AS7 server called "domain-brmsWebs" that includes guvnor, bpm-console and web designer artifacts
+    - provisions an AS7 server called "domain-bpmsWebs" that includes guvnor, bpm-console and web designer artifacts
     - configures embedded Hornetq such that its journal, paging and large-message directories could potentially be directed to different hard-disk partitions
     - configures Hornetq queue used to support PFP's async BAM event producer / consumer architecture
     - creates an AS7 server-group called "bpm-core-group" with appropriate jvm and port settings to support deployment of PFP runtime services
@@ -554,40 +554,40 @@ remote client examples
                 - implements the approach documented here:  https://docs.jboss.org/author/display/AS71/EJB+invocations+from+a+remote+server+instance#
                 - deployment
                     - bpm-core server hosts the PFP ksession, task and bam services
-                    - brms-webs server is used to host a test web archive called :  pfpServicesTest.war
+                    - bpms-webs server is used to host a test web archive called :  pfpServicesTest.war
                     - the GETful functions of pfpServicesTest.war will invoke PFP EJB services hosted in bpm-core server
                 - procedure
                     - create new application user
                         - new application user used for the following purposes :
-                            1)  web access to business-central hosted in brmsWebs
+                            1)  web access to business-central hosted in bpmsWebs
                                 - the 'creditController' role is the group that the human task in simpleTask.bpmn is assigned to
                             2)  access to the JBoss Remoting subsystem of bpmCore
                         - cd $JBOSS_HOME
                         - ./bin/add-user.sh
                             - What type of user do you wish to add?             :   (b) Application User
                             - Username                                          :   pfp
-                            - Password                                          :   brms
+                            - Password                                          :   bpms
                             - What roles do you want this user to belong to?    :   creditController
 
-                    - start brmsWebs server
+                    - start bpmsWebs server
                         - cd $PFP_HOME
-                        - ant local.provision.brms.webs -Drefresh.master=true
+                        - ant local.provision.bpms.webs -Drefresh.master=true
 
-                    - monitor brmsWebs log file
-                        - tail -f domain-pfp/servers/brms-webs/log/server.log
+                    - monitor bpmsWebs log file
+                        - tail -f domain-pfp/servers/bpms-webs/log/server.log
 
-                    - deploy pfpServicesTest.war into brmsWebs
+                    - deploy pfpServicesTest.war into bpmsWebs
                         - pfpServicesTest.war has a sample http GETful application that will invoke the ksession service running on bpmCore
 
                         - open a different terminal window
                         - cd $PFP_HOME
                         - ant test.webTask 
 
-                    - review brmsWebs log files
-                        - should now see the following statement brmsWebs log file
+                    - review bpmsWebs log files
+                        - should now see the following statement bpmsWebs log file
                             DEBUG [org.jboss.as.ee.structure.EJBClientDescriptorParsingProcessor] Successfully parsed jboss-ejb-client.xml for deployment unit deployment "pfpServicesTest.war"
                         - should authentication problems occur, will see this error in terminal #1 :
-                            ERROR [org.jboss.remoting.remote.connection] (Remoting "master:brms-webs" read-1) JBREM000200: Remote connection failed: javax.security.sasl.SaslException: Authentication failed: all available authentication mechanisms failed
+                            ERROR [org.jboss.remoting.remote.connection] (Remoting "master:bpms-webs" read-1) JBREM000200: Remote connection failed: javax.security.sasl.SaslException: Authentication failed: all available authentication mechanisms failed
 
                     - start bpmCore server (containing ksessionService) 
                         - ant local.provision.bpm.core
@@ -595,8 +595,8 @@ remote client examples
                     - invoke pfpServicesTest.war and proxy requests to ksessionService on bpmCore through ejb-security-realm
                         - curl $HOSTNAME:8230/pfpServicesTest/all 
                             - should return:  Great Success!!
-                            - in the brmsWebs log, you'll also see various logs regarding claiming and completing a task
-                            - look for the following indicating successful hand-shake between remote-outbound-connection from brmsWebs to JBoss Remoting on bpmCore:
+                            - in the bpmsWebs log, you'll also see various logs regarding claiming and completing a task
+                            - look for the following indicating successful hand-shake between remote-outbound-connection from bpmsWebs to JBoss Remoting on bpmCore:
 
 13:43:27,517 INFO  [org.jboss.ejb.client.remoting] (ejb-client-remote-connection-reconnect-4-thread-1) EJBCLIENT000013: Successful version handshake completed for receiver context EJBReceiverContext{clientContext=org.jboss.ejb.client.EJBClientContext@4a08e396, receiver=Remoting connection EJB receiver [connection=Remoting connection <73f8dfc4>,channel=jboss.ejb,nodename=master:bpm-core]} on channel Channel ID ee2b32a0 (outbound) of Remoting connection 3c21fd47 to ratwaterIBM/192.168.122.1:4697
 
@@ -604,8 +604,8 @@ remote client examples
 
 BIRT reporting
     - the BIRT report engine is integrated in with business-central-server.war
-    - upon brmsWebs server start-up, statements similar to the following indicating that the BIRT reporting engine 
-        is alive should be visible in $JBOSS_HOME/default-pfp/servers/brms-webs/log/server.log
+    - upon bpmsWebs server start-up, statements similar to the following indicating that the BIRT reporting engine 
+        is alive should be visible in $JBOSS_HOME/default-pfp/servers/bpms-webs/log/server.log
 
         INFO  [org.jboss.bpm.report.ReportFacade] (MSC service thread 1-14) BIRT home: /shared/source/jboss/jbossProjects/jboss/birt/ReportEngine
         INFO  [org.jboss.bpm.report.ReportFacade] (MSC service thread 1-14) Output dir: /shared/source/jboss/jbossProjects/jboss/birt/output/
@@ -623,7 +623,7 @@ openshift provisioning
     - PFP does so using the REST API exposed by Openshift as documented here :  
             http://docs.redhat.com/docs/en-US/OpenShift/2.0/html-single/REST_API_Guide/#chap-API_Guide-Add_Domain
     - the provisioning of multipe openshift accounts with empty applications can happen in parellel
-    - after each account has been provisioned with the empty bpmCore and brmsWebs applications, PFP then customizes each app with BRMS related components via ssh, rsync and git
+    - after each account has been provisioned with the empty bpmCore and bpmsWebs applications, PFP then customizes each app with BPMS related components via ssh, rsync and git
 
   - pre-requisites : (applicable to both the public openshift as well as an internal Origin PaaS)
     1)  create one or more accounts with the following
@@ -642,26 +642,26 @@ openshift provisioning
     
     - ant openshift.provision.empty.accounts
         - reads as input the contents of ${openshift.account.details.file.location}
-        - multi-threaded java standalone app to provision empty bpmCore and brmsWebs apps in each account
+        - multi-threaded java standalone app to provision empty bpmCore and bpmsWebs apps in each account
         if(openshift.account.refresh.domain)
             - will blow away any pre-existing accounts in openshift with the same account names defined in ${openshift.account.details.file.location}
         if(openshift.account.create.bpm.core)
             - will create bpmCore application with postgresql database
             - will append bpmCore app details to ${openshift.account.details.file.location}
-        if(openshift.account.create.brms.webs)
-            - will create brmsWebs application with postgresql database
-            - will append brmsWebs app details to ${openshift.account.details.file.location}
+        if(openshift.account.create.bpms.webs)
+            - will create bpmsWebs application with postgresql database
+            - will append bpmsWebs app details to ${openshift.account.details.file.location}
 
     - ./bin/openshift.sh provisionAccountsWithPFP
         - reads as input the contents of ${openshift.account.details.file.location} and loops with every account
-        - uploads bpmCore and brmsWebs binaries
-        - modifies bpmCore and brmsWebs app configuration settings
+        - uploads bpmCore and bpmsWebs binaries
+        - modifies bpmCore and bpmsWebs app configuration settings
 
 
 openshift troubleshooting
     $ cd $PFP_HOME
     $  ./bin/openshift.sh bounceMultipleAccounts
-        - bounces brmsWebs and bpmCore apps in one or more accounts
+        - bounces bpmsWebs and bpmCore apps in one or more accounts
         - reads as input the contents of ${openshift.account.details.file.location} and loops with every account
         - assumes the following is installed in the local operating system :
             1)  xmlstarlet
@@ -669,7 +669,7 @@ openshift troubleshooting
 
 
     $ ./bin/openshift.sh bounceMultipleKBase
-        - refreshes kbase in bpmCore from packages in guvnor hosted in brmsWebs
+        - refreshes kbase in bpmCore from packages in guvnor hosted in bpmsWebs
         - reads as input the contents of ${openshift.account.details.file.location} and loops with every account
         - executes the following commands per account :
             curl -X PUT -HAccept:text/plain ${bpm.core.app.url}/knowledgeService/kbase

@@ -102,7 +102,7 @@ batch
 /server-group=${bpm.core.group}/system-property=org.jboss.processFlow.cdi.space.delimited.veto.classes/:add(value="${org.jboss.processFlow.cdi.space.delimited.veto.classes}",boot-time=true)
 
 /server-group=${bpm.core.group}/system-property=org.jboss.processFlow.deployments.json.config.path/:add(value="${org.jboss.processFlow.deployments.json.config.path}",boot-time=true)
-/server-group=${bpm.core.group}/system-property=org.kie.nio.git.deamon.enabled/:add(value="${org.kie.nio.git.deamon.enabled}",boot-time=true)
+/server-group=${bpm.core.group}/system-property=org.kie.nio.git.daemon.enabled/:add(value="${org.kie.nio.git.daemon.enabled.engine.tier}",boot-time=true)
 /server-group=${bpm.core.group}/system-property=org.quartz.properties/:add(value="${org.quartz.properties}",boot-time=true)
 /server-group=${bpm.core.group}/system-property=jdbc.module.name/:add(value="${jdbc.module.name}",boot-time=true)
 

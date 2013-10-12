@@ -14,6 +14,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
 
 import org.apache.commons.lang.StringUtils;
+import org.jboss.processFlow.services.remote.cdi.IPfpDeploymentUnit.ProcessEnginePersistenceType;
 import org.jbpm.kie.services.api.DeploymentService;
 import org.jbpm.kie.services.api.DeploymentUnit;
 import org.jbpm.kie.services.api.Vfs;
@@ -22,7 +23,6 @@ import org.jbpm.kie.services.impl.KModuleDeploymentUnit;
 import org.jbpm.kie.services.impl.VFSDeploymentUnit;
 import org.jbpm.kie.services.impl.VFSDeploymentService;
 import org.jbpm.runtime.manager.api.WorkItemHandlerProducer;
-import org.jbpm.shared.services.api.FileService;
 import org.jbpm.shared.services.cdi.Selectable;
 import org.kie.internal.task.api.UserGroupCallback;
 import org.kie.commons.io.IOService;
@@ -110,7 +110,7 @@ public class RESTApplicationScopedProducer {
             dUnits = new CopyOnWriteArrayList<DeploymentUnit>();
             
             Map<String, Map<String, String>> deployments = DeployUnitParser.getParsedJsonConfig();
-            //To-Do:  parse and iterate through a JSON based file 
+            //To-Do:  parse and iterate through a JSON based config file 
             for(Entry<String, Map<String, String>> deployment : deployments.entrySet()) {
                 DeploymentUnit dUnit = null;
                 if(DeployUnitParser.GIT.equals(deployment.getKey())){
@@ -135,6 +135,13 @@ public class RESTApplicationScopedProducer {
     private VFSDeploymentUnit createLocalFileDeploymentUnit(Map<String, String> details){
         RuntimeStrategy ksessionStrategy = RuntimeStrategy.valueOf(details.get(DeployUnitParser.KSESSION_STRATEGY));
         String dId = details.get(DeployUnitParser.DEPLOYMENT_ID);
+        ProcessEnginePersistenceType engineType = null;
+        String engineTypeString = details.get(DeployUnitParser.ENGINE_TYPE);
+        if(engineTypeString != null)
+            engineType = ProcessEnginePersistenceType.valueOf(engineTypeString);
+        else
+            engineType = ProcessEnginePersistenceType.JPA;
+        
         StringBuilder sBuilder = new StringBuilder();
         
         // needs to be prefixed with "file:///"  .... will default to JGITFileSystemProvider
@@ -150,9 +157,12 @@ public class RESTApplicationScopedProducer {
         sBuilder.append(rAlias);
         sBuilder.append("\n\tksessionStrategy = ");
         sBuilder.append(ksessionStrategy.toString());
+        sBuilder.append("\n\tengineType = ");
+        sBuilder.append(engineType);
         log.info(sBuilder.toString());
-        VFSDeploymentUnit vfsUnit = new VFSDeploymentUnit(dId, rAlias, rFolder);
+        PfpVFSDeploymentUnit vfsUnit = new PfpVFSDeploymentUnit(dId, rAlias, rFolder);
         vfsUnit.setStrategy(ksessionStrategy);
+        vfsUnit.setProcessEnginePersistenceType(engineType);
         return vfsUnit;
     }
     
@@ -160,6 +170,12 @@ public class RESTApplicationScopedProducer {
     private VFSDeploymentUnit createGitDeploymentUnit(Map<String, String> details){
         RuntimeStrategy ksessionStrategy = RuntimeStrategy.valueOf(details.get(DeployUnitParser.KSESSION_STRATEGY));
         String dId = details.get(DeployUnitParser.DEPLOYMENT_ID);
+        ProcessEnginePersistenceType engineType = null;
+        String engineTypeString = details.get(DeployUnitParser.ENGINE_TYPE);
+        if(engineTypeString != null)
+            engineType = ProcessEnginePersistenceType.valueOf(engineTypeString);
+        else
+            engineType = ProcessEnginePersistenceType.JPA;
         String rFolder = details.get(DeployUnitParser.REPO_FOLDER);
         String rAlias = details.get(DeployUnitParser.REPO_ALIAS);
         StringBuilder sBuilder = new StringBuilder();
@@ -171,9 +187,12 @@ public class RESTApplicationScopedProducer {
         sBuilder.append(rAlias);
         sBuilder.append("\n\tksessionStrategy = ");
         sBuilder.append(ksessionStrategy.toString());
+        sBuilder.append("\n\tengineType = ");
+        sBuilder.append(engineType);
         log.info(sBuilder.toString());
-        VFSDeploymentUnit vfsUnit = new VFSDeploymentUnit(dId, rAlias, rFolder);
+        PfpVFSDeploymentUnit vfsUnit = new PfpVFSDeploymentUnit(dId, rAlias, rFolder);
         vfsUnit.setStrategy(ksessionStrategy);
+        vfsUnit.setProcessEnginePersistenceType(engineType);
         vfsUnit.setRepositoryScheme(DeployUnitParser.GIT);
         return vfsUnit;
     }
@@ -187,6 +206,12 @@ public class RESTApplicationScopedProducer {
         String version = details.get(DeployUnitParser.VERSION);
         String kbaseName = details.get(DeployUnitParser.KBASE_NAME);
         String ksessionName = details.get(DeployUnitParser.KSESSION_NAME);
+        ProcessEnginePersistenceType engineType = null;
+        String engineTypeString = details.get(DeployUnitParser.ENGINE_TYPE);
+        if(engineTypeString != null)
+            engineType = ProcessEnginePersistenceType.valueOf(engineTypeString);
+        else
+            engineType = ProcessEnginePersistenceType.JPA;
 
         StringBuilder sBuilder = new StringBuilder();
         sBuilder.append("createKModuleDeploymentUnit() creating KJar deploymentUnit with \n\tdeploymentId = ");
@@ -203,9 +228,11 @@ public class RESTApplicationScopedProducer {
         sBuilder.append(kbaseName);
         sBuilder.append("\n\tkieSession name = ");
         sBuilder.append(ksessionName);
+        sBuilder.append("\n\tengineType = ");
+        sBuilder.append(engineType);
         log.info(sBuilder.toString());
 
-        KModuleDeploymentUnit kUnit = new KModuleDeploymentUnit(groupId, artifactId, version);
+        PfpKModuleDeploymentUnit kUnit = new PfpKModuleDeploymentUnit(groupId, artifactId, version);
         if (StringUtils.isNotEmpty(kbaseName)) {
             kUnit.setKbaseName(kbaseName);
         }
@@ -216,6 +243,7 @@ public class RESTApplicationScopedProducer {
         // confused about kmodule.xml schema:  https://github.com/droolsjbpm/droolsjbpm-knowledge/blob/master/kie-api/src/main/resources/org/kie/api/kmodule.xsd
         // ksessionType can only be "stateless" or "stateful" ?? .... what about SINGLETON or PER_PROCESS_INSTANCE ??
         kUnit.setStrategy(ksessionStrategy);
+        kUnit.setProcessEnginePersistenceType(engineType);
         return kUnit;
     }
     
