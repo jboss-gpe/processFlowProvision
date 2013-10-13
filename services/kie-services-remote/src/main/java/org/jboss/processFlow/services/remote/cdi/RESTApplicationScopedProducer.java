@@ -46,7 +46,6 @@ public class RESTApplicationScopedProducer {
     private static Logger log = LoggerFactory.getLogger("RESTApplicationScopedProducer");
 
     private IOService vfsIOService;
-    private List<DeploymentUnit> dUnits;
     
     @PersistenceUnit(unitName="org.jbpm.persistence.jpa")
     EntityManagerFactory jbpmCoreEMF;
@@ -94,173 +93,14 @@ public class RESTApplicationScopedProducer {
     }
    
     /* injects into:  
-        1) org.jbpm.kie.service.impl.AbstractDeploymentService 
-        2) org.jboss.processFlow.services.remote.cdi.RESTRequestScopedProducer
+        1) 3) org.jbpm.shared.services.impl.JbpmServicesPersistenceManagerImpl
+        2) org.jbpm.kie.service.impl.AbstractDeploymentService 
+        3) org.jboss.processFlow.services.remote.cdi.RESTRequestScopedProducer
+        
     */ 
     @Produces
     public EntityManagerFactory getEntityManagerFactory() {
         return jbpmCoreEMF;
-    }
-    
-    @Produces
-    @Named("deploymentUnits")
-    public List<DeploymentUnit> getDeploymentUnits() throws Exception {
-        
-        if(dUnits == null ) {
-            dUnits = new CopyOnWriteArrayList<DeploymentUnit>();
-            
-            Map<String, Map<String, String>> deployments = DeployUnitParser.getParsedJsonConfig();
-            //To-Do:  parse and iterate through a JSON based config file 
-            for(Entry<String, Map<String, String>> deployment : deployments.entrySet()) {
-                DeploymentUnit dUnit = null;
-                if(DeployUnitParser.GIT.equals(deployment.getKey())){
-                    validateDeploymentUnitFields(deployment);
-                    dUnit = createGitDeploymentUnit(deployment.getValue());
-                } else if(DeployUnitParser.LOCAL_FILE_SYSTEM.equals(deployment.getKey())) {
-                    validateDeploymentUnitFields(deployment);
-                    dUnit = this.createLocalFileDeploymentUnit(deployment.getValue());
-                } else if(DeployUnitParser.KJAR.equals(deployment.getKey())) {
-                    validateDeploymentUnitFields(deployment);
-                    dUnit = this.createKModuleDeploymentUnit(deployment.getValue());
-                } else
-                    throw new Exception("getDeploymentUnits() unknown deployment type: "+deployment.getKey());
-    
-                dUnits.add(dUnit);
-            }
-        }
-        return dUnits;
-    }
-   
-    // see:  org.kie.commons.java.nio.fs.file.SimpleFileSystemProvider 
-    private VFSDeploymentUnit createLocalFileDeploymentUnit(Map<String, String> details){
-        RuntimeStrategy ksessionStrategy = RuntimeStrategy.valueOf(details.get(DeployUnitParser.KSESSION_STRATEGY));
-        String dId = details.get(DeployUnitParser.DEPLOYMENT_ID);
-        ProcessEnginePersistenceType engineType = null;
-        String engineTypeString = details.get(DeployUnitParser.ENGINE_TYPE);
-        if(engineTypeString != null)
-            engineType = ProcessEnginePersistenceType.valueOf(engineTypeString);
-        else
-            engineType = ProcessEnginePersistenceType.JPA;
-        
-        StringBuilder sBuilder = new StringBuilder();
-        
-        // needs to be prefixed with "file:///"  .... will default to JGITFileSystemProvider
-        // setting repositoryScheme to "file" does not seem to trigger use of SimpleFileSystemProvider
-        String rFolder = "file://"+details.get(DeployUnitParser.REPO_FOLDER);  
-        
-        String rAlias = details.get(DeployUnitParser.REPO_ALIAS);
-        sBuilder.append("createLocalFileDeploymentUnit() creating localFile deploymentUnit with \n\tdeploymentId = ");
-        sBuilder.append(dId);
-        sBuilder.append("\n\trepoFolder = ");
-        sBuilder.append(rFolder);
-        sBuilder.append("\n\trepoAlias = ");
-        sBuilder.append(rAlias);
-        sBuilder.append("\n\tksessionStrategy = ");
-        sBuilder.append(ksessionStrategy.toString());
-        sBuilder.append("\n\tengineType = ");
-        sBuilder.append(engineType);
-        log.info(sBuilder.toString());
-        PfpVFSDeploymentUnit vfsUnit = new PfpVFSDeploymentUnit(dId, rAlias, rFolder);
-        vfsUnit.setStrategy(ksessionStrategy);
-        vfsUnit.setProcessEnginePersistenceType(engineType);
-        return vfsUnit;
-    }
-    
-    // see:  org.kie.commons.java.nio.fs.jgit.JGitFileSystemProvider 
-    private VFSDeploymentUnit createGitDeploymentUnit(Map<String, String> details){
-        RuntimeStrategy ksessionStrategy = RuntimeStrategy.valueOf(details.get(DeployUnitParser.KSESSION_STRATEGY));
-        String dId = details.get(DeployUnitParser.DEPLOYMENT_ID);
-        ProcessEnginePersistenceType engineType = null;
-        String engineTypeString = details.get(DeployUnitParser.ENGINE_TYPE);
-        if(engineTypeString != null)
-            engineType = ProcessEnginePersistenceType.valueOf(engineTypeString);
-        else
-            engineType = ProcessEnginePersistenceType.JPA;
-        String rFolder = details.get(DeployUnitParser.REPO_FOLDER);
-        String rAlias = details.get(DeployUnitParser.REPO_ALIAS);
-        StringBuilder sBuilder = new StringBuilder();
-        sBuilder.append("createGitDeploymentUnit() creating git deploymentUnit with \n\tdeploymentId = ");
-        sBuilder.append(dId);
-        sBuilder.append("\n\trepoFolder = ");
-        sBuilder.append(rFolder);
-        sBuilder.append("\n\trepoAlias = ");
-        sBuilder.append(rAlias);
-        sBuilder.append("\n\tksessionStrategy = ");
-        sBuilder.append(ksessionStrategy.toString());
-        sBuilder.append("\n\tengineType = ");
-        sBuilder.append(engineType);
-        log.info(sBuilder.toString());
-        PfpVFSDeploymentUnit vfsUnit = new PfpVFSDeploymentUnit(dId, rAlias, rFolder);
-        vfsUnit.setStrategy(ksessionStrategy);
-        vfsUnit.setProcessEnginePersistenceType(engineType);
-        vfsUnit.setRepositoryScheme(DeployUnitParser.GIT);
-        return vfsUnit;
-    }
-    
-    
-    private KModuleDeploymentUnit createKModuleDeploymentUnit(Map<String, String> details) {
-        RuntimeStrategy ksessionStrategy = RuntimeStrategy.valueOf(details.get(DeployUnitParser.KSESSION_STRATEGY));
-        String dId = details.get(DeployUnitParser.DEPLOYMENT_ID);
-        String groupId = details.get(DeployUnitParser.GROUP_ID);
-        String artifactId = details.get(DeployUnitParser.ARTIFACT_ID);
-        String version = details.get(DeployUnitParser.VERSION);
-        String kbaseName = details.get(DeployUnitParser.KBASE_NAME);
-        String ksessionName = details.get(DeployUnitParser.KSESSION_NAME);
-        ProcessEnginePersistenceType engineType = null;
-        String engineTypeString = details.get(DeployUnitParser.ENGINE_TYPE);
-        if(engineTypeString != null)
-            engineType = ProcessEnginePersistenceType.valueOf(engineTypeString);
-        else
-            engineType = ProcessEnginePersistenceType.JPA;
-
-        StringBuilder sBuilder = new StringBuilder();
-        sBuilder.append("createKModuleDeploymentUnit() creating KJar deploymentUnit with \n\tdeploymentId = ");
-        sBuilder.append(dId);
-        sBuilder.append("\n\tgroupId = ");
-        sBuilder.append(groupId);
-        sBuilder.append("\n\tartifactId = ");
-        sBuilder.append(artifactId);
-        sBuilder.append("\n\tversion = ");
-        sBuilder.append(version);
-        sBuilder.append("\n\tksessionStrategy = ");
-        sBuilder.append(ksessionStrategy.toString());
-        sBuilder.append("\n\tkieBase name = ");
-        sBuilder.append(kbaseName);
-        sBuilder.append("\n\tkieSession name = ");
-        sBuilder.append(ksessionName);
-        sBuilder.append("\n\tengineType = ");
-        sBuilder.append(engineType);
-        log.info(sBuilder.toString());
-
-        PfpKModuleDeploymentUnit kUnit = new PfpKModuleDeploymentUnit(groupId, artifactId, version);
-        if (StringUtils.isNotEmpty(kbaseName)) {
-            kUnit.setKbaseName(kbaseName);
-        }
-        if (StringUtils.isNotEmpty(ksessionName)) {
-            kUnit.setKsessionName(ksessionName);
-        }
-        
-        // confused about kmodule.xml schema:  https://github.com/droolsjbpm/droolsjbpm-knowledge/blob/master/kie-api/src/main/resources/org/kie/api/kmodule.xsd
-        // ksessionType can only be "stateless" or "stateful" ?? .... what about SINGLETON or PER_PROCESS_INSTANCE ??
-        kUnit.setStrategy(ksessionStrategy);
-        kUnit.setProcessEnginePersistenceType(engineType);
-        return kUnit;
-    }
-    
-    private void validateDeploymentUnitFields(Entry<String, Map<String, String>> deployment) throws Exception {
-        Map<String, String> details = deployment.getValue();
-        if(!(deployment.getKey().equals(DeployUnitParser.KJAR)) && StringUtils.isEmpty(details.get(DeployUnitParser.DEPLOYMENT_ID)))
-            throw new Exception("Deployment Unit needs a property of : "+DeployUnitParser.DEPLOYMENT_ID);
-        
-        String kSessionStrategy = details.get(DeployUnitParser.KSESSION_STRATEGY);
-        if(StringUtils.isEmpty(kSessionStrategy))
-            throw new Exception("All Deployment Units to specify a ksession strategy: "+DeployUnitParser.KSESSION_STRATEGY);
-        
-        try {
-            RuntimeStrategy.valueOf(kSessionStrategy);
-        } catch (IllegalArgumentException ex) {  
-            throw new Exception("following ksession strategy is not valid: "+kSessionStrategy+" for deploymentId: "+details.get(DeployUnitParser.DEPLOYMENT_ID));
-        }
     }
     
 }

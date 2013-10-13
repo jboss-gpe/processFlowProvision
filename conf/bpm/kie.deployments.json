@@ -9,6 +9,11 @@
         "deploymentId": "git-playground",
         "ksession.strategy": "PER_PROCESS_INSTANCE",
         "engine.type": "JPA",
+        "marshalling.strategies":[
+            "new ProcessInstanceResolverStrategy()",
+            "new JPAPlaceholderResolverStrategy(env)",
+            "new SerializablePlaceholderResolverStrategy(ClassObjectMarshallingStrategyAcceptor.DEFAULT)"
+        ],
         "remoteGitUrl": "https://github.com/jboss-sso/gpe-playground.git",
         "repoFolder": "processes/general",
         "repoAlias": "gpe-playground",
