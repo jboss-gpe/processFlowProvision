@@ -565,6 +565,22 @@ Task Validation in PFP
     - delegating security to the EJB3 tier provides PFP with the following :
         1)  a standards based security implementation across all PFP functionality :  knowledgeSessionService, taskService and bamService
 
+brms webs security configuration
+    - Both guvnor and business central are using out of the box JAAS as provided by EAP6.
+    - The web.xml and jboss-web.xml for business-central can be found in $PFP_HOME/conf/brmsWebs/bpm-console-server/WEB-INF .
+    - The components.xml and jboss-web.xml for guvnor can be found in $PFP_HOME/conf/brmsWebs/drools-guvnor/WEB-INF .
+
+    - So assuming that the default JAAS security domain that comes with EAP6 (property files )  is still being used ..... then users and roles can be created by using $JBOSS_HOME/bin/add-user.sh
+    - Note that add-user.sh script will make modifications to the following property files :
+      1)  $JBOSS_HOME/domain/configuration/application-users.properties
+      2)  $JBOSS_HOME/domain/configuration/application-roles.properties
+
+    - NOTE:  your PFP provisioned JVMs are using configurations in $JBOSS_HOME/domain-${organization.name} ..... not, $JBOSS_HOME/domain.
+    - subsequently, you'll need to either :
+      1) manually copy the changes made by the add-user.sh script to the equivalent property files in $JBOSS_HOME/domain-${organization.name}/configuration.
+            or
+      2) manually copy the changes made by the add-user.sh script to the equivalent property files in $PFP_HOME/conf/jboss/   and then re-run 'ant'  from $PFP_HOME
+
 
 
 deploy-time customizations to PFP EJB services
