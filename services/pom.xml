@@ -15,6 +15,7 @@
     <version.org.uberfire>0.4.0-SNAPSHOT</version.org.uberfire>
   </properties>
   <modules>
+      <module>interfaces</module>
       <module>asyncAuditLog</module>
       <module>kie-services-remote</module>
  </modules>

@@ -183,6 +183,10 @@
             </then></if>
         <if><equals arg1="${jdbc.module.name}" arg2="h2" />
             <then><echo message="configure.jboss.modules() h2 driver already in eap6.*" /></then></if>
+
+        <copy todir="${temp.pfp.modules.dir}/org/jboss/processFlow/main" >
+            <fileset dir="${temp.pfp.lib.dir}" />
+        </copy>
     </target> 
 
     <target name="local.deploy.jboss.modules" >
@@ -207,6 +211,10 @@
             <param name="source.dir" value="conf/jboss/modules/"/>
             <param name="file.name" value="layers.conf"/>
             <param name="dest.dir" value="${jboss.home}/modules"/>
+        </antcall>
+        <antcall target="filter">
+            <param name="source.dir" value="conf/jboss/modules/pfp"/>
+            <param name="dest.dir" value="${jboss.home}/modules/system/layers/pfp"/>
         </antcall>
     </target>
 
@@ -426,6 +434,7 @@
         <attribute name="target"/>
         <sequential>
             <subant target="@{target}">
+                <fileset dir="services/interfaces" includes="build.xml"/>
                 <fileset dir="services/kie-services-remote" includes="build.xml"/>
                 <fileset dir="services/asyncAuditLog" includes="build.xml"/>
             </subant>
@@ -451,6 +460,20 @@
         <delete dir="${distro.clean}" />
         <delete dir="privateServiceTaskRepo/${build.dir}" />
         <delete dir="osProvision/${build.dir}" />
+    </target>
+
+    <target name="create.temp.client.dir" >
+        <copy toDir="${temp.client.dir}" overwrite="true" >
+            <fileset dir="${temp.pfp.lib.dir}" >
+                <include name="processFlow-interfaces*.jar" />
+            </fileset>
+            <!--fileset dir="${jbpm.lib.path}" >
+                <include name="jbpm-human-task-core*.jar" />
+            </fileset>
+            <fileset dir="${deps.lib.path}" >
+                <include name="knowledge-api-*.jar" />
+            </fileset -->
+        </copy>
     </target>
 
     <target name="download.and.unzip.sy.deployer">
@@ -508,5 +531,6 @@
         <antcall target="local.provision.switchyard">
             <param name="refresh.master" value="false"/>
         </antcall>
+        <antcall target="create.temp.client.dir" />
     </target>
 </project>

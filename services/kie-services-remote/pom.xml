@@ -25,6 +25,12 @@
   </build>
 
   <dependencies>
+    <dependency>
+      <groupId>com.redhat.gpe</groupId>
+      <artifactId>processFlow-interfaces</artifactId>
+      <scope>provided</scope>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
 
     <!-- jee -->
     <dependency>

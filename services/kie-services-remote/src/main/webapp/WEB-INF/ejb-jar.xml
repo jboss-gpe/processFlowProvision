@@ -11,6 +11,12 @@
         <session-type>Singleton</session-type>
         <init-on-startup>true</init-on-startup>
     </session>
+    <session>
+        <ejb-name>KnowledgeSessionService</ejb-name>
+        <ejb-class>org.jboss.processFlow.knowledgeService.KnowledgeSessionService</ejb-class>
+        <session-type>Singleton</session-type>
+        <init-on-startup>true</init-on-startup>
+    </session>
     <message-driven>
       <ejb-name>KieSessionRequesMessageBean</ejb-name>
       <ejb-class>org.kie.services.remote.jms.RequestMessageBean</ejb-class>

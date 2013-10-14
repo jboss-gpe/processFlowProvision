@@ -1,0 +1,9 @@
+<module xmlns="urn:jboss:module:1.1" name="org.jboss.processFlow">
+
+    <resources>
+        <resource-root path="processFlow-interfaces.jar"/>
+    </resources>
+
+    <dependencies>
+    </dependencies>
+</module>
