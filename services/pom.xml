@@ -167,6 +167,11 @@
       </dependency>
       <dependency>
         <groupId>org.kie.commons</groupId>
+        <artifactId>kie-commons-io</artifactId>
+        <version>${version.drools}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.kie.commons</groupId>
         <artifactId>kie-nio2-jgit</artifactId>
         <version>${version.drools}</version>
         <exclusions>
