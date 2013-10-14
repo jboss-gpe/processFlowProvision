@@ -23,15 +23,14 @@ import org.jbpm.kie.services.api.DeploymentUnit.RuntimeStrategy;
 import org.jbpm.kie.services.impl.KModuleDeploymentUnit;
 import org.jbpm.kie.services.impl.VFSDeploymentUnit;
 import org.kie.api.marshalling.ObjectMarshallingStrategy;
-import org.kie.commons.io.FileSystemType;
-import org.kie.commons.io.IOService;
-import org.kie.commons.java.nio.file.FileSystem;
-
-import static org.kie.commons.io.FileSystemType.Bootstrap.BOOTSTRAP_INSTANCE;
-
-import org.kie.commons.java.nio.fs.jgit.JGitFileSystemProvider;
+import org.uberfire.io.FileSystemType;
+import org.uberfire.io.IOService;
+import org.uberfire.java.nio.file.FileSystem;
+import org.uberfire.java.nio.fs.jgit.JGitFileSystemProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.uberfire.io.FileSystemType.Bootstrap.BOOTSTRAP_INSTANCE;
 
 /*
  purpose:  Create and trigger org.jbpm.kie.services.impl.event.Deploy &  org.jbpm.kie.services.impl.event.UnDeploy events.
@@ -247,7 +246,7 @@ public class DeploymentMgmtBean implements IDeploymentMgmtBean {
         return localScopedDUnits;
     }
     
-    // see:  org.kie.commons.java.nio.fs.file.SimpleFileSystemProvider 
+    // see:  org.uberfire.java.nio.fs.file.SimpleFileSystemProvider 
     private VFSDeploymentUnit createLocalFileDeploymentUnit(Map<String, String> details){
         RuntimeStrategy ksessionStrategy = RuntimeStrategy.valueOf(details.get(DeployUnitParser.KSESSION_STRATEGY));
         String dId = details.get(DeployUnitParser.DEPLOYMENT_ID);
@@ -282,7 +281,7 @@ public class DeploymentMgmtBean implements IDeploymentMgmtBean {
         return vfsUnit;
     }
     
-    // see:  org.kie.commons.java.nio.fs.jgit.JGitFileSystemProvider 
+    // see:  org.uberfire.java.nio.fs.jgit.JGitFileSystemProvider 
     private VFSDeploymentUnit createGitDeploymentUnit(Map<String, String> details){
         RuntimeStrategy ksessionStrategy = RuntimeStrategy.valueOf(details.get(DeployUnitParser.KSESSION_STRATEGY));
         String dId = details.get(DeployUnitParser.DEPLOYMENT_ID);

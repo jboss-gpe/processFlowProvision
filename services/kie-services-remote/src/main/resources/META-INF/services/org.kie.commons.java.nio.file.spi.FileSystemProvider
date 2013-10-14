@@ -1,3 +1,0 @@
-org.kie.commons.java.nio.fs.jgit.JGitFileSystemProvider
-org.kie.commons.java.nio.fs.file.SimpleFileSystemProvider
-#org.uberfire.java.nio.fs.eclipse.EclipseFileSystemProvider  # eclipse provider

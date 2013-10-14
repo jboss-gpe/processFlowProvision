@@ -10,10 +10,10 @@ import org.jbpm.kie.services.impl.VFSDeploymentService;
 import org.jbpm.kie.services.impl.VFSDeploymentUnit;
 import org.jbpm.runtime.manager.api.WorkItemHandlerProducer;
 import org.kie.api.runtime.process.WorkItemHandler;
-import org.kie.commons.io.IOService;
-import org.kie.commons.java.nio.IOException;
-import org.kie.commons.java.nio.file.DirectoryStream;
-import org.kie.commons.java.nio.file.Path;
+import org.uberfire.io.IOService;
+import org.uberfire.java.nio.IOException;
+import org.uberfire.java.nio.file.DirectoryStream;
+import org.uberfire.java.nio.file.Path;
 import org.mvel2.MVEL;
 
 import org.slf4j.LoggerFactory;
@@ -87,7 +87,7 @@ public class VfsMVELWorkItemHandlerProducer implements WorkItemHandlerProducer {
         return ioService.newDirectoryStream( path, new DirectoryStream.Filter<Path>() {
             @Override
             public boolean accept( final Path entry ) throws IOException {
-                if ( !org.kie.commons.java.nio.file.Files.isDirectory(entry) && 
+                if ( !org.uberfire.java.nio.file.Files.isDirectory(entry) && 
                         (entry.getFileName().toString().endsWith( fileType )
                                 || entry.getFileName().toString().matches(fileType))) {
                     return true;
