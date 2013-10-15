@@ -36,17 +36,17 @@ import org.kie.api.runtime.process.ProcessInstance;
 @Lock(LockType.READ)
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class KnowledgeSessionService implements IKnowledgeSession {
-	
-	@Inject
+    
+    @Inject
     private RuntimeManagerManager runtimeMgrMgr;
 
     @Inject
     private TaskService taskService;
 
-	public Map<String, Object> startProcessAndReturnId(String processId, Map<String, Object> params, String deploymentId ) {
-		Command<?> cmd = new StartProcessCommand(processId, params);
-		Map<String, Object> returnMap = new HashMap<String, Object>();
-		try {
+    public Map<String, Object> startProcessAndReturnId(String processId, Map<String, Object> params, String deploymentId ) {
+        Command<?> cmd = new StartProcessCommand(processId, params);
+        Map<String, Object> returnMap = new HashMap<String, Object>();
+        try {
             RuntimeEngine runtimeEngine = getRuntimeEngine(deploymentId, null);
             KieSession kieSession = runtimeEngine.getKieSession();
             SingleSessionCommandService sscs = (SingleSessionCommandService) ((CommandBasedStatefulKnowledgeSession) kieSession).getCommandService();
@@ -62,20 +62,20 @@ public class KnowledgeSessionService implements IKnowledgeSession {
             returnMap.put(IKnowledgeSession.PROCESS_INSTANCE_STATE, pInstance.getState());
             
             return returnMap;
-		}catch (Exception e) {
+        }catch (Exception e) {
             if( e instanceof RuntimeException ) { 
                 throw (RuntimeException) e;
             } else {
                 throw new RuntimeException(e);
             }
         }
-	}
+    }
 
-	public int signalEvent(String signalType, Object signalPayload, Long processInstanceId, String deploymentId) {
-		return 0;
-	}
-	
-	private RuntimeEngine getRuntimeEngine(String deploymentId, Long processInstanceId) {
+    public int signalEvent(String signalType, Object signalPayload, Long processInstanceId, String deploymentId) {
+        return 0;
+    }
+    
+    private RuntimeEngine getRuntimeEngine(String deploymentId, Long processInstanceId) {
         RuntimeManager runtimeManager = runtimeMgrMgr.getRuntimeManager(deploymentId);
         Context<?> runtimeContext;
         if (processInstanceId != null) {
