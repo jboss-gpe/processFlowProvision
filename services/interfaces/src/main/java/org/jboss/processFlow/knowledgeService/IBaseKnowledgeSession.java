@@ -22,7 +22,6 @@
 
 package org.jboss.processFlow.knowledgeService;
 
-import java.io.Serializable;
 import java.util.Map;
 
 public interface IBaseKnowledgeSession {
@@ -56,7 +55,7 @@ public interface IBaseKnowledgeSession {
      * @param processInstanceId
      * @param ksessionId the id of the KnowledgeSession that is managing the lifecycle of the process instance (optional)
      */
-    //public void completeWorkItem(Long workItemId, Map<String, Object> pInstanceVariables, Long processInstanceId, Integer ksessionId);
+    public void completeWorkItem(Long workItemId, Map<String, Object> pInstanceVariables, Long processInstanceId, String deploymentId);
     
     
     /**
@@ -74,9 +73,4 @@ public interface IBaseKnowledgeSession {
      * @return State of the Process Instance
      */
     public int signalEvent(String signalType, Object signalPayload, Long processInstanceId, String deploymentId);
-    
-    //public int processJobExecutionContext(Serializable jobExecutionContext);
-    
-    //public String getCurrentTimerJobsAsJson(String jobGroup);
-    //public int purgeCurrentTimerJobs(String jobGroup);
 }

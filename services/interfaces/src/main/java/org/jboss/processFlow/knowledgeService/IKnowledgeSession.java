@@ -97,51 +97,15 @@ public interface IKnowledgeSession extends IBaseKnowledgeSession {
      * <code>IllegalArgumentException</code>.
      *
      * @param id the id of the process instance
-     * @param ksessionId the id of the KnowledgeSession that is managing the lifecycle of the process instance
+     * @param deploymentId
      */
-    //public void abortProcessInstance(Long processInstanceId, Integer ksessionId);
-
-    /**
-     * refreshKnowledgeBase and knowledgeAgent managed by PFP knowledgeSessionService
-     * use in conjunction with various guvnor.* properties include in META-INF/jbpm-console.properties of the knowledgeSessionService implementation artifact
-     *
-     * should see a similar log statement from guvnor as follows:
-     *      INFO  [PackageAssembler] Following assets have been included in package build: simpleHumanTask, defaultemailicon, defaultlogicon, WorkDefinitions, pfpFailTask, pfpSkipTask, task_skip_by_signalIntermediateEvent, simpleTask-taskform, nominateAndAwardBonusTask-taskform, simpleTask-image, pInstance_terminate_by_signalIntermediateEvent
-     * @throws ConnectException 
-     */
-    //public void rebuildKnowledgeBaseViaKnowledgeAgent() throws ConnectException;
-
-    /**
-     * intention of this function is to create a knowledgeBase without a strict dependency on guvnor
-     * will still query guvnor for packages but will continue on even if problems communicating with guvnor exists
-     * this function could be of use in those scenarious where guvnor is not accessible
-     * knowledgeBase can subsequently be populated via one of the addProcessToKnowledgeBase(....) functions
-     * in all cases, the knowledgeBase created by this function will NOT be registered with a knowledgeAgent that receives updates from guvnor
-     */
-    //public void rebuildKnowledgeBaseViaKnowledgeBuilder();
+    public void abortProcessInstance(Long processInstanceId, String deploymentId);
     
-    
-    /**
-     * initial attempt is to create kbase via guvnor through a knowledgeAgent
-     * if that fails, then fall back is to create kbase via knowledgeBuilder
-     */
-    //public void createOrRebuildKnowledgeBaseViaKnowledgeAgentOrBuilder();
-    /**
-     *return a snapshot of all process definitions that the KnowledgeBase is currently aware of
-     */
-    //public String printKnowledgeBaseContent();
-    
-    /**
-     * Uses GuvnorConnectionUtils to query guvnor for 'assets' of a particular package using the following URL convention:
-     * <guvnor.protocol>://<guvnor.host>/<guvnorsubdomain>/rest/packages/<guvnor.package>/assets
-     *
-     */
-    //public String getAllProcessesInPackage(String pkgName) throws ConnectException;
 
     /**
      *retrieve a list of all Process definition objects that the KnowledgeBase is currently aware of
      */
-    //public List<String> retrieveProcesses() throws Exception ;
+    public List<String> retrieveProcesses(String deploymentId) throws Exception ;
 
     //public void addProcessToKnowledgeBase(Process processObj, org.kie.api.io.Resource resourceObj);
 
@@ -169,18 +133,9 @@ public interface IKnowledgeSession extends IBaseKnowledgeSession {
      * returns a snapshot of all KnowledgeSessions and the state that each session is currently in 
      */
     //public String                   dumpSessionStatusInfo();
-
-    /**
-     * knowledgeSessionService may have a process event listener that sends events asynchroneously to a message broker
-     * these events will subsequently be stored in a business activity monitoring data wharehouse for future analysis
-     * this function lists the # of active and idle producers from a pool of JMS producers
-     */  
-    //public String                   dumpBAMProducerPoolInfo();
     
     /**
      * for details, please see:  http://docs.jboss.org/jbpm/v5.1/userguide/ch05.html#d0e1768
      */
     //public void upgradeProcessInstance(long processInstanceId, String processId, Map<String, Long> nodeMapping);
-    
-    //public void completeWorkItem(Long workItemId, Map<String, Object> pInstanceVariables, Long pInstanceId, Integer ksessionId);
 }
