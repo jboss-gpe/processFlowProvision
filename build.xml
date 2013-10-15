@@ -184,9 +184,9 @@
         <if><equals arg1="${jdbc.module.name}" arg2="h2" />
             <then><echo message="configure.jboss.modules() h2 driver already in eap6.*" /></then></if>
 
-        <copy todir="${temp.pfp.modules.dir}/org/jboss/processFlow/main" >
+        <!--copy todir="${temp.pfp.modules.dir}/org/jboss/processFlow/main" >
             <fileset dir="${temp.pfp.lib.dir}" />
-        </copy>
+        </copy -->
     </target> 
 
     <target name="local.deploy.jboss.modules" >
@@ -462,20 +462,6 @@
         <delete dir="osProvision/${build.dir}" />
     </target>
 
-    <target name="create.temp.client.dir" >
-        <copy toDir="${temp.client.dir}" overwrite="true" >
-            <fileset dir="${temp.pfp.lib.dir}" >
-                <include name="processFlow-interfaces*.jar" />
-            </fileset>
-            <!--fileset dir="${jbpm.lib.path}" >
-                <include name="jbpm-human-task-core*.jar" />
-            </fileset>
-            <fileset dir="${deps.lib.path}" >
-                <include name="knowledge-api-*.jar" />
-            </fileset -->
-        </copy>
-    </target>
-
     <target name="download.and.unzip.sy.deployer">
         <get src="${switchyard.deployer.download.url}" dest="${install.home}/lib/"  skipexisting="true" />
         <unzip src="${install.home}/lib/${switchyard.zip.name}" dest="${jboss.home}/../" />
@@ -490,10 +476,11 @@
     </target>
 
     <target name="pfp.compile" depends="mkPfpDirs" description="" >
-        <if>
-            <available file="services" type="dir" />
-            <then><iterate target="all" /></then>
-        </if>
+        <exec executable="mvn" failonerror="true" dir="." >
+            <arg value="clean" />
+            <arg value="install" />
+        </exec>
+        <iterate target="all" />
     </target>
 
     <target name="pfp.refresh.bpms" description="">
@@ -531,6 +518,5 @@
         <antcall target="local.provision.switchyard">
             <param name="refresh.master" value="false"/>
         </antcall>
-        <antcall target="create.temp.client.dir" />
     </target>
 </project>

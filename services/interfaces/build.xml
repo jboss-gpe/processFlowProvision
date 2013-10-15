@@ -5,12 +5,7 @@
     <property name="project.path.property" value="lib" />
     <import file="${development.base}/base-build.xml"/>
 
-    <target name="all" depends="clean,setClasspath" >
-        <exec executable="mvn" failonerror="true" dir="." >
-            <arg value="clean" />
-            <arg value="package" />
-            <arg value="-Dmaven.test.skip=true" />
-        </exec>
+    <target name="all" >
         <copy file="${build.dir}/processFlow-${ant.project.name}.jar" toDir="${pfp.module.path}/org/jboss/processFlow/main" overwrite="true" verbose="true" />
         <copy file="${build.dir}/processFlow-${ant.project.name}.jar" toDir="${temp.client.dir}" overwrite="true" verbose="true" />
     </target>

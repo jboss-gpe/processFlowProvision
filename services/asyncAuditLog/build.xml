@@ -5,11 +5,7 @@
     <property name="project.path.property" value="lib" />
     <import file="${development.base}/base-build.xml"/>
 
-    <target name="all" depends="clean,setClasspath" >
-        <exec executable="mvn" failonerror="true" dir="." >
-            <arg value="clean" />
-            <arg value="package" />
-        </exec>
+    <target name="all" >
         <copy file="${build.dir}/${ant.project.name}.jar" toDir="${temp.pfp.services.dir}" overwrite="true" verbose="true" />
     </target>
 

@@ -5,7 +5,7 @@
     <property name="project.path.property" value="lib" />
     <import file="${development.base}/base-build.xml"/>
 
-    <target name="all" depends="clean,setClasspath" >
+    <target name="all" depends="setClasspath" >
         <if><equals arg1="${use.bpms.modules}" arg2="true" />
           <then>
             <copy file="conf/jboss-deployment-structure.xml.modules" tofile="src/main/webapp/WEB-INF/jboss-deployment-structure.xml" overwrite="true" verbose="true" />
@@ -13,20 +13,12 @@
                 <param name="war.name" value="${ant.project.name}" />
                 <param name="lib.path" value="../../lib/bpms" />
             </antcall>
-          </then>
-          <else>
-            <copy file="conf/jboss-deployment-structure.xml.stuffedLib" tofile="src/main/webapp/WEB-INF/jboss-deployment-structure.xml" overwrite="true" verbose="true" />
-            <exec executable="mvn" failonerror="true" dir="." >
-                <arg value="clean" />
-                <arg value="package" />
+            <exec executable="git" failonerror="true" dir="." >
+                <arg value="checkout" />
+                <arg value="src/main/webapp/WEB-INF/jboss-deployment-structure.xml" />
             </exec>
-            <jar destfile="target/${ant.project.name}.war" >
-                <zipfileset dir="target/${ant.project.name}" >
-                </zipfileset>
-            </jar>
-          </else>
+          </then>
         </if>
-        <delete file="src/main/webapp/WEB-INF/jboss-deployment-structure.xml" />
         <copy file="${build.dir}/${ant.project.name}.war" toDir="${temp.pfp.services.dir}" overwrite="true" verbose="true" />
     </target>
 
