@@ -41,7 +41,6 @@ import javax.persistence.*;
 import org.apache.log4j.Logger;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-
 import org.drools.SessionConfiguration;
 import org.drools.SystemEventListener;
 import org.drools.builder.KnowledgeBuilder;
@@ -70,8 +69,12 @@ import org.drools.impl.StatefulKnowledgeSessionImpl;
 import org.drools.io.*;
 import org.drools.io.impl.InputStreamResource;
 import org.drools.management.DroolsManagementAgent;
+import org.drools.marshalling.ObjectMarshallingStrategy;
+import org.drools.marshalling.impl.ClassObjectMarshallingStrategyAcceptor;
+import org.drools.marshalling.impl.SerializablePlaceholderResolverStrategy;
 import org.drools.persistence.jpa.JPAKnowledgeService;
 import org.drools.persistence.jpa.JpaJDKTimerService;
+import org.drools.persistence.jpa.marshaller.JPAPlaceholderResolverStrategy;
 import org.drools.persistence.jpa.processinstance.JPAWorkItemManagerFactory;
 import org.drools.runtime.KnowledgeSessionConfiguration;
 import org.drools.runtime.StatefulKnowledgeSession;
@@ -81,9 +84,9 @@ import org.drools.runtime.process.WorkItemHandler;
 import org.jbpm.workflow.core.NodeContainer;
 import org.jbpm.compiler.ProcessBuilderImpl;
 import org.jbpm.integration.console.shared.GuvnorConnectionUtils;
+import org.jbpm.marshalling.impl.ProcessInstanceResolverStrategy;
 import org.jbpm.persistence.processinstance.ProcessInstanceInfo;
 import org.jbpm.task.service.TaskService;
-
 import org.jboss.processFlow.haTimerService.ITimerServiceManagement;
 import org.jboss.processFlow.knowledgeService.IKnowledgeSession;
 import org.jboss.processFlow.tasks.ITaskService;
@@ -199,6 +202,7 @@ public class BaseKnowledgeSessionBean {
 
     protected @PersistenceUnit(unitName=EMF_NAME)  EntityManagerFactory jbpmCoreEMF;
     protected @javax.annotation.Resource UserTransaction uTrnx;
+	private boolean useJPAPlaceholderResolverStrategy;
     
     protected void start() throws Exception{
         /*  - set KnowledgeBase properties
@@ -214,6 +218,7 @@ public class BaseKnowledgeSessionBean {
              droolsResourceScannerInterval = System.getProperty("org.jboss.processFlow.drools.resource.scanner.interval");
          
          taskCleanUpImpl = System.getProperty(IKnowledgeSession.TASK_CLEAN_UP_PROCESS_EVENT_LISTENER_IMPL);
+         useJPAPlaceholderResolverStrategy = Boolean.parseBoolean(System.getProperty(IKnowledgeSession.USE_JPA_PLACEHOLDER_RESOLVER_STRATEGY, "FALSE"));
 
          String timerService = System.getProperty("drools.timerService", JpaJDKTimerService.class.getName());
          ksconfigProperties.setProperty( "drools.timerService", timerService);
@@ -259,6 +264,8 @@ public class BaseKnowledgeSessionBean {
          logBuilder.append(kAgentMonitor);
          logBuilder.append("\n\tkAgentRefreshHours = ");
          logBuilder.append(kAgentRefreshHours);
+         logBuilder.append("\n\tuseJPAPlaceholderResolverStrategy = ");
+         logBuilder.append(useJPAPlaceholderResolverStrategy);
          log.info(logBuilder.toString());
     
     }
@@ -279,6 +286,12 @@ public class BaseKnowledgeSessionBean {
     protected Environment createKnowledgeSessionEnvironment() {
         Environment env = KnowledgeBaseFactory.newEnvironment();
         env.set(EnvironmentName.ENTITY_MANAGER_FACTORY, jbpmCoreEMF);
+        if(useJPAPlaceholderResolverStrategy) {
+        	env.set(EnvironmentName.OBJECT_MARSHALLING_STRATEGIES, new ObjectMarshallingStrategy[] {
+        			new JPAPlaceholderResolverStrategy(env),
+        			new SerializablePlaceholderResolverStrategy(ClassObjectMarshallingStrategyAcceptor.DEFAULT) }
+        			);
+        }
         return env;
     }
     

@@ -29,6 +29,9 @@
         <fileset dir="${pfp.module.path}" >
             <include name="**/*.jar" />
         </fileset>
+        <fileset dir="${jboss.home}/modules/system/layers/${organization.name}" >
+            <include name="**/*.jar" />
+        </fileset>
         <pathelement location="${build.dir}" />
         <fileset dir="${development.base}/lib" />
     </path>

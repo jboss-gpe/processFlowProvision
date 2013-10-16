@@ -54,7 +54,6 @@ import org.drools.io.*;
 import org.drools.logger.KnowledgeRuntimeLogger;
 import org.drools.logger.KnowledgeRuntimeLoggerFactory;
 import org.drools.persistence.jpa.JPAKnowledgeService;
-import org.drools.persistence.jpa.JpaTimerJobInstance;
 import org.drools.runtime.KnowledgeSessionConfiguration;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.Environment;
@@ -71,6 +70,7 @@ import org.jbpm.workflow.instance.WorkflowProcessInstanceUpgrader;
 import org.jboss.processFlow.knowledgeService.IKnowledgeSession;
 import org.jboss.processFlow.util.CMTDisposeCommand;
 import org.jboss.processFlow.util.GlobalQuartzJobHandle;
+
 
 /**
  *<pre>

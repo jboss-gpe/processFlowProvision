@@ -54,5 +54,14 @@
 	</classpathentry>
 	<classpathentry kind="src" path="/drools-persistence-jpa"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/quartz-1.6"/>
+	<classpathentry kind="lib" path="/home/jbride/.m2/repository/log4j/log4j/1.2.14/log4j-1.2.14.jar">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.groupId" value="log4j"/>
+			<attribute name="maven.artifactId" value="log4j"/>
+			<attribute name="maven.version" value="1.2.14"/>
+			<attribute name="maven.scope" value="test"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="pfpServices/taskService/target"/>
 </classpath>

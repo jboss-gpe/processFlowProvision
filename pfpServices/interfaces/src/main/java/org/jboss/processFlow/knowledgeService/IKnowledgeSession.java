@@ -85,6 +85,7 @@ public interface IKnowledgeSession extends IBaseKnowledgeSession {
     public static final String DELIVER_ASYNC="deliverAsync";
     public static final String ASYNC_BAM_PRODUCER="org.jboss.processFlow.knowledgeService.AsyncBAMProducer";
     public static final String CHANGE_SET_URLS = "org.jboss.processFlow.space.delimited.change.set.urls";
+	public static final String USE_JPA_PLACEHOLDER_RESOLVER_STRATEGY = "org.jboss.processFlow.knowledgeService.useJPAPlaceholderResolverStrategy";
 
     /**
      * printWorkItemHandlers
