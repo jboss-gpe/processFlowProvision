@@ -1,4 +1,4 @@
-<jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.1">
+<jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.2">
     <deployment>
         <dependencies>
             <!-- meta-inf="export" required to allow hibernate visibility to ORM files in jBPM static modules -->
