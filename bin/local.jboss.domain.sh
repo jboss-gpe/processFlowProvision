@@ -30,9 +30,6 @@ do
         -jbossDomainBaseDir=*)
             jbossDomainBaseDir=`echo $var | cut -f2 -d\=` 
             ;;
-        -jbossModulePath=*)
-            jbossModulePath=`echo $var | cut -f2 -d\=` 
-            ;;
         -jbossCliXmx=*)
             jbossCliXmx=`echo $var | cut -f2 -d\=` 
             ;;
@@ -70,6 +67,9 @@ do
 done
 
 checkHostName() {
+    if [ "x$hostName" = "x" ]; then
+        hostName=$HOSTNAME
+    fi
     if ping -c 1 $hostName > /dev/null 2>&1
     then
         echo "we are online!"
@@ -88,10 +88,13 @@ start() {
     if [ "x$domainConfig" = "x" ]; then
         domainConfig=domain.xml
     fi
-    if [ "x$jbossModulePath" != "x" ]; then
-        export JBOSS_MODULEPATH=$jbossModulePath
+    if [ "x$hostName" = "x" ]; then
+        hostName=$HOSTNAME
     fi
-    echo -en $"Starting jboss daemon w/ following command line args: \n\tjboss.bind.address = $hostName\n\t-bmanagement = $hostName\n\tjboss.domain.base.dir= $jbossDomainBaseDir\n\tdomainConfig=$domainConfig\n\tsleepSec=$sleepSec\n\tJBOSS_MODULEPATH=$jbossModulePath\n"
+    if [ "x$jbossHome" = "x" ]; then
+        jbossHome=$JBOSS_HOME
+    fi
+    echo -en $"Starting jboss daemon at $jbossHome w/ following command line:\n  nohup ./bin/domain.sh -b=$hostName -bmanagement=$hostName -Djboss.domain.base.dir=$jbossDomainBaseDir -Ddomain-config=$domainConfig & \n"
     sleep 1 
     cd $jbossHome
     chmod 755 $jbossHome/bin/*.sh

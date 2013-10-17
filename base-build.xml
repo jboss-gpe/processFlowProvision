@@ -6,6 +6,7 @@
             2)  development.base    :   absolute path to directory where this base-build.xml is found
     -->
 
+    <property environment="ENV"/>
     <property file="${development.base}/build.properties" />
     <property file="${development.base}/target/openshiftAccount.properties" />
     <property file="${development.base}/openshift.properties" />
@@ -357,13 +358,11 @@
         </exec>
     </target>
     <target name="local.start.master">
-        <var name="jbossModulePath" value="${jboss.home}/modules" />
         <exec executable="bash" failonerror="true" dir="." >
            <arg value="${development.base}/bin/local.jboss.domain.sh"/>
            <arg value="start"/>
            <arg value="-jbossDomainBaseDir=${jboss.domain.base.dir}"/>
            <arg value="-domainConfig=${domain.config.file}"/>
-           <arg value="-jbossModulePath=${jbossModulePath}"/>
            <arg value="-sleepSec=${master.sleep.sec.after.start}"/>
            <arg value="-hostName=${os.hostname}"/>
            <arg value="-jbossHome=${jboss.home}"/>
