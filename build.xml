@@ -96,6 +96,9 @@
                         <unzip src="${install.home}/lib/${eap6.download.name}" dest="${jboss.home}/.." />
                     </else>
                 </if>
+                <mkdir dir="${pfp.module.path}" />
+                <mkdir dir="${sy.module.path}" />
+                <mkdir dir="${jboss.home}/modules/system/layers/${organization.name}" />
             </then>
         </if>
         <delete dir="${jboss.home}/${jboss.domain.base.dir}" />
@@ -947,8 +950,6 @@
         <mkdir dir="${temp.pfp.lib.dir}" />
         <mkdir dir="${temp.pfp.services.dir}" />
         <mkdir dir="${install.home}/lib" />
-        <mkdir dir="${pfp.module.path}" />
-        <mkdir dir="${sy.module.path}" />
     </target>
 
     <target name="pfp.compile" depends="mkPfpDirs" description="" >

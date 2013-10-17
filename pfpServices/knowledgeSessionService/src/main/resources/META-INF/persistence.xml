@@ -17,7 +17,6 @@
         <class>org.drools.persistence.info.WorkItemInfo</class>
 
         <class>org.jboss.processFlow.knowledgeService.SessionProcessXref</class>
-        <class>com.redhat.gpe.domain.Customer</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
