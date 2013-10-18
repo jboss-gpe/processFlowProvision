@@ -25,6 +25,7 @@ package org.jboss.processFlow.tasks;
 import java.util.List;
 import java.util.Map;
 
+import org.kie.api.task.model.I18NText;
 import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.Task;
 import org.kie.api.task.model.Status;
@@ -113,9 +114,10 @@ public interface ITaskService {
     /**
      * changes task status :  Ready --> Reserved
      */
-    public void claimTask(Long taskId, String idRef, String userId, List<String> roles) throws TaskException;
+    public void claimTask(Long taskId, String userId ) throws TaskException;
     
-    public TaskSummary guaranteedClaimTaskAssignedAsPotentialOwnerByStatusByGroup(String userId, List<String> groupIds, List<Status> statuses, String language, Integer firstResult, Integer maxResults);
+    // returns list of tasks owned by this user with a Status.CLAIMED
+    public List<TaskSummary> claimNextAvailable(String userId, String language);
 
     /**
      * changes task status :  Reserved --> Completed
@@ -153,9 +155,9 @@ public interface ITaskService {
      * @param userId
      * @param faultName
      */
-    public void failTask(Long taskId, Map<String, Object> outboundTaskVars, String userId, String faultName);
+    public void failTask(Long taskId, Map<String, Object> outboundTaskVars, String userId, Map<String, Object> faultData);
 
-    public TaskSummary getTask(Long taskId);
+    public Task getTask(Long taskId);
 
     /**
      * Note:  returns a Hibernate lazy-loaded entity.  Subsequently client to this function
@@ -170,18 +172,11 @@ public interface ITaskService {
      * places task in a status of "Obsolete" and continues execution of work flow branch that this task is a part of
      * <pre>
      * NOTE:  underlying jbpm5 TaskServiceSession does not allow for outbound task variables with Operation.Skip
-     *        will still use the "outboundTaskVars" passed in this function to populate process instance variables with completeWorkItem() invocation
      * </pre>
      */
-    public void skipTask(Long taskId, String userId, Map<String, Object> outboundTaskVars);
+    public void skipTask(Long taskId, String userId);
     
-    
-    /**
-     * invoked internally be PFPAddHumanTaskHandler
-     * will place task in status of Obsolete
-     * @param workItemId
-     */
-    public void skipTaskByWorkItemId(Long workItemId);
+    public void skipTaskByWorkItemId(Long workItemId, String userId);
 
     /**
      * changes task status :  Reserved --> InProgress
@@ -198,9 +193,9 @@ public interface ITaskService {
      */
     public void nominateTask(final long taskId, String userId, final List<OrganizationalEntity> potentialOwners);
 
-    public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, List<String> groupIds, String language);
+    public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, String language);
 
-    public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, List<String> groupIds, String language, Integer firstResult, Integer maxResults);
+    public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, String language, Integer firstResult, Integer maxResults);
     public List<TaskSummary> getTasksAssignedAsPotentialOwnerByStatusByGroup(String userId, List<String> groupIds, List<Status> statuses, String language, Integer firstResult, Integer maxResults);
     public List<TaskSummary> getTasksAssignedAsPotentialOwnerByStatus(String userId, List<Status> statuses, String language, Integer firstResult, Integer maxResults);
 
@@ -246,7 +241,7 @@ public interface ITaskService {
      */
     public String printTaskContent(Long taskId, Boolean inbound);
 
-    public String getTaskName(Long taskId, String language);
+    public List<I18NText> getTaskNames(Long taskId, String language);
     public List<TaskSummary> getAssignedTasks(String userId, List<Status> statuses, String language);
     public List query(String qlString, Integer size, Integer offset);
     public Content getContent(Long contentId);

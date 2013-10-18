@@ -22,8 +22,6 @@
 
 package org.jboss.processFlow.knowledgeService;
 
-import java.io.File;
-import java.net.ConnectException;
 import java.util.Map;
 import java.util.List;
 
@@ -70,25 +68,15 @@ public interface IKnowledgeSession extends IBaseKnowledgeSession {
     public static final String WORK_ITEM_ID = "workItemId";
     public static final String EMAIL = "Email";
     public static final String OPERATION_TYPE="operationType";
-    public static final String ADD_PROCESS_TO_KNOWLEDGE_BASE="addProcessToKnowledgeBase";
     public static final String COMPLETE_WORK_ITEM = "completeWorkItem";
     public static final String START_PROCESS_AND_RETURN_ID="startProcessAndReturnId";
     public static final String SIGNAL_EVENT="signalEvent";
     public static final String SIGNAL_TYPE="signalType";
     public static final String BPMN_FILE="bpmnFile";
     public static final String NODE_ID="nodeId";
-    public static final String DELIVER_ASYNC="deliverAsync";
     public static final String ASYNC_BAM_PRODUCER="org.jboss.processFlow.knowledgeService.AsyncBAMProducer";
     public static final String CHANGE_SET_URLS = "org.jboss.processFlow.space.delimited.change.set.urls";
 
-    /**
-     * printWorkItemHandlers
-     * <pre>
-     * returns a listing of registered workItemHandlers with knowledgeSessions
-     * will include workItemHandlers loaded programmatically and via configuration
-     * </pre>
-     */
-    //public String printWorkItemHandlers();
 
 
     /**
@@ -105,12 +93,20 @@ public interface IKnowledgeSession extends IBaseKnowledgeSession {
     /**
      *retrieve a list of all Process definition objects that the KnowledgeBase is currently aware of
      */
-    public List<String> retrieveProcesses(String deploymentId) throws Exception ;
+    public List<String> getProcessIds(String deploymentId) throws Exception ;
 
-    //public void addProcessToKnowledgeBase(Process processObj, org.kie.api.io.Resource resourceObj);
-
-    //public void addProcessToKnowledgeBase(File bpmnFile);
-
+    
+    public void setProcessInstanceVariables(Long pInstanceId, Map<String, Object> pVariables, String deploymentId);
+    
+    
+    /**
+     * printWorkItemHandlers
+     * <pre>
+     * returns a listing of registered workItemHandlers with knowledgeSessions
+     * will include workItemHandlers loaded programmatically and via configuration
+     * </pre>
+     */
+    //public String printWorkItemHandlers();
     /**
      *getActiveProcessInstances
      *<pre>
@@ -127,12 +123,6 @@ public interface IKnowledgeSession extends IBaseKnowledgeSession {
     
     //public String                   printActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId);
     //public Map<String, Object>      getActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId);
-    //public void                     setProcessInstanceVariables(Long processInstanceId, Map<String, Object> variables, Integer ksessionId);
-
-    /**
-     * returns a snapshot of all KnowledgeSessions and the state that each session is currently in 
-     */
-    //public String                   dumpSessionStatusInfo();
     
     /**
      * for details, please see:  http://docs.jboss.org/jbpm/v5.1/userguide/ch05.html#d0e1768
