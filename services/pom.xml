@@ -4,11 +4,11 @@
 
   <parent>
     <groupId>org.jboss.processFlow</groupId>
-    <artifactId>processFlow</artifactId>
+    <artifactId>parent</artifactId>
     <version>1.0-SNAPSHOT</version>
   </parent>
-  <groupId>org.jboss.processFlow</groupId>
-  <artifactId>services</artifactId>
+  <groupId>org.jboss.processFlow.services</groupId>
+  <artifactId>parent</artifactId>
   <packaging>pom</packaging>
   <modules>
       <module>interfaces</module>
