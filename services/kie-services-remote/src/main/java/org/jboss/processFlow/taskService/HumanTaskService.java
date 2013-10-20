@@ -4,6 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.ejb.Local;
+import javax.ejb.Lock;
+import javax.ejb.LockType;
+import javax.ejb.Remote;
+import javax.ejb.Singleton;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.inject.Inject;
+
 import javax.inject.Inject;
 
 import org.jboss.processFlow.tasks.ITaskService;
@@ -18,10 +27,15 @@ import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
 import org.kie.api.task.model.TaskSummary;
 
+
+@Remote(ITaskService.class)
+@Singleton(name="taskProxy")
+@Lock(LockType.READ)
+@TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class HumanTaskService implements ITaskService {
     
-     @Inject
-     private TaskService taskService;
+    @Inject
+    private TaskService taskService;
 
     public void claimTask(Long taskId, String userId ) throws TaskException {
         taskService.claim(taskId, userId);

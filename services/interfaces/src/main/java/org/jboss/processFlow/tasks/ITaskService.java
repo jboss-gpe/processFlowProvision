@@ -91,7 +91,7 @@ import org.jbpm.services.task.exception.CannotAddTaskException;
  */
 public interface ITaskService {
 
-    public static final String TASK_SERVICE_JNDI = "ejb:/processFlow-taskService//taskProxy!org.jboss.processFlow.tasks.ITaskService";
+    public static final String TASK_SERVICE_JNDI = "ejb:/kie-services-remote/taskProxy!org.jboss.processFlow.tasks.ITaskService";
     public static final String TASK_SERVICE_PROVIDER_URL = "org.jboss.processFlow.tasks.TASK_SERVICE_PROVIDER_URL";
     public static final String ADMINISTRATOR = "admin";
     public static final String HUMAN_TASK = "Human Task";
@@ -102,6 +102,7 @@ public interface ITaskService {
     public static final String TASK_ID = "TASK_ID";
     public static final String TASK_STATUS="TASK_STATUS";
     public static final String DEADLINE_HANDLER = "org.jboss.processFlow.tasks.DeadlineHandler";
+    public static final String ENGLISH = "en-UK";
 
     /**
      *creates a task with status of 'Ready'
