@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
    Note:
     1)  completely plagarized from jbpm/jbpm-services/droolsjbpm-knowledge-services/src/test/java/org/droolsjbpm/services/test/KModuleDeploymentServiceTest.java
+    2)  as a pre-req:  will need to clone and build this project:  https://github.com/jboss-sso/insurancepolicy-model
 */
 public class KModuleDeploymentServiceTest {
     
@@ -38,32 +39,37 @@ public class KModuleDeploymentServiceTest {
     private static final String GROUP_ID = "com.redhat.gpe";
     private static final String VERSION = "1.0";
     
+    private static final String INSURANCE_ARTIFACT_ID = "insurancepolicy-model";
+    private static final String INSURANCE_GROUP_ID = "org.acme.insurance";
+    private static final String INSURANCE_VERSION = "1.0-SNAPSHOT";
+    
     @Test
     public void prepare() {
         KieServices ks = KieServices.Factory.get();
         ReleaseId releaseId = ks.newReleaseId(GROUP_ID, ARTIFACT_ID, VERSION);
+        ReleaseId insuranceDepId = ks.newReleaseId(INSURANCE_GROUP_ID, INSURANCE_ARTIFACT_ID, INSURANCE_VERSION);
         List<String> processes = new ArrayList<String>();
-        processes.add("repo/processes/general/simpleHumanTask.bpmn2");
+        processes.add("repo/processes/general/policyQuoteTask.bpmn2");
         processes.add("repo/processes/general/service_task_ws_test.bpmn2");
         
-        InternalKieModule kJar1 = createKieJar(ks, releaseId, processes);
+        InternalKieModule kJar1 = createKieJar(ks, releaseId, processes, insuranceDepId);
         File pom = new File("target/kmodule", "pom.xml");
         pom.getParentFile().mkdir();
         try {
             FileOutputStream fs = new FileOutputStream(pom);
-            fs.write(getPom(releaseId).getBytes());
+            fs.write(getPom(releaseId, insuranceDepId).getBytes());
             fs.close();
         } catch (Exception e) {
-            
+            e.printStackTrace();
         }
         MavenRepository repository = getMavenRepository();
         repository.deployArtifact(releaseId, kJar1, pom);
     }
     
-    protected InternalKieModule createKieJar(KieServices ks, ReleaseId releaseId, List<String> resources ) {
+    protected InternalKieModule createKieJar(KieServices ks, ReleaseId releaseId, List<String> resources, ReleaseId... dependencies ) {
 
         KieFileSystem kfs = createKieFileSystemWithKProject(ks);
-        kfs.writePomXML( getPom(releaseId) );
+        kfs.writePomXML( getPom(releaseId, dependencies) );
 
 
         for (String resource : resources) {

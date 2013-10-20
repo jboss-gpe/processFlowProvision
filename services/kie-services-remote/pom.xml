@@ -25,6 +25,17 @@
   </build>
 
   <dependencies>
+
+    <!-- TO-DO:  make this optional ! 
+        - in the meantime, needed to support use of smoke tests of process definitions found here:  https://github.com/jboss-sso/gpe-playground
+        - clone and build this dependency from here:  https://github.com/jboss-sso/insurancepolicy-model
+    -->
+    <dependency>
+      <groupId>org.acme.insurance</groupId>
+      <artifactId>insurancepolicy-model</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+
     <dependency>
       <groupId>org.jboss.processFlow.services</groupId>
       <artifactId>interfaces</artifactId>

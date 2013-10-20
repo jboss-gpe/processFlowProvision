@@ -560,14 +560,14 @@ remote client examples
                     - create new application user
                         - new application user used for the following purposes :
                             1)  web access to business-central hosted in bpmsWebs
-                                - the 'creditController' role is the group that the human task in simpleTask.bpmn is assigned to
+                                - the 'reviewers' role is the group that the human task in policyQuoteTask.bpmn2 is assigned to
                             2)  access to the JBoss Remoting subsystem of bpmCore
                         - cd $JBOSS_HOME
                         - ./bin/add-user.sh
                             - What type of user do you wish to add?             :   (b) Application User
                             - Username                                          :   pfp
                             - Password                                          :   bpms
-                            - What roles do you want this user to belong to?    :   creditController
+                            - What roles do you want this user to belong to?    :   reviewers
 
                     - start bpmsWebs server
                         - cd $PFP_HOME

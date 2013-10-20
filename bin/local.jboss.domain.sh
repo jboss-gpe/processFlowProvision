@@ -250,8 +250,8 @@ function smokeTest() {
     # list all process definitions for designated deployment
     curl -v -u $userId:$password -X GET http://$HOSTNAME:$port/$webContext/rest/additional/runtime/$deployId/processes
 
-    # start an instance of simpleTask
-    curl -v -u $userId:$password -X POST -d 'map_bonusAmount=1500' -d 'map_selectedEmployee=Alex' http://$HOSTNAME:$port/$webContext/rest/runtime/$deployId/process/simpleTask/start
+    # start an instance of policyQuoteTask
+    curl -v -u $userId:$password -X POST -d 'map_bonusAmount=1500' -d 'map_selectedEmployee=Alex' http://$HOSTNAME:$port/$webContext/rest/runtime/$deployId/process/policyQuoteTask/start
 
     #  NOTE:  as per org.kie.services.remote.rest.TaskResource, query paramter logic as follows:
     #    1)  specify value for one of the following:   businessAdministrator, potentialOwner or taskOwner
