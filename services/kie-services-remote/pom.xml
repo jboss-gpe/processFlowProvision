@@ -28,8 +28,7 @@
     <dependency>
       <groupId>org.jboss.processFlow.services</groupId>
       <artifactId>interfaces</artifactId>
-      <scope>compile</scope>
-      <version>1.0-SNAPSHOT</version>
+      <version>${version.project}</version>
     </dependency>
 
     <!-- jee -->
@@ -105,6 +104,10 @@
     <dependency>
       <groupId>org.kie.remote</groupId>
       <artifactId>kie-services-remote</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.kie</groupId>
+      <artifactId>kie-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.uberfire</groupId>

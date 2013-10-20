@@ -6,6 +6,7 @@
   <version>1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <properties>
+    <version.project>1.0-SNAPSHOT</version.project>
     <version.drools>6.1.0-SNAPSHOT</version.drools>
     <version.org.codehaus.jackson>1.9.9</version.org.codehaus.jackson>
     <version.org.apache.camel>2.10.3</version.org.apache.camel>

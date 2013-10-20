@@ -20,7 +20,6 @@
 <jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.2">
 <deployment>
   <dependencies>  
-    <module name="org.jboss.processFlow" />
     <module name="org.codehaus.jackson.jackson-mapper-asl" export="true" />
     <module name="org.codehaus.jackson.jackson-core-asl" export="true" />
     <module name="org.apache.commons.lang" export="true" />
