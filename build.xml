@@ -476,7 +476,6 @@
 
     <target name="pfp.compile" depends="mkPfpDirs" description="" >
         <exec executable="mvn" failonerror="true" dir="." >
-            <arg value="clean" />
             <arg value="install" />
         </exec>
         <iterate target="all" />
