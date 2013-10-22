@@ -31,7 +31,6 @@ import org.kie.api.runtime.process.ProcessInstance;
 
 /**
  * replaces BPMS VFSDeploymentService so as to specify additional config settings of the jbpm process engine
- * @author jbride
  *
  */
 @ApplicationScoped

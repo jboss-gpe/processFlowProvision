@@ -137,5 +137,14 @@
 			<attribute name="maven.scope" value="compile"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="/home/jbride/.m2/repository/javax/annotation/jsr250-api/1.0/jsr250-api-1.0.jar">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.groupId" value="javax.annotation"/>
+			<attribute name="maven.artifactId" value="jsr250-api"/>
+			<attribute name="maven.version" value="1.0"/>
+			<attribute name="maven.scope" value="provided"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="target"/>
 </classpath>

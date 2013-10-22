@@ -5,6 +5,9 @@
       http://java.sun.com/xml/ns/javaee/beans_1_0.xsd">
 
     <alternatives>
+        <!-- NOTE:  JAASUserGroupCallbackImpl will use the userId used in the transport (either EJB or REST) authorization
+            if want more flexibility, then try one of the other UserGroupCallback implementations
+        -->
         <class>org.jbpm.services.task.identity.JAASUserGroupCallbackImpl</class>
     </alternatives>
     <decorators>

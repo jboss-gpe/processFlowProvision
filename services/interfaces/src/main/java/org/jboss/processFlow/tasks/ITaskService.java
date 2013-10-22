@@ -194,7 +194,7 @@ public interface ITaskService {
      */
     public void nominateTask(final long taskId, String userId, final List<OrganizationalEntity> potentialOwners);
 
-    public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, String language);
+    public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, String language, List<Status> statuses);
 
     public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, String language, Integer firstResult, Integer maxResults);
     public List<TaskSummary> getTasksAssignedAsPotentialOwnerByStatusByGroup(String userId, List<String> groupIds, List<Status> statuses, String language, Integer firstResult, Integer maxResults);
@@ -207,7 +207,8 @@ public interface ITaskService {
      *- NOTE:  Status taskStatus parameter is optional
      *</pre>
      */
-    public List<TaskSummary> getTasksByProcessInstance(Long processInstanceId, Status taskStatus);
+    public List<Long> getTasksByProcessInstance(Long processInstanceId);
+    public List<TaskSummary> getTasksByStatusByProcessInstanceIdCommand(Long pInstanceId, String language, List<Status> statuses);
 
 
     /**
@@ -242,11 +243,12 @@ public interface ITaskService {
      */
     public String printTaskContent(Long taskId, Boolean inbound);
 
-    public List<I18NText> getTaskNames(Long taskId, String language);
+    public List<I18NText> getTaskNames(Long taskId);
     public List<TaskSummary> getAssignedTasks(String userId, List<Status> statuses, String language);
     public List query(String qlString, Integer size, Integer offset);
     public Content getContent(Long contentId);
     public Map populateHashWithTaskContent(Content contentObj, String keyName);
     public void releaseTask(Long taskId, String userId);
+    public String getSecurityInfo();
 
 }
