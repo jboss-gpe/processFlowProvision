@@ -205,6 +205,21 @@ public class HumanTaskService implements ITaskService {
         }
         return (Map<String, String>) unmarshall;
     }
+
+    public Map<String, String> getTaskOutputContentByTaskId(long taskId) {
+        Task taskInstanceById = taskService.getTaskById(taskId);
+        long documentContentId = taskInstanceById.getTaskData().getOutputContentId();
+        if (documentContentId > 0) {
+            Content contentById = getContentById(documentContentId);
+            if (contentById == null) {
+                return new HashMap<String, String>();
+            }
+            Object unmarshall = ContentMarshallerHelper.unmarshall(contentById.getContent(), null);
+            return (Map<String, String>) unmarshall;
+        }
+        return new HashMap<String, String>();
+    }
+
     
     public Map<String, String> getContentListById(long contentId) {
         Content contentById = getContentById(contentId);
