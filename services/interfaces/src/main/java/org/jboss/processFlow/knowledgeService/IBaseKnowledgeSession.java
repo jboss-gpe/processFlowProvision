@@ -47,8 +47,6 @@ public interface IBaseKnowledgeSession {
      *This method will block until the new process instance either completes or reaches a safe point (ie:  another human task).
      
      *This method is available to remote services that were involved in the processing of an 'asynchroneous' workItemHandler.
-     *One example of a service commonly invoking this method is org.jboss.processFlow.tasks.HumanTaskService. 
-     *  during execution of its 'completeTask(...), this method is subsequently invoked
     </pre>
      * @param workItemId the id of the workItem that has completed
      * @param pInstanceVariables Map of any parameter results to be passed to process instance

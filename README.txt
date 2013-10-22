@@ -2,7 +2,7 @@
 ====================
 
 
-one approach toward a production BPM environment leveraging Red Hat BRMS "Deployable" libraries
+one approach toward a production BPM environment leveraging Red Hat BPMS "Deployable" libraries
 
 
 
@@ -22,54 +22,20 @@ for Java developers, please review :
 
 
 OVERVIEW
-  - PFP is a downstream project to BRMS 5.3 Deployable
+  - PFP is a downstream project to BPMS 6.0 Deployable
   - purpose of PFP :
-    - provide an example of one possible production BRMS environment using 
-      BRMS deployable libraries
+    - provide an example of one possible production BPMS environment using 
+      BPMS deployable libraries
 
 
 PFP github branches :
-    - master
-        - targeted for "domain" managed JBoss AS7.1.3 environment in 'local' mode
-        - targeted for 'standalone' in 'openshift' mode
-        - tracks master branch of jbpm5 community project from github
-            - 5 Dec. 2012:  in particular, 5.4.0.Final tag of jbpm5
-        - configurable to use either mysql, oracle or postgres
-        - leverages embedded hornetq provided by EAP 6
-        - pfp services implemented using CDI & JPA 2.1 with EJB 3.1 wrappings
-        - provisions additional droolsjbpm web archives such as :
-            1)  guvnor
-            2)  designer
-            3)  gwt-console-server
-            4)  gwt-console
-            5)  BIRT reporting
-        - provisioning scripts work only in a *nix variant (read: no windows)
-
-    - 5.3.1
-        - targeted for "domain" managed JBoss EAP6 environment in 'local' mode
-        - targeted for 'standalone' EAP 6 in 'openshift' mode
-        - provisions Red Hat BRMS 5.3.1
-            - 5 Dec. 2012:  in particular, BRMS 5.3.1 ER4
-        - configurable to use either mysql, oracle or postgres
-        - leverages embedded hornetq provided by EAP 6
-        - pfp services implemented using CDI & JPA 2.1 with EJB 3.1 wrappings
-        - provisions additional droolsjbpm web archives such as :
-            1)  jboss-brms
-            2)  designer
-            3)  business-central-server
-            4)  business-central
-            5)  BIRT reporting
-        - provisioning scripts work only in a *nix variant (read: no windows)
-
-    - 5.3.0.GA    
-        - targeted for non-clustered JBoss EAP 5.*
-        - tracks BRMS 5.3.* releases
-        - pfp services implemented using EJB 3.0 and JPA 1.0 & MBeans
-        - postgresql is the only database supported
-        - provisioning scripts work on any operating system
-        - requires separate 'standalone' hornetq 2.2.14 provider
-
-
+  - 6.1.0
+    - tracks Red Hat BPMS6
+    - produces key components of: 'BPMS6 Engine' cartridge for Openshift
+    - exposes BPMS6 process and task engines via :
+      1)  Execution Server :   REST and JMS
+      2)  EJB remoting
+    - provisions example BPMS production environment in EAP6.1* domain mode
 
 
 LEGAL
@@ -79,77 +45,32 @@ LEGAL
   - Please contact Red Hat to discuss support details for BRMS "Deployable"
 
 
-
 FEATURES 
 1)  automated provisioning
-    - Automates provisioning of BRMS deployable libraries on JBoss EAP 5.1
-    - Automates Hornetq or MRG-M standalone configuration
-    - Provides PostgreSQL and mysql configuration templates
+    - Automates provisioning of BPMS deployable libraries on domain-mode EAP 6.1.1 
+    - Automates Hornetq / JBoss A-MQ configurations
+    - Provides PostgreSQL, mysql and oracle configuration templates
 
 
 2)  centralized configuration
-    - centralized configuration of jbpm5 properties during build phase 
+    - centralized configuration of BPMS6 properties during build phase 
       - (via a single build.properties)
     - purpose
-        - BRMS deployable has configuration files throughout it's various 
+        - BPMS Deployable has configuration files throughout it's various 
           sub-components
         - instead of manually modifying it's various config files, PFP allows
           the developer/admin to configure properties from a single properties
           file
           
 
-
 3)  database integration
-    - integrated and performance tested  using postgresql
-    - all jbpm5 / drools components now using one of 3 JCA connection pools:
+    - integrated and performance tested  using postgresql and mysql
+    - all BPMS6 components now using one of 2 JCA connection pools:
         1)  jbpm-core-cp
         2)  jbpm-bam
-        1)  guvnor-cp
 
 
-4)  CDI singleton services
-    - Exposes full functionality of BRMS APIs to remote clients
-    - Allows for scalability / fail-over in distributed environment
-    - Allows for wrapping with EJB, REST or SOAP endpoints
-    - avoids management of jbpm5/drools knowledge sessions in client code
-    - simplifies usability of the jpm5 engine from the client perspective
-
-
-5)  EJB wrappers of CDI singleton services
-    - provides remote access to CDI singleton services
-    - Allows for runtime configuration of JAAS policies
-        - Authentication requirements
-        - Method-level authorization
-        - Programmatic authorization via SessionContext
-
-
-6)  task functionality
-    - No longer uses a Mina /Hornet-q messaging provider nor jbpm5 "Task Server"
-    - instead, exposes task related API as EJB3
-    - greatly simplifies environment
-    - substantial performance and concurrency improvements 
-    - leverages BRMS TaskServiceSession directly
-    - BRMS human task functionality is centralized
-
-
-7)  StatefulKnowledgeSession management:
-    - drools/jbpm5 process engine functionality is centralized
-    - forwards process engine BAM events to a messaging provider
-    - significantly more performant than persisting BAM event to RDBMS in same
-      thread of execution as process engine
-    - two implementions:
-        1)  SessionPerPInstance strategy
-          - appropriate when bpmn2 definitions include rules nodes 
-          - prevents optimistic lock exceptions that may occur in concurrent
-            environments
-          - recycles database SessionInfo records after process completion
-            -prevents SessionInfo table from continuosly growing
-        2)  SingleSessionForAll strategy
-          - appropriate when bpmn2 definitions do not include rules nodes
-
-
-8)  bam functionality
-    - bam data maintains relationship between:
-        parent process instances and its sub-process instances
-    - this allows BAM reporting that can be depicted in a tree structure
-    - within the BAM audit-trail tree structure, the BAM reports can be generated that include any human task variables that existed at that time
+4)  EJB wrappers of CDI singleton services
+    - provides EJB remote access to CDI singleton services
+    - ideal when clients desire to participate in same XA trnx with process
+      and task engines

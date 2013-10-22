@@ -44,12 +44,9 @@ import org.jbpm.services.task.exception.CannotAddTaskException;
  *      http://docs.oasis-open.org/bpel4people/ws-humantask-1.1.html
  *          section 4.10 :  Human Task Behavior and State Transitions
  *
- * Interaction with org.jbpm.task.service.TaskServiceSession
- *  - org.jbpm.task.service.TaskServiceSession provides the majority of the functionality to manage jbpm human tasks
- *  - implementations of this interface expose various TaskServiceSession derived operations as an EJB 'service'
- *  - implementations may choose to interact with the TaskServiceSession directly.
- *  - another approach may be to interact with the TaskServiceSession via any of the numerous jbpm5 human task 'servers' which implement: org.jbpm.task.service.TaskServer
- *
+ * Interaction with org.jbpm.services.task.impl.TaskServiceEntryPointImpl
+ *  - org.jbpm.services.task.impl.TaskServiceEntryPointImpl provides the majority of the functionality to manage jbpm human tasks
+ *  - implementations of this interface expose various TaskServiceEntryPointImpl derived operations as an EJB service
  *
  *</pre>
  *
@@ -66,7 +63,7 @@ import org.jbpm.services.task.exception.CannotAddTaskException;
  *    - in a concurrent environment, it is quite likely that other clients may have already RESERVED some of the tasks 
            originally returned from 'getTasksAssignedAsPotentialOwner'
  *
- * 'guaranteedClaimTask' operation
+ * 'claimNextAvailable' operation
  *   - to avoid the heavy network hit imposed by remote clients invoking 'claimTask(...)' as they each iterate through a List<TaskSummary>,
  *     may want to consider implementing a method called 'guaranteedClaimTask(...)'
  *   - the purpose of 'guaranteedClaimTask(..)' would be to return a Task to the client that is guaranteed to have been RESERVED by that client
@@ -183,6 +180,9 @@ public interface ITaskService {
      * changes task status :  Reserved --> InProgress
      */
     public void startTask(Long taskId, String userId);
+
+
+    public void releaseTask(Long taskId, String userId);
     
     
     /**
@@ -246,9 +246,15 @@ public interface ITaskService {
     public List<I18NText> getTaskNames(Long taskId);
     public List<TaskSummary> getAssignedTasks(String userId, List<Status> statuses, String language);
     public List query(String qlString, Integer size, Integer offset);
-    public Content getContent(Long contentId);
-    public Map populateHashWithTaskContent(Content contentObj, String keyName);
-    public void releaseTask(Long taskId, String userId);
+    public List<Content> getAllContentByTaskId(long taskId);
+    public Content getContentById(Long contentId);
+
+    /**
+     * returns Map of inbound task variables
+     */
+    public Map<String, String> getContentListByTaskId(long taskId);
+    public Map<String, String> getContentListById(long contentId);
+    public Map<String, String> getTaskOutputContentByTaskId(long taskId);
     public String getSecurityInfo();
 
 }
