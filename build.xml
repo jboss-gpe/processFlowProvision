@@ -471,6 +471,7 @@
     <target name="pfp.compile" depends="mkPfpDirs" description="" >
         <exec executable="mvn" failonerror="true" dir="." >
             <arg value="install" />
+            <arg value="-P${bpms.deployment.type}" />
         </exec>
         <iterate target="all" />
     </target>

@@ -6,13 +6,9 @@
     <import file="${development.base}/base-build.xml"/>
 
     <target name="all" depends="setClasspath" >
-        <if><equals arg1="${use.bpms.modules}" arg2="true" />
+        <if><equals arg1="${bpms.deployment.type}" arg2="modules" />
           <then>
             <copy file="conf/jboss-deployment-structure.xml.modules" tofile="src/main/webapp/WEB-INF/jboss-deployment-structure.xml" overwrite="true" verbose="true" />
-            <antcall target="war">
-                <param name="war.name" value="${ant.project.name}" />
-                <param name="lib.path" value="../../lib/bpms" />
-            </antcall>
             <exec executable="git" failonerror="true" dir="." >
                 <arg value="checkout" />
                 <arg value="src/main/webapp/WEB-INF/jboss-deployment-structure.xml" />
