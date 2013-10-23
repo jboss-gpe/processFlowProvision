@@ -1,0 +1,15 @@
+<project name="consoleIntegration" default="all" basedir=".">
+
+    <property environment="ENV"/>
+    <property file="../../build.properties" />
+    <property name="project.path.property" value="lib" />
+    <import file="${development.base}/base-build.xml"/>
+
+    <target name="all" >
+        <mkdir dir="target/WEB-INF/lib" />
+         <copy file="${build.dir}/${ant.project.name}.jar" toDir="target/WEB-INF/lib" overwrite="true" verbose="true" />
+    </target>
+
+    <target name="clean"><delete dir="${build.dir}" /></target>
+
+</project>

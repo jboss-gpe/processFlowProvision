@@ -1,0 +1,3 @@
+org.jboss.processFlow.consoleIntegration.ConsoleCDIManagementExtension
+org.kie.commons.services.cdi.StartupBeanExtension
+org.uberfire.security.server.cdi.SecurityExtension

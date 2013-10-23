@@ -190,20 +190,12 @@
     </target> 
 
     <target name="local.deploy.jboss.modules" >
-        <if><equals arg1="${use.bpms.modules}" arg2="true" />
-          <then>
-            <antcall target="configure.bpms.modules" />
-            <!-- TO-DO:  use the ant replace tool -->
-            <antcall target="filter">
+        <antcall target="configure.bpms.modules" />
+        <!-- TO-DO:  use the ant replace tool -->
+        <!--antcall target="filter">
                 <param name="source.dir" value="conf/jboss/modules/bpms"/>
                 <param name="dest.dir" value="${jboss.home}/modules/system/layers/bpms"/>
-            </antcall>
-          </then>
-          <else>
-            <!-- create empty bpms modules directory to satisfy list of modules in $JBOSS_HOME/modules/layers.conf -->
-            <mkdir dir="${jboss.home}/modules/system/layers/bpms" />
-          </else>
-        </if>
+        </antcall -->
         <!-- antcall target="configure.sy.modules" / -->
         <!-- https://community.jboss.org/wiki/LayeredDistributionsAndModulePathOrganization -->
         <mkdir dir="${jboss.home}/modules/system/layers/${organization.name}" />
@@ -405,7 +397,8 @@
                     <equals arg1="${refresh.master}" arg2="true" />
                     <then><antcall target="refresh.master" /></then>
                 </if>
-                <jar update="true" destfile="${biz.central.zipped}" basedir="conf/bpmsWebs/bizcentral" includes="WEB-INF/jboss-web.xml" />
+                <jar update="true" destfile="${biz.central.zipped}" basedir="services/consoleIntegration/target/" includes="WEB-INF/lib/consoleIntegration.jar" />
+                <jar update="true" destfile="${biz.central.zipped}" basedir="conf/bpmsWebs/bizcentral" includes="WEB-INF/classes/META-INF/services/javax.enterprise.inject.spi.Extension" />
                 <antcall target="cli.batch">
                     <param name="cli.source.dir" value="conf/bpmsWebs"/>
                     <param name="cli.to.filter.and.execute" value="bpmsWebs-config-group.cli"/>
@@ -436,6 +429,7 @@
             <subant target="@{target}">
                 <fileset dir="services/interfaces" includes="build.xml"/>
                 <fileset dir="services/kie-services-remote" includes="build.xml"/>
+                <fileset dir="services/consoleIntegration" includes="build.xml"/>
                 <fileset dir="services/asyncAuditLog" includes="build.xml"/>
             </subant>
         </sequential>
@@ -498,11 +492,7 @@
     </target>
 
     <target name="all" >
-        <if><equals arg1="${use.bpms.modules}" arg2="true" />
-          <then>
-            <antcall target="download.and.unzip.bpms.deployer" />
-          </then>
-        </if>
+        <antcall target="download.and.unzip.bpms.deployer" />
         <antcall target="refresh.master" />
         <antcall target="refresh.slave.hosts" />
         <antcall target="local.configure.core.services" />

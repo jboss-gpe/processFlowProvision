@@ -13,6 +13,7 @@
   <modules>
       <module>interfaces</module>
       <module>kie-services-remote</module>
+      <module>consoleIntegration</module>
       <module>asyncAuditLog</module>
   </modules>
 

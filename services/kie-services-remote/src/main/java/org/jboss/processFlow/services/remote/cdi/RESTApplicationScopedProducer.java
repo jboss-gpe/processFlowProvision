@@ -25,8 +25,8 @@ import org.jbpm.kie.services.impl.VFSDeploymentService;
 import org.jbpm.runtime.manager.api.WorkItemHandlerProducer;
 import org.jbpm.shared.services.cdi.Selectable;
 import org.kie.internal.task.api.UserGroupCallback;
-import org.uberfire.io.IOService;
-import org.uberfire.io.impl.IOServiceDotFileImpl;
+import org.kie.commons.io.IOService;
+import org.kie.commons.io.impl.IOServiceDotFileImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

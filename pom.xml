@@ -7,13 +7,14 @@
   <packaging>pom</packaging>
   <properties>
     <version.project>1.0-SNAPSHOT</version.project>
-    <version.drools>6.1.0-SNAPSHOT</version.drools>
+    <version.drools>6.0.0.CR5</version.drools>
     <version.org.codehaus.jackson>1.9.9</version.org.codehaus.jackson>
     <version.org.apache.camel>2.10.3</version.org.apache.camel>
     <version.org.jboss.resteasy>2.3.6.Final</version.org.jboss.resteasy>
     <version.org.jboss.spec.jboss.javaee.6.0>3.0.2.Final-redhat-4</version.org.jboss.spec.jboss.javaee.6.0>
     <version.org.jboss.as>7.2.1.Final-redhat-10</version.org.jboss.as>
-    <version.org.uberfire>0.4.0-SNAPSHOT</version.org.uberfire>
+    <version.org.uberfire>0.3.0.CR5</version.org.uberfire>
+    <version.errai>2.4.1.Final</version.errai>
   </properties>
   <modules>
       <module>services</module>
@@ -96,6 +97,7 @@
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-core</artifactId>
         <version>${version.org.apache.camel}</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.jbpm</groupId>
@@ -170,6 +172,11 @@
         <groupId>org.uberfire</groupId>
         <artifactId>uberfire-io</artifactId>
         <version>${version.org.uberfire}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.errai</groupId>
+        <artifactId>errai-bus</artifactId>
+        <version>${version.errai}</version>
       </dependency>
       <dependency>
         <groupId>org.kie</groupId>
