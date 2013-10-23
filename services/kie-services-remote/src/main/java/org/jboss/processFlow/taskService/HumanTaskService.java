@@ -32,7 +32,6 @@ import org.jbpm.services.task.commands.NominateTaskCommand;
 import org.jbpm.services.task.commands.ReleaseTaskCommand;
 import org.jbpm.services.task.commands.SkipTaskCommand;
 import org.jbpm.services.task.commands.StartTaskCommand;
-import org.jbpm.services.task.exception.TaskException;
 import org.jbpm.services.task.utils.ContentMarshallerHelper;
 import org.kie.api.task.TaskService;
 import org.kie.api.task.model.Content;
@@ -62,7 +61,7 @@ public class HumanTaskService implements ITaskService {
     @Resource
     private SessionContext ctx;
 
-    public void claimTask(Long taskId, String userId ) throws TaskException {
+    public void claimTask(Long taskId, String userId ) {
         ClaimTaskCommand cmd = new ClaimTaskCommand(taskId, userId);
         ((InternalTaskService)taskService).execute(cmd);
     }

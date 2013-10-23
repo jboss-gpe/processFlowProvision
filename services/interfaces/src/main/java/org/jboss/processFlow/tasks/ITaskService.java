@@ -31,8 +31,6 @@ import org.kie.api.task.model.Task;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Content;
 import org.kie.api.task.model.TaskSummary;
-import org.jbpm.services.task.exception.TaskException;
-import org.jbpm.services.task.exception.CannotAddTaskException;
 
 /**
  *
@@ -107,12 +105,12 @@ public interface ITaskService {
      * NOTE : this operation will most likely will be invoked by a BRMS customer 'workItemHandler'
      *</pre>
      */
-    //public long addTask(Task taskObj, ContentData cData) throws CannotAddTaskException;
+    //public long addTask(Task taskObj, ContentData cData);
 
     /**
      * changes task status :  Ready --> Reserved
      */
-    public void claimTask(Long taskId, String userId ) throws TaskException;
+    public void claimTask(Long taskId, String userId );
     
     // returns list of tasks owned by this user with a Status.CLAIMED
     public List<TaskSummary> claimNextAvailable(String userId, String language);
