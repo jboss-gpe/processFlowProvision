@@ -6,15 +6,6 @@
     <import file="${development.base}/base-build.xml"/>
 
     <target name="all" depends="setClasspath" >
-        <if><equals arg1="${bpms.deployment.type}" arg2="modules" />
-          <then>
-            <copy file="conf/jboss-deployment-structure.xml.modules" tofile="src/main/webapp/WEB-INF/jboss-deployment-structure.xml" overwrite="true" verbose="true" />
-            <exec executable="git" failonerror="true" dir="." >
-                <arg value="checkout" />
-                <arg value="src/main/webapp/WEB-INF/jboss-deployment-structure.xml" />
-            </exec>
-          </then>
-        </if>
         <copy file="${build.dir}/${ant.project.name}.war" toDir="${temp.pfp.services.dir}" overwrite="true" verbose="true" />
     </target>
 
