@@ -103,10 +103,10 @@ public interface IKnowledgeSession extends IBaseKnowledgeSession {
      * printWorkItemHandlers
      * <pre>
      * returns a listing of registered workItemHandlers with knowledgeSessions
-     * will include workItemHandlers loaded programmatically and via configuration
      * </pre>
      */
-    //public String printWorkItemHandlers();
+    public String printWorkItemHandlers(String deploymentId);
+    
     /**
      *getActiveProcessInstances
      *<pre>

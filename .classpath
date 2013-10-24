@@ -21,6 +21,7 @@
 	<classpathentry kind="src" path="services/kie-services-remote/src/test/java"/>
 	<classpathentry kind="src" path="services/interfaces/src/main/java"/>
 	<classpathentry kind="src" path="services/consoleIntegration/src/main/java"/>
+	<classpathentry kind="src" path="services/kie-services-remote/src/main/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="JBOSS_HOME"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/drools-compiler"/>

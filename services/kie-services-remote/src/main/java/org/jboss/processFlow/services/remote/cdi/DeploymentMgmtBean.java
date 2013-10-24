@@ -49,6 +49,10 @@ import static org.kie.commons.io.FileSystemType.Bootstrap.BOOTSTRAP_INSTANCE;
                1)  org.jbpm.kie.services.impl.VfsMVELWorkItemHandlerProducer
         - KModuleDeploymentUnit(s)
              - both ksession strategy and workItemHandler mappings are included in kJar's META-INF/kmodule.xml
+
+    - NOTE:  regarding workItemHandler mapping registration, can also :
+        1)  define mapping in:  WEB-INF/classes/META-INF/CustomWorkItemHandlers.conf
+        2)  define programmatically via:  org.drools.core.command.runtime.process.RegisterWorkItemHandlerCommand
 */
 @ApplicationScoped
 public class DeploymentMgmtBean implements IDeploymentMgmtBean {

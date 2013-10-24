@@ -14,6 +14,7 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 
+import org.drools.core.SessionConfiguration;
 import org.drools.core.command.impl.CommandBasedStatefulKnowledgeSession;
 import org.drools.core.command.runtime.process.CompleteWorkItemCommand;
 import org.drools.core.command.runtime.process.GetProcessIdsCommand;
@@ -22,17 +23,22 @@ import org.drools.core.command.runtime.process.SetProcessInstanceVariablesComman
 import org.drools.core.command.runtime.process.SignalEventCommand;
 import org.drools.core.command.runtime.process.StartProcessCommand;
 import org.drools.persistence.SingleSessionCommandService;
+import org.jbpm.runtime.manager.impl.AbstractRuntimeManager;
+import org.jbpm.runtime.manager.impl.SimpleRuntimeEnvironment;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.kie.api.command.Command;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.Context;
 import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.manager.RuntimeManager;
+import org.kie.internal.runtime.manager.RegisterableItemsFactory;
+import org.kie.internal.runtime.manager.RuntimeEnvironment;
 import org.kie.internal.runtime.manager.context.EmptyContext;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.kie.services.remote.cdi.RuntimeManagerManager;
 import org.kie.services.remote.exception.DomainNotFoundBadRequestException;
 import org.kie.api.runtime.process.ProcessInstance;
+import org.kie.api.runtime.process.WorkItemHandler;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
@@ -183,6 +189,27 @@ public class KnowledgeSessionService implements IKnowledgeSession {
             }
         }
         
+    }
+    
+
+    public String printWorkItemHandlers(String deploymentId) {
+        AbstractRuntimeManager runtimeManager = (AbstractRuntimeManager)runtimeMgrMgr.getRuntimeManager(deploymentId);
+        RuntimeEngine runtimeEngine = getRuntimeEngine(deploymentId, null);
+        RegisterableItemsFactory factory = runtimeManager.getEnvironment().getRegisterableItemsFactory();
+        Map<String, WorkItemHandler> workItemHandlers = factory.getWorkItemHandlers(runtimeEngine);
+        
+        StringBuilder sBuilder = new StringBuilder("[");
+        int x = 0;
+        for(Map.Entry<?, ?> entry : workItemHandlers.entrySet()){
+            if(x > 0)
+                sBuilder.append(",");
+            sBuilder.append("{\""+ entry.getKey()+"\":\"");
+            sBuilder.append(( (WorkItemHandler)entry.getValue()).getClass().getName());
+            sBuilder.append("\"}");
+            x++;
+        }
+        sBuilder.append("]");
+        return sBuilder.toString();
     }
     
     private RuntimeEngine getRuntimeEngine(String deploymentId, Long processInstanceId) {

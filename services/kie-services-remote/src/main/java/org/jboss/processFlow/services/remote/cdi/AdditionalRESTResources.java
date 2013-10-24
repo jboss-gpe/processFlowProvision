@@ -1,6 +1,7 @@
 package org.jboss.processFlow.services.remote.cdi;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.enterprise.context.RequestScoped;
 import javax.servlet.http.HttpServletRequest;
@@ -18,8 +19,16 @@ import javax.ws.rs.core.Response.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.drools.core.command.runtime.process.GetProcessIdsCommand;
+import org.jbpm.runtime.manager.impl.AbstractRuntimeManager;
+import org.kie.services.remote.cdi.RuntimeManagerManager;
 import org.kie.services.remote.rest.RestProcessRequestBean;
 import org.kie.api.command.Command;
+import org.kie.api.runtime.manager.RuntimeEngine;
+import org.kie.api.runtime.manager.RuntimeManager;
+import org.kie.api.runtime.process.WorkItemHandler;
+import org.kie.internal.runtime.manager.RegisterableItemsFactory;
+import org.kie.internal.runtime.manager.RuntimeEnvironment;
+import org.kie.internal.runtime.manager.context.EmptyContext;
 
 /**
     - what about a function to check status of registered workItemHandlers
@@ -37,6 +46,9 @@ public class AdditionalRESTResources {
     
     @Inject
     private RestProcessRequestBean processRequestBean;
+    
+    @Inject
+    private RuntimeManagerManager runtimeMgrMgr;
     
     @Inject
     private IDeploymentMgmtBean dBean;
@@ -68,6 +80,34 @@ public class AdditionalRESTResources {
         }else {
             sBuilder.append("no processes found for deploymentId : "+deploymentId+"\n");
         }
+        ResponseBuilder builder = Response.ok(sBuilder.toString());
+        return builder.build();
+    }
+    
+    /**
+     * sample usage :
+     *  curl -X GET -HAccept:text/plain $HOSTNAME:8330/kie-jbpm-services/rest/additional/runtime/local-playground/workItemHandlers
+     */
+    @GET
+    @Produces({ "text/plain" })
+    @Path("/workItemHandlers")
+    public Response printWorkItemHandlers() {
+        AbstractRuntimeManager runtimeManager = (AbstractRuntimeManager)runtimeMgrMgr.getRuntimeManager(deploymentId);
+        RuntimeEngine runtimeEngine = runtimeManager.getRuntimeEngine(EmptyContext.get());
+        RegisterableItemsFactory factory = runtimeManager.getEnvironment().getRegisterableItemsFactory();
+        Map<String, WorkItemHandler> workItemHandlers = factory.getWorkItemHandlers(runtimeEngine);
+        
+        StringBuilder sBuilder = new StringBuilder("[");
+        int x = 0;
+        for(Map.Entry<?, ?> entry : workItemHandlers.entrySet()){
+            if(x > 0)
+                sBuilder.append(",");
+            sBuilder.append("{\""+ entry.getKey()+"\":\"");
+            sBuilder.append(( (WorkItemHandler)entry.getValue()).getClass().getName());
+            sBuilder.append("\"}");
+            x++;
+        }
+        sBuilder.append("]");
         ResponseBuilder builder = Response.ok(sBuilder.toString());
         return builder.build();
     }
