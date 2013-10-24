@@ -63,6 +63,9 @@ do
         -deployId=*)
             deployId=`echo $var | cut -f2 -d\=` 
             ;;
+        -pathToFSWInstaller=*)
+            pathToFSWInstaller=`echo $var | cut -f2 -d\=` 
+            ;;
     esac
 done
 
@@ -288,12 +291,17 @@ function smokeTest() {
     #curl -v -u $userId:$password -H "Content-Type:application/xml" -d '<command-request><deployment-id>$deployId</deployment-id><process-instance-id>1</process-instance-id><claim-task id="1" /></command-request>' -X POST http://$HOSTNAME:$port/$webContext/rest/task/execute
 }
 
+runFSWInstaller() {
+    export JBOSS_HOME=
+    java -jar $pathToFSWInstaller target/tmp/fsw/installer/fsw.install.xml
+}
+
 
 case "$1" in
-    start|stop|restart|executeCli|refreshSlaveHosts|killJbossProcesses|smokeTest)
+    start|stop|restart|executeCli|refreshSlaveHosts|killJbossProcesses|smokeTest|runFSWInstaller)
         $1
         ;;
     *)
-    echo 1>&2 $"Usage: $0 {start|stop|restart|executeAddUser|executeCli|refreshSlaveHosts|killJbossProcesses|smokeTest}"
+    echo 1>&2 $"Usage: $0 {start|stop|restart|executeAddUser|executeCli|refreshSlaveHosts|killJbossProcesses|smokeTest|runFSWInstaller}"
     exit 1
 esac

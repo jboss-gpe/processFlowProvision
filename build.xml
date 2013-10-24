@@ -153,8 +153,29 @@
         <antcall target="download.and.unzip.bpms.deployer" />
     </target>
 
-    <target name="configure.sy.modules" >
-        <antcall target="download.and.unzip.sy.deployer" />
+    <target name="configure.fsw.modules" >
+      <if><equals arg1="${org.jboss.processFlow.provision.fsw}" arg2="true" />
+        <then>
+            <if><not><available file="${fsw.install.dir}/jboss-eap-6.1/modules/system/layers/soa" /></not><then>
+                <mkdir dir="${fsw.install.dir}" />
+                <antcall target="filter">
+                    <param name="source.dir" value="conf/fsw/installer"/>
+                    <param name="dest.dir" value="${build.dir}/tmp/fsw/installer"/>
+                </antcall>
+                <exec executable="bash" failonerror="true" dir=".">
+                    <arg value="bin/local.jboss.domain.sh" />
+                    <arg value="runFSWInstaller" />
+                    <arg value="-pathToFSWInstaller=${path.to.fsw.installer}" />
+                </exec>
+            </then></if>
+            <copy todir="${fsw.module.path}" >
+                <fileset dir="${fsw.install.dir}/jboss-eap-6.1/modules/system/layers/soa" />
+            </copy>
+        </then>
+        <else>
+            <mkdir dir="${fsw.module.path}" />
+        </else>
+      </if>
     </target>
 
     <target name="configure.pfp.app" >
@@ -196,7 +217,7 @@
                 <param name="source.dir" value="conf/jboss/modules/bpms"/>
                 <param name="dest.dir" value="${jboss.home}/modules/system/layers/bpms"/>
         </antcall -->
-        <!-- antcall target="configure.sy.modules" / -->
+        <antcall target="configure.fsw.modules" />
         <!-- https://community.jboss.org/wiki/LayeredDistributionsAndModulePathOrganization -->
         <mkdir dir="${jboss.home}/modules/system/layers/${organization.name}" />
         <antcall target="filter">
@@ -341,19 +362,19 @@
 
     <!--
       pass following parameters to this target :
-        1) org.jboss.processFlow.provision.switchyard
+        1) org.jboss.processFlow.provision.fsw
         2) refresh.master (optional)
     -->
-    <target name="local.provision.switchyard">
+    <target name="local.provision.fsw">
         <if>
-            <equals arg1="${org.jboss.processFlow.provision.switchyard}" arg2="true" />
+            <equals arg1="${org.jboss.processFlow.provision.fsw}" arg2="****FIX-ME*****" />
             <then>
                 <if>
                     <equals arg1="${refresh.master}" arg2="true" />
                     <then><antcall target="refresh.master" /></then>
                 </if>
                 <antcall target="cli.batch">
-                    <param name="cli.source.dir" value="conf/switchyard"/>
+                    <param name="cli.source.dir" value="conf/fsw"/>
                     <param name="cli.to.filter.and.execute" value="sy-server-group.cli"/>
                     <param name="cli.fail.on.error" value="true"/>
                 </antcall>
@@ -368,7 +389,7 @@
                                 <math result="sy.core.debugger.port" operand1="${sy.core.base.debugger.port}" operation="+" operand2="${sy.core.port.increment}" datatype="int" />
                                 <echo message="sy.core.server.id=${sy.core.server.id} : sy.core.port.offset=${sy.core.port.offset} : sy.core.debugger.port = ${sy.core.debugger.port}" />
                                 <antcall target="cli.batch">
-                                    <param name="cli.source.dir" value="conf/switchyard"/>
+                                    <param name="cli.source.dir" value="conf/fsw"/>
                                     <param name="cli.to.filter.and.execute" value="sy-server-up.cli"/>
                                     <param name="cli.fail.on.error" value="true"/>
                                 </antcall>
@@ -378,7 +399,7 @@
                 </for>
             </then>
             <else>
-                <echo message="local.provision.switchyard:  org.jboss.processFlow.provision.switchyard = ${org.jboss.processFlow.provision.switchyard}" />
+                <echo message="local.provision.fsw:  org.jboss.processFlow.provision.fsw = ${org.jboss.processFlow.provision.fsw}" />
             </else>
         </if>
     </target>
@@ -455,11 +476,6 @@
         <delete dir="privateServiceTaskRepo/${build.dir}" />
     </target>
 
-    <target name="download.and.unzip.sy.deployer">
-        <get src="${switchyard.deployer.download.url}" dest="${install.home}/lib/"  skipexisting="true" />
-        <unzip src="${install.home}/lib/${switchyard.zip.name}" dest="${jboss.home}/../" />
-    </target>
-
     <target name="mkPfpDirs">
         <mkdir dir="${temp.pfp.lib.dir}" />
         <mkdir dir="${temp.pfp.services.dir}" />
@@ -518,7 +534,7 @@
         <antcall target="local.provision.bpm.core">
             <param name="refresh.master" value="false"/>
         </antcall>
-        <antcall target="local.provision.switchyard">
+        <antcall target="local.provision.fsw">
             <param name="refresh.master" value="false"/>
         </antcall>
     </target>

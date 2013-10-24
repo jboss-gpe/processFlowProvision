@@ -52,7 +52,7 @@
             <path refid="project.classpath" />
         </path>
         <if>
-            <equals arg1="${org.jboss.processFlow.provision.switchyard}" arg2="true" />
+            <equals arg1="${org.jboss.processFlow.provision.fsw}" arg2="true" />
             <then>
                 <path id="classpath">
                 <path refid="supported.classpath" />
@@ -339,7 +339,7 @@
             <then><antcall target="local.bounce.bpms.webs"  ><param name="group.stop" value="false"/></antcall></then>
         </if>
         <if>
-            <equals arg1="${org.jboss.processFlow.provision.switchyard}" arg2="true" />
+            <equals arg1="${org.jboss.processFlow.provision.fsw}" arg2="true" />
             <then><antcall target="local.bounce.sy"  ><param name="group.stop" value="false"/></antcall></then>
         </if>
     </target>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<AutomatedInstallation langpack="eng">
+<com.izforge.izpack.panels.HTMLLicencePanel id="HTMLLicencePanel"/>
+<com.izforge.izpack.panels.TargetPanel id="DirectoryPanel">
+<installpath>${fsw.install.dir}</installpath>
+</com.izforge.izpack.panels.TargetPanel>
+<com.izforge.izpack.panels.UserInputPanel id="CreateUserPanel">
+<userInput>
+<entry key="adminPassword" value="e00ace315c723530fc8c8d1543813e3a"/>
+<entry key="adminUser" value="admin"/>
+</userInput>
+</com.izforge.izpack.panels.UserInputPanel>
+<com.izforge.izpack.panels.UserInputPanel id="QuickStartsPanel"/>
+<com.izforge.izpack.panels.JDKCheckPanel id="JDKCheckPanel"/>
+<com.izforge.izpack.panels.MavenRepoCheckPanel id="MavenRepoCheckPanel"/>
+<com.izforge.izpack.panels.TreePacksPanel id="TreePacksPanel">
+<pack index="0" name="Red Hat JBoss Enterprise Application Platform" selected="false"/>
+<pack index="1" name="Red Hat JBoss Fuse Service Works" selected="true"/>
+<pack index="2" name="RT-Gov Client-only" selected="false"/>
+<pack index="3" name="RT-Gov Server+Client" selected="false"/>
+<pack index="4" name="DT-Gov run-time" selected="false"/>
+<pack index="5" name="S-RAMP run-time" selected="false"/>
+<pack index="6" name="Red Hat JBoss Fuse Service Works quickstarts" selected="false"/>
+<pack index="7" name="RTGov Server quickstarts" selected="false"/>
+<pack index="8" name="DTGov quickstarts" selected="false"/>
+<pack index="9" name="S-RAMP quickstarts" selected="false"/>
+</com.izforge.izpack.panels.TreePacksPanel>
+<com.izforge.izpack.panels.UserInputPanel id="RTGovServer"/>
+<com.izforge.izpack.panels.UserInputPanel id="GovernanceCredentials">
+<userInput>
+<entry key="overlord.password" value="Mar1ne$1"/>
+</userInput>
+</com.izforge.izpack.panels.UserInputPanel>
+<com.izforge.izpack.panels.UserInputPanel id="BpelCredentials">
+<userInput>
+<entry key="bpel.password" value="Mar1ne$1"/>
+<entry key="bpel.user" value="admin"/>
+</userInput>
+</com.izforge.izpack.panels.UserInputPanel>
+<com.izforge.izpack.panels.UserInputPanel id="SocketBindingPanel"/>
+<com.izforge.izpack.panels.UserInputPanel id="SocketStandalonePanel"/>
+<com.izforge.izpack.panels.UserInputPanel id="SocketHaStandalonePanel"/>
+<com.izforge.izpack.panels.UserInputPanel id="SocketFullStandalonePanel"/>
+<com.izforge.izpack.panels.UserInputPanel id="SocketFullHaStandalonePanel"/>
+<com.izforge.izpack.panels.UserInputPanel id="SocketDomainPanel"/>
+<com.izforge.izpack.panels.UserInputPanel id="SocketHaDomainPanel"/>
+<com.izforge.izpack.panels.UserInputPanel id="SocketFullDomainPanel"/>
+<com.izforge.izpack.panels.UserInputPanel id="SocketFullHaDomainPanel"/>
+<com.izforge.izpack.panels.UserInputPanel id="ServerLaunchPanel"/>
+<com.izforge.izpack.panels.UserInputPanel id="LoggingOptionsPanel"/>
+<com.izforge.izpack.panels.SummaryPanel id="SummaryPanel"/>
+<com.izforge.izpack.panels.InstallPanel id="InstallPanel"/>
+<com.izforge.izpack.panels.UserInputPanel id="postinstall">
+<userInput>
+<entry key="postinstallServer" value="false"/>
+<entry key="installSecurityDomain" value="off"/>
+<entry key="installInfinispan" value="off"/>
+<entry key="installSsl" value="off"/>
+<entry key="jdbc.driver.install" value="off"/>
+<entry key="installVault" value="off"/>
+<entry key="installLdap" value="off"/>
+</userInput>
+</com.izforge.izpack.panels.UserInputPanel>
+<com.izforge.izpack.panels.UserInputPanel id="vaultsecurity"/>
+<com.izforge.izpack.panels.UserInputPanel id="sslsecurity"/>
+<com.izforge.izpack.panels.UserInputPanel id="ldapsecurity"/>
+<com.izforge.izpack.panels.UserInputPanel id="ldapsecurity2"/>
+<com.izforge.izpack.panels.UserInputPanel id="infinispan"/>
+<com.izforge.izpack.panels.UserInputPanel id="securitydomain"/>
+<com.izforge.izpack.panels.UserInputPanel id="jsssecuritydomain"/>
+
+<!-- JA Bride:  not needed -->
+<!--com.redhat.installer.panels.JBossJDBCDriverSetupPanel id="JDBC Setup Panel"/>
+<com.izforge.izpack.panels.UserInputPanel id="DBDefaultConfiguration">
+<userInput>
+<entry key="db.url" value="jdbc:h2:file:/opt/jboss/soa/fsw/jboss-eap-6.1/standalone/data/h2/soa;mvcc=true"/>
+<entry key="db.user" value="soa"/>
+<entry key="db.password" value="soa"/>
+</userInput>
+</com.izforge.izpack.panels.UserInputPanel>
+<com.izforge.izpack.panels.UserInputPanel id="DBConfiguration"/ -->
+
+
+<com.izforge.izpack.panels.SummaryPanel id="SummaryPanel"/>
+<com.izforge.izpack.panels.ProcessPanel id="ProcessPanel"/>
+<com.izforge.izpack.panels.ShortcutPanel id="ShortcutPanel"/>
+<com.izforge.izpack.panels.FinishPanel id="FinishPanel"/>
+</AutomatedInstallation>
