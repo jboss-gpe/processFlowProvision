@@ -489,6 +489,8 @@
             <arg value="install" />
             <arg value="-Dmaven.test.skip=true" />
             <arg value="-P${bpms.deployment.type}" />
+            <arg value="-s" />
+            <arg value="${maven.path.to.settings.xml}" />
         </exec>
         <iterate target="all" />
         <if><equals arg1="${bpms.deployment.type}" arg2="modules" />
