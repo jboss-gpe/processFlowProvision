@@ -18,6 +18,7 @@
 	<classpathentry kind="var" path="JBOSS_HOME/modules/system/layers/base/org/jboss/logging/main/jboss-logging-3.1.2.GA-redhat-1.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/modules/system/layers/base/org/jboss/ejb3/main/jboss-ejb3-ext-api-2.0.0-redhat-2.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/modules/system/layers/base/javax/security/jacc/api/main/jboss-jacc-api_1.4_spec-1.0.2.Final-redhat-2.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/modules/system/layers/base/javax/servlet/api/main/jboss-servlet-api_3.0_spec-1.0.2.Final-redhat-1.jar"/>
 	<classpathentry kind="src" path="services/kie-services-remote/src/test/java"/>
 	<classpathentry kind="src" path="services/interfaces/src/main/java"/>
 	<classpathentry kind="src" path="services/consoleIntegration/src/main/java"/>

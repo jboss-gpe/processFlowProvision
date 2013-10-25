@@ -1,5 +1,6 @@
 package org.jboss.processFlow.services.remote.cdi;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,16 +19,15 @@ import javax.ws.rs.core.Response.Status;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.drools.core.SessionConfiguration;
 import org.drools.core.command.runtime.process.GetProcessIdsCommand;
 import org.jbpm.runtime.manager.impl.AbstractRuntimeManager;
 import org.kie.services.remote.cdi.RuntimeManagerManager;
 import org.kie.services.remote.rest.RestProcessRequestBean;
 import org.kie.api.command.Command;
 import org.kie.api.runtime.manager.RuntimeEngine;
-import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.runtime.process.WorkItemHandler;
 import org.kie.internal.runtime.manager.RegisterableItemsFactory;
-import org.kie.internal.runtime.manager.RuntimeEnvironment;
 import org.kie.internal.runtime.manager.context.EmptyContext;
 
 /**
@@ -61,8 +61,9 @@ public class AdditionalRESTResources {
     
     
     /**
+     * provides visibility of BPMN2 process(s) actually registered with KieBase
      * sample usage :
-     *  curl -X GET -HAccept:text/plain $HOSTNAME:8330/kie-jbpm-services/rest/additional/runtime/local-playground/processes
+     *  curl -X GET -HAccept:text/plain $HOSTNAME:8330/kie-jbpm-services/rest/additional/runtime/git-playground/processes
      */
     @GET
     @Produces({ "text/plain" })
@@ -85,25 +86,48 @@ public class AdditionalRESTResources {
     }
     
     /**
+     * provides visibility of WorkItemHandler(s) actually registered with KieSession
      * sample usage :
-     *  curl -X GET -HAccept:text/plain $HOSTNAME:8330/kie-jbpm-services/rest/additional/runtime/local-playground/workItemHandlers
+     *  curl -X GET -HAccept:text/plain $HOSTNAME:8330/kie-jbpm-services/rest/additional/runtime/git-playground/workItemHandlers
      */
     @GET
     @Produces({ "text/plain" })
     @Path("/workItemHandlers")
     public Response printWorkItemHandlers() {
-        AbstractRuntimeManager runtimeManager = (AbstractRuntimeManager)runtimeMgrMgr.getRuntimeManager(deploymentId);
-        RuntimeEngine runtimeEngine = runtimeManager.getRuntimeEngine(EmptyContext.get());
-        RegisterableItemsFactory factory = runtimeManager.getEnvironment().getRegisterableItemsFactory();
-        Map<String, WorkItemHandler> workItemHandlers = factory.getWorkItemHandlers(runtimeEngine);
+        Map<String, Object> workItemHandlers = new HashMap<String, Object>();
         
+        //1)  get workItemHandler mappings registered as part of either VFS or KModule deployment unit
+        try {
+            AbstractRuntimeManager runtimeManager = (AbstractRuntimeManager)runtimeMgrMgr.getRuntimeManager(deploymentId);
+            RuntimeEngine runtimeEngine = runtimeManager.getRuntimeEngine(EmptyContext.get());
+            RegisterableItemsFactory factory = runtimeManager.getEnvironment().getRegisterableItemsFactory();
+            workItemHandlers.putAll(factory.getWorkItemHandlers(runtimeEngine));
+        }catch(Exception x){
+            x.printStackTrace();
+            workItemHandlers.put("deploymentUnit mappings", "exception.  check log");
+        }
+        
+        //2)  get workItemHandler mappings registered as per org.drools.core.SessionConfiguration
+        try {
+            SessionConfiguration sConfiguration = SessionConfiguration.getDefaultInstance();
+            workItemHandlers.putAll(sConfiguration.getWorkItemHandlers());
+        }catch(Exception x){
+            x.printStackTrace();
+            workItemHandlers.put("SessionConfiguration mappings", "exception. check log");
+        }
+        
+        //3)  iterate and print as json
         StringBuilder sBuilder = new StringBuilder("[");
         int x = 0;
         for(Map.Entry<?, ?> entry : workItemHandlers.entrySet()){
             if(x > 0)
                 sBuilder.append(",");
             sBuilder.append("{\""+ entry.getKey()+"\":\"");
-            sBuilder.append(( (WorkItemHandler)entry.getValue()).getClass().getName());
+            Class classObj = entry.getValue().getClass();
+            if(classObj == String.class)
+                sBuilder.append(entry.getValue());
+            else
+                sBuilder.append((entry.getValue()).getClass().getName());
             sBuilder.append("\"}");
             x++;
         }
@@ -113,6 +137,7 @@ public class AdditionalRESTResources {
     }
     
     /**
+     * bounces registration of VFS or KModule Deployment Units
      * sample usage :
      *   curl -X PUT $HOSTNAME:8330/kie-jbpm-services/rest/additional/runtime/all/deploymentUnits
      */

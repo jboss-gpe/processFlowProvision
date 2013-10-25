@@ -20,7 +20,6 @@
 
 
     <path id="initial.classpath" >
-        <fileset dir="${temp.pfp.lib.dir}" />
         <fileset dir="${temp.pfp.services.dir}" >
             <include name="processFlow*.jar" />
         </fileset>
@@ -124,8 +123,8 @@
         <jar jarfile="${build.dir}/${jar.name}.jar" >
             <fileset dir="${build.dir}" />
             <manifest>
-                <attribute name="Built-By" value="${os.user}"/>
-                <attribute name="Implementation-Vendor" value="${vendor.name}"/>
+                <attribute name="Built-By" value="${organization.name}"/>
+                <attribute name="Implementation-Vendor" value="${organization.name}"/>
             </manifest>
         </jar>
         <if>

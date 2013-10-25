@@ -108,6 +108,8 @@ batch
 
 /server-group=${bpm.core.group}/system-property=org.apache.cxf.stax.allowInsecureParser/:add(value="${org.apache.cxf.stax.allowInsecureParser}",boot-time=true)
 /server-group=${bpm.core.group}/system-property=jbpm.audit.jms.enabled/:add(value="${jbpm.audit.jms.enabled}",boot-time=true)
+
+/server-group=${bpm.core.group}/system-property=drools.workItemHandlers/:add(value="${drools.workItemHandlers}", boot-time=true)
 run-batch
 
 batch

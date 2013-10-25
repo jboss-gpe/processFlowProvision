@@ -193,18 +193,40 @@ public class KnowledgeSessionService implements IKnowledgeSession {
     
 
     public String printWorkItemHandlers(String deploymentId) {
-        AbstractRuntimeManager runtimeManager = (AbstractRuntimeManager)runtimeMgrMgr.getRuntimeManager(deploymentId);
-        RuntimeEngine runtimeEngine = getRuntimeEngine(deploymentId, null);
-        RegisterableItemsFactory factory = runtimeManager.getEnvironment().getRegisterableItemsFactory();
-        Map<String, WorkItemHandler> workItemHandlers = factory.getWorkItemHandlers(runtimeEngine);
+        Map<String, Object> workItemHandlers = new HashMap<String, Object>();
         
+        //1)  get workItemHandler mappings registered as part of either VFS or KModule deployment unit
+        try {
+            AbstractRuntimeManager runtimeManager = (AbstractRuntimeManager)runtimeMgrMgr.getRuntimeManager(deploymentId);
+            RuntimeEngine runtimeEngine = runtimeManager.getRuntimeEngine(EmptyContext.get());
+            RegisterableItemsFactory factory = runtimeManager.getEnvironment().getRegisterableItemsFactory();
+            workItemHandlers.putAll(factory.getWorkItemHandlers(runtimeEngine));
+        }catch(Exception x){
+            x.printStackTrace();
+            workItemHandlers.put("deploymentUnit mappings", "exception.  check log");
+        }
+        
+        //2)  get workItemHandler mappings registered as per org.drools.core.SessionConfiguration
+        try {
+            SessionConfiguration sConfiguration = SessionConfiguration.getDefaultInstance();
+            workItemHandlers.putAll(sConfiguration.getWorkItemHandlers());
+        }catch(Exception x){
+            x.printStackTrace();
+            workItemHandlers.put("SessionConfiguration mappings", "exception. check log");
+        }
+        
+        //3)  iterate and print as json
         StringBuilder sBuilder = new StringBuilder("[");
         int x = 0;
         for(Map.Entry<?, ?> entry : workItemHandlers.entrySet()){
             if(x > 0)
                 sBuilder.append(",");
             sBuilder.append("{\""+ entry.getKey()+"\":\"");
-            sBuilder.append(( (WorkItemHandler)entry.getValue()).getClass().getName());
+            Class classObj = entry.getValue().getClass();
+            if(classObj == String.class)
+                sBuilder.append(entry.getValue());
+            else
+                sBuilder.append((entry.getValue()).getClass().getName());
             sBuilder.append("\"}");
             x++;
         }
