@@ -43,14 +43,14 @@ public class CDIDiagnostics implements Extension {
     
     
     private static Logger log = Logger.getLogger("CDIDiagnostics");
-    private boolean logBeforeBeanDiscovery = true;
-    private boolean logProcessAnnotatedType = true;
-    private boolean logProcessInjectionTarget = true;
-    private boolean logProcessProducer = true;
-    private boolean logAfterBeanDiscovery = true;
-    private boolean logAfterDeploymentValidation = true;
-    private boolean logBeforeShutdown = true;
-    private boolean logProcessBean = true;
+    private boolean logBeforeBeanDiscovery = false;
+    private boolean logProcessAnnotatedType = false;
+    private boolean logProcessInjectionTarget = false;
+    private boolean logProcessProducer = false;
+    private boolean logAfterBeanDiscovery = false;
+    private boolean logAfterDeploymentValidation = false;
+    private boolean logBeforeShutdown = false;
+    private boolean logProcessBean = false;
     private List<String> vetoClasses;
    
     /*

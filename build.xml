@@ -255,15 +255,6 @@
         </for>
     </target> 
 
-    <target name="ha-config" >
-        <antcall target="cli.batch">
-            <param name="cli.source.dir" value="conf/ha/"/>
-            <param name="cli.to.filter.and.execute" value="ha-config-down.cli"/>
-            <param name="cli.fail.on.error" value="false"/>
-        </antcall>
-    </target>
-
-
     <target name="local.provision.ha.jvms">
         <sleep seconds="2"/>
         <antcall target="cli.batch">
