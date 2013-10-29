@@ -62,14 +62,14 @@ public class CDIDiagnostics implements Extension {
     public CDIDiagnostics(){
         StringBuilder sBuilder = new StringBuilder();
         sBuilder.append("CDIDiagnostics() public constructor");
-        logBeforeBeanDiscovery = Boolean.parseBoolean(System.getProperty(this.LOG_BEFORE_BEAN_DISCOVERY, "TRUE"));
-        logProcessAnnotatedType = Boolean.parseBoolean(System.getProperty(this.LOG_PROCESS_ANNOTATED_TYPE, "TRUE"));
-        logProcessInjectionTarget = Boolean.parseBoolean(System.getProperty(this.LOG_PROCESS_INJECTION_TARGET, "TRUE"));
-        logProcessProducer = Boolean.parseBoolean(System.getProperty(this.LOG_PROCESS_PRODUCER, "TRUE"));
-        logAfterBeanDiscovery = Boolean.parseBoolean(System.getProperty(this.LOG_AFTER_BEAN_DISCOVERY, "TRUE"));
-        logAfterDeploymentValidation = Boolean.parseBoolean(System.getProperty(this.LOG_AFTER_DEPLOYMENT_VALIDATION, "TRUE"));
-        logBeforeShutdown = Boolean.parseBoolean(System.getProperty(this.LOG_BEFORE_SHUTDOWN, "TRUE"));
-        logProcessBean = Boolean.parseBoolean(System.getProperty(this.LOG_PROCESS_BEAN, "TRUE"));
+        logBeforeBeanDiscovery = Boolean.parseBoolean(System.getProperty(this.LOG_BEFORE_BEAN_DISCOVERY, "FALSE"));
+        logProcessAnnotatedType = Boolean.parseBoolean(System.getProperty(this.LOG_PROCESS_ANNOTATED_TYPE, "FALSE"));
+        logProcessInjectionTarget = Boolean.parseBoolean(System.getProperty(this.LOG_PROCESS_INJECTION_TARGET, "FALSE"));
+        logProcessProducer = Boolean.parseBoolean(System.getProperty(this.LOG_PROCESS_PRODUCER, "FALSE"));
+        logAfterBeanDiscovery = Boolean.parseBoolean(System.getProperty(this.LOG_AFTER_BEAN_DISCOVERY, "FALSE"));
+        logAfterDeploymentValidation = Boolean.parseBoolean(System.getProperty(this.LOG_AFTER_DEPLOYMENT_VALIDATION, "FALSE"));
+        logBeforeShutdown = Boolean.parseBoolean(System.getProperty(this.LOG_BEFORE_SHUTDOWN, "FALSE"));
+        logProcessBean = Boolean.parseBoolean(System.getProperty(this.LOG_PROCESS_BEAN, "FALSE"));
         String vetoClassesString = System.getProperty(this.VETO_CLASSES);
         
         sBuilder.append("\nlogBeforeBeanDiscovery = "+logBeforeBeanDiscovery);
