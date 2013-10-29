@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  */
 
 @ApplicationScoped
-public class RESTApplicationScopedProducer {
+public class ApplicationScopedProducer {
     
     private static Logger log = LoggerFactory.getLogger("RESTApplicationScopedProducer");
 

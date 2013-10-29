@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @RequestScoped
-public class RESTRequestScopedProducer {
+public class RequestScopedProducer {
 
     @Inject
     private EntityManagerFactory emf;

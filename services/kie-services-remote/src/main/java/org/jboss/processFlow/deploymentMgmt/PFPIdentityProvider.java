@@ -23,7 +23,7 @@ import org.jbpm.kie.services.api.IdentityProvider;
         - seems that some re-factoring is in order to consolidate on all user/role mapping lookups here and not use UserGroupCallback
 */
 @SessionScoped
-public class RESTIdentityProvider implements IdentityProvider, Serializable {
+public class PFPIdentityProvider implements IdentityProvider, Serializable {
 
     private static final long serialVersionUID = 1L;
     private static final String SIMPLE_PRINCIPAL="class org.jboss.security.SimplePrincipal";
