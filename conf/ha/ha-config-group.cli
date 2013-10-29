@@ -43,7 +43,6 @@ batch
 /server-group=ha.group/:add(profile=full-ha,socket-binding-group=full-ha-sockets)
 run-batch
 
-# TO-DO:   add bpms6 static module dependencies to asynAuditLog.jar
-#batch
-#deploy ${temp.pfp.services.dir}/asyncAuditLog.jar --name=asyncAuditLog.jar --server-groups=ha.group
-#run-batch
+batch
+deploy ${temp.pfp.services.dir}/asyncAuditLog.jar --name=asyncAuditLog.jar --server-groups=ha.group
+run-batch

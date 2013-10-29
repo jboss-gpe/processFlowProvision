@@ -55,7 +55,7 @@
             <then>
                 <path id="classpath">
                 <path refid="supported.classpath" />
-                <fileset dir="${sy.module.path}" ><include name="**/*.jar" /></fileset></path>
+                <fileset dir="${fsw.module.path}" ><include name="**/*.jar" /></fileset></path>
             </then>
             <else><path id="classpath"><path refid="supported.classpath" /></path></else>
         </if>

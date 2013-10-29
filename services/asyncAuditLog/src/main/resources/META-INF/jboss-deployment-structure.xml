@@ -3,7 +3,7 @@
 <deployment>
   <dependencies>  
 
-    <!-- TO-DO:  add dependencies to bpms6 modules -->
+    <module name="org.jbpm" export="true" meta-inf="import"/>
 
   </dependencies>
 </deployment>

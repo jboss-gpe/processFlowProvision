@@ -325,6 +325,7 @@
                               <math result="bpm.core.port.increment" operand1="100" operation="*" operand2="@{serverNum}" datatype="int" />
                               <math result="bpm.core.port.offset" operand1="${bpm.core.base.port.offset}" operation="+" operand2="${bpm.core.port.increment}" datatype="int" />
                               <math result="bpm.core.debugger.port" operand1="${bpm.core.base.debugger.port}" operation="+" operand2="${bpm.core.port.increment}" datatype="int" />
+                              <math result="bpm.core.http.port" operand1="8080" operation="+" operand2="${bpm.core.port.offset}" datatype="int" />
                               <var name="server.specific.hibernate.hbm2ddl.auto" value="validate" />
                               <if>
                                 <equals arg1="${bpm.core.server.id}" arg2="bpm-core-0" />
@@ -336,6 +337,18 @@
                                 <param name="cli.to.filter.and.execute" value="bpm-server-up.cli"/>
                                 <param name="cli.fail.on.error" value="true"/>
                               </antcall>
+                              <!-- kickstart deploymentUnits in each bpm-core server -->
+                              <if><equals arg1="${serverIpAddr}" arg2="master" />
+                                <then><var name="hostIp" value="${os.hostname}" /></then>
+                                <else><var name="hostIp" value="${serverIpAddr}" /></else>
+                              </if>
+                              <exec executable="curl" failonerror="${cli.fail.on.error}" >
+                                <arg value="-u"/>
+                                <arg value="${bpm.core.remoting.user.name}:${bpm.core.remoting.password}"/>
+                                <arg value="-X"/>
+                                <arg value="PUT"/>
+                                <arg value="http://${hostIp}:${bpm.core.http.port}/kie-jbpm-services/rest/additional/runtime/all/deploymentUnits"/>
+                              </exec>
                             </sequential>
                         </for>
                     </sequential>
@@ -467,7 +480,7 @@
         <mkdir dir="${temp.pfp.services.dir}" />
         <mkdir dir="${install.home}/lib" />
         <mkdir dir="${pfp.module.path}" />
-        <mkdir dir="${sy.module.path}" />
+        <mkdir dir="${fsw.module.path}" />
     </target>
 
     <target name="pfp.compile" depends="mkPfpDirs" description="" >
