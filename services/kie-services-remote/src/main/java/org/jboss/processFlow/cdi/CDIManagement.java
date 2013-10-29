@@ -1,4 +1,4 @@
-package org.jboss.processFlow.diagnostics;
+package org.jboss.processFlow.cdi;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
@@ -29,16 +29,16 @@ import javax.enterprise.util.AnnotationLiteral;
 
 import org.apache.log4j.Logger;
 
-public class CDIDiagnostics implements Extension {
+public class CDIManagement implements Extension {
     
-    private static final String LOG_BEFORE_BEAN_DISCOVERY="org.jboss.processFlow.diagnostics.logBeforeBeanDiscovery";
-    private static final String LOG_PROCESS_ANNOTATED_TYPE="org.jboss.processFlow.diagnostics.logProcessAnnotatedType";
-    private static final String LOG_AFTER_BEAN_DISCOVERY="org.jboss.processFlow.diagnostics.logAfterBeanDiscovery";
-    private static final String LOG_PROCESS_INJECTION_TARGET="org.jboss.processFlow.diagnostics.logProcessInjectionTarget";
-    private static final String LOG_PROCESS_PRODUCER="org.jboss.processFlow.diagnostics.logProcessProducer";
-    private static final String LOG_AFTER_DEPLOYMENT_VALIDATION="org.jboss.processFlow.diagnostics.logAfterDeploymentValidation";
-    private static final String LOG_BEFORE_SHUTDOWN="org.jboss.processFlow.diagnostics.logBeforeShutdown";
-    private static final String LOG_PROCESS_BEAN="org.jboss.processFlow.diagnostics.logProcessBean";
+    private static final String LOG_BEFORE_BEAN_DISCOVERY="org.jboss.processFlow.cdi.logBeforeBeanDiscovery";
+    private static final String LOG_PROCESS_ANNOTATED_TYPE="org.jboss.processFlow.cdi.logProcessAnnotatedType";
+    private static final String LOG_AFTER_BEAN_DISCOVERY="org.jboss.processFlow.cdi.logAfterBeanDiscovery";
+    private static final String LOG_PROCESS_INJECTION_TARGET="org.jboss.processFlow.cdi.logProcessInjectionTarget";
+    private static final String LOG_PROCESS_PRODUCER="org.jboss.processFlow.cdi.logProcessProducer";
+    private static final String LOG_AFTER_DEPLOYMENT_VALIDATION="org.jboss.processFlow.cdi.logAfterDeploymentValidation";
+    private static final String LOG_BEFORE_SHUTDOWN="org.jboss.processFlow.cdi.logBeforeShutdown";
+    private static final String LOG_PROCESS_BEAN="org.jboss.processFlow.cdi.logProcessBean";
     private static final String VETO_CLASSES="org.jboss.processFlow.cdi.space.delimited.veto.classes";
     
     
@@ -59,7 +59,7 @@ public class CDIDiagnostics implements Extension {
      *  ensure this file contins the fully-qualified name of this Extension implementation
      *  The container will look up the name of the class at runtime and instantiate it via the default constructor  
      */ 
-    public CDIDiagnostics(){
+    public CDIManagement(){
         StringBuilder sBuilder = new StringBuilder();
         sBuilder.append("CDIDiagnostics() public constructor");
         logBeforeBeanDiscovery = Boolean.parseBoolean(System.getProperty(this.LOG_BEFORE_BEAN_DISCOVERY, "FALSE"));

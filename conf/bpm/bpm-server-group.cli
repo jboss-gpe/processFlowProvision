@@ -18,13 +18,11 @@ run-batch
 
 batch
 
-###  TRACE logging of hornetq client
-#/profile=bpmCore/subsystem=logging/logger=org.hornetq.core.client.impl/:add(category=org.hornetq.core.client.impl,level=TRACE,use-parent-handlers=true)
 
 ### non-XA datasource connection pools to jbpm core database
 ##  can get away with using a non-XA datasource for jbpm core database due to Last Resource Commit optimization of JBoss Transaction Manager
 /profile=bpmCore/subsystem=datasources/data-source=jbpm-core-cp:add(jndi-name=java:jboss/datasources/jbpm-core-cp,connection-url=${jbpm_connection_url},driver-class=${jbpm_driver_class},driver-name=${jdbc.module.name},user-name=${jbpm_db_user},password=${jbpm_db_password},pool-name=jbpm-core_ds_pool,max-pool-size=50,min-pool-size=10)
-/subsystem=datasources/data-source=jbpm-core-cp/:write-attribute(name=new-connection-sql,value="${org.jboss.processFlow.connection.test}")
+/profile=bpmCore/subsystem=datasources/data-source=jbpm-core-cp/:write-attribute(name=new-connection-sql,value="${org.jboss.processFlow.connection.test}")
 /profile=bpmCore/subsystem=datasources/data-source=jbpm-core-cp:enable()
 
 ###################################       configure bpmCore profile to support hosting of MDB          #######################################
@@ -41,6 +39,9 @@ batch
 /profile=bpmCore/subsystem=messaging/hornetq-server=default/remote-acceptor=netty-throughput/:remove
 /profile=bpmCore/subsystem=messaging/hornetq-server=default/remote-acceptor=netty/:remove
 /profile=bpmCore/subsystem=messaging/hornetq-server=default/remote-connector=netty-throughput/:remove
+
+###  TRACE logging of hornetq client
+#/profile=bpmCore/subsystem=logging/logger=org.hornetq.core.client.impl/:add(category=org.hornetq.core.client.impl,level=TRACE,use-parent-handlers=true)
 
 # BAM queue (need to create local reference to remote queue  so that jbpm AsyncAuditLogProducer can send messages)
 /profile=bpmCore/subsystem=messaging/hornetq-server=default/jms-queue=${org.jboss.processFlow.bam.queue}/:add(entries=["queue/${org.jboss.processFlow.bam.queue}","java:jboss/exported/jms/${org.jboss.processFlow.bam.queue}"],durable=true)
@@ -92,14 +93,14 @@ batch
 /server-group=${bpm.core.group}/system-property=hibernate.dialect/:add(value=${hibernate.dialect},boot-time=true)
 /server-group=${bpm.core.group}/system-property=hibernate.show_sql/:add(value=${hibernate.show_sql},boot-time=true)
 
-/server-group=${bpm.core.group}/system-property=org.jboss.processFlow.diagnostics.logBeforeBeanDiscovery/:add(value=${org.jboss.processFlow.diagnostics.logBeforeBeanDiscovery},boot-time=true)
-/server-group=${bpm.core.group}/system-property=org.jboss.processFlow.diagnostics.logProcessAnnotatedType/:add(value=${org.jboss.processFlow.diagnostics.logProcessAnnotatedType},boot-time=true)
-/server-group=${bpm.core.group}/system-property=org.jboss.processFlow.diagnostics.logAfterBeanDiscovery/:add(value=${org.jboss.processFlow.diagnostics.logAfterBeanDiscovery},boot-time=true)
-/server-group=${bpm.core.group}/system-property=org.jboss.processFlow.diagnostics.logProcessInjectionTarget/:add(value=${org.jboss.processFlow.diagnostics.logProcessInjectionTarget},boot-time=true)
-/server-group=${bpm.core.group}/system-property=org.jboss.processFlow.diagnostics.logProcessProducer/:add(value=${org.jboss.processFlow.diagnostics.logProcessProducer},boot-time=true)
-/server-group=${bpm.core.group}/system-property=org.jboss.processFlow.diagnostics.logAfterDeploymentValidation/:add(value=${org.jboss.processFlow.diagnostics.logAfterDeploymentValidation},boot-time=true)
-/server-group=${bpm.core.group}/system-property=org.jboss.processFlow.diagnostics.logBeforeShutdown/:add(value=${org.jboss.processFlow.diagnostics.logBeforeShutdown},boot-time=true)
-/server-group=${bpm.core.group}/system-property=org.jboss.processFlow.diagnostics.logProcessBean/:add(value=${org.jboss.processFlow.diagnostics.logProcessBean},boot-time=true)
+/server-group=${bpm.core.group}/system-property=org.jboss.processFlow.cdi.logBeforeBeanDiscovery/:add(value=${org.jboss.processFlow.cdi.logBeforeBeanDiscovery},boot-time=true)
+/server-group=${bpm.core.group}/system-property=org.jboss.processFlow.cdi.logProcessAnnotatedType/:add(value=${org.jboss.processFlow.cdi.logProcessAnnotatedType},boot-time=true)
+/server-group=${bpm.core.group}/system-property=org.jboss.processFlow.cdi.logAfterBeanDiscovery/:add(value=${org.jboss.processFlow.cdi.logAfterBeanDiscovery},boot-time=true)
+/server-group=${bpm.core.group}/system-property=org.jboss.processFlow.cdi.logProcessInjectionTarget/:add(value=${org.jboss.processFlow.cdi.logProcessInjectionTarget},boot-time=true)
+/server-group=${bpm.core.group}/system-property=org.jboss.processFlow.cdi.logProcessProducer/:add(value=${org.jboss.processFlow.cdi.logProcessProducer},boot-time=true)
+/server-group=${bpm.core.group}/system-property=org.jboss.processFlow.cdi.logAfterDeploymentValidation/:add(value=${org.jboss.processFlow.cdi.logAfterDeploymentValidation},boot-time=true)
+/server-group=${bpm.core.group}/system-property=org.jboss.processFlow.cdi.logBeforeShutdown/:add(value=${org.jboss.processFlow.cdi.logBeforeShutdown},boot-time=true)
+/server-group=${bpm.core.group}/system-property=org.jboss.processFlow.cdi.logProcessBean/:add(value=${org.jboss.processFlow.cdi.logProcessBean},boot-time=true)
 /server-group=${bpm.core.group}/system-property=org.jboss.processFlow.cdi.space.delimited.veto.classes/:add(value="${org.jboss.processFlow.cdi.space.delimited.veto.classes}",boot-time=true)
 
 /server-group=${bpm.core.group}/system-property=org.jboss.processFlow.deployments.json.config.path/:add(value="${org.jboss.processFlow.deployments.json.config.path}",boot-time=true)

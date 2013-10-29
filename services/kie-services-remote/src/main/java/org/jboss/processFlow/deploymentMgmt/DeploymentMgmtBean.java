@@ -1,4 +1,4 @@
-package org.jboss.processFlow.services.remote.cdi;
+package org.jboss.processFlow.deploymentMgmt;
 
 import java.io.File;
 import java.net.URI;
@@ -14,7 +14,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.lang.StringUtils;
-import org.jboss.processFlow.services.remote.cdi.IPfpDeploymentUnit.ProcessEnginePersistenceType;
+import org.jboss.processFlow.deploymentMgmt.IPfpDeploymentUnit.ProcessEnginePersistenceType;
 import org.jbpm.kie.services.api.DeploymentService;
 import org.jbpm.kie.services.api.DeploymentUnit;
 import org.jbpm.kie.services.api.Kjar;

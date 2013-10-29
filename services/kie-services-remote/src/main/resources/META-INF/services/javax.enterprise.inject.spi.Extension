@@ -1,4 +1,4 @@
-org.jboss.processFlow.diagnostics.CDIDiagnostics
+org.jboss.processFlow.cdi.CDIManagement
 org.drools.compiler.cdi.KieCDIExtension
 org.jboss.solder.servlet.ServletExtension
 org.jboss.solder.servlet.logging.TypedMessageBundleAndLoggerExtension

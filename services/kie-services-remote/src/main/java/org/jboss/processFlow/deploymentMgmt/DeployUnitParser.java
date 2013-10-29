@@ -1,4 +1,4 @@
-package org.jboss.processFlow.services.remote.cdi;
+package org.jboss.processFlow.deploymentMgmt;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
