@@ -31,7 +31,7 @@ public class AuditLogMDB extends AsyncAuditLogReceiver implements javax.jms.Mess
     
     @PostConstruct
     public void start() {
-    	log.info("start() jbpmAuditEMF = "+jbpmAuditEMF);
+        log.info("start() jbpmAuditEMF = "+jbpmAuditEMF);
     }
 
     public AuditLogMDB() {

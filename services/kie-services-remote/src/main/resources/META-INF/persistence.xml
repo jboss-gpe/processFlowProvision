@@ -63,7 +63,7 @@
         </properties>        
     </persistence-unit>
 
-    <persistence-unit name="org.jbpm.audit.jpa" transaction-type="JTA">
+    <persistence-unit name="org.jbpm.audit.jpa.ex.server" transaction-type="JTA">
         <jta-data-source>java:jboss/datasources/jbpm-bam-cp</jta-data-source>
         <mapping-file>META-INF/Servicesorm.xml</mapping-file>
 

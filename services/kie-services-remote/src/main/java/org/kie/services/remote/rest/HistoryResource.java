@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 public class HistoryResource extends ResourceBase {
 
     private static final Logger logger = LoggerFactory.getLogger(HistoryResource.class);
-    private static final String BAM_PERSISTENCE_UNIT_NAME = "org.jbpm.audit.jpa";
+    private static final String BAM_PERSISTENCE_UNIT_NAME = "org.jbpm.audit.jpa.ex.server";
 
     /* REST information */
     @Context
@@ -50,9 +50,9 @@ public class HistoryResource extends ResourceBase {
     @GET
     @Path("/instance/{procInstId: [0-9]+}")
     public Response getSpecificProcessInstanceLogs(@PathParam("procInstId") long procInstId) {
-    	JPAAuditLogService lService = new JPAAuditLogService();
-    	lService.setPersistenceUnitName(BAM_PERSISTENCE_UNIT_NAME);
-    	ProcessInstanceLog procInstLog = lService.findProcessInstance(procInstId);
+        JPAAuditLogService lService = new JPAAuditLogService();
+        lService.setPersistenceUnitName(BAM_PERSISTENCE_UNIT_NAME);
+        ProcessInstanceLog procInstLog = lService.findProcessInstance(procInstId);
         Map<String, List<String>> params = getRequestParams(request);
         int [] pageInfo = getPageNumAndPageSize(params);
         
