@@ -29,6 +29,11 @@
         <artifactId>kie-api</artifactId>
     </dependency>
     <dependency>
+       <groupId>org.kie.remote</groupId>
+       <artifactId>kie-services-client</artifactId>
+       <version>${version.drools}</version>
+    </dependency>
+    <dependency>
         <groupId>org.jbpm</groupId>
         <artifactId>jbpm-kie-services</artifactId>
     </dependency>
