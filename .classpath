@@ -23,7 +23,7 @@
 	<classpathentry kind="src" path="services/interfaces/src/main/java"/>
 	<classpathentry kind="src" path="services/consoleIntegration/src/main/java"/>
 	<classpathentry kind="src" path="services/kie-services-remote/src/main/java"/>
-	<classpathentry kind="src" path="services/asyncAuditLog/src/main/java"/>
+	<classpathentry kind="src" path="services/auditLog/src/main/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="JBOSS_HOME"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/drools-compiler"/>
@@ -125,6 +125,24 @@
 			<attribute name="maven.groupId" value="org.jboss.errai"/>
 			<attribute name="maven.artifactId" value="errai-bus"/>
 			<attribute name="maven.version" value="2.4.1.Final"/>
+			<attribute name="maven.scope" value="compile"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/home/jbride/.m2/repository/org/jboss/resteasy/resteasy-jaxrs/2.3.6.Final/resteasy-jaxrs-2.3.6.Final.jar">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.groupId" value="org.jboss.resteasy"/>
+			<attribute name="maven.artifactId" value="resteasy-jaxrs"/>
+			<attribute name="maven.version" value="2.3.6.Final"/>
+			<attribute name="maven.scope" value="compile"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/home/jbride/.m2/repository/org/jboss/solder/solder-api/3.2.1.Final/solder-api-3.2.1.Final.jar">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.groupId" value="org.jboss.solder"/>
+			<attribute name="maven.artifactId" value="solder-api"/>
+			<attribute name="maven.version" value="3.2.1.Final"/>
 			<attribute name="maven.scope" value="compile"/>
 		</attributes>
 	</classpathentry>

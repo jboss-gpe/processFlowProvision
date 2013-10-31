@@ -1,5 +1,11 @@
 batch
 
+# paths
+/path=brick1:add(path="${brick1.path}")
+/path=brick2:add(path="${brick2.path}")
+/path=brick3:add(path="${brick3.path}")
+
+
 /server-group=other-server-group/:remove
 
 # set the periodic-rotating-file-handler log level to TRACE for all profiles used by PFP

@@ -62,5 +62,29 @@
             <property name="hibernate.transaction.jta.platform" value="org.hibernate.service.jta.platform.internal.JBossAppServerJtaPlatform" />
         </properties>        
     </persistence-unit>
+
+    <persistence-unit name="org.jbpm.audit.jpa" transaction-type="JTA">
+        <jta-data-source>java:jboss/datasources/jbpm-bam-cp</jta-data-source>
+        <mapping-file>META-INF/Servicesorm.xml</mapping-file>
+
+        <class>org.jbpm.process.audit.ProcessInstanceLog</class>
+        <class>org.jbpm.process.audit.NodeInstanceLog</class>
+        <class>org.jbpm.process.audit.VariableInstanceLog</class>
+
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
+        <properties>
+            <property name="hibernate.dialect" value="${hibernate.dialect}"/>
+            <property name="hibernate.max_fetch_depth" value="3"/>
+            <property name="hibernate.hbm2ddl.auto" value="none" />
+            <property name="hibernate.show_sql" value="${hibernate.show.sql}" />
+            <property name="hibernate.format_sql" value="true"/>
+
+            <!-- BZ 841786: AS7/EAP 6/Hib 4 uses new (sequence) generators which seem to cause problems -->
+            <property name="hibernate.id.new_generator_mappings" value="false" />
+            <property name="hibernate.transaction.jta.platform" value="org.hibernate.service.jta.platform.internal.JBossAppServerJtaPlatform" />
+        </properties>
+    </persistence-unit>
+
     
 </persistence>

@@ -12,9 +12,9 @@
   <packaging>pom</packaging>
   <modules>
       <module>interfaces</module>
+      <module>auditLog</module>
       <module>kie-services-remote</module>
       <module>consoleIntegration</module>
-      <module>asyncAuditLog</module>
   </modules>
 
   

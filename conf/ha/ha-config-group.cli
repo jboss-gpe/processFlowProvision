@@ -37,12 +37,13 @@ batch
 
 ### non-XA datasource connection pools to jbpm bam database
 ##  can get away with using a non-XA datasource for jbpm bam database due to Last Resource Commit optimization of JBoss Transaction Manager
-/profile=full-ha/subsystem=datasources/data-source=jbpm-bam-cp:add(jndi-name=java:jboss/datasources/jbpm-bam-cp,connection-url=${bam_connection_url},driver-class=${bam_driver_class},driver-name=${jdbc.module.name},user-name=${bam_db_user},password=${bam_db_password},pool-name=jbpm-bam_ds_pool,max-pool-size=50,min-pool-size=10)
+/profile=full-ha/subsystem=datasources/data-source=jbpm-bam-cp:add(jndi-name=java:jboss/datasources/jbpm-bam-cp,connection-url=${bam_connection_url},driver-class=${bam_driver_class},driver-name=${jdbc.module.name},user-name=${bam_db_user},password=${bam_db_password},pool-name=jbpm-bam_ds_pool,max-pool-size=50,min-pool-size=5)
+/profile=full-ha/subsystem=datasources/data-source=jbpm-bam-cp/:write-attribute(name=new-connection-sql,value="${org.jboss.processFlow.connection.test}")
 /profile=full-ha/subsystem=datasources/data-source=jbpm-bam-cp:enable()
 
 /server-group=ha.group/:add(profile=full-ha,socket-binding-group=full-ha-sockets)
 run-batch
 
 batch
-deploy ${temp.pfp.services.dir}/asyncAuditLog.jar --name=asyncAuditLog.jar --server-groups=ha.group
+deploy ${temp.pfp.services.dir}/processFlow-auditLog.jar --name=auditLog.jar --server-groups=ha.group
 run-batch
