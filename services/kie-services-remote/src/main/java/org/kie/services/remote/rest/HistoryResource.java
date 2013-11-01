@@ -41,6 +41,8 @@ public class HistoryResource extends ResourceBase {
     @POST
     @Path("/clear")
     public Response clearProcessInstanceLogs() {
+
+        // Note:  consider using org.jbpm.kie.services.impl.KnowledgeAdminDataServiceImpl.removeAllData() function which does not iterate through audit logs in Java
         JPAAuditLogService lService = new JPAAuditLogService();
         lService.setPersistenceUnitName(BAM_PERSISTENCE_UNIT_NAME);
         lService.clear();

@@ -11,6 +11,10 @@ import org.slf4j.LoggerFactory;
 
 import org.jbpm.process.audit.jms.AsyncAuditLogReceiver;
 
+/**
+ * similiar to org.jbpm.kie.services.impl.audit.AuditJMSProcessor
+ * different in that obtains a EntityManagerFactory that is specific to audit log data (ie:  jbpm core and bam databases are intentionally split )
+ */
 @MessageDriven(name="AuditLogMDB", activationConfig = {
     @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
     @ActivationConfigProperty(propertyName = "destination", propertyValue="processFlow.asyncWorkingMemoryLogger")
