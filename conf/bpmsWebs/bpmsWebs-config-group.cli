@@ -22,5 +22,12 @@ batch
 
 /server-group=${bpms.webs.group}/system-property=kie.exec.server.rest.base.url/:add(value="${kie.exec.server.rest.base.url}",boot-time=true)
 
+### non-XA datasource connection pools to jbpm bam database to support jbpm-dashboard
+##  can get away with using a non-XA datasource for jbpm bam database due to Last Resource Commit optimization of JBoss Transaction Manager
+/profile=full/subsystem=datasources/data-source=jbpm-bam-cp:add(jndi-name=java:jboss/datasources/jbpm-bam-cp,connection-url=${bam_connection_url},driver-class=${bam_driver_class},driver-name=${jdbc.module.name},user-name=${bam_db_user},password=${bam_db_password},pool-name=jbpm-bam_ds_pool,max-pool-size=20,min-pool-size=1)
+/profile=full/subsystem=datasources/data-source=jbpm-bam-cp/:write-attribute(name=new-connection-sql,value="${org.jboss.processFlow.connection.test}")
+/profile=full/subsystem=datasources/data-source=jbpm-bam-cp:enable()
+
 deploy ${biz.central.zipped} --name=${biz.central.name} --server-groups=${bpms.webs.group}
+deploy ${dashbuilder.zipped} --name=${dashbuilder.name} --server-groups=${bpms.webs.group}
 run-batch

@@ -7,4 +7,7 @@ batch
 # "full-ha" profile is used by ha JVMs
 /profile=full-ha/subsystem=datasources/jdbc-driver=mysql/:add(driver-name=mysql,driver-module-name=com.mysql.jdbc,driver-xa-datasource-class-name=com.mysql.jdbc.jdbc2.optional.MysqlXADataSource,jdbc-compliant=false)
 
+# full profile is used by jbpm dashbuilder
+/profile=full/subsystem=datasources/jdbc-driver=mysql/:add(driver-name=mysql,driver-module-name=com.mysql.jdbc,driver-xa-datasource-class-name=com.mysql.jdbc.jdbc2.optional.MysqlXADataSource,jdbc-compliant=false)
+
 run-batch
