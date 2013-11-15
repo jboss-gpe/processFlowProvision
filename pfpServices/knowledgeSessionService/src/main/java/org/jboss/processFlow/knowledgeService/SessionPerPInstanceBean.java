@@ -39,11 +39,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.quartz.JobExecutionContext;
-
 import org.drools.SystemEventListenerFactory;
 import org.drools.KnowledgeBaseFactory;
 import org.drools.command.SingleSessionCommandService;
 import org.drools.command.impl.CommandBasedStatefulKnowledgeSession;
+import org.drools.event.rule.AgendaEventListener;
+import org.drools.event.rule.WorkingMemoryEventListener;
 import org.drools.event.process.ProcessCompletedEvent;
 import org.drools.event.process.ProcessEventListener;
 import org.drools.event.process.ProcessNodeLeftEvent;
@@ -70,6 +71,7 @@ import org.jbpm.workflow.instance.WorkflowProcessInstanceUpgrader;
 import org.jboss.processFlow.knowledgeService.IKnowledgeSession;
 import org.jboss.processFlow.util.CMTDisposeCommand;
 import org.jboss.processFlow.util.GlobalQuartzJobHandle;
+import org.mvel2.MVEL;
 
 
 /**
@@ -232,16 +234,32 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
         this.registerFailHumanTaskWorkItemHandler(ksession);
         this.registerEmailWorkItemHandler(ksession);
         
-        //1.5 register any addition workItemHandlers defined in drools.session.template
+        //1.5 register any addition workItemHandlers and eventListeners defined in drools.session.template
         SessionTemplate sTemplate = newSessionTemplate();
         if(sTemplate != null){
-            for(Map.Entry<String, ?> entry : sTemplate.getWorkItemHandlers().entrySet()){
-                try {
-                    WorkItemHandler wHandler = (WorkItemHandler)entry.getValue();
-                    ksession.getWorkItemManager().registerWorkItemHandler(entry.getKey(), wHandler);
-                } catch(Exception x){
-                    throw new RuntimeException("addExtrasToStatefulKnowledgeSession() following exception occurred when registering workItemId = "+entry.getKey()+" : "+x.getLocalizedMessage());
+            if(sTemplate.getWorkItemHandlers() != null){
+                for(Map.Entry<String, ?> entry : sTemplate.getWorkItemHandlers().entrySet()){
+                    try {
+                        WorkItemHandler wHandler = (WorkItemHandler)entry.getValue();
+                        ksession.getWorkItemManager().registerWorkItemHandler(entry.getKey(), wHandler);
+                    } catch(Exception x){
+                        throw new RuntimeException("addExtrasToStatefulKnowledgeSession() following exception occurred when registering workItemId = "+entry.getKey()+" : "+x.getLocalizedMessage());
+                    }
                 }
+            }
+            List eListeners = sTemplate.getEventListeners();
+            for(Object eListener : eListeners) {
+                Object eObj = MVEL.eval((String)eListener);
+                if(eObj instanceof AgendaEventListener){
+                    ksession.addEventListener((AgendaEventListener)eObj);
+                }else if(eObj instanceof WorkingMemoryEventListener) {
+                    ksession.addEventListener((WorkingMemoryEventListener)eObj);
+                }else if(eObj instanceof ProcessEventListener) {
+                    ksession.addEventListener((ProcessEventListener)eObj);
+                }else{
+                    log.error("addExtrasToStatefulKnowledgeSession() invalid eventListener : "+eListener);
+                }
+                
             }
         }
         

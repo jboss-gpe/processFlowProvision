@@ -10,7 +10,7 @@
 	<classpathentry kind="var" path="JBOSS_HOME/modules/system/layers/base/org/apache/commons/lang/main/commons-lang-2.6-redhat-2.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/modules/system/layers/base/org/slf4j/main/slf4j-api-1.7.2-redhat-1.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/modules/system/layers/base/javax/jms/api/main/jboss-jms-api_1.1_spec-1.0.1.Final-redhat-2.jar"/>
-	<classpathentry kind="var" path="JBOSS_HOME/modules/system/layers/base/org/jboss/log4j/logmanager/main/log4j-jboss-logmanager-1.0.1.Final-redhat-2.jar"/>
+	<classpathentry kind="var" path="JBOSS_HOME/modules/system/layers/base/org/jboss/log4j/logmanager/main/log4j-jboss-logmanager-1.0.2.Final-redhat-1.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/modules/system/layers/base/org/apache/commons/pool/main/commons-pool-1.6-redhat-4.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/modules/system/layers/base/javax/ws/rs/api/main/jboss-jaxrs-api_1.1_spec-1.0.1.Final-redhat-2.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/modules/system/layers/base/javax/inject/api/main/javax.inject-1-redhat-3.jar"/>
@@ -43,25 +43,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-human-task"/>
 	<classpathentry kind="var" path="JBOSS_HOME"/>
 	<classpathentry kind="src" path="/knowledge-api"/>
-	<classpathentry kind="lib" path="/home/jbride/.m2/repository/org/slf4j/slf4j-api/1.6.0/slf4j-api-1.6.0.jar">
-		<attributes>
-			<attribute name="maven.pomderived" value="true"/>
-			<attribute name="maven.groupId" value="org.slf4j"/>
-			<attribute name="maven.artifactId" value="slf4j-api"/>
-			<attribute name="maven.version" value="1.6.0"/>
-			<attribute name="maven.scope" value="compile"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="src" path="/drools-persistence-jpa"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/quartz-1.6"/>
-	<classpathentry kind="lib" path="/home/jbride/.m2/repository/log4j/log4j/1.2.14/log4j-1.2.14.jar">
-		<attributes>
-			<attribute name="maven.pomderived" value="true"/>
-			<attribute name="maven.groupId" value="log4j"/>
-			<attribute name="maven.artifactId" value="log4j"/>
-			<attribute name="maven.version" value="1.2.14"/>
-			<attribute name="maven.scope" value="test"/>
-		</attributes>
-	</classpathentry>
+	<classpathentry kind="lib" path="/opt/jboss/eap/jboss-eap-6.1/modules/system/layers/pfp/org/quartz/main/quartz-1.6.6.jar"/>
 	<classpathentry kind="output" path="pfpServices/taskService/target"/>
 </classpath>

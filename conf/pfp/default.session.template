@@ -2,5 +2,11 @@ new SessionTemplate().{
 
     workItemHandlers = [
         "HelloWorkItem": new com.example.workItem.HelloWorkItemHandler()
+    ],
+    eventListeners = [
+        "new org.drools.event.rule.DebugAgendaEventListener()",
+        "new org.drools.event.rule.DebugKnowledgeAgentEventListener()",
+        "new org.drools.event.DebugProcessEventListener()",
     ]
+
 };

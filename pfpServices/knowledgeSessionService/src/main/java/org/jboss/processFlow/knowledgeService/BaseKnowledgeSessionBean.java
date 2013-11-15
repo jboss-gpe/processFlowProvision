@@ -202,7 +202,7 @@ public class BaseKnowledgeSessionBean {
 
     protected @PersistenceUnit(unitName=EMF_NAME)  EntityManagerFactory jbpmCoreEMF;
     protected @javax.annotation.Resource UserTransaction uTrnx;
-	private boolean useJPAPlaceholderResolverStrategy;
+    private boolean useJPAPlaceholderResolverStrategy;
     
     protected void start() throws Exception{
         /*  - set KnowledgeBase properties
@@ -287,10 +287,10 @@ public class BaseKnowledgeSessionBean {
         Environment env = KnowledgeBaseFactory.newEnvironment();
         env.set(EnvironmentName.ENTITY_MANAGER_FACTORY, jbpmCoreEMF);
         if(useJPAPlaceholderResolverStrategy) {
-        	env.set(EnvironmentName.OBJECT_MARSHALLING_STRATEGIES, new ObjectMarshallingStrategy[] {
-        			new JPAPlaceholderResolverStrategy(env),
-        			new SerializablePlaceholderResolverStrategy(ClassObjectMarshallingStrategyAcceptor.DEFAULT) }
-        			);
+            env.set(EnvironmentName.OBJECT_MARSHALLING_STRATEGIES, new ObjectMarshallingStrategy[] {
+                    new JPAPlaceholderResolverStrategy(env),
+                    new SerializablePlaceholderResolverStrategy(ClassObjectMarshallingStrategyAcceptor.DEFAULT) }
+                    );
         }
         return env;
     }
@@ -632,7 +632,7 @@ public class BaseKnowledgeSessionBean {
         }
         sBuilder.append("\nWork Item Handlers loaded from drools session template:");
         SessionTemplate sTemplate = newSessionTemplate();
-        if(sTemplate != null){
+        if(sTemplate != null && (sTemplate.getWorkItemHandlers() != null)){
             for(Map.Entry<?, ?> entry : sTemplate.getWorkItemHandlers().entrySet()){
                 Class wiClass = entry.getValue().getClass();
                 sBuilder.append("\n\t"); 
@@ -641,7 +641,7 @@ public class BaseKnowledgeSessionBean {
                 sBuilder.append(wiClass.getClass());
             }
         }else {
-            sBuilder.append("\n\tsessionTemplate not instantiated ... check previous exceptions");
+            sBuilder.append("\n\tsessionTemplate not instantiated or is empty... check previous exceptions");
         }
         sBuilder.append("\nConfiguration Loaded Work Item Handlers :");
         SessionConfiguration ksConfig = (SessionConfiguration)KnowledgeBaseFactory.newKnowledgeSessionConfiguration(ksconfigProperties);

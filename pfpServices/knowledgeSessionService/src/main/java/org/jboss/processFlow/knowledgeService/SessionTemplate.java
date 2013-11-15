@@ -15,6 +15,7 @@
  */
 package org.jboss.processFlow.knowledgeService;
 
+import java.util.EventListener;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +30,7 @@ public class SessionTemplate {
     
     private Map<String, String> workItemHandlers;
     
-    private List<String> eventListeners;
+    private List<EventListener> eventListeners;
     
     private Map<String, String> environmentEntries;
 
@@ -73,11 +74,11 @@ public class SessionTemplate {
         this.workItemHandlers = workItemHandlers;
     }
 
-    public List<String> getEventListeners() {
+    public List<EventListener> getEventListeners() {
         return eventListeners;
     }
 
-    public void setEventListeners(List<String> eventListeners) {
+    public void setEventListeners(List<EventListener> eventListeners) {
         this.eventListeners = eventListeners;
     }
 

@@ -89,10 +89,10 @@ public class KnowledgeSessionService implements IKnowledgeSession, KnowledgeSess
             objectName = new ObjectName("org.jboss.processFlow:type="+this.getClass().getName());
             platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
             try {
-            	platformMBeanServer.getObjectInstance(objectName);
-            	log.warn("start() following MBean already registered with Platform MBean Server : "+objectName);
+                platformMBeanServer.getObjectInstance(objectName);
+                log.warn("start() following MBean already registered with Platform MBean Server : "+objectName);
             }catch(InstanceNotFoundException x){
-            	platformMBeanServer.registerMBean(this, objectName);            	
+                platformMBeanServer.registerMBean(this, objectName);                
             }
 
             connectionObj = cFactory.createConnection();
