@@ -138,6 +138,7 @@ public class AdditionalRuntimeResources {
     
     /**
      * bounces registration of VFS or KModule Deployment Units
+     * similar to discussion here:  https://bugzilla.redhat.com/show_bug.cgi?id=1001972
      * sample usage :
      *   curl -X PUT $HOSTNAME:8330/kie-jbpm-services/rest/additional/runtime/all/deploymentUnits
      */
