@@ -232,7 +232,7 @@ function killJbossProcesses() {
     done
 }
 
-# example:   ./bin/local.jboss.domain.sh smokeTest -deployId=com.redhat.gpe.test:test-module:1.0.0-SNAPSHOT
+# example:   ./bin/local.jboss.domain.sh smokeTest -deployId=org.acme.insurance:policyquote:1.0.0
 function smokeTest() {
     if [ "x$userId" = "x" ]; then
         userId=jboss

@@ -1,10 +1,4 @@
 {
-    "localFileSystem":{
-        "deploymentId": "local-playground",
-        "ksession.strategy": "PER_PROCESS_INSTANCE",
-        "engine.type": "IN_MEMORY",
-        "repoFolder": "${org.kie.nio.git.dir}/local-playground"
-    },
     "kjar":{
         "comment": "no deploymentId.  instead, unique identifier =  <groupId>:<artifactId>:<version>",
         "ksession.strategy": "PER_PROCESS_INSTANCE",
@@ -14,8 +8,8 @@
             "new JPAPlaceholderResolverStrategy(env)",
             "new SerializablePlaceholderResolverStrategy(ClassObjectMarshallingStrategyAcceptor.DEFAULT)"
         ],
-        "groupId":  "com.redhat.gpe",
-        "artifactId":  "test-module",
-        "version":  "1.0"
+        "groupId":  "org.acme.insurance",
+        "artifactId":  "policyquote",
+        "version":  "1.0.0"
     }
 }

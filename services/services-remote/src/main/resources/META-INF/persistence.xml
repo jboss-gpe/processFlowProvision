@@ -63,7 +63,7 @@
         </properties>        
     </persistence-unit>
 
-    <persistence-unit name="org.jbpm.audit.jpa.ex.server" transaction-type="JTA">
+    <!--persistence-unit name="org.jbpm.audit.jpa.ex.server" transaction-type="JTA">
         <jta-data-source>java:jboss/datasources/jbpm-bam-cp</jta-data-source>
         <mapping-file>META-INF/Servicesorm.xml</mapping-file>
 
@@ -80,11 +80,10 @@
             <property name="hibernate.show_sql" value="${hibernate.show.sql}" />
             <property name="hibernate.format_sql" value="true"/>
 
-            <!-- BZ 841786: AS7/EAP 6/Hib 4 uses new (sequence) generators which seem to cause problems -->
             <property name="hibernate.id.new_generator_mappings" value="false" />
             <property name="hibernate.transaction.jta.platform" value="org.hibernate.service.jta.platform.internal.JBossAppServerJtaPlatform" />
         </properties>
-    </persistence-unit>
+    </persistence-unit -->
 
     
 </persistence>

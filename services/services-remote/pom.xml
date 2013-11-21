@@ -32,17 +32,6 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
       <!-- profile used to create web archive with all dependencies stuffed in WEB-INF/lib -->
       <id>fat</id>
       <dependencies>
-        <!-- TO-DO:  make this optional ! 
-        - in the meantime, needed to support use of smoke tests of process definitions found here:  https://github.com/jboss-sso/gpe-playground
-        - clone and build this dependency from here:  https://github.com/jboss-sso/insurancepolicy-model
-        -->
-        <!--dependency>
-          <groupId>org.acme.insurance</groupId>
-          <artifactId>insurancepolicy-model</artifactId>
-          <version>1.0-SNAPSHOT</version>
-          <scope>test</scope>
-          <optional>true</optional>
-        </dependency -->
         <dependency>
           <groupId>org.jboss.processFlow.services</groupId>
           <artifactId>interfaces</artifactId>

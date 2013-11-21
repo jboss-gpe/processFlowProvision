@@ -101,5 +101,15 @@
 	</classpathentry>
 	<classpathentry kind="src" path="/drools-core"/>
 	<classpathentry kind="src" path="/drools-persistence-jpa"/>
+	<classpathentry kind="lib" path="/home/jbride/.m2/repository/org/kie/kie-ci/6.0.0.Final/kie-ci-6.0.0.Final.jar">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.groupId" value="org.kie"/>
+			<attribute name="maven.artifactId" value="kie-ci"/>
+			<attribute name="maven.version" value="6.0.0.Final"/>
+			<attribute name="maven.scope" value="compile"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path="/drools-compiler"/>
 	<classpathentry kind="output" path="target"/>
 </classpath>

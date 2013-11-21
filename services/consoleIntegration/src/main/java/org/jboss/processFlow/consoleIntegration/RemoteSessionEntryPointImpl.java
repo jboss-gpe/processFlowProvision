@@ -14,7 +14,7 @@ import org.jboss.errai.bus.server.annotations.Service;
 import org.jbpm.console.ng.bd.service.KieSessionEntryPoint;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
-import org.kie.services.client.api.RemoteRestSessionFactory;
+import org.kie.services.client.api.RemoteRestRuntimeFactory;
 
 @Service
 @ApplicationScoped
@@ -36,8 +36,8 @@ public class RemoteSessionEntryPointImpl implements KieSessionEntryPoint {
         log.info("***** RemoteSessionEntryPointImpl() exServerUrl = "+exServerUrl);
     }
     
-    private RemoteRestSessionFactory getSessionFactory(String domainId) {
-    	return new RemoteRestSessionFactory(domainId, exServerUrl, userId, password);
+    private RemoteRestRuntimeFactory getSessionFactory(String domainId) {
+    	return new RemoteRestRuntimeFactory(domainId, exServerUrl, userId, password);
     }
 
     @Override

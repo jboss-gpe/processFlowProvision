@@ -27,9 +27,7 @@ import org.slf4j.LoggerFactory;
 /*
    Purpose :  build and deploy a maven artifact that can be used for smoke testing of KJar functionality
 
-   Note:
-    1)  completely plagarized from jbpm/jbpm-services/droolsjbpm-knowledge-services/src/test/java/org/droolsjbpm/services/test/KModuleDeploymentServiceTest.java
-    2)  as a pre-req:  will need to clone and build this project:  https://github.com/jboss-sso/insurancepolicy-model
+   completely plagarized from jbpm/jbpm-services/droolsjbpm-knowledge-services/src/test/java/org/droolsjbpm/services/test/KModuleDeploymentServiceTest.java
 */
 public class KModuleDeploymentServiceTest {
     
@@ -41,7 +39,7 @@ public class KModuleDeploymentServiceTest {
     
     private static final String INSURANCE_ARTIFACT_ID = "insurancepolicy-model";
     private static final String INSURANCE_GROUP_ID = "org.acme.insurance";
-    private static final String INSURANCE_VERSION = "1.0-SNAPSHOT";
+    private static final String INSURANCE_VERSION = "1.0";
     
     @Test
     public void prepare() {
