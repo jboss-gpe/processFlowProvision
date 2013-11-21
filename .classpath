@@ -19,16 +19,6 @@
 	<classpathentry kind="var" path="JBOSS_HOME/modules/system/layers/base/org/jboss/ejb3/main/jboss-ejb3-ext-api-2.0.0-redhat-2.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/modules/system/layers/base/javax/security/jacc/api/main/jboss-jacc-api_1.4_spec-1.0.2.Final-redhat-2.jar"/>
 	<classpathentry kind="var" path="JBOSS_HOME/modules/system/layers/base/javax/servlet/api/main/jboss-servlet-api_3.0_spec-1.0.2.Final-redhat-1.jar"/>
-	<classpathentry kind="src" path="services/kie-services-remote/src/test/java"/>
-	<classpathentry kind="src" path="services/interfaces/src/main/java"/>
-	<classpathentry kind="src" path="services/consoleIntegration/src/main/java"/>
-	<classpathentry kind="src" path="services/kie-services-remote/src/main/java"/>
-	<classpathentry kind="src" path="services/auditLog/src/main/java"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="var" path="JBOSS_HOME"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/drools-compiler"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/drools-core"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/drools-persistence-jpa"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-audit"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-bpmn2"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-bpmn2-emfextmodel"/>
@@ -42,39 +32,23 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-runtime-manager"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-shared-services"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-workitems"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/kie-ci"/>
-	<classpathentry kind="src" path="/kie-commons-io"/>
+	<classpathentry kind="src" path="services/services-remote/src/test/java"/>
+	<classpathentry kind="src" path="services/interfaces/src/main/java"/>
+	<classpathentry kind="src" path="services/consoleIntegration/src/main/java"/>
+	<classpathentry kind="src" path="services/services-remote/src/main/java"/>
+	<classpathentry kind="src" path="services/auditLog/src/main/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="var" path="JBOSS_HOME"/>
 	<classpathentry kind="src" path="/kie-services-remote"/>
-	<classpathentry kind="src" path="/kie-nio2-model"/>
-	<classpathentry kind="src" path="/kie-nio2-jgit"/>
 	<classpathentry kind="src" path="/kie-api"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="src" path="/kie-internal"/>
-	<classpathentry kind="lib" path="/home/jbride/.m2/repository/org/mvel/mvel2/2.1.6.Final/mvel2-2.1.6.Final.jar">
-		<attributes>
-			<attribute name="maven.pomderived" value="true"/>
-			<attribute name="maven.groupId" value="org.mvel"/>
-			<attribute name="maven.artifactId" value="mvel2"/>
-			<attribute name="maven.version" value="2.1.6.Final"/>
-			<attribute name="maven.scope" value="compile"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="src" path="/kie-nio2-api"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="/home/jbride/.m2/repository/commons-codec/commons-codec/1.4/commons-codec-1.4.jar">
 		<attributes>
 			<attribute name="maven.pomderived" value="true"/>
 			<attribute name="maven.groupId" value="commons-codec"/>
 			<attribute name="maven.artifactId" value="commons-codec"/>
 			<attribute name="maven.version" value="1.4"/>
-			<attribute name="maven.scope" value="compile"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="/home/jbride/.m2/repository/org/uberfire/uberfire-io/0.4.0-SNAPSHOT/uberfire-io-0.4.0-SNAPSHOT.jar">
-		<attributes>
-			<attribute name="maven.pomderived" value="true"/>
-			<attribute name="maven.groupId" value="org.uberfire"/>
-			<attribute name="maven.artifactId" value="uberfire-io"/>
-			<attribute name="maven.version" value="0.4.0-SNAPSHOT"/>
 			<attribute name="maven.scope" value="compile"/>
 		</attributes>
 	</classpathentry>
@@ -96,28 +70,7 @@
 			<attribute name="maven.scope" value="compile"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-console-ng-bpm-home-client"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-console-ng-business-domain-api"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-console-ng-business-domain-backend"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-console-ng-business-domain-client"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-console-ng-dashboard-api"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-console-ng-dashboard-backend"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-console-ng-dashboard-client"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-console-ng-executor-service-api"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-console-ng-executor-service-backend"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-console-ng-executor-service-client"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-console-ng-human-tasks-api"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-console-ng-human-tasks-backend"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-console-ng-human-tasks-client"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-console-ng-process-runtime-api"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-console-ng-process-runtime-backend"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-console-ng-process-runtime-client"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jbpm-human-task-audit"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/kie-commons-cdi"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/kie-commons-data"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/kie-commons-regex"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/kie-commons-validation"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/kie-nio2-fs"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/kie-services-client"/>
 	<classpathentry kind="lib" path="/home/jbride/.m2/repository/org/jboss/errai/errai-bus/2.4.1.Final/errai-bus-2.4.1.Final.jar">
 		<attributes>
@@ -146,5 +99,7 @@
 			<attribute name="maven.scope" value="compile"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="src" path="/drools-core"/>
+	<classpathentry kind="src" path="/drools-persistence-jpa"/>
 	<classpathentry kind="output" path="target"/>
 </classpath>

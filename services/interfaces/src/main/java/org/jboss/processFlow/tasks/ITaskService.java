@@ -86,7 +86,7 @@ import org.kie.api.task.model.TaskSummary;
  */
 public interface ITaskService {
 
-    public static final String TASK_SERVICE_JNDI = "ejb:/kie-services-remote/taskProxy!org.jboss.processFlow.tasks.ITaskService";
+    public static final String TASK_SERVICE_JNDI = "ejb:/services-remote/taskProxy!org.jboss.processFlow.tasks.ITaskService";
     public static final String TASK_SERVICE_PROVIDER_URL = "org.jboss.processFlow.tasks.TASK_SERVICE_PROVIDER_URL";
     public static final String ADMINISTRATOR = "admin";
     public static final String HUMAN_TASK = "Human Task";

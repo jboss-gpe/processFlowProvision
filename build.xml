@@ -450,7 +450,7 @@
             <subant target="@{target}">
                 <fileset dir="services/interfaces" includes="build.xml"/>
                 <fileset dir="services/auditLog" includes="build.xml"/>
-                <fileset dir="services/kie-services-remote" includes="build.xml"/>
+                <fileset dir="services/services-remote" includes="build.xml"/>
                 <fileset dir="services/consoleIntegration" includes="build.xml"/>
             </subant>
         </sequential>
@@ -486,7 +486,7 @@
     <target name="pfp.compile" depends="mkPfpDirs" description="" >
         <if><equals arg1="${bpms.deployment.type}" arg2="modules" />
           <then>
-            <copy file="services/kie-services-remote/conf/jboss-deployment-structure.xml.modules" tofile="services/kie-services-remote/src/main/webapp/WEB-INF/jboss-deployment-structure.xml" overwrite="true" verbose="true" />
+            <copy file="services/services-remote/conf/jboss-deployment-structure.xml.modules" tofile="services/services-remote/src/main/webapp/WEB-INF/jboss-deployment-structure.xml" overwrite="true" verbose="true" />
           </then>
         </if>
         <exec executable="mvn" failonerror="true" dir="." >
@@ -501,7 +501,7 @@
           <then>
             <exec executable="git" failonerror="true" dir="." >
                 <arg value="checkout" />
-                <arg value="services/kie-services-remote/src/main/webapp/WEB-INF/jboss-deployment-structure.xml" />
+                <arg value="services/services-remote/src/main/webapp/WEB-INF/jboss-deployment-structure.xml" />
             </exec>
           </then>
         </if>

@@ -54,7 +54,7 @@ import java.util.List;
  *</pre>
  */
 public interface IKnowledgeSession extends IBaseKnowledgeSession {
-    public static final String KNOWLEDGE_SESSION_SERVICE_JNDI = "ejb:/kie-services-remote/prodKSessionProxy!org.jboss.processFlow.knowledgeService.IKnowledgeSession";
+    public static final String KNOWLEDGE_SESSION_SERVICE_JNDI = "ejb:/services-remote/prodKSessionProxy!org.jboss.processFlow.knowledgeService.IKnowledgeSession";
     public static final String KNOWLEDGE_SERVICE_PROVIDER_URL = "org.jboss.processFlow.knowledgeService.KNOWLEDGE_SERVICE_PROVIDER_URL";
     public static final String SPACE_DELIMITED_PROCESS_EVENT_LISTENERS = "space.delimited.process.event.listeners";
     public static final String TASK_CLEAN_UP_PROCESS_EVENT_LISTENER_IMPL="task.clean.up.process.event.listener.impl";
