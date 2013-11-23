@@ -444,40 +444,15 @@
         </if>
     </target>
 
-    <macrodef name="iterate">
-        <attribute name="target"/>
-        <sequential>
-            <subant target="@{target}">
-                <fileset dir="services/interfaces" includes="build.xml"/>
-                <fileset dir="services/auditLog" includes="build.xml"/>
-                <fileset dir="services/services-remote" includes="build.xml"/>
-                <fileset dir="services/consoleIntegration" includes="build.xml"/>
-            </subant>
-        </sequential>
-    </macrodef>
-
-
     <target name="pfp.clean" description="" >
-        <if>
-            <available file="services" type="dir" />
-            <then>
-                <iterate target="clean" />
-                <if>
-                    <available file="${build.dir}" type="dir" />
-                    <then>
-                        <delete includeemptydirs="true">
-                            <fileset dir="${build.dir}" excludes="lib/**/*,openshiftAccount.properties" />
-                        </delete>
-                    </then>
-                </if>
-            </then>
-        </if>
         <delete dir="${distro.clean}" />
-        <delete dir="privateServiceTaskRepo/${build.dir}" />
+        <delete dir="services/auditLog/target" />
+        <delete dir="services/consoleIntegration/target" />
+        <delete dir="services/interfaces/target" />
+        <delete dir="services/services-remote/target" />
     </target>
 
     <target name="mkPfpDirs">
-        <mkdir dir="${temp.pfp.services.dir}" />
         <mkdir dir="${install.home}/lib" />
         <mkdir dir="${pfp.module.path}" />
         <mkdir dir="${fsw.module.path}" />
@@ -496,7 +471,6 @@
             <arg value="-s" />
             <arg value="${maven.path.to.settings.xml}" />
         </exec>
-        <iterate target="all" />
         <if><equals arg1="${bpms.deployment.type}" arg2="modules" />
           <then>
             <exec executable="git" failonerror="true" dir="." >

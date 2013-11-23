@@ -45,5 +45,5 @@ batch
 run-batch
 
 batch
-deploy ${temp.pfp.services.dir}/processFlow-auditLog.jar --name=auditLog.jar --server-groups=ha.group
+deploy services/auditLog/target/processFlow-auditLog.jar --name=auditLog.jar --server-groups=ha.group
 run-batch

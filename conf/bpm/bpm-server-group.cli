@@ -123,5 +123,5 @@ batch
 run-batch
 
 batch
-deploy ${temp.pfp.services.dir}/services-remote.war --name=services-remote.war --server-groups=${bpm.core.group}
+deploy services/services-remote/target/services-remote.war --name=services-remote.war --server-groups=${bpm.core.group}
 run-batch

@@ -20,9 +20,6 @@
 
 
     <path id="initial.classpath" >
-        <fileset dir="${temp.pfp.services.dir}" >
-            <include name="processFlow*.jar" />
-        </fileset>
         <fileset dir="${jboss.home}/modules" >
             <include name="**/*.jar" />
         </fileset>
