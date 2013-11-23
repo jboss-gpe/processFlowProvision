@@ -72,7 +72,7 @@ public class HistoryResource extends ResourceBase {
     
     /**
      * sample usage :
-     *  curl -v -u jboss:brms -X GET -HAccept:text/plain $HOSTNAME:8330/kie-jbpm-services/rest/history/sanityCheck
+     *  curl -v -u jboss:brms -X GET -HAccept:text/plain $HOSTNAME:8330/services-remote/rest/history/sanityCheck
      */
     @GET
     @Path("/sanityCheck")

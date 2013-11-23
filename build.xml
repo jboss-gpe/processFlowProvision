@@ -347,7 +347,7 @@
                                 <arg value="${bpm.core.remoting.user.name}:${bpm.core.remoting.password}"/>
                                 <arg value="-X"/>
                                 <arg value="PUT"/>
-                                <arg value="http://${hostIp}:${bpm.core.http.port}/kie-jbpm-services/rest/additional/runtime/all/deploymentUnits"/>
+                                <arg value="http://${hostIp}:${bpm.core.http.port}/services-remote/rest/additional/runtime/all/deploymentUnits"/>
                               </exec>
                             </sequential>
                         </for>

@@ -63,7 +63,7 @@ public class AdditionalRuntimeResources {
     /**
      * provides visibility of BPMN2 process(s) actually registered with KieBase
      * sample usage :
-     *  curl -X GET -HAccept:text/plain $HOSTNAME:8330/kie-jbpm-services/rest/additional/runtime/git-playground/processes
+     *  curl -X GET -HAccept:text/plain $HOSTNAME:8330/services-remote/rest/additional/runtime/org.acme.insurance:policyquote:1.0.0/processes
      */
     @GET
     @Produces({ "text/plain" })
@@ -88,7 +88,7 @@ public class AdditionalRuntimeResources {
     /**
      * provides visibility of WorkItemHandler(s) actually registered with KieSession
      * sample usage :
-     *  curl -X GET -HAccept:text/plain $HOSTNAME:8330/kie-jbpm-services/rest/additional/runtime/git-playground/workItemHandlers
+     *  curl -X GET -HAccept:text/plain $HOSTNAME:8330/services-remote/rest/additional/runtime/org.acme.insurance:policyquote:1.0.0/workItemHandlers
      */
     @GET
     @Produces({ "text/plain" })
@@ -140,7 +140,7 @@ public class AdditionalRuntimeResources {
      * bounces registration of VFS or KModule Deployment Units
      * similar to discussion here:  https://bugzilla.redhat.com/show_bug.cgi?id=1001972
      * sample usage :
-     *   curl -X PUT $HOSTNAME:8330/kie-jbpm-services/rest/additional/runtime/all/deploymentUnits
+     *   curl -X PUT $HOSTNAME:8330/services-remote/rest/additional/runtime/all/deploymentUnits
      */
     @PUT
     @Produces({ "text/plain" })
@@ -158,7 +158,7 @@ public class AdditionalRuntimeResources {
     
     /**
      * sample usage :
-     *  curl -v -u jboss:brms -X GET http://$HOSTNAME:8330/kie-jbpm-services/rest/additional/runtime/any/sanityCheck
+     *  curl -v -u jboss:brms -X GET http://$HOSTNAME:8330/services-remote/rest/additional/runtime/any/sanityCheck
      */
     @GET
     @Path("/sanityCheck")

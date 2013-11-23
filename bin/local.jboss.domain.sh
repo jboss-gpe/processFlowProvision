@@ -244,10 +244,10 @@ function smokeTest() {
         port=8330
     fi
     if [ "x$webContext" = "x" ]; then
-        webContext=kie-jbpm-services
+        webContext=services-remote
     fi
     if [ "x$deployId" = "x" ]; then
-        deployId=git-playground
+        deployId=org.acme.insurance:policyquote:1.0.0
     fi
 
     # list all process definitions for designated deployment

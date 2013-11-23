@@ -25,7 +25,7 @@
 
     <security-constraint>
         <web-resource-collection>
-            <web-resource-name>kie-jbpm-services</web-resource-name>
+            <web-resource-name>services-remote</web-resource-name>
             <url-pattern>/rest/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>

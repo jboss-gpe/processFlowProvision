@@ -28,12 +28,12 @@ examples
 <br/>
     clear history:
 <br/>
-        curl -v -X POST $HOSTNAME:8330/kie-jbpm-services/rest/runtime/general/history/clear
+        curl -v -X POST $HOSTNAME:8330/services-remote/rest/runtime/general/history/clear
 
 <br/>
     start 'Minimal' process:
 <br/>
-        curl -v -X POST -d '{"author":"test_user","description":"this is a test notebook","name":"test notebook","tags":"test,hello-world"}' $HOSTNAME:8330/kie-jbpm-services/rest/runtime/general/process/Minimal/start
+        curl -v -X POST -d '{"author":"test_user","description":"this is a test notebook","name":"test notebook","tags":"test,hello-world"}' $HOSTNAME:8330/services-remote/rest/runtime/general/process/Minimal/start
 
 <br/>
 <h3>Following is list of available resources for runtime engine:</h3>

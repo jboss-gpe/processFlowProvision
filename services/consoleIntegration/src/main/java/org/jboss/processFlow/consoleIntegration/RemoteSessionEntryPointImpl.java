@@ -20,8 +20,8 @@ import org.kie.services.client.api.RemoteRestRuntimeFactory;
 @ApplicationScoped
 public class RemoteSessionEntryPointImpl implements KieSessionEntryPoint {
     
-	private static final String EX_SERVER_URL = "kie.exec.server.rest.base.url";
-	private static final String USER_ID = "userId";
+    private static final String EX_SERVER_URL = "kie.exec.server.rest.base.url";
+    private static final String USER_ID = "userId";
     private static final String PASSWORD = "password";
     private static Logger log = LoggerFactory.getLogger("RemoteSessionEntryPointImpl");
     
@@ -30,14 +30,14 @@ public class RemoteSessionEntryPointImpl implements KieSessionEntryPoint {
     private String password;
     
     public RemoteSessionEntryPointImpl() throws MalformedURLException {
-        this.exServerUrl = new URL(System.getProperty(EX_SERVER_URL, "http://zareason:8330/kie-jbpm-services/"));
+        this.exServerUrl = new URL(System.getProperty(EX_SERVER_URL, "http://zareason:8330/services-remote/"));
         this.userId = System.getProperty(USER_ID, "jboss");
         this.password = System.getProperty(PASSWORD, "brms");
         log.info("***** RemoteSessionEntryPointImpl() exServerUrl = "+exServerUrl);
     }
     
     private RemoteRestRuntimeFactory getSessionFactory(String domainId) {
-    	return new RemoteRestRuntimeFactory(domainId, exServerUrl, userId, password);
+        return new RemoteRestRuntimeFactory(domainId, exServerUrl, userId, password);
     }
 
     @Override
@@ -47,15 +47,15 @@ public class RemoteSessionEntryPointImpl implements KieSessionEntryPoint {
 
     @Override
     public long startProcess(String domainId, String processId, Map<String, String> params) {
-    	KieSession ksession = getSessionFactory(domainId).newRuntimeEngine().getKieSession();
-    	ProcessInstance pInstance = ksession.startProcess(processId, (Map)params);
+        KieSession ksession = getSessionFactory(domainId).newRuntimeEngine().getKieSession();
+        ProcessInstance pInstance = ksession.startProcess(processId, (Map)params);
         return pInstance.getId();
     }
 
     @Override
     public void abortProcessInstance(long processInstanceId) {
         // TODO Auto-generated method stub
-    	
+        
 
     }
 
