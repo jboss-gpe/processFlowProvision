@@ -87,7 +87,7 @@ public class DeploymentMgmtBean implements IDeploymentMgmtBean {
         }
     }
     public void start() throws Exception {
-        log.info("start() org.kie.nio.git.daemon.enabled = "+System.getProperty("org.kie.nio.git.daemon.enabled"));
+        log.info("start() org.uberfire.nio.git.daemon.enabled = "+System.getProperty("org.uberfire.nio.git.daemon.enabled"));
         
         List<DeploymentUnit> localScopedDUnits = this.getDeploymentUnits();
         for(DeploymentUnit dUnit : localScopedDUnits){
