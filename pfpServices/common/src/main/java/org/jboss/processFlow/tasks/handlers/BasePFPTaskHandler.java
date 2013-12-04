@@ -18,8 +18,7 @@ public class BasePFPTaskHandler {
 
     protected int ksessionId;
 
-    public void init(StatefulKnowledgeSession sessionObj) {
-        ksessionId = sessionObj.getId();
+    public BasePFPTaskHandler() {
         if(taskProxy == null){
             synchronized(lockObj){
                 if(taskProxy != null)
@@ -46,6 +45,10 @@ public class BasePFPTaskHandler {
                 }
             }
         }
+    }
+
+    public void init(StatefulKnowledgeSession sessionObj) {
+        ksessionId = sessionObj.getId();
     }
     
     public void dispose() {

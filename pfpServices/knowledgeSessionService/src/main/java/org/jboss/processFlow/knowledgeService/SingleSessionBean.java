@@ -172,7 +172,7 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
         this.registerEmailWorkItemHandler(ksession);
         
         //1.5 register any additional workItemHandlers defined in drools.session.template
-        SessionTemplate sTemplate = newSessionTemplate();
+        SessionTemplate sTemplate = newSessionTemplate(ksession);
         if(sTemplate != null){
             for(Map.Entry<String, ?> entry : sTemplate.getWorkItemHandlers().entrySet()){
                 try {

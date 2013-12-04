@@ -72,6 +72,7 @@ public interface IKnowledgeSession extends IBaseKnowledgeSession {
     public static final String PROCESS_INSTANCE_ID = "processInstanceId";
     public static final String PROCESS_INSTANCE_STATE = "processInstanceState";
     public static final String KSESSION_ID = "ksessionId";
+    public static final String KSESSION = "ksession";
     public static final String WORK_ITEM_ID = "workItemId";
     public static final String EMAIL = "Email";
     public static final String OPERATION_TYPE="operationType";

@@ -555,8 +555,11 @@ public class BaseKnowledgeSessionBean {
         sBuilder.append("\n");
         return sBuilder.toString();
     }
-    
-    protected SessionTemplate newSessionTemplate() {
+   
+    protected SessionTemplate newSessionTempate() {
+        return newSessionTemplate(null);
+    } 
+    protected SessionTemplate newSessionTemplate(StatefulKnowledgeSession ksession) {
         //looking for session.templte on local file system
         if(templateString == null){
             synchronized(templateStringLockObj){
@@ -593,18 +596,22 @@ public class BaseKnowledgeSessionBean {
             synchronized(sessionTemplateInstantiationLock){
                 if(sessionTemplateInstantiationAttempts == -1)
                     return null;
-                return parseSessionTemplateString();
+                return parseSessionTemplateString(ksession);
             }
         }
-        return parseSessionTemplateString();
+        return parseSessionTemplateString(ksession);
     }
-    private SessionTemplate parseSessionTemplateString() {
+
+    // TO-DO:  somehow add ksession via mvel to workItemhandlers defined in session template
+    private SessionTemplate parseSessionTemplateString(StatefulKnowledgeSession ksession) {
         ParserConfiguration pconf = new ParserConfiguration();
         pconf.addImport("SessionTemplate", SessionTemplate.class);
         ParserContext context = new ParserContext(pconf);
         Serializable s = MVEL.compileExpression(templateString.trim(), context);
         try {
-            SessionTemplate sTemplate = (SessionTemplate)MVEL.executeExpression(s);
+            Map vars = new HashMap();
+            vars.put(IKnowledgeSession.KSESSION, ksession);
+            SessionTemplate sTemplate = (SessionTemplate)MVEL.executeExpression(s, vars);
             sessionTemplateInstantiationAttempts = 1;
             return sTemplate;
         }catch(Throwable x){
@@ -631,7 +638,7 @@ public class BaseKnowledgeSessionBean {
            sBuilder.append(programmaticallyLoadedWorkItemHandlers.get(name)); 
         }
         sBuilder.append("\nWork Item Handlers loaded from drools session template:");
-        SessionTemplate sTemplate = newSessionTemplate();
+        SessionTemplate sTemplate = newSessionTemplate(null);
         if(sTemplate != null && (sTemplate.getWorkItemHandlers() != null)){
             for(Map.Entry<?, ?> entry : sTemplate.getWorkItemHandlers().entrySet()){
                 Class wiClass = entry.getValue().getClass();

@@ -135,7 +135,7 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
                     if(taskSession != null)
                         taskSession.dispose();
                 }
-                log.info("addTask() adding following userId to tempOrgEntitySet to avoid possible duplicate entry complaints:  "+id);
+                log.info("checkAndSetTempOrgEntitySet() adding following userId to tempOrgEntitySet to avoid possible duplicate entry complaints:  "+id);
                 try{Thread.sleep(1000);}catch(Exception x){x.printStackTrace();}
                 tempOrgEntitySet.add(id);
             }

@@ -235,7 +235,7 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
         this.registerEmailWorkItemHandler(ksession);
         
         //1.5 register any addition workItemHandlers and eventListeners defined in drools.session.template
-        SessionTemplate sTemplate = newSessionTemplate();
+        SessionTemplate sTemplate = newSessionTemplate(ksession);
         if(sTemplate != null){
             if(sTemplate.getWorkItemHandlers() != null){
                 for(Map.Entry<String, ?> entry : sTemplate.getWorkItemHandlers().entrySet()){
@@ -247,19 +247,20 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
                     }
                 }
             }
-            List eListeners = sTemplate.getEventListeners();
-            for(Object eListener : eListeners) {
-                Object eObj = MVEL.eval((String)eListener);
-                if(eObj instanceof AgendaEventListener){
-                    ksession.addEventListener((AgendaEventListener)eObj);
-                }else if(eObj instanceof WorkingMemoryEventListener) {
-                    ksession.addEventListener((WorkingMemoryEventListener)eObj);
-                }else if(eObj instanceof ProcessEventListener) {
-                    ksession.addEventListener((ProcessEventListener)eObj);
-                }else{
-                    log.error("addExtrasToStatefulKnowledgeSession() invalid eventListener : "+eListener);
+            if(sTemplate.getEventListeners() != null){
+                List eListeners = sTemplate.getEventListeners();
+                for(Object eListener : eListeners) {
+                    Object eObj = MVEL.eval((String)eListener);
+                    if(eObj instanceof AgendaEventListener){
+                        ksession.addEventListener((AgendaEventListener)eObj);
+                    }else if(eObj instanceof WorkingMemoryEventListener) {
+                        ksession.addEventListener((WorkingMemoryEventListener)eObj);
+                    }else if(eObj instanceof ProcessEventListener) {
+                        ksession.addEventListener((ProcessEventListener)eObj);
+                    }else{
+                        log.error("addExtrasToStatefulKnowledgeSession() invalid eventListener : "+eListener);
+                    }
                 }
-                
             }
         }
         

@@ -38,6 +38,8 @@ import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.jboss.processFlow.util.JpaKnowledgeSessionPoolHelper;
+
 /**
  * The pool persists the knowledgeSession busy/available data structure into the table <code>SessionProcessXref</code>,
  * so that we won't lost the session info after restart or hot-deploy. <br/>
@@ -59,37 +61,18 @@ import org.slf4j.LoggerFactory;
  *   - Michal Valach added row-level pessimistic locking to ensure enterprise-wide concurrency on each process instance.  thank you!
  */
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
-public class JpaKnowledgeSessionPool implements IKnowledgeSessionPool {
+public class JpaKnowledgeSessionPool extends JpaKnowledgeSessionPoolHelper implements IKnowledgeSessionPool {
 
     private static final Logger logger = LoggerFactory.getLogger(JpaKnowledgeSessionPool.class);
 
     public static final int STATUS_AVAILABLE = 0;
     public static final int STATUS_BUSY = 1;
 
-    private EntityManagerFactory emf;
     private LinkedList<Integer> availableSessions = new LinkedList<Integer>();
     transient final ReentrantLock availableSessionsLock = new ReentrantLock();
 
     public JpaKnowledgeSessionPool() {
-        InitialContext jndiContext = null;
-        try {
-            jndiContext = new InitialContext();
-            emf = (EntityManagerFactory) jndiContext.lookup("java:/app/knowledgeSessionEMF");
-        }
-        catch (Exception e) {
-            logger.error("lookup jbpm emf failed", e);
-        }
-        finally {
-            if (jndiContext != null) {
-                try {
-                    jndiContext.close();
-                }
-                catch (NamingException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
+        super();
         populateAvailableSessions();
     }
 
@@ -218,22 +201,6 @@ public class JpaKnowledgeSessionPool implements IKnowledgeSessionPool {
         }
 
         return sBuilder.toString();
-    }
-
-    public void setProcessInstanceId(Integer ksessionId, Long pInstanceId) {
-        EntityManager em = emf.createEntityManager();
-        try {
-            int rows = em
-                    .createQuery("UPDATE SessionProcessXref xref set xref.processInstanceId=:processInstanceId where xref.sessionId=:ksessionId")
-                    .setParameter("processInstanceId", pInstanceId).setParameter("ksessionId", ksessionId)
-                    .executeUpdate();
-            if (rows == 0) {
-                logger.warn("setProcessInstanceId() Failed to udpate processInstanceId [{}];    sessionId [{}] not found", pInstanceId, ksessionId);
-            }
-        }
-        finally {
-            em.close();
-        }
     }
 
     public Integer getSessionId(Long pInstanceId) {
