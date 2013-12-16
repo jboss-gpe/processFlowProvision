@@ -25,6 +25,7 @@ package org.jboss.processFlow.knowledgeService;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -41,6 +42,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.quartz.JobExecutionContext;
 import org.drools.SystemEventListenerFactory;
 import org.drools.KnowledgeBaseFactory;
+import org.drools.base.MapGlobalResolver;
 import org.drools.command.SingleSessionCommandService;
 import org.drools.command.impl.CommandBasedStatefulKnowledgeSession;
 import org.drools.event.rule.AgendaEventListener;
@@ -60,6 +62,7 @@ import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.Environment;
 import org.drools.runtime.process.ProcessInstance;
 import org.drools.runtime.process.WorkItemHandler;
+import org.drools.runtime.rule.FactHandle;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.jbpm.process.instance.timer.TimerInstance;
@@ -286,6 +289,22 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
                 } else {
                     log.info("afterProcessCompleted()\tsessionId :  "+ksession.getId()+" : process : "+pInstance+" : pDefVersion = "+droolsProcess.getVersion());
                 }
+                
+                // Thank you Duncan Doyle for the following:
+                //Retract all the facts from the knowledge runtime.
+                Collection<FactHandle> factHandles = ksession.getFactHandles();
+                for (FactHandle nextFactHandle : factHandles) {
+                    ksession.retract(nextFactHandle);
+                }
+                // Reset globals in the knowledge runtime.
+                MapGlobalResolver globals = (MapGlobalResolver) ksession.getGlobals();
+                Entry<Object, Object>[] entries = globals.getGlobals();
+                for (Entry<Object, Object> nextEntry : entries) {
+                    nextEntry.setValue(null);
+                }
+                
+                // Clear Agenda
+                ksession.getAgenda().clear();
             }
 
             public void beforeProcessStarted(ProcessStartedEvent event) {
