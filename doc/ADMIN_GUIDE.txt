@@ -543,6 +543,14 @@ Work Item Handlers in ProcessFlowProvision
             - in particular, change name attribute to the name of an application's custom work Item Handler module
 
 
+        3.5) domain model jars (or any other dependencies that your rules or process definitions may have)
+            - In BRMS5.3.1, model jars loaded in design-time are only used at compile-time of rules and process definitions in Guvnor.
+            - Those model jars  are not included in the binary package pulled by the KnowledgeAgent and loaded into the KnowledgeBase.
+            - Therefore, any additional dependencies that your rules and process definitions may have also need to be placed on the classpath of the process engine.
+            - Similar to the discussion just preceding this one, these additional dependencies need to be added as dependencies to the mvel module.
+            - Follow the same procedure as previously discussed for adding a dependency to the mvel module.
+
+
 
         4)  org.jboss.processFlow.knowledgeService.IKnowledgeSessionService.printWorkItemHandlers()
           - helper function to troubleshoot runtime configuration and classpath issues regarding custom work item handlers
