@@ -27,7 +27,9 @@ OVERVIEW
 
 PFP github branches :
     - master
-        - targets "domain" managed JBoss EAP6.1.* in local environment
+
+    - 5.3.1_eap6.1.1
+        - targets "domain" managed JBoss EAP6.1.1 in local environment
         - targets 'standalone' EAP 6 in 'openshift' mode
         - leverages Red Hat/JBoss BRMS5.3.1 Deployable
         - configurable to use either mysql, oracle or postgres
@@ -42,7 +44,7 @@ PFP github branches :
         - provisioning scripts work only in a *nix variant (read: no windows)
 
     - 5.3.1_eap6.0
-        - same as master branch however makes use of JBoss EAP6.0 rather than EAP6.1
+        - used for provisioning the Openshift Online accounts that students of our "BLD Workshop" work on
 
     - 5.3.0.GA    
         - targeted for non-clustered JBoss EAP 5.*
