@@ -43,6 +43,11 @@ PFP github branches :
             4)  business-central
         - provisioning scripts work only in a *nix variant (read: no windows)
 
+    - 6.1.0
+        - tracks Red Hat / JBoss BPMS6
+        - used as one of the key components of:   "BPMS6 Engine" cartridge for Openshift
+
+PFP github tags :
     - 5.3.1_eap6.0
         - used for provisioning the Openshift Online accounts that students of our "BLD Workshop" work on
 
@@ -54,9 +59,6 @@ PFP github branches :
         - provisioning scripts work on any operating system
         - requires separate 'standalone' hornetq 2.2.14 provider
 
-    - 6.1.0
-        - tracks Red Hat / JBoss BPMS6
-        - used as one of the key components of:   "BPMS6 Engine" cartridge for Openshift
 
 
 
