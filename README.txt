@@ -1,11 +1,8 @@
-﻿processFlowProvision (aka:  PFP)
+﻿Process Flow Provision (aka:  PFP)
 ====================
 
 one approach toward a production BPM environment leveraging Red Hat BRMS "Deployable" libraries
 
-
-
-Jeff Bride
 
 welcome Java developers to Process Flow Provision
 you have reached the location where PFP source code is centrally maintained
