@@ -13,7 +13,7 @@ batch
 /server-group=${bpms.webs.group}/system-property=org.uberfire.nio.git.daemon.host/:add(value="${org.uberfire.nio.git.daemon.host}",boot-time=true)
 /server-group=${bpms.webs.group}/system-property=org.uberfire.nio.git.daemon.port/:add(value="${org.uberfire.nio.git.daemon.port}",boot-time=true)
 /server-group=${bpms.webs.group}/system-property=org.uberfire.nio.git.dir/:add(value="${org.uberfire.nio.git.dir}",boot-time=true)
-/server-group=${bpms.webs.group}/system-property=org.kie.kieora.index.dir/:add(value="${org.kie.kieora.index.dir}",boot-time=true)
+/server-group=${bpms.webs.group}/system-property=org.uberfire.metadata.index.dir/:add(value="${org.uberfire.metadata.index.dir}",boot-time=true)
 
 /server-group=${bpms.webs.group}/system-property=org.jboss.processFlow.consoleIntegration.space.delimited.veto.classes/:add(value="${org.jboss.processFlow.consoleIntegration.space.delimited.veto.classes}",boot-time=true)
 

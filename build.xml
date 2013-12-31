@@ -130,8 +130,14 @@
 
     <!-- https://github.com/jboss-sso/processFlowProvision/issues/3 -->
     <target name="download.and.unzip.bpms.deployer">
-        <!-- get src="${bpms.download.url}" dest="${bpms.deployer.zip.path}"  skipexisting="true" / -->
-        <unzip src="${bpms.deployer.zip.path}" dest="${jboss.home}" />
+      <if><equals arg1="${org.jboss.processFlow.provision.bpmCore}" arg2="true" />
+        <then>
+            <unzip src="${bpms.deployer.zip.path}" dest="${jboss.home}" />
+        </then>
+        <else>
+            <echo message="download.and.unzip.bpms.deployer() .... skipping" />
+        </else>
+      </if>
     </target>
 
     <!-- re-create guvnor filesystem and copy over repository.xml -->
@@ -156,8 +162,7 @@
     <target name="configure.fsw.modules" >
       <if><equals arg1="${org.jboss.processFlow.provision.fsw}" arg2="true" />
         <then>
-            <if><not><available file="${fsw.install.dir}/jboss-eap-6.1/modules/system/layers/soa" /></not><then>
-                <mkdir dir="${fsw.install.dir}" />
+            <if><not><available file="${jboss.home}/modules/system/layers/soa" /></not><then>
                 <antcall target="filter">
                     <param name="source.dir" value="conf/fsw/installer"/>
                     <param name="dest.dir" value="${build.dir}/tmp/fsw/installer"/>
@@ -165,15 +170,14 @@
                 <exec executable="bash" failonerror="true" dir=".">
                     <arg value="bin/local.jboss.domain.sh" />
                     <arg value="runFSWInstaller" />
+                    <arg value="-jbossHome=${jboss.home}" />
                     <arg value="-pathToFSWInstaller=${path.to.fsw.installer}" />
+                    <arg value="-pathToFSWInstallerConfig=${build.dir}/tmp/fsw/installer/fsw.install.xml" />
                 </exec>
             </then></if>
-            <copy todir="${fsw.module.path}" >
-                <fileset dir="${fsw.install.dir}/jboss-eap-6.1/modules/system/layers/soa" />
-            </copy>
         </then>
         <else>
-            <mkdir dir="${fsw.module.path}" />
+            <then><echo message="configure.fsw.modules() fsw already configured in eap6" /></then>
         </else>
       </if>
     </target>
@@ -207,15 +211,11 @@
     </target> 
 
     <target name="local.deploy.jboss.modules" >
-        <antcall target="configure.bpms.modules" />
-        <!-- TO-DO:  use the ant replace tool -->
-        <!--antcall target="filter">
-                <param name="source.dir" value="conf/jboss/modules/bpms"/>
-                <param name="dest.dir" value="${jboss.home}/modules/system/layers/bpms"/>
-        </antcall -->
-        <antcall target="configure.fsw.modules" />
         <!-- https://community.jboss.org/wiki/LayeredDistributionsAndModulePathOrganization -->
         <mkdir dir="${jboss.home}/modules/system/layers/${organization.name}" />
+
+        <antcall target="configure.fsw.modules" />
+        <antcall target="configure.bpms.modules" />
         <antcall target="filter">
             <param name="source.dir" value="conf/jboss/modules/"/>
             <param name="file.name" value="layers.conf"/>
@@ -367,7 +367,7 @@
     -->
     <target name="local.provision.fsw">
         <if>
-            <equals arg1="${org.jboss.processFlow.provision.fsw}" arg2="****FIX-ME*****" />
+            <equals arg1="${org.jboss.processFlow.provision.fsw}" arg2="true" />
             <then>
                 <if>
                     <equals arg1="${refresh.master}" arg2="true" />

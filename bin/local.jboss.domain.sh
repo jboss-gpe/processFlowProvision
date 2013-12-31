@@ -66,6 +66,9 @@ do
         -pathToFSWInstaller=*)
             pathToFSWInstaller=`echo $var | cut -f2 -d\=` 
             ;;
+        -pathToFSWInstallerConfig=*)
+            pathToFSWInstallerConfig=`echo $var | cut -f2 -d\=` 
+            ;;
     esac
 done
 
@@ -292,8 +295,11 @@ function smokeTest() {
 }
 
 runFSWInstaller() {
-    export JBOSS_HOME=
-    java -jar $pathToFSWInstaller target/tmp/fsw/installer/fsw.install.xml
+    if [ "x$jbossHome" = "x" ]; then
+        jbossHome=$JBOSS_HOME
+    fi
+    chmod 755 $jbossHome/bin/*.sh
+    java -jar $pathToFSWInstaller $pathToFSWInstallerConfig 
 }
 
 
