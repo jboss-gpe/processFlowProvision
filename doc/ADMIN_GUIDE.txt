@@ -30,6 +30,7 @@ OVERVIEW
             - please ensure all of the previous steps outlined in this document have been completed prior to executing the ant script
 
 
+
   - why doesn't PFP leverage BPMS Standalone rather than BPMS Deployable ?
         - there are architectural decisions implemented in BPMS Standalone that are sufficient for a demo, but probably for high-trnx production environments
         - BPMS Deployable provides maximum flexibility by allowing a software team to embed supported BPMS6  libraries 
