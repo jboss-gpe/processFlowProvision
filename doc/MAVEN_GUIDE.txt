@@ -1,0 +1,46 @@
+processFlowProvision (aka:  PFP)
+
+DG Doyle
+
+
+ASSUMPTIONS
+    - you are a Java developer
+    - you have profound knowledge of Apache Maven
+    - following the "INSTALL" section of the PFP "ADMIN_GUIDE.txt", you have been able to install the PFP "distribution"
+
+
+OVERVIEW
+    - Support has been added to PFP to build the pfpServices using Apache Maven. This allows one to:
+	1) Build the PFP deployables/modules/artefacts, without running the full PFP deployment script.
+	2) Build the PFP deployables/modules/artefacts using Maven dependencies instead of libraries retrieved from other places (e.g. JBoss BRMS distribution).
+	3) Deploy the PFP deployables/modules/artefacts to a Maven repository, which makes it possible to expose them via platforms like Nexus.
+    - The Apache Maven build allows one to build the PFP deployables/modules/artefacts for:
+	1) JBoss EAP 6.1+: This is the default build.
+	2) JBoss EAP 6.0.1: This build can be configured via a Maven profile called 'jboss-eap-6.0', which can be enabled via the '-P' option on the Maven command line, i.e.: 'mvn clean install -P jboss-eap-6.0'
+	   This build changes a number of JPA persistence options in the 'processflow-knowledgeSessionService' and 'processflow-taskService'. 
+	   This is required due to a bug in the JBoss Modules system in versions < JBoss EAP 6.1, in particular the way (JPA) resource files are imported and exported cross modules.
+        
+	- this document includes the following chapters:
+            1)  ASSUMPTIONS
+            2)  OVERVIEW
+            3)  INSTALL
+            4)  DEVELOPER NOTES
+
+
+INSTALL   :
+   -- processFlowProvision deployables/modules/artefacts.
+	- The PFP deployables/modules/artefacts can be build for both JBoss EAP 6.0.1 and JBoss EAP 6.1+ deployments. The PFP artefacts require:
+	    1) Apache Maven to be installed.
+	    2) The JBoss EAP 6 platform to have been properly provision for PFP, including:
+		- the PFP modules to have been installed correctly.
+		- datasources have been installed and configured
+		- queues have been configured.
+		- etc.
+	      Please consult the PFP Admin Guide for more information on how to configure and provision the JBoss EAP for PFP deployments.
+	
+	- The standard PFP Maven build, builds the artefacts for JBoss EAP 6.1+ platforms. This build can be executed with the command: 'mvn clean install'
+	- PFP also provides a Maven build that builds the artefacts for JBoss EAP 6.0.1 platforms. This build can be triggered by enabling the Maven profile 'jboss-eap-6.0' using the following command:
+	  'mvn clean install -P jboss-eap-6.0'
+	
+DEVELOPER NOTES
+

@@ -25,6 +25,7 @@
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>processFlow-bam</artifactId>
+			<classifier>libs</classifier>
 		</dependency>
 		<!-- Specification Dependencies. -->
 		<dependency>
@@ -172,7 +173,48 @@
     		<artifactId>jbosgi-deployment</artifactId>
     		<scope>test</scope>
     	</dependency>
-    	
 	</dependencies>
+
+	<profiles>
+ 		<profile>
+ 			<id>jboss-eap-6.0</id>	
+ 			<build>
+ 				<resources>
+ 					<resource>
+ 						<directory>src/main/resources</directory>
+ 					</resource>
+ 					<resource>
+ 						<directory>src/main/eap-6.0-resources</directory>
+ 					</resource>
+ 				</resources>
+ 				<plugins>
+ 					<!--  -->
+ 					<plugin>
+           				<artifactId>maven-antrun-plugin</artifactId>
+           				<executions>
+             				<execution>
+               					<phase>compile</phase>
+               					<goals>
+                 					<goal>run</goal>
+               					</goals>
+               					<configuration>
+                 					<tasks>
+                 						<replace file="target/classes/META-INF/persistence.xml">
+                         					<replacetoken><![CDATA[<mapping-file>META-INF/JBPMorm.xml</mapping-file>]]></replacetoken>
+                         					<replacevalue><![CDATA[<mapping-file>META-INF/JBPMorm-JPA2.xml</mapping-file>]]></replacevalue>
+                         				</replace>
+                         				<replace file="target/classes/META-INF/persistence.xml">
+                         					<replacetoken><![CDATA[<mapping-file>META-INF/ProcessInstanceInfo.hbm.xml</mapping-file>]]></replacetoken>
+                         					<replacevalue><![CDATA[<!-- <mapping-file>META-INF/ProcessInstanceInfo.hbm.xml</mapping-file> -->]]></replacevalue>
+                         				</replace>
+                         			</tasks>
+               					</configuration>
+             				</execution>
+           				</executions>
+         			</plugin>	
+ 				</plugins>	
+ 			</build>
+ 		</profile>
+ 	</profiles>
 
 </project>

@@ -43,6 +43,7 @@
 				<groupId>${project.groupId}</groupId>
 				<artifactId>processFlow-bam</artifactId>
 				<version>${project.version}</version>
+				<classifier>libs</classifier>
 				<scope>provided</scope>
 			</dependency>
 			<!-- Specification Dependencies. -->

@@ -78,5 +78,55 @@
  	  		<scope>test</scope>
  	  	</dependency>
  	</dependencies>
+ 	
+ 	<build>
+ 		<plugins>
+ 		
+ 		
+ 		</plugins>
+ 	</build>
+ 	
+ 	<profiles>
+ 		<profile>
+ 			<id>jboss-eap-6.0</id>	
+ 			<build>
+ 				<resources>
+ 					<resource>
+ 						<directory>src/main/resources</directory>
+ 					</resource>
+ 					<resource>
+ 						<directory>src/main/eap-6.0-resources</directory>
+ 					</resource>
+ 				</resources>
+ 				<plugins>
+ 					<!--  -->
+ 					<plugin>
+           				<artifactId>maven-antrun-plugin</artifactId>
+           				<executions>
+             				<execution>
+               					<phase>compile</phase>
+               					<goals>
+                 					<goal>run</goal>
+               					</goals>
+               					<configuration>
+                 					<tasks>
+                 						<!-- 
+                   						<delete file="${project.build.outputDirectory}/environment.properties"/>
+                   						<copy file="src/main/resources/environment.test.properties"
+                         						tofile="${project.build.outputDirectory}/environment.properties"/>
+                         				-->
+                         				<replace file="target/classes/META-INF/persistence.xml">
+                         					<replacetoken><![CDATA[<mapping-file>META-INF/Taskorm.xml</mapping-file>]]></replacetoken>
+                         					<replacevalue><![CDATA[<mapping-file>META-INF/Taskorm-JPA2.xml</mapping-file>]]></replacevalue>
+                         				</replace>
+                         			</tasks>
+               					</configuration>
+             				</execution>
+           				</executions>
+         			</plugin>	
+ 				</plugins>	
+ 			</build>
+ 		</profile>
+ 	</profiles>
 
 </project>
