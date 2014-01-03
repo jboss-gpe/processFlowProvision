@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+                             http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.jboss.processFlow</groupId>
+		<artifactId>pfpServices</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>processFlow-taskService</artifactId>
+	<packaging>jar</packaging>
+	<name>ProcessFlowProvision Task Service</name>
+
+	<dependencies>
+		<!-- Project Dependencies. -->
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>processFlow-interfaces</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>processFlow-common</artifactId>
+		</dependency>
+		<!-- Specification Dependencies. -->
+		<dependency>
+			<groupId>org.jboss.spec.javax.ejb</groupId>
+			<artifactId>jboss-ejb-api_3.1_spec</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate.javax.persistence.</groupId>
+			<artifactId>hibernate-jpa-2.0-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.spec.javax.transaction</groupId>
+			<artifactId>jboss-transaction-api_1.1_spec</artifactId>
+		</dependency>
+		<!-- Drools Dependencies. -->
+		<dependency>
+			<groupId>org.drools</groupId>
+			<artifactId>knowledge-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.drools</groupId>
+			<artifactId>drools-core</artifactId>
+		</dependency>
+		<!-- jBPM Dependencies. -->
+		<dependency>
+			<groupId>org.jbpm</groupId>
+			<artifactId>jbpm-human-task</artifactId>
+		</dependency>
+		<!-- Library Dependencies. -->
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+		</dependency>
+		<!-- Test Dependencies. -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<!-- Arquillian JUnit integration. -->
+        <dependency>
+        	<groupId>org.jboss.arquillian.junit</groupId>
+        	<artifactId>arquillian-junit-container</artifactId>
+        	<scope>test</scope>
+       	</dependency>
+       	<dependency>
+			<groupId>javax.enterprise</groupId>
+ 	  		<artifactId>cdi-api</artifactId>
+ 	  		<scope>test</scope>
+ 	  	</dependency>
+ 	  	<dependency>
+ 	  		<groupId>${project.groupId}</groupId>
+ 	  		<artifactId>processFlow-knowledgeSessionService</artifactId>
+ 	  		<version>${project.version}</version>
+ 	  		<scope>test</scope>
+ 	  	</dependency>
+ 	</dependencies>
+
+</project>

@@ -33,7 +33,7 @@ INSTALL   :
         
 
     -- maven (optional)
-        - maven is only used to build upstream jbpm5 community source code
+        - maven is used to build upstream jbpm5 community source code and can be used in the 'master' branch to build the pfpServices components.
         - if building the 'master' branch of PFP, then maven is required since the 'master' branch of PFP only builds from the upstream
           jbpm5 community source code
             
