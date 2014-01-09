@@ -51,8 +51,6 @@ import org.drools.io.*;
 import org.drools.logger.KnowledgeRuntimeLoggerFactory;
 import org.drools.persistence.info.SessionInfo;
 import org.drools.persistence.jpa.JPAKnowledgeService;
-import org.drools.persistence.jpa.JpaJDKTimerService;
-import org.drools.persistence.jpa.processinstance.JPAWorkItemManagerFactory;
 import org.drools.runtime.KnowledgeSessionConfiguration;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.Environment;

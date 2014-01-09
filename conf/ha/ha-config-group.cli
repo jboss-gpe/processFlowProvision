@@ -7,11 +7,20 @@ batch
 
 /server-group=ha.group.backup/system-property=jboss.messaging.group.address/:add(value=${jboss.messaging.group.address},boot-time=true)
 /server-group=ha.group.backup/system-property=jboss.messaging.group.port/:add(value=${jboss.messaging.group.port},boot-time=true)
+
+/profile=full-ha/subsystem=datasources/data-source=jbpm-bam-cp:add(jndi-name=java:jboss/datasources/jbpm-bam-cp,connection-url="${bam_connection_url}",driver-class=${bam_driver_class},driver-name=${jdbc.module.name},user-name=${bam_db_user},password=${bam_db_password},pool-name=jbpm-bam_ds_pool,max-pool-size=50,min-pool-size=0,jta=true,allocation-retry=12,allocation-retry-wait-millis=10000)
+/profile=full-ha-backup/subsystem=datasources/data-source=jbpm-bam-cp:add(jndi-name=java:jboss/datasources/jbpm-bam-cp,connection-url="${bam_connection_url}",driver-class=${bam_driver_class},driver-name=${jdbc.module.name},user-name=${bam_db_user},password=${bam_db_password},pool-name=jbpm-bam_ds_pool,max-pool-size=50,min-pool-size=0,jta=true,allocation-retry=12,allocation-retry-wait-millis=10000)
+
+/profile=full-ha/subsystem=datasources/data-source=jbpm-bam-cp/:write-attribute(name=new-connection-sql,value="${org.jboss.processFlow.connection.test}")
+/profile=full-ha-backup/subsystem=datasources/data-source=jbpm-bam-cp/:write-attribute(name=new-connection-sql,value="${org.jboss.processFlow.connection.test}")
+
+/profile=full-ha/subsystem=datasources/data-source=jbpm-bam-cp:enable()
+/profile=full-ha-backup/subsystem=datasources/data-source=jbpm-bam-cp:enable()
 run-batch
 
 batch
-# deploy haTimerService to ha.group.primary and ha.group.backup
-deploy ${temp.pfp.services.dir}/processFlow-haTimerService.jar --name=processFlow-haTimerService-primary.jar --server-groups=ha.group.primary
-deploy ${temp.pfp.services.dir}/processFlow-haTimerService.jar --name=processFlow-haTimerService-backup.jar --server-groups=ha.group.backup
+# deploy bamService to ha.group.primary and ha.group.backup
+deploy ${temp.pfp.services.dir}/processFlow-bamService.jar --name=processFlow-bamService-primary.jar --server-groups=ha.group.primary
+deploy ${temp.pfp.services.dir}/processFlow-bamService.jar --name=processFlow-bamService-backup.jar --server-groups=ha.group.backup
 
 run-batch
