@@ -165,6 +165,7 @@ public class BaseKnowledgeSessionBean {
     public static final String DROOLS_SESSION_CONF_PATH="/META-INF/drools.session.conf";
     public static final String DROOLS_SESSION_TEMPLATE_PATH="drools.session.template.path";
     public static final String DROOLS_WORK_ITEM_HANDLERS = "drools.workItemHandlers";
+    public static final String USE_IN_MEMORY_KNOWLEDGE_SESSION = "use.in.memory.knowledge.session";
     
     protected Logger log = Logger.getLogger(BaseKnowledgeSessionBean.class);
     protected String droolsResourceScannerInterval = "30";
@@ -190,6 +191,7 @@ public class BaseKnowledgeSessionBean {
     private int sessionTemplateInstantiationAttempts = 0;
     private Object templateStringLockObj = new Object();
     private Object sessionTemplateInstantiationLock = new Object();
+    protected boolean useInMemoryKnowledgeSession = Boolean.parseBoolean(System.getProperty(USE_IN_MEMORY_KNOWLEDGE_SESSION, "FALSE"));
     
     /* static variable because :
      *   1)  TaskService is a thread-safe object
@@ -266,6 +268,8 @@ public class BaseKnowledgeSessionBean {
          logBuilder.append(kAgentRefreshHours);
          logBuilder.append("\n\tuseJPAPlaceholderResolverStrategy = ");
          logBuilder.append(useJPAPlaceholderResolverStrategy);
+         logBuilder.append("\n\tuseInMemoryKnowledgeSession = ");
+         logBuilder.append(useInMemoryKnowledgeSession);
          log.info(logBuilder.toString());
     
     }
@@ -802,8 +806,8 @@ public class BaseKnowledgeSessionBean {
  * *************    ProcessEventListener Management                  *********/    
     
     // listens for agenda changes like rules being activated, fired, cancelled, etc
-    protected void addAgendaEventListener(Object ksession) {
-        final org.drools.event.AgendaEventListener agendaEventListener = new org.drools.event.AgendaEventListener() {
+    protected void addAgendaEventListener(StatefulKnowledgeSession ksession) {
+        final org.drools.event.rule.AgendaEventListener agendaEventListener = new org.drools.event.rule.DefaultAgendaEventListener() {
             public void activationCreated(ActivationCreatedEvent event, WorkingMemory workingMemory){
             }
             public void activationCancelled(ActivationCancelledEvent event, WorkingMemory workingMemory){
@@ -826,9 +830,11 @@ public class BaseKnowledgeSessionBean {
             public void afterRuleFlowGroupDeactivated(RuleFlowGroupDeactivatedEvent event,  WorkingMemory workingMemory) {
             }
         };
-        ((StatefulKnowledgeSessionImpl)  ((KnowledgeCommandContext) ((CommandBasedStatefulKnowledgeSession) ksession)
-                    .getCommandService().getContext()).getStatefulKnowledgesession() )
-                    .session.addEventListener(agendaEventListener);
+        //((StatefulKnowledgeSessionImpl)  ((KnowledgeCommandContext) ((CommandBasedStatefulKnowledgeSession) ksession)
+        //          .getCommandService().getContext()).getStatefulKnowledgesession() )
+        //            .session.addEventListener(agendaEventListener);
+        ksession.addEventListener(agendaEventListener);
+        
     }
     
     

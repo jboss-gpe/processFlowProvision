@@ -36,9 +36,7 @@ import javax.persistence.Query;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.drools.SystemEventListenerFactory;
-import org.drools.core.util.DelegatingSystemEventListener;
 import org.drools.KnowledgeBaseFactory;
-import org.drools.agent.impl.PrintStreamSystemEventListener;
 import org.drools.command.SingleSessionCommandService;
 import org.drools.command.impl.CommandBasedStatefulKnowledgeSession;
 import org.drools.event.process.ProcessCompletedEvent;
@@ -61,14 +59,9 @@ import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.jbpm.workflow.instance.WorkflowProcessInstanceUpgrader;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.jbpm.workflow.instance.node.SubProcessNodeInstance;
-import org.jbpm.integration.console.shared.GuvnorConnectionUtils;
 import org.jbpm.task.admin.TaskCleanUpProcessEventListener;
 import org.jbpm.task.admin.TasksAdmin;
-import org.jboss.processFlow.bam.IBAMService;
 import org.jboss.processFlow.knowledgeService.IKnowledgeSession;
-import org.jboss.processFlow.tasks.ITaskService;
-import org.jboss.processFlow.util.LogSystemEventListener;
-import org.jboss.processFlow.util.CMTDisposeCommand;
 
 /**
  *<pre>
@@ -100,21 +93,24 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
     @PostConstruct
     public void start() throws Exception {
         super.start();
-        StringBuilder sqlBuilder = new StringBuilder();
-        sqlBuilder.append("FROM SessionInfo p ");
-        EntityManager eManager = jbpmCoreEMF.createEntityManager();
-        Query processInstanceQuery = eManager.createQuery(sqlBuilder.toString());
-        List<SessionInfo> results = processInstanceQuery.getResultList();
-        if(results.size() == 0){
-            ksession = makeStatefulKnowledgeSession();
-        }else if(results.size() > 1){
-            throw new RuntimeException("start() currently " +results.size()+" # of sessionInfo records when only 1 is allowed");
-        }else{
-            SessionInfo sInfoObj = (SessionInfo)results.get(0);
-            loadStatefulKnowledgeSession(sInfoObj.getId());                
+        if(!useInMemoryKnowledgeSession){
+            StringBuilder sqlBuilder = new StringBuilder();
+            sqlBuilder.append("FROM SessionInfo p ");
+            EntityManager eManager = jbpmCoreEMF.createEntityManager();
+            Query processInstanceQuery = eManager.createQuery(sqlBuilder.toString());
+            List<SessionInfo> results = processInstanceQuery.getResultList();
+            if(results.size() == 0){
+                ksession = makeStatefulKnowledgeSession();
+            }else if(results.size() > 1){
+                throw new RuntimeException("start() currently " +results.size()+" # of sessionInfo records when only 1 is allowed");
+            }else{
+                SessionInfo sInfoObj = (SessionInfo)results.get(0);
+                loadStatefulKnowledgeSession(sInfoObj.getId());                
+            }
+            addExtrasToStatefulKnowledgeSession();
         }
-        addExtrasToStatefulKnowledgeSession();
     }
+    
   
     @PreDestroy 
     public void stop() throws Exception{
@@ -139,6 +135,12 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
 /******************************************************************************
  *************        StatefulKnowledgeSession Management               *********/
 
+    private void createInMemorySession() {
+        // 1) instantiate a KnowledgeBase via query to guvnor or kbuilder
+        createOrRebuildKnowledgeBaseViaKnowledgeAgentOrBuilder();
+        ksession = kbase.newStatefulKnowledgeSession();
+        addExtrasToStatefulKnowledgeSession();
+    }
     /*
         -- this method is invoked by numerous methods such as 'completeWorkItem' and 'abortProcessInstance'
         -- seems that there needs to be verification that StatefuleKnowledgeSession object corresponding to the ksession isn't already in use
@@ -284,7 +286,7 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
             KnowledgeRuntimeLoggerFactory.newFileLogger(ksession, sBuilder.toString());
         }
 
-        SingleSessionCommandService ssCommandService = (SingleSessionCommandService) ((CommandBasedStatefulKnowledgeSession)ksession).getCommandService();
+        //SingleSessionCommandService ssCommandService = (SingleSessionCommandService) ((CommandBasedStatefulKnowledgeSession)ksession).getCommandService();
     }
 
     public String dumpSessionStatusInfo() {
@@ -320,6 +322,8 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
      */
     public Map<String, Object> startProcessAndReturnId(String processId, Map<String, Object> parameters) {
         StringBuilder sBuilder = new StringBuilder();
+        if(ksession == null)
+            this.createInMemorySession();
         Integer ksessionId = ksession.getId();
         Map<String, Object> returnMap = new HashMap<String, Object>();
         try {
@@ -359,6 +363,8 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
      */
     public void completeWorkItem(Long workItemId, Map<String, Object> pInstanceVariables, Long pInstanceId, Integer ksessionId) {
         try {
+            if(ksession == null)
+                this.createInMemorySession();
             ksession.getWorkItemManager().completeWorkItem(workItemId, pInstanceVariables);
         } catch(RuntimeException x) {
             throw x;
@@ -369,6 +375,8 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
 
     public int signalEvent(String signalType, Object signalValue, Long processInstanceId, Integer ksessionId) {
         try {
+            if(ksession == null)
+                this.createInMemorySession();
             if(enableLog)
                 log.info("signalEvent() \n\tksession = "+ksessionId+"\n\tprocessInstanceId = "+processInstanceId+"\n\tsignalType="+signalType+"\n\tsignalValue="+signalValue);
             ProcessInstance pInstance = ksession.getProcessInstance(processInstanceId);
@@ -385,6 +393,8 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
 
     public void abortProcessInstance(Long processInstanceId, Integer ksessionId) {
         try{
+            if(ksession == null)
+                this.createInMemorySession();
             uTrnx.begin();
             ksession.abortProcessInstance(processInstanceId);
             uTrnx.commit();
@@ -413,6 +423,8 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
     
     public Map<String, Object> getActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId) {
         try {
+            if(ksession == null)
+                this.createInMemorySession();
             ProcessInstance processInstance = ksession.getProcessInstance(processInstanceId);
             if (processInstance != null) {
                 Map<String, Object> variables = ((WorkflowProcessInstanceImpl) processInstance).getVariables();
@@ -438,6 +450,8 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
 
     public void setProcessInstanceVariables(Long processInstanceId, Map<String, Object> variables, Integer ksessionId) {
         try {
+            if(ksession == null)
+                this.createInMemorySession();
             ProcessInstance processInstance = ksession.getProcessInstance(processInstanceId);
             if (processInstance != null) {
                 VariableScopeInstance variableScope = (VariableScopeInstance)((org.jbpm.process.instance.ProcessInstance) processInstance).getContextInstance(VariableScope.VARIABLE_SCOPE);

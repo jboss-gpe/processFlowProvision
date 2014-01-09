@@ -57,6 +57,7 @@ batch
 /server-group=${pfp.core.group}/system-property=org.jboss.processFlow.task.enableIntelligentMapping/:add(value=${org.jboss.processFlow.task.enableIntelligentMapping},boot-time=true)
 /server-group=${pfp.core.group}/system-property=org.jboss.processFlow.kAgentMonitor/:add(value=${org.jboss.processFlow.kAgentMonitor},boot-time=true)
 /server-group=${pfp.core.group}/system-property=org.jboss.processFlow.kAgentRefreshHours/:add(value=${org.jboss.processFlow.kAgentRefreshHours},boot-time=true)
+/server-group=${pfp.core.group}/system-property=use.in.memory.knowledge.session/:add(value=${use.in.memory.knowledge.session},boot-time=true)
 
 /server-group=${pfp.core.group}/system-property=org.jboss.processFlow.KnowledgeSessionPool/:add(value=${org.jboss.processFlow.KnowledgeSessionPool},boot-time=true)
 /server-group=${pfp.core.group}/system-property=org.jboss.processFlow.statefulKnowledge.enableKnowledgeRuntimeLogger/:add(value=${org.jboss.processFlow.statefulKnowledge.enableKnowledgeRuntimeLogger},boot-time=true)
