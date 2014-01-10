@@ -21,9 +21,26 @@
 	</modules>
 
 	<properties>
+		<!-- Hibernate settings. -->
+		<!-- We expect these settings to be set on the deployment platform (e.g. JBoss EAP) instead of during the build. -->
+		<!-- 
+		<hibernate.dialect>org.hibernate.dialect.PostgreSQLDialect</hibernate.dialect>
+		<hibernate.hbm2ddl.auto>create</hibernate.hbm2ddl.auto>
+		<hibernate.show.sql>false</hibernate.show.sql>
+		<hibernate.jdbc.batch_size>1</hibernate.jdbc.batch_size>
+		<hibernate.cache.use_second_level_cache>false</hibernate.cache.use_second_level_cache>
+		 -->
 		
-		
+		<!-- KSession Management Strategy implementation. -->
+		<org.jboss.processFlow.ksession.mgmt.strategy.impl.class>org.jboss.processFlow.knowledgeService.SessionPerPInstanceBean</org.jboss.processFlow.ksession.mgmt.strategy.impl.class>
+		<!-- RAR -->
+		<org.jboss.processFlow.rar.name>hornetq-ra.rar</org.jboss.processFlow.rar.name>
+		<!-- EJB Receivers. Outbound EJB calls. -->
+		<org.jboss.processFlow.remoting.ha.group.ejb.receiver></org.jboss.processFlow.remoting.ha.group.ejb.receiver>
+		<!-- jBPM UserGroupCallback -->
+		<jbpm.usergroup.callback>org.jboss.processFlow.tasks.PFPUserGroupCallback</jbpm.usergroup.callback>
 	</properties>
+	
 	<dependencyManagement>
 		<!-- Project Dependencies. -->
 		<dependencies>
