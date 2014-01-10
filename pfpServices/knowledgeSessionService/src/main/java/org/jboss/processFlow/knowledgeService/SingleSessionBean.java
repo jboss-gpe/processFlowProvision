@@ -84,6 +84,7 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
 
     private Logger log = Logger.getLogger(SingleSessionBean.class);
     private StatefulKnowledgeSession ksession;
+    private Object lockObj = new Object();
 
     @Inject
     private AsyncBAMProducerPool bamProducerPool;
@@ -93,22 +94,6 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
     @PostConstruct
     public void start() throws Exception {
         super.start();
-        if(!useInMemoryKnowledgeSession){
-            StringBuilder sqlBuilder = new StringBuilder();
-            sqlBuilder.append("FROM SessionInfo p ");
-            EntityManager eManager = jbpmCoreEMF.createEntityManager();
-            Query processInstanceQuery = eManager.createQuery(sqlBuilder.toString());
-            List<SessionInfo> results = processInstanceQuery.getResultList();
-            if(results.size() == 0){
-                ksession = makeStatefulKnowledgeSession();
-            }else if(results.size() > 1){
-                throw new RuntimeException("start() currently " +results.size()+" # of sessionInfo records when only 1 is allowed");
-            }else{
-                SessionInfo sInfoObj = (SessionInfo)results.get(0);
-                loadStatefulKnowledgeSession(sInfoObj.getId());                
-            }
-            addExtrasToStatefulKnowledgeSession();
-        }
     }
     
   
@@ -135,12 +120,34 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
 /******************************************************************************
  *************        StatefulKnowledgeSession Management               *********/
 
-    private void createInMemorySession() {
-        // 1) instantiate a KnowledgeBase via query to guvnor or kbuilder
-        createOrRebuildKnowledgeBaseViaKnowledgeAgentOrBuilder();
-        ksession = kbase.newStatefulKnowledgeSession();
-        addExtrasToStatefulKnowledgeSession();
+    private void getStatefulKnowledgeSession() {
+        synchronized(lockObj) {
+            if(ksession != null)
+                return;
+
+            if(!useInMemoryKnowledgeSession){
+                StringBuilder sqlBuilder = new StringBuilder();
+                sqlBuilder.append("FROM SessionInfo p ");
+                EntityManager eManager = jbpmCoreEMF.createEntityManager();
+                Query processInstanceQuery = eManager.createQuery(sqlBuilder.toString());
+                List<SessionInfo> results = processInstanceQuery.getResultList();
+                if(results.size() == 0){
+                    ksession = makeStatefulKnowledgeSession();
+                }else if(results.size() > 1){
+                    throw new RuntimeException("start() currently " +results.size()+" # of sessionInfo records when only 1 is allowed");
+                }else{
+                    SessionInfo sInfoObj = (SessionInfo)results.get(0);
+                    loadStatefulKnowledgeSession(sInfoObj.getId());                
+                }
+                addExtrasToStatefulKnowledgeSession();
+            }else{
+                createOrRebuildKnowledgeBaseViaKnowledgeAgentOrBuilder();
+                ksession = kbase.newStatefulKnowledgeSession();
+                addExtrasToStatefulKnowledgeSession();
+            }
+        }
     }
+
     /*
         -- this method is invoked by numerous methods such as 'completeWorkItem' and 'abortProcessInstance'
         -- seems that there needs to be verification that StatefuleKnowledgeSession object corresponding to the ksession isn't already in use
@@ -323,7 +330,7 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
     public Map<String, Object> startProcessAndReturnId(String processId, Map<String, Object> parameters) {
         StringBuilder sBuilder = new StringBuilder();
         if(ksession == null)
-            this.createInMemorySession();
+            this.getStatefulKnowledgeSession();
         Integer ksessionId = ksession.getId();
         Map<String, Object> returnMap = new HashMap<String, Object>();
         try {
@@ -364,7 +371,7 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
     public void completeWorkItem(Long workItemId, Map<String, Object> pInstanceVariables, Long pInstanceId, Integer ksessionId) {
         try {
             if(ksession == null)
-                this.createInMemorySession();
+                this.getStatefulKnowledgeSession();
             ksession.getWorkItemManager().completeWorkItem(workItemId, pInstanceVariables);
         } catch(RuntimeException x) {
             throw x;
@@ -376,7 +383,7 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
     public int signalEvent(String signalType, Object signalValue, Long processInstanceId, Integer ksessionId) {
         try {
             if(ksession == null)
-                this.createInMemorySession();
+                this.getStatefulKnowledgeSession();
             if(enableLog)
                 log.info("signalEvent() \n\tksession = "+ksessionId+"\n\tprocessInstanceId = "+processInstanceId+"\n\tsignalType="+signalType+"\n\tsignalValue="+signalValue);
             ProcessInstance pInstance = ksession.getProcessInstance(processInstanceId);
@@ -394,7 +401,7 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
     public void abortProcessInstance(Long processInstanceId, Integer ksessionId) {
         try{
             if(ksession == null)
-                this.createInMemorySession();
+                this.getStatefulKnowledgeSession();
             uTrnx.begin();
             ksession.abortProcessInstance(processInstanceId);
             uTrnx.commit();
@@ -424,7 +431,7 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
     public Map<String, Object> getActiveProcessInstanceVariables(Long processInstanceId, Integer ksessionId) {
         try {
             if(ksession == null)
-                this.createInMemorySession();
+                this.getStatefulKnowledgeSession();
             ProcessInstance processInstance = ksession.getProcessInstance(processInstanceId);
             if (processInstance != null) {
                 Map<String, Object> variables = ((WorkflowProcessInstanceImpl) processInstance).getVariables();
@@ -451,7 +458,7 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
     public void setProcessInstanceVariables(Long processInstanceId, Map<String, Object> variables, Integer ksessionId) {
         try {
             if(ksession == null)
-                this.createInMemorySession();
+                this.getStatefulKnowledgeSession();
             ProcessInstance processInstance = ksession.getProcessInstance(processInstanceId);
             if (processInstance != null) {
                 VariableScopeInstance variableScope = (VariableScopeInstance)((org.jbpm.process.instance.ProcessInstance) processInstance).getContextInstance(VariableScope.VARIABLE_SCOPE);
