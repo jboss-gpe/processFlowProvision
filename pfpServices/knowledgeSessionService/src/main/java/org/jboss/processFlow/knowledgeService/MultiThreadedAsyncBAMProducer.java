@@ -175,15 +175,24 @@ public class MultiThreadedAsyncBAMProducer extends DefaultProcessEventListener {
     }
 
     private void sendBAMEvent(int logEventType, Serializable logObj) throws JMSException, IOException {
-        Session sessionObj = this.connectObj.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageProducer pObj = sessionObj.createProducer(dQueue);
-        BytesMessage bMessage = sessionObj.createBytesMessage();
-        if (logObj != null) {
-            bMessage.writeBytes(marshall(logObj));
-        }
-        bMessage.setIntProperty(LOG_EVENT_TYPE, logEventType);
+        Session sessionObj = null;
+        MessageProducer pObj = null;
+        try {
+            sessionObj = this.connectObj.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            pObj = sessionObj.createProducer(dQueue);
+            BytesMessage bMessage = sessionObj.createBytesMessage();
+            if (logObj != null) {
+                bMessage.writeBytes(marshall(logObj));
+            }
+            bMessage.setIntProperty(LOG_EVENT_TYPE, logEventType);
 
-        pObj.send(bMessage);
+            pObj.send(bMessage);
+        }finally {
+            if(pObj != null)
+                pObj.close();
+            if(sessionObj != null)
+                sessionObj.close();
+        }
     }
 
     private byte[] marshall(Object obj) throws IOException {
