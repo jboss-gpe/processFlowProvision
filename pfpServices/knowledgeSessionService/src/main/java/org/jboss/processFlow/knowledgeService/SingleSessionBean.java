@@ -241,21 +241,20 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
             ksession.addEventListener(taskCleanUpListener);
         }
 
+        // set an AsyncBamProducer that works in a multithreaded environment
+        MultiThreadedAsyncBAMProducer bamProducer = new MultiThreadedAsyncBAMProducer();
+        ksession.addEventListener(bamProducer);
        
         // 5)  register any other process event listeners specified via configuration
         // TO_DO:  refactor using mvel. ie:  jbpm-gwt/jbpm-gwt-console-server/src/main/resources/default.session.template
-        AsyncBAMProducer bamProducer= null;
         if(processEventListeners != null) {
             for(String peString : processEventListeners) {
                 try {
-                    Class peClass = Class.forName(peString);
-                    ProcessEventListener peListener = (ProcessEventListener)peClass.newInstance();
-                    if(IKnowledgeSession.ASYNC_BAM_PRODUCER.equals(peListener.getClass().getName())){
-                        bamProducer = (AsyncBAMProducer)peListener;
-                        BAMProducerWrapper pWrapper = bamProducerPool.borrowObject();
-                        bamProducer.setBAMProducerWrapper(pWrapper);
-                    }
-                    ksession.addEventListener(peListener);
+                	if(StringUtils.isNotEmpty(peString)){
+                		Class peClass = Class.forName(peString);
+                		ProcessEventListener peListener = (ProcessEventListener)peClass.newInstance();
+                		ksession.addEventListener(peListener);
+                	}
                 } catch(Exception x) {
                     throw new RuntimeException(x);
                 }

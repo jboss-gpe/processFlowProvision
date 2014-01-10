@@ -61,7 +61,7 @@ batch
 
 /server-group=${pfp.core.group}/system-property=org.jboss.processFlow.KnowledgeSessionPool/:add(value=${org.jboss.processFlow.KnowledgeSessionPool},boot-time=true)
 /server-group=${pfp.core.group}/system-property=org.jboss.processFlow.statefulKnowledge.enableKnowledgeRuntimeLogger/:add(value=${org.jboss.processFlow.statefulKnowledge.enableKnowledgeRuntimeLogger},boot-time=true)
-/server-group=${pfp.core.group}/system-property=space.delimited.process.event.listeners/:add(value=${space.delimited.process.event.listeners},boot-time=true)
+/server-group=${pfp.core.group}/system-property=space.delimited.process.event.listeners/:add(value="${space.delimited.process.event.listeners}",boot-time=true)
 /server-group=${pfp.core.group}/system-property=task.clean.up.process.event.listener.impl/:add(value=${task.clean.up.process.event.listener.impl},boot-time=true)
 /server-group=${pfp.core.group}/system-property=org.jboss.processFlow.drools.resource.scanner.interval/:add(value="${org.jboss.processFlow.drools.resource.scanner.interval}",boot-time=true)
 /server-group=${pfp.core.group}/system-property=org.jboss.processFlow.space.delimited.change.set.urls/:add(value="${org.jboss.processFlow.space.delimited.change.set.urls}",boot-time=true)
