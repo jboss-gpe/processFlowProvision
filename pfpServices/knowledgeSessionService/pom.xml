@@ -29,10 +29,10 @@
 		</dependency>
 		<!-- Specification Dependencies. -->
 		<dependency>
-				<groupId>javax.enterprise</groupId>
- 	  			<artifactId>cdi-api</artifactId>
- 	  	</dependency>
- 	  	<dependency>
+			<groupId>javax.enterprise</groupId>
+			<artifactId>cdi-api</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.hibernate.javax.persistence.</groupId>
 			<artifactId>hibernate-jpa-2.0-api</artifactId>
 		</dependency>
@@ -42,8 +42,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.spec.javax.ws.rs</groupId>
-  			<artifactId>jboss-jaxrs-api_1.1_spec</artifactId>
-  		</dependency>
+			<artifactId>jboss-jaxrs-api_1.1_spec</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.jboss.spec.javax.jms</groupId>
 			<artifactId>jboss-jms-api_1.1_spec</artifactId>
@@ -72,9 +72,9 @@
 		</dependency>
 		<dependency>
 			<groupId>org.drools</groupId>
-  			<artifactId>drools-compiler</artifactId>
-  		</dependency>
-  		<!-- jBPM Dependencies. -->
+			<artifactId>drools-compiler</artifactId>
+		</dependency>
+		<!-- jBPM Dependencies. -->
 		<dependency>
 			<groupId>org.jbpm</groupId>
 			<artifactId>jbpm-bam</artifactId>
@@ -116,7 +116,7 @@
 		</dependency>
 		<dependency>
 			<groupId>commons-lang</groupId>
-  			<artifactId>commons-lang</artifactId>
+			<artifactId>commons-lang</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>commons-pool</groupId>
@@ -124,21 +124,21 @@
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
-  			<artifactId>commons-io</artifactId>
-  		</dependency>
-  		<dependency>
+			<artifactId>commons-io</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.mvel</groupId>
 			<artifactId>mvel2</artifactId>
 		</dependency>
 		<dependency>
-  			<groupId>org.codehaus.jackson</groupId>
-  			<artifactId>jackson-mapper-asl</artifactId>
-  		</dependency>
-  		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.quartz-scheduler</groupId>
 			<artifactId>quartz</artifactId>
 		</dependency>
-  		<dependency>
+		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 		</dependency>
@@ -148,73 +148,83 @@
 			<artifactId>junit</artifactId>
 		</dependency>
 		<!-- Arquillian JUnit integration. -->
-        <dependency>
-        	<groupId>org.jboss.arquillian.junit</groupId>
-        	<artifactId>arquillian-junit-container</artifactId>
-        	<scope>test</scope>
-       	</dependency>
-       	<dependency>
-       		<groupId>org.jboss.as</groupId>
-       		<artifactId>jboss-as-server</artifactId>
-       		<scope>test</scope>
-       	</dependency>
-       	<dependency>
-       		<groupId>org.jboss.osgi.vfs</groupId>
-       		<artifactId>jbosgi-vfs</artifactId>
-       		<scope>test</scope>
-       	</dependency>
-       	<dependency>
-       		<groupId>org.jboss.osgi.spi</groupId>
-    		<artifactId>jbosgi-spi</artifactId>
-    		<scope>test</scope>
-    	</dependency>
-    	<dependency>
-    		<groupId>org.jboss.osgi.deployment</groupId>
-    		<artifactId>jbosgi-deployment</artifactId>
-    		<scope>test</scope>
-    	</dependency>
+		<dependency>
+			<groupId>org.jboss.arquillian.junit</groupId>
+			<artifactId>arquillian-junit-container</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.as</groupId>
+			<artifactId>jboss-as-server</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.osgi.vfs</groupId>
+			<artifactId>jbosgi-vfs</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.osgi.spi</groupId>
+			<artifactId>jbosgi-spi</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.osgi.deployment</groupId>
+			<artifactId>jbosgi-deployment</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
+	</build>
+
 	<profiles>
- 		<profile>
- 			<id>jboss-eap-6.0</id>	
- 			<build>
- 				<resources>
- 					<resource>
- 						<directory>src/main/resources</directory>
- 					</resource>
- 					<resource>
- 						<directory>src/main/eap-6.0-resources</directory>
- 					</resource>
- 				</resources>
- 				<plugins>
- 					<!--  -->
- 					<plugin>
-           				<artifactId>maven-antrun-plugin</artifactId>
-           				<executions>
-             				<execution>
-               					<phase>compile</phase>
-               					<goals>
-                 					<goal>run</goal>
-               					</goals>
-               					<configuration>
-                 					<tasks>
-                 						<replace file="target/classes/META-INF/persistence.xml">
-                         					<replacetoken><![CDATA[<mapping-file>META-INF/JBPMorm.xml</mapping-file>]]></replacetoken>
-                         					<replacevalue><![CDATA[<mapping-file>META-INF/JBPMorm-JPA2.xml</mapping-file>]]></replacevalue>
-                         				</replace>
-                         				<replace file="target/classes/META-INF/persistence.xml">
-                         					<replacetoken><![CDATA[<mapping-file>META-INF/ProcessInstanceInfo.hbm.xml</mapping-file>]]></replacetoken>
-                         					<replacevalue><![CDATA[<!-- <mapping-file>META-INF/ProcessInstanceInfo.hbm.xml</mapping-file> -->]]></replacevalue>
-                         				</replace>
-                         			</tasks>
-               					</configuration>
-             				</execution>
-           				</executions>
-         			</plugin>	
- 				</plugins>	
- 			</build>
- 		</profile>
- 	</profiles>
+		<profile>
+			<id>jboss-eap-6.0</id>
+			<build>
+				<resources>
+					<resource>
+						<directory>src/main/resources</directory>
+						<filtering>true</filtering>
+					</resource>
+					<resource>
+						<directory>src/main/eap-6.0-resources</directory>
+					</resource>
+				</resources>
+				<plugins>
+					<!-- -->
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>compile</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<replace file="target/classes/META-INF/persistence.xml">
+											<replacetoken><![CDATA[<mapping-file>META-INF/JBPMorm.xml</mapping-file>]]></replacetoken>
+											<replacevalue><![CDATA[<mapping-file>META-INF/JBPMorm-JPA2.xml</mapping-file>]]></replacevalue>
+										</replace>
+										<replace file="target/classes/META-INF/persistence.xml">
+											<replacetoken><![CDATA[<mapping-file>META-INF/ProcessInstanceInfo.hbm.xml</mapping-file>]]></replacetoken>
+											<replacevalue><![CDATA[<!-- <mapping-file>META-INF/ProcessInstanceInfo.hbm.xml</mapping-file> -->]]></replacevalue>
+										</replace>
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 </project>
