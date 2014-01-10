@@ -87,7 +87,7 @@ public class BAMService implements IBAMService, MessageListener {
     private @Resource UserTransaction uTrnx;
     private @Resource(name="java:/TransactionManager") TransactionManager tMgr;
 
-    @javax.annotation.Resource(name="java:/ConnectionFactory")
+    @javax.annotation.Resource(name="java:/RemoteConnectionFactory")
     private ConnectionFactory cFactory;
 
     @javax.annotation.Resource(name="java:/queue/processFlow.asyncWorkingMemoryLogger")

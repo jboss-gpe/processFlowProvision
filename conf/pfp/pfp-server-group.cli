@@ -93,6 +93,7 @@ batch
 deploy ${temp.pfp.services.dir}/processFlow-knowledgeSessionService.jar --name=processFlow-knowledgeSessionService.jar --server-groups=${pfp.core.group}
 deploy ${temp.pfp.services.dir}/processFlow-taskService.jar --name=processFlow-taskService.jar --server-groups=${pfp.core.group}
 deploy ${temp.pfp.services.dir}/processFlow-knowledgeSessionService-web.war --name=processFlow-knowledgeSessionService-web.war --server-groups=${pfp.core.group}
+deploy ${temp.pfp.services.dir}/processFlow-bamService.jar --name=processFlow-bamService.jar --server-groups=${pfp.core.group}
 #deploy ${temp.pfp.services.dir}/processFlow-pfpRest-web.war --name=processFlow-pfpRest-web.war --server-groups=${pfp.core.group}
 
 run-batch
