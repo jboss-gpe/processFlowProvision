@@ -65,6 +65,9 @@ import org.drools.definition.KnowledgePackage;
 import org.drools.definition.process.WorkflowProcess;
 import org.drools.definition.process.Node;
 import org.drools.event.*;
+import org.drools.event.process.ProcessEventListener;
+import org.drools.event.rule.AgendaEventListener;
+import org.drools.event.rule.WorkingMemoryEventListener;
 import org.drools.impl.StatefulKnowledgeSessionImpl;
 import org.drools.io.*;
 import org.drools.io.impl.InputStreamResource;
@@ -834,12 +837,9 @@ public class BaseKnowledgeSessionBean {
         if(ksession instanceof CommandBasedStatefulKnowledgeSession) {
             sksImpl = ((StatefulKnowledgeSessionImpl)  ((KnowledgeCommandContext) ((CommandBasedStatefulKnowledgeSession) ksession).getCommandService().getContext()).getStatefulKnowledgesession() );
         }else {
-        	sksImpl = (StatefulKnowledgeSessionImpl)ksession;
+            sksImpl = (StatefulKnowledgeSessionImpl)ksession;
         }
         sksImpl.session.addEventListener(agendaEventListener);
-        
-        //ksession.addEventListener(agendaEventListener);
-        //ksession.getAgendaEventListeners().add(agendaEventListener);
     }
     
     
@@ -861,7 +861,49 @@ public class BaseKnowledgeSessionBean {
         //    make synchronize because under heavy load, appears that underlying SessionInfo.update() breaks with a NPE
         StatefulKnowledgeSession ksession = JPAKnowledgeService.newStatefulKnowledgeSession(kbase, ksConfig, ksEnv);
         return ksession;
-    }  
+    }
+    
+    protected void addExtrasCommon(StatefulKnowledgeSession ksession) {
+
+        // 1) register a configurable WorkItemHandlers with StatefulKnowledgeSession
+        this.registerAddHumanTaskWorkItemHandler(ksession);
+        this.registerSkipHumanTaskWorkItemHandler(ksession);
+        this.registerFailHumanTaskWorkItemHandler(ksession);
+        this.registerEmailWorkItemHandler(ksession);
+        
+        //1.5 register any addition workItemHandlers and eventListeners defined in drools.session.template
+        SessionTemplate sTemplate = newSessionTemplate(ksession);
+        if(sTemplate != null){
+            if(sTemplate.getWorkItemHandlers() != null){
+                for(Map.Entry<String, ?> entry : sTemplate.getWorkItemHandlers().entrySet()){
+                    try {
+                        WorkItemHandler wHandler = (WorkItemHandler)entry.getValue();
+                        ksession.getWorkItemManager().registerWorkItemHandler(entry.getKey(), wHandler);
+                    } catch(Exception x){
+                        throw new RuntimeException("addExtrasToStatefulKnowledgeSession() following exception occurred when registering workItemId = "+entry.getKey()+" : "+x.getLocalizedMessage());
+                    }
+                }
+            }
+            if(sTemplate.getEventListeners() != null){
+                List eListeners = sTemplate.getEventListeners();
+                for(Object eListener : eListeners) {
+                    Object eObj = MVEL.eval((String)eListener);
+                    if(eObj instanceof AgendaEventListener){
+                        ksession.addEventListener((AgendaEventListener)eObj);
+                    }else if(eObj instanceof WorkingMemoryEventListener) {
+                        ksession.addEventListener((WorkingMemoryEventListener)eObj);
+                    }else if(eObj instanceof ProcessEventListener) {
+                        ksession.addEventListener((ProcessEventListener)eObj);
+                    }else{
+                        log.error("addExtrasToStatefulKnowledgeSession() invalid eventListener : "+eListener);
+                    }
+                }
+            }
+        }
+        
+        // 2)  add agendaEventListener to knowledge session to notify knowledge session of various rules events
+        addAgendaEventListener(ksession);
+    }
     
     
     /******************************************************************************

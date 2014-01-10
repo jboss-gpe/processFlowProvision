@@ -139,12 +139,11 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
                     SessionInfo sInfoObj = (SessionInfo)results.get(0);
                     loadStatefulKnowledgeSession(sInfoObj.getId());                
                 }
-                addExtrasToStatefulKnowledgeSession();
             }else{
                 createOrRebuildKnowledgeBaseViaKnowledgeAgentOrBuilder();
                 ksession = kbase.newStatefulKnowledgeSession();
-                addExtrasToStatefulKnowledgeSession();
             }
+            addExtrasToStatefulKnowledgeSession();
         }
     }
 
@@ -172,28 +171,7 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
 
     private void addExtrasToStatefulKnowledgeSession() {
 
-        // 1) register a configurable WorkItemHandlers with StatefulKnowledgeSession
-        this.registerAddHumanTaskWorkItemHandler(ksession);
-        this.registerSkipHumanTaskWorkItemHandler(ksession);
-        this.registerFailHumanTaskWorkItemHandler(ksession);
-        this.registerEmailWorkItemHandler(ksession);
-        
-        //1.5 register any additional workItemHandlers defined in drools.session.template
-        SessionTemplate sTemplate = newSessionTemplate(ksession);
-        if(sTemplate != null){
-            for(Map.Entry<String, ?> entry : sTemplate.getWorkItemHandlers().entrySet()){
-                try {
-                    WorkItemHandler wHandler = (WorkItemHandler)entry.getValue();
-                    ksession.getWorkItemManager().registerWorkItemHandler(entry.getKey(), wHandler);
-                } catch(Exception x){
-                    throw new RuntimeException("addExtrasToStatefulKnowledgeSession() following exception occurred when registering workItemId = "+entry.getKey()+" : "+x.getLocalizedMessage());
-                }
-            }
-        }
-        
-            
-        // 2)  add agendaEventListener to knowledge session to notify knowledge session of various rules events
-        addAgendaEventListener(ksession);
+        addExtrasCommon(ksession);
 
         // 3)  add 'busySessions' ProcessEventListener to knowledgesession to assist in maintaining 'busySessions' state
         final ProcessEventListener busySessionsListener = new ProcessEventListener() {
@@ -292,8 +270,6 @@ public class SingleSessionBean extends BaseKnowledgeSessionBean implements IKnow
             sBuilder.append(ksession.getId());
             KnowledgeRuntimeLoggerFactory.newFileLogger(ksession, sBuilder.toString());
         }
-
-        //SingleSessionCommandService ssCommandService = (SingleSessionCommandService) ((CommandBasedStatefulKnowledgeSession)ksession).getCommandService();
     }
 
     public String dumpSessionStatusInfo() {
