@@ -39,6 +39,16 @@
 		<org.jboss.processFlow.remoting.ha.group.ejb.receiver></org.jboss.processFlow.remoting.ha.group.ejb.receiver>
 		<!-- jBPM UserGroupCallback -->
 		<jbpm.usergroup.callback>org.jboss.processFlow.tasks.PFPUserGroupCallback</jbpm.usergroup.callback>
+		<!-- Specify some dependency versions here, because we override some of these versions in our BRMS profile.
+			The reason for this is that, due to some changes in Drools between community version 5.3.1 and the BRMS version 5.3.1.BRMS-P03,
+			we need to compile PFP against the same library version as the library version we're using at runtime.
+			I.e., if the runtime uses 'drools-core-5.3.1.BRMS-P03', we need to compile against this version as well.
+			By default PFP compiles against the Drools community version 5.3.1.
+		 -->
+		 <version.org.drools:knowledge-api>5.3.1.Final</version.org.drools:knowledge-api>
+		 <version.org.drools:drools-core>5.3.1.Final</version.org.drools:drools-core>
+		 <version.org.drools:drools-compiler>5.3.1.Final</version.org.drools:drools-compiler>
+		 <version.org.drools:drools-persistence-jpa>5.3.1.Final</version.org.drools:drools-persistence-jpa>
 	</properties>
 	
 	<dependencyManagement>
@@ -193,7 +203,7 @@
 				<!-- 
 				<version>5.3.1.BRMS-P02</version>
 				 -->
-				 <version>5.3.1.Final</version>
+				 <version>${version.org.drools:knowledge-api}</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -202,16 +212,7 @@
 				<!-- 
 				<version>5.3.1.BRMS-P03</version>
 				 -->
-				 <version>5.3.1.Final</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.drools</groupId>
-				<artifactId>drools-persistence-jpa</artifactId>
-				<!-- 
-				<version>5.3.1.BRMS-P02</version>
-				-->
-				<version>5.3.1.Final</version>
+				 <version>${version.org.drools:drools-core}</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -220,9 +221,19 @@
 				<!--
   				<version>5.3.1.BRMS-P03</version>
 				-->
-				<version>5.3.1.Final</version>
+				<version>${version.org.drools:drools-compiler}</version>
   				<scope>provided</scope>
 			</dependency>
+			<dependency>
+				<groupId>org.drools</groupId>
+				<artifactId>drools-persistence-jpa</artifactId>
+				<!-- 
+				<version>5.3.1.BRMS-P02</version>
+				-->
+				<version>${version.org.drools:drools-persistence-jpa}</version>
+				<scope>provided</scope>
+			</dependency>
+			
 			<!-- jBPM Dependencies. -->
 			<dependency>
 				<groupId>org.jbpm</groupId>
@@ -472,4 +483,17 @@
 			</plugins>
 		</pluginManagement>
 	</build>
+	<profiles>
+		<profile>
+			<id>BRMS</id>
+			<properties>
+				<version.org.drools:knowledge-api>5.3.1.BRMS-P02</version.org.drools:knowledge-api>
+		 		<version.org.drools:drools-core>5.3.1.BRMS-P03</version.org.drools:drools-core>
+		 		<version.org.drools:drools-compiler>5.3.1.BRMS-P03</version.org.drools:drools-compiler>
+		 		<version.org.drools:drools-persistence-jpa>5.3.1.BRMS-P02</version.org.drools:drools-persistence-jpa>
+			</properties>	
+		</profile>
+	</profiles>
+	
+	
 </project>
