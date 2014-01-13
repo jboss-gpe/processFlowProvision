@@ -34,8 +34,9 @@
 		<extension module="org.jboss.as.weld" />
 	</extensions>
 
-        <!-- JA Bride :  added system properties -->
-        <system-properties>
+	<!-- JA Bride :  added system properties -->	
+	<system-properties>
+       <property name="org.apache.coyote.http11.Http11Protocol.COMPRESSION" value="on"/>
             <property name="organization.name" value="${organization.name}"/>
             <property name="org.jboss.enableLog" value="${org.jboss.enableLog}"/>
             <property name="org.jboss.processFlow.task.transactionType" value="${org.jboss.processFlow.task.transactionType}"/>
@@ -58,10 +59,9 @@
             <property name="hibernate.show_sql" value="${hibernate.show_sql}"/>
             <property name="jbpm.conf.dir" value="${jbpm.conf.dir}"/>
             <property name="drools.session.template.path" value="${openshift.drools.session.template.path}"/>
-        </system-properties>
+    </system-properties>
 
-
-        <!-- JA Bride -->
+	<!-- JA Bride -->
         <paths>
             <path path="${openshift.pfpcore.config.dir}/" name="pfpConfigDir"/>
         </paths>
@@ -105,14 +105,11 @@
 				<file relative-to="jboss.server.log.dir" path="server.log" />
 				<suffix value=".yyyy-MM-dd" />
 
-                                <!-- JA Bride :  switched to false and added TRACE -->
+				<!-- JA Bride :  switched to false and added TRACE -->
                                 <append value="false" />
                                 <level name="TRACE"/>
 
 			</periodic-rotating-file-handler>
-                        <logger category="org.apache.jackrabbit.core.TransientRepository" use-parent-handlers="true">
-                            <level name="WARN"/>
-                        </logger>
 			<logger category="com.arjuna">
 				<level name="WARN" />
 			</logger>
@@ -140,8 +137,7 @@
 		<subsystem xmlns="urn:jboss:domain:configadmin:1.0" />
 		<subsystem xmlns="urn:jboss:domain:datasources:1.1">
 			<datasources>
-                                <!-- JA Bride :  changed name of H2 datasource to support experimental jbpm5  -->
-				<datasource jndi-name="java:jboss/datasources/jbpmDS"
+				<datasource jndi-name="java:jboss/datasources/ExampleDS"
 					enabled="true" use-java-context="true" pool-name="H2DS">
 					<connection-url>jdbc:h2:${jboss.server.data.dir}/test;DB_CLOSE_DELAY=-1
 					</connection-url>
@@ -152,17 +148,23 @@
 					</security>
 				</datasource>
 				<datasource jndi-name="java:jboss/datasources/MysqlDS"
-					enabled="false" use-java-context="true" pool-name="MysqlDS">
-					<connection-url>jdbc:mysql://${env.OPENSHIFT_POSTGRESQL_DB_HOST}:${env.OPENSHIFT_POSTGRESQL_DB_PORT}/pfpcore
+					enabled="false" use-java-context="true" pool-name="MysqlDS"
+					use-ccm="true">
+					<connection-url>jdbc:mysql://${env.OPENSHIFT_MYSQL_DB_HOST}:${env.OPENSHIFT_MYSQL_DB_PORT}/pfpcore
 					</connection-url>
 					<driver>mysql</driver>
 					<security>
-						<user-name>${env.OPENSHIFT_POSTGRESQL_DB_USERNAME}</user-name>
-						<password>${env.OPENSHIFT_POSTGRESQL_DB_PASSWORD}</password>
+						<user-name>${env.OPENSHIFT_MYSQL_DB_USERNAME}</user-name>
+						<password>${env.OPENSHIFT_MYSQL_DB_PASSWORD}</password>
 					</security>
 					<validation>
-                      <check-valid-connection-sql>SELECT 1</check-valid-connection-sql>
+                    	<check-valid-connection-sql>SELECT 1</check-valid-connection-sql>
+                    	<background-validation>true</background-validation>
                 	</validation>
+                	<pool>
+						<flush-strategy>IdleConnections</flush-strategy>
+						<allow-multiple-users/>
+					</pool>
 				</datasource>
 				<datasource jndi-name="java:jboss/datasources/PostgreSQLDS"
 					enabled="false" use-java-context="true" pool-name="PostgreSQLDS"
@@ -175,10 +177,15 @@
 						<password>${env.OPENSHIFT_POSTGRESQL_DB_PASSWORD}</password>
 					</security>
 					<validation>
-                      <check-valid-connection-sql>SELECT 1</check-valid-connection-sql>
+                    	<check-valid-connection-sql>SELECT 1</check-valid-connection-sql>
+                    	<background-validation>true</background-validation>
                 	</validation>
+                	<pool>
+						<flush-strategy>IdleConnections</flush-strategy>
+						<allow-multiple-users/>
+					</pool>
 				</datasource>
-                                <!-- JA Bride :  change jndi name and set pool settings -->
+				<!-- JA Bride :  change jndi name and set pool settings -->
                                 <datasource jndi-name="java:jboss/datasources/jbpm-core-cp"
                                         enabled="true" use-java-context="true" pool-name="jbpm-core-cp"
                                         use-ccm="true">
@@ -216,7 +223,7 @@
                       <check-valid-connection-sql>SELECT 1</check-valid-connection-sql>
                         </validation>
                                 </datasource>
-                                <datasource jndi-name="java:/global/guvnor-cp"
+				<datasource jndi-name="java:/global/guvnor-cp"
                                         enabled="true" use-java-context="true" pool-name="guvnor-cp"
                                         use-ccm="true">
                                         <connection-url>jdbc:postgresql://${env.OPENSHIFT_POSTGRESQL_DB_HOST}:${env.OPENSHIFT_POSTGRESQL_DB_PORT}/guvnor
@@ -310,7 +317,7 @@
 			</thread-pools>
 			<iiop enable-by-default="false" use-qualified-name="false" />
 
-                        <!-- JA Bride:   invm calls should be pass by reference -->
+			<!-- JA Bride:   invm calls should be pass by reference -->
                         <in-vm-remote-interface-invocation pass-by-value="true"/>
 		</subsystem>
 		<subsystem xmlns="urn:jboss:domain:infinispan:1.3">
@@ -405,15 +412,16 @@
 			default-stack="tcp">
 			<stack name="tcp">
 				<transport type="TCP" socket-binding="jgroups-tcp">
-					<property name="external_addr">${env.OPENSHIFT_GEAR_DNS}</property>
+					<property name="external_addr">pfpcore-apsp02.rhcloud.com</property>
 					<property name="external_port">7600
 					</property>
 					<property name="bind_port">7600</property>
-					<property name="bind_addr">${env.OPENSHIFT_INTERNAL_IP}</property>
+					<property name="bind_addr">127.5.35.1</property>
+					<property name="defer_client_bind_addr">true</property>
 				</transport>
 				<protocol type="TCPPING">
 					<property name="timeout">3000</property>
-					<property name="initial_hosts">${env.OPENSHIFT_JBOSSEAP_CLUSTER}</property>
+					<property name="initial_hosts">127.5.35.1[7600]</property>
 					<property name="port_range">0</property>
 					<property name="num_initial_members">1</property>
 				</protocol>
@@ -424,16 +432,15 @@
 				<protocol type="pbcast.NAKACK" />
 				<protocol type="UNICAST2" />
 				<protocol type="pbcast.STABLE" />
+				<protocol type="AUTH">
+					<property name="auth_class">org.jgroups.auth.MD5Token</property>
+					<property name="token_hash">SHA</property>
+					<property name="auth_value">51f919954382ec02950051e3</property>
+				</protocol>
 				<protocol type="pbcast.GMS" />
 				<protocol type="UFC" />
 				<protocol type="MFC" />
 				<protocol type="FRAG2" />
-				<protocol type="AUTH">
-					<property name="auth_class">org.jgroups.auth.MD5Token</property>
-					<property name="token_hash">SHA</property>
-					<property name="auth_value">${env.OPENSHIFT_JBOSSEAP_CLUSTER}</property>
-				</protocol>
-				<!--protocol type="pbcast.STATE_TRANSFER"/> <protocol type="pbcast.FLUSH"/ -->
 			</stack>
 		</subsystem>
 		<subsystem xmlns="urn:jboss:domain:jmx:1.1">
@@ -451,36 +458,24 @@
 		</subsystem>
 		<subsystem xmlns="urn:jboss:domain:messaging:1.2">
 			<hornetq-server>
-				<clustered>false</clustered>
+				<clustered>true</clustered>
 				<persistence-enabled>true</persistence-enabled>
 				<security-enabled>false</security-enabled>
 				<journal-file-size>102400</journal-file-size>
 				<journal-min-files>2</journal-min-files>
+				
+				<thread-pool-max-size>428</thread-pool-max-size>
+ 	            <scheduled-thread-pool-max-size>5</scheduled-thread-pool-max-size>
+ 	            
 				<connectors>
 					<netty-connector name="netty" socket-binding="messaging" />
-					<netty-connector name="netty-throughput"
-						socket-binding="messaging-throughput">
-						<param key="batch-delay" value="50" />
-					</netty-connector>
 					<in-vm-connector name="in-vm" server-id="0" />
 				</connectors>
 				<acceptors>
 					<netty-acceptor name="netty" socket-binding="messaging" />
-					<netty-acceptor name="netty-throughput"
-						socket-binding="messaging-throughput">
-						<param key="batch-delay" value="50" />
-						<param key="direct-deliver" value="false" />
-					</netty-acceptor>
 					<in-vm-acceptor name="in-vm" server-id="0" />
 				</acceptors>
-				<!--broadcast-groups> <broadcast-group name="bg-group1"> <socket-binding>messaging-group</socket-binding> 
-					<broadcast-period>5000</broadcast-period> <connector-ref>netty</connector-ref> 
-					</broadcast-group> </broadcast-groups> <discovery-groups> <discovery-group 
-					name="dg-group1"> <socket-binding>messaging-group</socket-binding> <refresh-timeout>10000</refresh-timeout> 
-					</discovery-group> </discovery-groups> <cluster-connections> <cluster-connection 
-					name="my-cluster"> <address>jms</address> <connector-ref>netty</connector-ref> 
-					<discovery-group-ref discovery-group-name="dg-group1"/> </cluster-connection> 
-					</cluster-connections -->
+				
 				<address-settings>
 					<!--default for catch all -->
 					<address-setting match="#">
@@ -493,7 +488,8 @@
 						<message-counter-history-day-limit>10
 						</message-counter-history-day-limit>
 					</address-setting>
-                                        <!-- JA Bride :  added kSessionQueue for async invocations of ksession -->
+
+					<!-- JA Bride :  added kSessionQueue for async invocations of ksession -->
                                         <address-setting match="jms.queue.processFlow.knowledgeSessionQueue">
                                             <dead-letter-address>jms.queue.DLQ</dead-letter-address>
                                             <max-size-bytes>10485760</max-size-bytes>
@@ -528,9 +524,9 @@
 						</connectors>
 						<entries>
 							<entry name="java:jboss/exported/jms/RemoteConnectionFactory" />
+							<!-- JA Bride:  added additional entry to match name used in non OSE environment -->
+                                                        <entry name="java:/RemoteConnectionFactory" />
 
-                                                        <!-- JA Bride:  added additional entry to match name used in non OSE environment -->
-							<entry name="java:/RemoteConnectionFactory" />
 						</entries>
 					</connection-factory>
 					<pooled-connection-factory name="hornetq-ra">
@@ -543,23 +539,6 @@
 						</entries>
 					</pooled-connection-factory>
 				</jms-connection-factories>
-
-                                <!-- JA Bride : support async ksession bam publishing -->
-                                <jms-destinations>
-                                    <jms-queue name="processFlow.asyncWorkingMemoryLogger">
-                                        <entry name="queue/processFlow.asyncWorkingMemoryLogger"/>
-                                        <entry name="jms/processFlow.asyncWorkingMemoryLogger"/>
-                                        <entry name="java:jboss/exported/jms/processFlow.asyncWorkingMemoryLogger"/>
-                                        <durable>true</durable>
-                                    </jms-queue>
-                                    <jms-queue name="processFlow.knowledgeSessionQueue">
-                                        <entry name="queue/processFlow.knowledgeSessionQueue"/>
-                                        <entry name="jms/processFlow.knowledgeSessionQueue"/>
-                                        <entry name="java:jboss/exported/jms/processFlow.knowledgeSessionQueue"/>
-                                        <durable>true</durable>
-                                    </jms-queue>
-
-                                </jms-destinations>
 			</hornetq-server>
 		</subsystem>
 		<subsystem xmlns="urn:jboss:domain:naming:1.2">
@@ -585,13 +564,10 @@
 		</subsystem>
 		<subsystem xmlns="urn:jboss:domain:pojo:1.0" />
 
-
-                <!-- JA Bride :  added security-realm="ApplicationRealm"  -->    
+		<!-- JA Bride :  added security-realm="ApplicationRealm"  -->
 		<subsystem xmlns="urn:jboss:domain:remoting:1.1">
 			<connector name="remoting-connector" socket-binding="remoting" security-realm="ApplicationRealm" />
 		</subsystem>
-
-
 		<subsystem xmlns="urn:jboss:domain:resource-adapters:1.0" />
 		<subsystem xmlns="urn:jboss:domain:sar:1.0" />
 		<subsystem xmlns="urn:jboss:domain:security:1.2">
@@ -640,7 +616,8 @@
 		</subsystem>
 		<subsystem xmlns="urn:jboss:domain:webservices:1.1">
 			<modify-wsdl-address>true</modify-wsdl-address>
-			<wsdl-host>${env.OPENSHIFT_INTERNAL_IP}</wsdl-host>
+			<wsdl-host>pfpcore-apsp02.rhcloud.com</wsdl-host>
+            <wsdl-port>80</wsdl-port>
 			<endpoint-config name="Standard-Endpoint-Config" />
 			<endpoint-config name="Recording-Endpoint-Config">
 				<pre-handler-chain name="recording-handlers"
@@ -655,15 +632,15 @@
 
 	<interfaces>
 		<interface name="management">
-			<loopback-address value="${env.OPENSHIFT_INTERNAL_IP}" />
+			<loopback-address value="127.5.35.1" />
 		</interface>
 		<interface name="public">
-			<loopback-address value="${env.OPENSHIFT_INTERNAL_IP}" />
+			<loopback-address value="127.5.35.1" />
 		</interface>
 		<interface name="unsecure">
 			<!-- Used for IIOP sockets in the standarad configuration. To secure JacORB 
 				you need to setup SSL -->
-			<loopback-address value="${env.OPENSHIFT_INTERNAL_IP}" />
+			<loopback-address value="127.5.35.1" />
 		</interface>
 	</interfaces>
 
@@ -675,16 +652,12 @@
 			port="9990" />
 
 		<socket-binding name="http" port="8080" />
-		<socket-binding name="https" port="8443" />
 		<socket-binding name="jacorb" interface="unsecure"
 			port="3528" />
 		<socket-binding name="jacorb-ssl" interface="unsecure"
 			port="3529" />
 		<socket-binding name="jgroups-tcp" port="7600" />
 		<socket-binding name="messaging" port="5445" />
-		<!--socket-binding name="messaging-group" multicast-address="${jboss.messaging.group.address:231.7.7.7}" 
-			multicast-port="${jboss.messaging.group.port:9876}"/ -->
-		<socket-binding name="messaging-throughput" port="5455" />
 		<socket-binding name="osgi-http" interface="management"
 			port="8090" />
 		<socket-binding name="remoting" port="4447" />
