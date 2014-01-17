@@ -30,46 +30,54 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.lang.reflect.Constructor;
 import java.net.ConnectException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
-import javax.transaction.UserTransaction;
 import javax.annotation.PreDestroy;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.persistence.*;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceUnit;
+import javax.persistence.Query;
+import javax.transaction.UserTransaction;
 
-import org.apache.log4j.Logger;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.drools.KnowledgeBase;
+import org.drools.KnowledgeBaseFactory;
 import org.drools.SessionConfiguration;
 import org.drools.SystemEventListener;
+import org.drools.SystemEventListenerFactory;
+import org.drools.agent.KnowledgeAgent;
+import org.drools.agent.KnowledgeAgentConfiguration;
+import org.drools.agent.KnowledgeAgentFactory;
+import org.drools.agent.impl.PrintStreamSystemEventListener;
 import org.drools.builder.KnowledgeBuilder;
 import org.drools.builder.KnowledgeBuilderFactory;
 import org.drools.builder.ResourceType;
-import org.drools.KnowledgeBase;
-import org.drools.KnowledgeBaseFactory;
-import org.drools.SystemEventListenerFactory;
-import org.drools.WorkingMemory;
-import org.drools.agent.KnowledgeAgentConfiguration;
-import org.drools.agent.KnowledgeAgent;
-import org.drools.agent.KnowledgeAgentFactory;
-import org.drools.agent.impl.PrintStreamSystemEventListener;
 import org.drools.command.SingleSessionCommandService;
-import org.drools.command.impl.CommandBasedStatefulKnowledgeSession;
-import org.drools.command.impl.KnowledgeCommandContext;
+import org.drools.common.InternalKnowledgeRuntime;
 import org.drools.compiler.PackageBuilder;
 import org.drools.core.util.DelegatingSystemEventListener;
-import org.drools.definition.process.Process;
-import org.drools.definitions.impl.KnowledgePackageImp;
 import org.drools.definition.KnowledgePackage;
-import org.drools.definition.process.WorkflowProcess;
 import org.drools.definition.process.Node;
-import org.drools.event.*;
+import org.drools.definition.process.Process;
+import org.drools.definition.process.WorkflowProcess;
+import org.drools.definitions.impl.KnowledgePackageImp;
 import org.drools.event.process.ProcessEventListener;
 import org.drools.event.rule.AgendaEventListener;
+import org.drools.event.rule.DefaultAgendaEventListener;
+import org.drools.event.rule.RuleFlowGroupActivatedEvent;
 import org.drools.event.rule.WorkingMemoryEventListener;
-import org.drools.impl.StatefulKnowledgeSessionImpl;
-import org.drools.io.*;
+import org.drools.io.Resource;
+import org.drools.io.ResourceChangeScannerConfiguration;
+import org.drools.io.ResourceFactory;
 import org.drools.io.impl.InputStreamResource;
 import org.drools.management.DroolsManagementAgent;
 import org.drools.marshalling.ObjectMarshallingStrategy;
@@ -79,22 +87,20 @@ import org.drools.persistence.jpa.JPAKnowledgeService;
 import org.drools.persistence.jpa.JpaJDKTimerService;
 import org.drools.persistence.jpa.marshaller.JPAPlaceholderResolverStrategy;
 import org.drools.persistence.jpa.processinstance.JPAWorkItemManagerFactory;
-import org.drools.runtime.KnowledgeSessionConfiguration;
-import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.Environment;
 import org.drools.runtime.EnvironmentName;
+import org.drools.runtime.KnowledgeRuntime;
+import org.drools.runtime.KnowledgeSessionConfiguration;
+import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.process.WorkItemHandler;
-import org.jbpm.workflow.core.NodeContainer;
-import org.jbpm.compiler.ProcessBuilderImpl;
-import org.jbpm.integration.console.shared.GuvnorConnectionUtils;
-import org.jbpm.marshalling.impl.ProcessInstanceResolverStrategy;
-import org.jbpm.persistence.processinstance.ProcessInstanceInfo;
-import org.jbpm.task.service.TaskService;
-import org.jboss.processFlow.haTimerService.ITimerServiceManagement;
-import org.jboss.processFlow.knowledgeService.IKnowledgeSession;
 import org.jboss.processFlow.tasks.ITaskService;
 import org.jboss.processFlow.util.LogSystemEventListener;
 import org.jboss.processFlow.workItem.WorkItemHandlerLifecycle;
+import org.jbpm.compiler.ProcessBuilderImpl;
+import org.jbpm.integration.console.shared.GuvnorConnectionUtils;
+import org.jbpm.persistence.processinstance.ProcessInstanceInfo;
+import org.jbpm.task.service.TaskService;
+import org.jbpm.workflow.core.NodeContainer;
 import org.mvel2.MVEL;
 import org.mvel2.ParserConfiguration;
 import org.mvel2.ParserContext;
@@ -810,36 +816,17 @@ public class BaseKnowledgeSessionBean {
     
     // listens for agenda changes like rules being activated, fired, cancelled, etc
     protected void addAgendaEventListener(StatefulKnowledgeSession ksession) {
-        final org.drools.event.AgendaEventListener agendaEventListener = new org.drools.event.AgendaEventListener() {
-            public void activationCreated(ActivationCreatedEvent event, WorkingMemory workingMemory){
-            }
-            public void activationCancelled(ActivationCancelledEvent event, WorkingMemory workingMemory){
-            }
-            public void beforeActivationFired(BeforeActivationFiredEvent event, WorkingMemory workingMemory) {
-            }
-            public void afterActivationFired(AfterActivationFiredEvent event, WorkingMemory workingMemory) {
-            }
-            public void agendaGroupPopped(AgendaGroupPoppedEvent event, WorkingMemory workingMemory) {
-            }
-            public void agendaGroupPushed(AgendaGroupPushedEvent event, WorkingMemory workingMemory) {
-            }
-            public void beforeRuleFlowGroupActivated(RuleFlowGroupActivatedEvent event, WorkingMemory workingMemory) {
-            }
-            public void afterRuleFlowGroupActivated(RuleFlowGroupActivatedEvent event, WorkingMemory workingMemory) {
-                workingMemory.fireAllRules();
-            }
-            public void beforeRuleFlowGroupDeactivated(RuleFlowGroupDeactivatedEvent event, WorkingMemory workingMemory) {
-            }
-            public void afterRuleFlowGroupDeactivated(RuleFlowGroupDeactivatedEvent event,  WorkingMemory workingMemory) {
-            }
-        };
-        StatefulKnowledgeSessionImpl sksImpl = null;
-        if(ksession instanceof CommandBasedStatefulKnowledgeSession) {
-            sksImpl = ((StatefulKnowledgeSessionImpl)  ((KnowledgeCommandContext) ((CommandBasedStatefulKnowledgeSession) ksession).getCommandService().getContext()).getStatefulKnowledgesession() );
-        }else {
-            sksImpl = (StatefulKnowledgeSessionImpl)ksession;
-        }
-        sksImpl.session.addEventListener(agendaEventListener);
+    	final AgendaEventListener agendaEventListener = new DefaultAgendaEventListener() {
+
+			@Override
+			public void afterRuleFlowGroupActivated(RuleFlowGroupActivatedEvent event) {
+				KnowledgeRuntime kRuntime = event.getKnowledgeRuntime();
+				if (kRuntime instanceof StatefulKnowledgeSession) {
+					((StatefulKnowledgeSession) kRuntime).fireAllRules();
+				}
+			}
+    	};
+    	ksession.addEventListener(agendaEventListener);
     }
     
     

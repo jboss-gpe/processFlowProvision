@@ -33,6 +33,7 @@
 		
 		<!-- KSession Management Strategy implementation. -->
 		<org.jboss.processFlow.ksession.mgmt.strategy.impl.class>org.jboss.processFlow.knowledgeService.SessionPerPInstanceBean</org.jboss.processFlow.ksession.mgmt.strategy.impl.class>
+		<!-- <org.jboss.processFlow.ksession.mgmt.strategy.impl.class>org.jboss.processFlow.knowledgeService.SingleSessionBean</org.jboss.processFlow.ksession.mgmt.strategy.impl.class> -->
 		<!-- RAR -->
 		<org.jboss.processFlow.rar.name>hornetq-ra.rar</org.jboss.processFlow.rar.name>
 		<!-- EJB Receivers. Outbound EJB calls. -->
@@ -45,10 +46,10 @@
 			I.e., if the runtime uses 'drools-core-5.3.1.BRMS-P03', we need to compile against this version as well.
 			By default PFP compiles against the Drools community version 5.3.1.
 		 -->
-		 <version.org.drools:knowledge-api>5.3.1.Final</version.org.drools:knowledge-api>
-		 <version.org.drools:drools-core>5.3.1.Final</version.org.drools:drools-core>
-		 <version.org.drools:drools-compiler>5.3.1.Final</version.org.drools:drools-compiler>
-		 <version.org.drools:drools-persistence-jpa>5.3.1.Final</version.org.drools:drools-persistence-jpa>
+		 <version.org.drools:knowledge-api>5.3.2.Final</version.org.drools:knowledge-api>
+		 <version.org.drools:drools-core>5.3.2.Final</version.org.drools:drools-core>
+		 <version.org.drools:drools-compiler>5.3.2.Final</version.org.drools:drools-compiler>
+		 <version.org.drools:drools-persistence-jpa>5.3.2.Final</version.org.drools:drools-persistence-jpa>
 	</properties>
 	
 	<dependencyManagement>
