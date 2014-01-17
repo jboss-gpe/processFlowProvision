@@ -239,6 +239,17 @@ public interface ITaskService {
      */
     public void setTaskContent(Task taskObj, Boolean inbound, Map<String, Object> taskContent);
     
+    /**
+     * Sets the {@link Task}'s inbound or outbound task variables.
+     * <p/>
+     * Note that the <code>userId</code> is only required when setting outbound tasks, as jBPM only allows the owner of a task to set these variables. 
+     * 
+     * @param taskId the id of the {@link Task}.
+     * @param userId the userid of the user that's changing the task variables. Note that the userId is only required when setting outbound variables.
+     * @param inbound defines whether the {@link Task}'s inbound or outbound variables will be changed.
+     * @param taskContent the content to set.
+     */
+    public void setTaskContent(Long taskId, String userId, Boolean inbound, Map<String, Object> taskContent);
     
     /**
      * printTaskContent

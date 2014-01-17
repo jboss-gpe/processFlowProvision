@@ -658,6 +658,38 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
             }catch(Exception x){x.printStackTrace();}
         }
     }
+    
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+	public void setTaskContent(Long taskId, String userId, Boolean inbound, Map<String, Object> taskContent) {
+		TaskServiceSession taskSession = null;
+		ObjectOutputStream out = null;
+		try {
+			if (inbound) {
+				ByteArrayOutputStream bos = new ByteArrayOutputStream();
+				out = new ObjectOutputStream(bos);
+				out.writeObject(taskContent);
+				out.close();
+				byte[] byteResults = bos.toByteArray();
+
+				Content content = new Content();
+				content.setContent(byteResults);
+				// Don't need to explicitly enable define transaction demarcation as this is done in the taskSession.
+				taskSession = taskService.createSession();
+				taskSession.setDocumentContent(taskId, content);
+			} else {
+				//TODO: Implement
+				ContentData contentData = convertTaskVarsToContentData(taskContent, null);
+				taskSession = taskService.createSession();
+				taskSession.setOutput(taskId, userId, contentData);
+			}
+			
+		} catch (Exception x) {
+			throw new RuntimeException(x);
+		} finally {
+			if (taskSession != null)
+				taskSession.dispose();
+		}
+	}
 
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public String printTaskContent(Long taskId, Boolean inbound) {
