@@ -677,12 +677,10 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
 				taskSession = taskService.createSession();
 				taskSession.setDocumentContent(taskId, content);
 			} else {
-				//TODO: Implement
 				ContentData contentData = convertTaskVarsToContentData(taskContent, null);
 				taskSession = taskService.createSession();
 				taskSession.setOutput(taskId, userId, contentData);
 			}
-			
 		} catch (Exception x) {
 			throw new RuntimeException(x);
 		} finally {
