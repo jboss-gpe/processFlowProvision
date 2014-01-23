@@ -9,6 +9,11 @@ batch
 # add sy extension
 /extension=org.switchyard:add()
 
+# TO-DO:  1) create sy-sockets socket-binding-group that has jgroups to support replicated sy registery across server-group
+# 2) create an infinispan replicated cache called:  'switchyard'
+# 3) change cache name of org.switchyard.component.sca.deploy.SCAComponent to 'switchyard'
+# 4) change sy-core-group server group to use sy-sockets socket-binding-group
+
 # prep modification of hornetq subsystem to reference remote HA configured hornetq brokers
 /profile=full/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:undefine-attribute(name=connector)
 /profile=full/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:undefine-attribute(name=connector)
