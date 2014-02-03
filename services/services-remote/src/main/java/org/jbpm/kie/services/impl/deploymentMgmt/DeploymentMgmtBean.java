@@ -15,10 +15,10 @@ import javax.inject.Named;
 
 import org.apache.commons.lang.StringUtils;
 import org.jbpm.kie.services.impl.deploymentMgmt.IPfpDeploymentUnit.ProcessEnginePersistenceType;
-import org.jbpm.kie.services.api.DeploymentService;
-import org.jbpm.kie.services.api.DeploymentUnit;
+import org.kie.internal.deployment.DeploymentService;
+import org.kie.internal.deployment.DeploymentUnit;
+import org.kie.internal.deployment.DeploymentUnit.RuntimeStrategy;
 import org.jbpm.kie.services.api.Kjar;
-import org.jbpm.kie.services.api.DeploymentUnit.RuntimeStrategy;
 import org.jbpm.kie.services.impl.KModuleDeploymentUnit;
 import org.kie.api.marshalling.ObjectMarshallingStrategy;
 import org.uberfire.io.FileSystemType;

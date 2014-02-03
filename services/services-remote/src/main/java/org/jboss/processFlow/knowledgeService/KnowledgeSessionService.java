@@ -33,7 +33,7 @@ import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.runtime.manager.RegisterableItemsFactory;
 import org.kie.internal.runtime.manager.context.EmptyContext;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
-import org.kie.services.remote.cdi.RuntimeManagerManager;
+import org.kie.services.remote.cdi.DeploymentInfoBean;
 import org.kie.services.remote.exception.DomainNotFoundBadRequestException;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.slf4j.LoggerFactory;
@@ -57,7 +57,7 @@ public class KnowledgeSessionService implements IKnowledgeSession {
     private static Logger log = LoggerFactory.getLogger("KnowledgeSessionService");
     
     @Inject
-    private RuntimeManagerManager runtimeMgrMgr;
+    private DeploymentInfoBean dInfoBean;
 
     public Map<String, Object> startProcessAndReturnId(String processId, Map<String, Object> params, String deploymentId ) {
         Command<?> cmd = new StartProcessCommand(processId, params);
@@ -194,7 +194,7 @@ public class KnowledgeSessionService implements IKnowledgeSession {
         
         //1)  get workItemHandler mappings registered as part of either VFS or KModule deployment unit
         try {
-            AbstractRuntimeManager runtimeManager = (AbstractRuntimeManager)runtimeMgrMgr.getRuntimeManager(deploymentId);
+            AbstractRuntimeManager runtimeManager = (AbstractRuntimeManager)dInfoBean.getRuntimeManager(deploymentId);
             RuntimeEngine runtimeEngine = runtimeManager.getRuntimeEngine(EmptyContext.get());
             RegisterableItemsFactory factory = runtimeManager.getEnvironment().getRegisterableItemsFactory();
             workItemHandlers.putAll(factory.getWorkItemHandlers(runtimeEngine));
@@ -232,7 +232,7 @@ public class KnowledgeSessionService implements IKnowledgeSession {
     }
     
     private RuntimeEngine getRuntimeEngine(String deploymentId, Long processInstanceId) {
-        RuntimeManager runtimeManager = runtimeMgrMgr.getRuntimeManager(deploymentId);
+        RuntimeManager runtimeManager = dInfoBean.getRuntimeManager(deploymentId);
         Context<?> runtimeContext;
         if (processInstanceId != null) {
             runtimeContext = new ProcessInstanceIdContext(processInstanceId);

@@ -2,41 +2,45 @@
 <AutomatedInstallation langpack="eng">
 <com.izforge.izpack.panels.HTMLLicencePanel id="HTMLLicencePanel"/>
 <com.izforge.izpack.panels.TargetPanel id="DirectoryPanel">
-<installpath>${fsw.install.dir}</installpath>
+<installpath>/opt/jboss/eap</installpath>
 </com.izforge.izpack.panels.TargetPanel>
 <com.izforge.izpack.panels.TreePacksPanel id="TreePacksPanel">
-<pack index="0" name="Red Hat JBoss Enterprise Application Platform" selected="false"/>
+<pack index="0" name="Red Hat JBoss Enterprise Application Platform" selected="true"/>
 <pack index="1" name="Red Hat JBoss Fuse Service Works" selected="true"/>
 <pack index="2" name="Switchyard quickstarts" selected="true"/>
-<pack index="3" name="RT-Gov Client-only" selected="true"/>
-<pack index="4" name="RT-Gov Server+Client" selected="false"/>
-<pack index="5" name="RTGov Server quickstarts" selected="false"/>
-<pack index="6" name="DT-Gov run-time" selected="false"/>
-<pack index="7" name="DT-Gov quickstarts" selected="false"/>
-<pack index="8" name="S-RAMP run-time" selected="false"/>
-<pack index="9" name="S-RAMP quickstarts" selected="false"/>
+<pack index="3" name="RT-Gov Client-only" selected="false"/>
+<pack index="4" name="RT-Gov Server+Client" selected="true"/>
+<pack index="5" name="RTGov Server quickstarts" selected="true"/>
+<pack index="6" name="DT-Gov run-time" selected="true"/>
+<pack index="7" name="DT-Gov quickstarts" selected="true"/>
+<pack index="8" name="S-RAMP run-time" selected="true"/>
+<pack index="9" name="S-RAMP quickstarts" selected="true"/>
 <pack index="10" name="Red Hat JBoss Fuse Service Works quickstarts" selected="true"/>
 </com.izforge.izpack.panels.TreePacksPanel>
 <com.izforge.izpack.panels.UserInputPanel id="CreateUserPanel">
 <userInput>
-<entry key="adminPassword" value="a0fea98b966fe36c457cae7bdd84a55d"/>
+<entry key="adminPassword" value="a884622ac9c11e864fbd6259dadc96b0"/>
 <entry key="adminUser" value="admin"/>
 </userInput>
 </com.izforge.izpack.panels.UserInputPanel>
 <com.izforge.izpack.panels.UserInputPanel id="FSWCredentials">
 <userInput>
-<entry key="fsw.password" value="jbosspw1!"/>
+<entry autoPrompt="true" key="fsw.password"/>
 <entry key="fsw.user" value="fswAdmin"/>
 </userInput>
 </com.izforge.izpack.panels.UserInputPanel>
-<com.izforge.izpack.panels.UserInputPanel id="RTGovServer">
+<com.izforge.izpack.panels.UserInputPanel id="RTGovServer"/>
+<com.izforge.izpack.panels.MavenCheckPanel id="MavenSetup"/>
+<com.izforge.izpack.panels.UserInputPanel id="samlsecurity">
 <userInput>
-<entry key="rtgov.user" value="admin"/>
-<entry key="rtgov.url" value="http://rtgovserver.com:8080"/>
-<entry key="rtgov.password" value="jbosspw1!"/>
+<entry autoPrompt="true" key="saml.storepass"/>
 </userInput>
 </com.izforge.izpack.panels.UserInputPanel>
-<com.izforge.izpack.panels.MavenCheckPanel id="MavenSetup"/>
+<com.izforge.izpack.panels.UserInputPanel id="JavaSecurityManager">
+<userInput>
+<entry key="jvm.security.enabled" value="false"/>
+</userInput>
+</com.izforge.izpack.panels.UserInputPanel>
 <com.izforge.izpack.panels.UserInputPanel id="postinstall">
 <userInput>
 <entry key="postinstallServer" value="false"/>
@@ -48,6 +52,11 @@
 </com.izforge.izpack.panels.UserInputPanel>
 <com.izforge.izpack.panels.UserInputPanel id="vaultsecurity"/>
 <com.izforge.izpack.panels.UserInputPanel id="vaultsecuritypreexisting"/>
+<com.izforge.izpack.panels.UserInputPanel id="vaultsecuritydefault">
+<userInput>
+<entry autoPrompt="true" key="vault.keystorepwd"/>
+</userInput>
+</com.izforge.izpack.panels.UserInputPanel>
 <com.izforge.izpack.panels.UserInputPanel id="sslsecurity"/>
 <com.izforge.izpack.panels.UserInputPanel id="ldapsecurity"/>
 <com.izforge.izpack.panels.UserInputPanel id="ldapsecurity2"/>
@@ -55,9 +64,9 @@
 <com.redhat.installer.panels.JBossDatasourceConfigPanel id="Datasource Configuration Panel"/>
 <com.izforge.izpack.panels.UserInputPanel id="DBDefaultConfiguration">
 <userInput>
-<entry key="db.url" value="jdbc:h2:file:${jboss.server.data.dir}/h2/soa;mvcc=true"/>
-<entry key="db.user" value="soa"/>
-<entry key="db.password" value="soa"/>
+<entry key="db.url" value="jdbc:h2:file:${jboss.server.data.dir}/h2/fsw;mvcc=true"/>
+<entry key="db.user" value="fsw"/>
+<entry key="db.password" value="fsw"/>
 </userInput>
 </com.izforge.izpack.panels.UserInputPanel>
 <com.izforge.izpack.panels.SummaryPanel id="SummaryPanel"/>

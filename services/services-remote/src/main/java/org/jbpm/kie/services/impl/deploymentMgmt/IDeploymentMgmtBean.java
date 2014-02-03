@@ -2,7 +2,7 @@ package org.jbpm.kie.services.impl.deploymentMgmt;
 
 import java.util.Map;
 
-import org.jbpm.kie.services.api.DeploymentUnit;
+import org.kie.internal.deployment.DeploymentUnit;
 import org.jbpm.kie.services.impl.KModuleDeploymentUnit;
 
 public interface IDeploymentMgmtBean {

@@ -2,7 +2,7 @@ package org.jbpm.kie.services.impl.deploymentMgmt;
 
 import java.util.Set;
 
-import org.jbpm.kie.services.api.DeploymentUnit;
+import org.kie.internal.deployment.DeploymentUnit;
 import org.kie.api.marshalling.ObjectMarshallingStrategy;
 
 // new DeploymentUnit interface until equivalent is implemented in BPMS6 base product as per this BZ:

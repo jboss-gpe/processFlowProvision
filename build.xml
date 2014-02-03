@@ -177,7 +177,7 @@
             </then></if>
         </then>
         <else>
-            <then><echo message="configure.fsw.modules() fsw already configured in eap6" /></then>
+            <echo message="configure.fsw.modules() fsw already configured in eap6" />
         </else>
       </if>
     </target>

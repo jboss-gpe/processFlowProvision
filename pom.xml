@@ -7,7 +7,7 @@
   <packaging>pom</packaging>
   <properties>
     <version.project>1.0-SNAPSHOT</version.project>
-    <version.drools>6.0.0.Final</version.drools>
+    <version.drools>6.0.1.Final</version.drools>
     <version.org.codehaus.jackson>1.9.9</version.org.codehaus.jackson>
     <version.org.apache.camel>2.10.3</version.org.apache.camel>
     <version.org.jboss.resteasy>2.3.6.Final</version.org.jboss.resteasy>
