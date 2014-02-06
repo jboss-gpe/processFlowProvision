@@ -23,7 +23,7 @@ import org.drools.core.SessionConfiguration;
 import org.drools.core.command.runtime.process.GetProcessIdsCommand;
 import org.jbpm.kie.services.impl.deploymentMgmt.IDeploymentMgmtBean;
 import org.jbpm.runtime.manager.impl.AbstractRuntimeManager;
-import org.kie.services.remote.cdi.RuntimeManagerManager;
+import org.kie.services.remote.cdi.DeploymentInfoBean;
 import org.kie.services.remote.rest.RestProcessRequestBean;
 import org.kie.api.command.Command;
 import org.kie.api.runtime.manager.RuntimeEngine;
@@ -48,7 +48,7 @@ public class AdditionalRuntimeResources {
     private RestProcessRequestBean processRequestBean;
     
     @Inject
-    private RuntimeManagerManager runtimeMgrMgr;
+    private DeploymentInfoBean runtimeMgrMgr;
     
     @Inject
     private IDeploymentMgmtBean dBean;

@@ -29,7 +29,7 @@ import org.kie.internal.task.api.model.TaskDef;
 import org.kie.internal.task.api.model.TaskEvent;
 
 @ApplicationScoped
-public class RemoteTaskService implements InternalTaskService {
+public class RemoteTaskService { //implements InternalTaskService {
     
     private static Logger log = LoggerFactory.getLogger("RemoteTaskService");
     
@@ -748,5 +748,6 @@ public class RemoteTaskService implements InternalTaskService {
         // TODO Auto-generated method stub
         return null;
     }
+
 
 }

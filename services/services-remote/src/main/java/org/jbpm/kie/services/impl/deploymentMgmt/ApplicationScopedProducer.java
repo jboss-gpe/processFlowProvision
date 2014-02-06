@@ -8,7 +8,7 @@ import javax.inject.Named;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
 
-import org.jbpm.kie.services.api.DeploymentService;
+import org.kie.internal.deployment.DeploymentService;
 import org.jbpm.runtime.manager.api.WorkItemHandlerProducer;
 import org.jbpm.shared.services.cdi.Selectable;
 import org.kie.internal.task.api.UserGroupCallback;

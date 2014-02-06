@@ -18,8 +18,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.drools.compiler.kie.builder.impl.KieContainerImpl;
 import org.drools.core.util.StringUtils;
-import org.jbpm.kie.services.api.DeployedUnit;
-import org.jbpm.kie.services.api.DeploymentUnit;
+import org.kie.internal.deployment.DeployedUnit;
 import org.jbpm.kie.services.api.IdentityProvider;
 import org.jbpm.kie.services.api.Kjar;
 import org.jbpm.kie.services.api.bpmn2.BPMN2DataService;
@@ -29,7 +28,7 @@ import org.jbpm.kie.services.impl.KModuleDeploymentService;
 import org.jbpm.kie.services.impl.KModuleDeploymentUnit;
 import org.jbpm.kie.services.impl.audit.ServicesAwareAuditEventBuilder;
 import org.jbpm.kie.services.impl.event.DeploymentEvent;
-import org.jbpm.kie.services.impl.model.ProcessDesc;
+//import org.jbpm.kie.services.impl.model.ProcessDesc;
 import org.jbpm.process.audit.AbstractAuditLogger;
 import org.jbpm.runtime.manager.impl.AbstractRuntimeManager;
 import org.jbpm.runtime.manager.impl.RuntimeEnvironmentBuilder;
@@ -92,50 +91,6 @@ public class PfpKModuleDeploymentService extends KModuleDeploymentService {
             throw new IllegalStateException("Cannot find kbase with name " + kbaseName);
         }
 
-        Map<String, String> formsData = new HashMap<String, String>();
-        Collection<String> files = module.getFileNames();
-        for (String fileName : files) {
-            if(fileName.matches(".+bpmn[2]?$")) {
-                ProcessDesc process;
-                try {
-                    String processString = new String(module.getBytes(fileName), "UTF-8");
-                    process = bpmn2Service.findProcessId(processString, kieContainer.getClassLoader());
-                    process.setEncodedProcessSource(Base64.encodeBase64String(processString.getBytes()));
-                    process.setDeploymentId(unit.getIdentifier());
-                    process.setForms(formsData);
-                    deployedUnit.addAssetLocation(process.getId(), process);
-                } catch (UnsupportedEncodingException e) {
-                    logger.warn("Unable to load content for file '{}' : {}", fileName, e);
-                }
-            } else if (fileName.matches(".+ftl$")) {
-                try {
-                    String formContent = new String(module.getBytes(fileName), "UTF-8");
-                    Pattern regex = Pattern.compile("(.{0}|.*/)([^/]*?)\\.ftl");
-                    Matcher m = regex.matcher(fileName);
-                    String key = fileName;
-                    while (m.find()) {
-                        key = m.group(2);
-                    }
-                    formsData.put(key, formContent);
-                } catch (UnsupportedEncodingException e) {
-                    logger.warn("Unable to load content for form '{}' : {}", fileName, e);
-                }
-            } else if (fileName.matches(".+form$")) {
-                try {
-                    String formContent = new String(module.getBytes(fileName), "UTF-8");
-                    Pattern regex = Pattern.compile("(.{0}|.*/)([^/]*?)\\.form");
-                    Matcher m = regex.matcher(fileName);
-                    String key = fileName;
-                    while (m.find()) {
-                        key = m.group(2);
-                    }
-                    formsData.put(key+".form", formContent);
-                } catch (UnsupportedEncodingException e) {
-                    logger.warn("Unable to load content for form '{}' : {}", fileName, e);
-                }
-            }
-        }
-
         KieBase kbase = kieContainer.getKieBase(kbaseName);        
 
         AbstractAuditLogger auditLogger = getAuditLogger();
@@ -166,7 +121,7 @@ public class PfpKModuleDeploymentService extends KModuleDeploymentService {
         commonDeploy(unit, deployedUnit, builder.get());
     }
     
-    public void undeploy(DeploymentUnit unit) {
+    public void undeploy(KModuleDeploymentUnit unit) {
         
         /*  JA Bride:  TO-DO :
          *   - current implementation attempts to query jbm core database to determine active process instances by deploymentId

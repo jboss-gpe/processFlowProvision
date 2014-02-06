@@ -14,7 +14,7 @@
       <module>interfaces</module>
       <module>auditLog</module>
       <module>services-remote</module>
-      <module>consoleIntegration</module>
+      <!--module>consoleIntegration</module -->
   </modules>
 
   
