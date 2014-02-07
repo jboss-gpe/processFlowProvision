@@ -9,10 +9,29 @@ batch
 # add sy extension
 /extension=org.switchyard:add()
 
-# TO-DO:  1) create sy-sockets socket-binding-group that has jgroups to support replicated sy registery across server-group
+# 1) create sy-sockets socket-binding-group that has jgroups to support replicated sy registery across server-group
+/socket-binding-group=sy-sockets/:add(default-interface=public)
+/socket-binding-group=sy-sockets/socket-binding=ajp/:add(port=8009)
+/socket-binding-group=sy-sockets/socket-binding=http/:add(port=8080)
+/socket-binding-group=sy-sockets/socket-binding=https/:add(port=8443)
+/socket-binding-group=sy-sockets/socket-binding=jgroup-mping/:add(port=0,multicast-port=45700,multicast-address="${jboss.default.multicast.address:230.0.0.4}")
+/socket-binding-group=sy-sockets/socket-binding=jgroups-tcp/:add(port=7600)
+/socket-binding-group=sy-sockets/socket-binding=jgroups-tcp-fd/:add(port=57600)
+/socket-binding-group=sy-sockets/socket-binding=jgroup-udp/:add(port=55200,multicast-port=45688,multicast-address="${jboss.default.multicast.address:230.0.0.4}")
+/socket-binding-group=sy-sockets/socket-binding=jgroups-udp-fd/:add(port=54200)
+/socket-binding-group=sy-sockets/socket-binding=messaging/:add(port=5445)
+/socket-binding-group=sy-sockets/socket-binding=messaging-group/:add(port=0,multicast-port="${jboss.messaging.group.port:9876}",multicast-address="${jboss.messaging.group.address:231.7.7.7}")
+/socket-binding-group=sy-sockets/socket-binding=messaging-throughput/:add(port=5455)
+/socket-binding-group=sy-sockets/socket-binding=remoting/:add(port=4447)
+/socket-binding-group=sy-sockets/socket-binding=txn-recovery-environment/:add(port=4712)
+/socket-binding-group=sy-sockets/socket-binding=txn-status-manager/:add(port=4713)
+
 # 2) create an infinispan replicated cache called:  'switchyard'
-# 3) change cache name of org.switchyard.component.sca.deploy.SCAComponent to 'switchyard'
-# 4) change sy-core-group server group to use sy-sockets socket-binding-group
+/profile=full/subsystem=infinispan/cache-container=switchyard/:add(module=org.jboss.as.clustering.infinispan,start=EAGER,default-cache=default)
+/profile=full/subsystem=infinispan/cache-container=switchyard/transport=TRANSPORT:add(lock-timeout=60000)
+/profile=full/subsystem=infinispan/cache-container=switchyard/replicated-cache=default/:add(mode=SYNC,batching=true,start=EAGER)
+/profile=full/subsystem=infinispan/cache-container=switchyard/replicated-cache=default/locking=LOCKING:add(isolation=REPEATABLE_READ)
+
 
 # prep modification of hornetq subsystem to reference remote HA configured hornetq brokers
 /profile=full/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:undefine-attribute(name=connector)
@@ -84,7 +103,7 @@ batch
 /profile=full/subsystem=switchyard/module=org.switchyard.component.jca:write-attribute(name=implClass,value=org.switchyard.component.jca.deploy.JCAComponent)
 /profile=full/subsystem=switchyard/module=org.switchyard.component.sca:add()
 /profile=full/subsystem=switchyard/module=org.switchyard.component.sca:write-attribute(name=implClass,value=org.switchyard.component.sca.deploy.SCAComponent)
-/profile=full/subsystem=switchyard/module=org.switchyard.component.sca:write-attribute(name=properties,value={cache-name=cluster})
+/profile=full/subsystem=switchyard/module=org.switchyard.component.sca:write-attribute(name=properties,value={cache-name=switchyard})
 /profile=full/subsystem=switchyard/module=org.switchyard.component.resteasy:add()
 /profile=full/subsystem=switchyard/module=org.switchyard.component.resteasy:write-attribute(name=implClass,value=org.switchyard.component.resteasy.deploy.RESTEasyComponent)
 /profile=full/subsystem=switchyard/extension=org.apache.camel.mvel:add()
@@ -132,7 +151,7 @@ batch
 ##################################################################################################################################
 
 # create sy.core server group 
-/server-group=${sy.core.group}/:add(profile=full,socket-binding-group=full-sockets)
+/server-group=${sy.core.group}/:add(profile=full,socket-binding-group=sy-sockets)
 
 # set hornetq specific system properties that reference broker discovery groups
 /server-group=${sy.core.group}/system-property=jboss.messaging.group.address/:add(value=${jboss.messaging.group.address},boot-time=true)

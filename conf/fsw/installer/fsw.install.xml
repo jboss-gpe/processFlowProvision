@@ -17,7 +17,7 @@
 <pack index="7" name="DT-Gov quickstarts" selected="false"/>
 <pack index="8" name="S-RAMP run-time" selected="false"/>
 <pack index="9" name="S-RAMP quickstarts" selected="false"/>
-<pack index="10" name="Red Hat JBoss Fuse Service Works quickstarts" selected="false"/>
+<pack index="10" name="Red Hat JBoss Fuse Service Works quickstarts" selected="true"/>
 </com.izforge.izpack.panels.TreePacksPanel>
 <com.izforge.izpack.panels.UserInputPanel id="CreateUserPanel">
 <userInput>
