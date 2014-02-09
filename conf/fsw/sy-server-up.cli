@@ -1,7 +1,7 @@
 batch
 /host=${serverIpAddr}/server-config=${sy.core.server.id}:add(auto-start=false,group=${sy.core.group})
 /host=${serverIpAddr}/server-config=${sy.core.server.id}/jvm=${sy.core.server.id}/:add(env-classpath-ignored=false,heap-size=128m,max-heap-size=512m,permgen-size=64m,max-permgen-size=256m)
-/host=${serverIpAddr}/server-config=${sy.core.server.id}/jvm=${sy.core.server.id}/:write-attribute(name=jvm-options,value=["-Xrunjdwp:transport=dt_socket,address=${sy.core.debugger.port},server=y,suspend=n"])
+#/host=${serverIpAddr}/server-config=${sy.core.server.id}/jvm=${sy.core.server.id}/:write-attribute(name=jvm-options,value=["-Xrunjdwp:transport=dt_socket,address=${sy.core.debugger.port},server=y,suspend=n"])
 /host=${serverIpAddr}/server-config=${sy.core.server.id}/:write-attribute(name=socket-binding-port-offset,value=${sy.core.port.offset})
-/host=${serverIpAddr}/server-config=${sy.core.server.id}/:start(server=${sy.core.server.id},blocking=true)
+#/host=${serverIpAddr}/server-config=${sy.core.server.id}/:start(server=${sy.core.server.id},blocking=true)
 run-batch

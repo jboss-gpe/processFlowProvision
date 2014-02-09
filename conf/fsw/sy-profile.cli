@@ -1,0 +1,172 @@
+###################################       configure full profile to support switchyard          #######################################
+
+batch
+
+# no need for Example datasource
+/profile=full/subsystem=datasources/data-source=ExampleDS/:disable
+/profile=full/subsystem=datasources/data-source=ExampleDS/:remove
+
+# no need for mail service
+/profile=full/subsystem=mail/:remove
+
+# add sy extension
+/extension=org.switchyard:add()
+
+
+# 0) create sy-sockets socket-binding-group that has jgroups to support replicated sy registery across server-group
+/socket-binding-group=sy-sockets/:add(default-interface=public)
+/socket-binding-group=sy-sockets/socket-binding=ajp/:add(port=8009)
+/socket-binding-group=sy-sockets/socket-binding=http/:add(port=8080)
+/socket-binding-group=sy-sockets/socket-binding=https/:add(port=8443)
+/socket-binding-group=sy-sockets/socket-binding=jgroup-mping/:add(port=0,multicast-port=45700,multicast-address="${jboss.default.multicast.address:230.0.0.4}")
+/socket-binding-group=sy-sockets/socket-binding=jgroups-tcp/:add(port=7600)
+/socket-binding-group=sy-sockets/socket-binding=jgroups-tcp-fd/:add(port=57600)
+/socket-binding-group=sy-sockets/socket-binding=jgroups-udp/:add(port=55200,multicast-port=45688,multicast-address="${jboss.default.multicast.address:230.0.0.4}")
+/socket-binding-group=sy-sockets/socket-binding=jgroups-udp-fd/:add(port=54200)
+/socket-binding-group=sy-sockets/socket-binding=messaging/:add(port=5445)
+/socket-binding-group=sy-sockets/socket-binding=messaging-group/:add(port=0,multicast-port="${jboss.messaging.group.port:9876}",multicast-address="${jboss.messaging.group.address:231.7.7.7}")
+/socket-binding-group=sy-sockets/socket-binding=messaging-throughput/:add(port=5455)
+/socket-binding-group=sy-sockets/socket-binding=remoting/:add(port=4447)
+/socket-binding-group=sy-sockets/socket-binding=txn-recovery-environment/:add(port=4712)
+/socket-binding-group=sy-sockets/socket-binding=txn-status-manager/:add(port=4713)
+
+#1)  add jgroup stack to support SY clustered registery
+/profile=full/subsystem=jgroups:add(default-stack=udp)
+/profile=full/subsystem=jgroups/stack=udp/:add
+/profile=full/subsystem=jgroups/stack=udp/transport=TRANSPORT:add(type=UDP, socket-binding=jgroups-udp)
+/profile=full/subsystem=jgroups/stack=udp/:add-protocol(type=PING)
+/profile=full/subsystem=jgroups/stack=udp/:add-protocol(type=MERGE3)
+/profile=full/subsystem=jgroups/stack=udp/:add-protocol(type=FD_SOCK, socket-binding=jgroups-udp-fd)
+/profile=full/subsystem=jgroups/stack=udp/:add-protocol(type=FD)
+/profile=full/subsystem=jgroups/stack=udp/:add-protocol(type=VERIFY_SUSPECT)
+/profile=full/subsystem=jgroups/stack=udp/:add-protocol(type=pbcast.NAKACK)
+/profile=full/subsystem=jgroups/stack=udp/:add-protocol(type=UNICAST2)
+/profile=full/subsystem=jgroups/stack=udp/:add-protocol(type=pbcast.STABLE)
+/profile=full/subsystem=jgroups/stack=udp/:add-protocol(type=pbcast.GMS)
+/profile=full/subsystem=jgroups/stack=udp/:add-protocol(type=UFC)
+/profile=full/subsystem=jgroups/stack=udp/:add-protocol(type=MFC)
+/profile=full/subsystem=jgroups/stack=udp/:add-protocol(type=FRAG2)
+/profile=full/subsystem=jgroups/stack=udp/:add-protocol(type=RSVP)
+
+
+# 2) create an infinispan replicated cache called:  'switchyard'
+/profile=full/subsystem=infinispan/cache-container=switchyard/:add(module=org.jboss.as.clustering.infinispan,start=EAGER,default-cache=default)
+/profile=full/subsystem=infinispan/cache-container=switchyard/transport=TRANSPORT:add(lock-timeout=60000)
+/profile=full/subsystem=infinispan/cache-container=switchyard/replicated-cache=default/:add(mode=SYNC,batching=true,start=EAGER)
+/profile=full/subsystem=infinispan/cache-container=switchyard/replicated-cache=default/locking=LOCKING:add(isolation=REPEATABLE_READ)
+
+
+# prep modification of hornetq subsystem to reference remote HA configured hornetq brokers
+/profile=full/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:undefine-attribute(name=connector)
+/profile=full/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:undefine-attribute(name=connector)
+
+#/profile=full/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=formatter,value=%d{HH:mm:ss,SSS} %-5p [%c] %s%E%n)
+/profile=full/subsystem=logging/periodic-rotating-file-handler=FILE/:write-attribute(name=append,value=false)
+
+run-batch
+
+batch
+
+###################################       configure full profile to support switchyard          #######################################
+/profile=full/subsystem=switchyard:add()
+/profile=full/subsystem=switchyard/module=org.switchyard.component.bean:add()
+/profile=full/subsystem=switchyard/module=org.switchyard.component.bean:write-attribute(name=implClass,value=org.switchyard.component.bean.deploy.BeanComponent
+/profile=full/subsystem=switchyard/module=org.switchyard.component.soap:add()
+/profile=full/subsystem=switchyard/module=org.switchyard.component.soap:write-attribute(name=implClass,value=org.switchyard.component.soap.deploy.SOAPComponent)
+/profile=full/subsystem=switchyard/module=org.switchyard.component.soap:write-attribute(name=properties,value={socketAddr=:18001})
+/profile=full/subsystem=switchyard/module=org.switchyard.component.camel:add()
+/profile=full/subsystem=switchyard/module=org.switchyard.component.camel:write-attribute(name=implClass,value=org.switchyard.component.camel.deploy.CamelComponent)
+/profile=full/subsystem=switchyard/module=org.switchyard.component.camel:write-attribute(name=properties,value={socketAddr=:18001})
+/profile=full/subsystem=switchyard/module=org.switchyard.component.camel.atom:add()
+/profile=full/subsystem=switchyard/module=org.switchyard.component.camel.atom:write-attribute(name=implClass,value=org.switchyard.component.camel.atom.deploy.CamelAtomComponent)
+/profile=full/subsystem=switchyard/module=org.switchyard.component.camel.core:add()
+/profile=full/subsystem=switchyard/module=org.switchyard.component.camel.core:write-attribute(name=implClass,value=org.switchyard.component.camel.core.deploy.CamelCoreComponent)
+/profile=full/subsystem=switchyard/module=org.switchyard.component.camel.file:add()
+/profile=full/subsystem=switchyard/module=org.switchyard.component.camel.file:write-attribute(name=implClass,value=org.switchyard.component.camel.file.deploy.CamelFileComponent)
+/profile=full/subsystem=switchyard/module=org.switchyard.component.camel.ftp:add()
+/profile=full/subsystem=switchyard/module=org.switchyard.component.camel.ftp:write-attribute(name=implClass,value=org.switchyard.component.camel.ftp.deploy.CamelFtpComponent)
+/profile=full/subsystem=switchyard/module=org.switchyard.component.camel.jms:add()
+/profile=full/subsystem=switchyard/module=org.switchyard.component.camel.jms:write-attribute(name=implClass,value=org.switchyard.component.camel.jms.deploy.CamelJmsComponent)
+/profile=full/subsystem=switchyard/module=org.switchyard.component.camel.jpa:add()
+/profile=full/subsystem=switchyard/module=org.switchyard.component.camel.jpa:write-attribute(name=implClass,value=org.switchyard.component.camel.jpa.deploy.CamelJpaComponent)
+/profile=full/subsystem=switchyard/module=org.switchyard.component.camel.mail:add()
+/profile=full/subsystem=switchyard/module=org.switchyard.component.camel.mail:write-attribute(name=implClass,value=org.switchyard.component.camel.mail.deploy.CamelMailComponent)
+/profile=full/subsystem=switchyard/module=org.switchyard.component.camel.netty:add()
+/profile=full/subsystem=switchyard/module=org.switchyard.component.camel.netty:write-attribute(name=implClass,value=org.switchyard.component.camel.netty.deploy.CamelNettyComponent)
+/profile=full/subsystem=switchyard/module=org.switchyard.component.camel.quartz:add()
+/profile=full/subsystem=switchyard/module=org.switchyard.component.camel.quartz:write-attribute(name=implClass,value=org.switchyard.component.camel.quartz.deploy.CamelQuartzComponent)
+/profile=full/subsystem=switchyard/module=org.switchyard.component.camel.sql:add()
+/profile=full/subsystem=switchyard/module=org.switchyard.component.camel.sql:write-attribute(name=implClass,value=org.switchyard.component.camel.sql.deploy.CamelSqlComponent)
+/profile=full/subsystem=switchyard/module=org.switchyard.component.rules:add()
+/profile=full/subsystem=switchyard/module=org.switchyard.component.rules:write-attribute(name=implClass,value=org.switchyard.component.rules.deploy.RulesComponent)
+/profile=full/subsystem=switchyard/module=org.switchyard.component.bpm:add()
+/profile=full/subsystem=switchyard/module=org.switchyard.component.bpm:write-attribute(name=implClass,value=org.switchyard.component.bpm.deploy.BPMComponent)
+/profile=full/subsystem=switchyard/module=org.switchyard.component.bpel:add()
+/profile=full/subsystem=switchyard/module=org.switchyard.component.bpel:write-attribute(name=implClass,value=org.switchyard.component.bpel.deploy.BPELComponent)
+/profile=full/subsystem=switchyard/module=org.switchyard.component.http:add()
+/profile=full/subsystem=switchyard/module=org.switchyard.component.http:write-attribute(name=implClass,value=org.switchyard.component.http.deploy.HttpComponent)
+/profile=full/subsystem=switchyard/module=org.switchyard.component.jca:add()
+/profile=full/subsystem=switchyard/module=org.switchyard.component.jca:write-attribute(name=implClass,value=org.switchyard.component.jca.deploy.JCAComponent)
+/profile=full/subsystem=switchyard/module=org.switchyard.component.sca:add()
+/profile=full/subsystem=switchyard/module=org.switchyard.component.sca:write-attribute(name=implClass,value=org.switchyard.component.sca.deploy.SCAComponent)
+/profile=full/subsystem=switchyard/module=org.switchyard.component.sca:write-attribute(name=properties,value={cache-name=switchyard})
+/profile=full/subsystem=switchyard/module=org.switchyard.component.resteasy:add()
+/profile=full/subsystem=switchyard/module=org.switchyard.component.resteasy:write-attribute(name=implClass,value=org.switchyard.component.resteasy.deploy.RESTEasyComponent)
+/profile=full/subsystem=switchyard/extension=org.apache.camel.mvel:add()
+/profile=full/subsystem=switchyard/extension=org.apache.camel.ognl:add()
+/profile=full/subsystem=switchyard/extension=org.apache.camel.jaxb:add()
+/profile=full/subsystem=switchyard/extension=org.apache.camel.soap:add()
+#/profile=full/subsystem=security/security-domain=bpel-console/authentication=classic:add(login-modules=[{code=UsersRoles,flag=required}])
+/profile=full/subsystem=logging/logger=org.switchyard:add(level=INFO)
+/profile=full/subsystem=logging/logger=org.apache.deltaspike.core.api.provider.BeanManagerProvider:add(level=INFO)
+##################################################################################################################################
+###########       configure full profile with JCA recource adapter that works with remote HA configured brokers          ######################
+# use full profile for switchyard because still need hornetq remote resource adaptor functionality
+# which, needs hornetq subsystem as per:  https://community.jboss.org/message/756775
+/profile=full/subsystem=messaging/hornetq-server=default/:write-attribute(name=persistence-enabled,value=false)
+/profile=full/subsystem=messaging/hornetq-server=default/:undefine-attribute(name=journal-file-size)
+/profile=full/subsystem=messaging/hornetq-server=default/:undefine-attribute(name=journal-min-files)
+/profile=full/subsystem=messaging/hornetq-server=default/address-setting=#/:remove
+/profile=full/subsystem=messaging/hornetq-server=default/security-setting=#/:remove
+/profile=full/subsystem=messaging/hornetq-server=default/connection-factory=InVmConnectionFactory/:remove
+/profile=full/subsystem=messaging/hornetq-server=default/in-vm-acceptor=in-vm/:remove
+/profile=full/subsystem=messaging/hornetq-server=default/in-vm-connector=in-vm/:remove
+/profile=full/subsystem=messaging/hornetq-server=default/remote-acceptor=netty-throughput/:remove
+/profile=full/subsystem=messaging/hornetq-server=default/remote-acceptor=netty/:remove
+/profile=full/subsystem=messaging/hornetq-server=default/remote-connector=netty-throughput/:remove
+
+#  define a discovery-group for the messaging subcomponent of the full profile
+#  both hornetq-ra.rar as well as JMS connection factories will use this discovery-group rather than lookup via static IPs
+/profile=full/subsystem=messaging/hornetq-server=default/discovery-group=dg-group1/:add(socket-binding=messaging-group,refresh-timeout=10000)
+
+# change pooled connection factory to use discovery-group rather than immediately using a netty connector
+/profile=full/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=discovery-group-name,value=dg-group1)
+
+# configure hornetq-ra for HA behavior
+/profile=full/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=ha,value=true)
+/profile=full/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra/:write-attribute(name=reconnect-attempts,value=-1)
+
+# configure JMS connection factory avialable internally to beans;  ensure it uses correct discovery group and is HA
+/profile=full/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=discovery-group-name,value=dg-group1)
+/profile=full/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=entries,value=["java:/RemoteConnectionFactory"])
+/profile=full/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=ha,value=true)
+/profile=full/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory/:write-attribute(name=reconnect-attempts,value=-1)
+##################################################################################################################################
+
+# trace level logging of any fault exceptions that could otherwise be buried in a handler
+/profile=full/subsystem=logging/logger=org.switchyard.bus.camel.audit.FaultProcessor/:add(category=org.switchyard.bus.camel.audit.FaultProcessor,level=TRACE,use-parent-handlers=true)
+
+# provides logging of which transformer is actually being used
+/profile=full/subsystem=logging/logger=org.switchyard.transform.TransformSequence/:add(category=org.switchyard.transform.TransformSequence,level=TRACE,use-parent-handlers=true)
+
+# trace level logging of org.switchyard.transform.TransformerRegistryLoader to view loaded transforms
+/profile=full/subsystem=logging/logger=org.switchyard.transform.TransformerRegistryLoader/:add(category=org.switchyard.transform.TransformerRegistryLoader,level=TRACE,use-parent-handlers=true)
+
+# trace level logging of org.switchyard.component.soap view inbound soap
+/profile=full/subsystem=logging/logger=org.switchyard.component.soap.InboundHandler/:add(category=org.switchyard.component.soap.InboundHandler,level=TRACE,use-parent-handlers=true)
+
+# DEBUG level logging of org.switchyard.internal.ExchangeImpl to view message traffic :  equivalent can be set in switchyard.xml by selecting "Enable Message Trace" in SY eclipse plugin
+/profile=full/subsystem=logging/logger=org.switchyard.internal.ExchangeImpl/:add(category=org.switchyard.internal.ExchangeImpl,level=DEBUG,use-parent-handlers=true)
+
+run-batch
+

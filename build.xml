@@ -375,26 +375,49 @@
                 </if>
                 <antcall target="cli.batch">
                     <param name="cli.source.dir" value="conf/fsw"/>
-                    <param name="cli.to.filter.and.execute" value="sy-server-group.cli"/>
+                    <param name="cli.to.filter.and.execute" value="sy-profile.cli"/>
                     <param name="cli.fail.on.error" value="true"/>
                 </antcall>
+
+                <!-- operating system loop -->
                 <for list="${org.jboss.eap.host.list}" param="serverIpAddr">
                     <sequential>
                         <var name="serverIpAddr" value="@{serverIpAddr}" />
-                          <for list="${sy.core.server.number.list}" param="serverNum">
+                        <var name="sy.core.port.offset" value="${sy.core.base.port.offset}" />
+
+                          <!-- switchyard server-group loop -->
+                          <for list="${sy.core.server.group.list}" param="sy.core.group.temp">
                             <sequential>
-                                <var name="sy.core.server.id" value="sy-core-@{serverNum}" />
-                                <math result="sy.core.port.increment" operand1="100" operation="*" operand2="@{serverNum}" datatype="int" />
-                                <math result="sy.core.port.offset" operand1="${sy.core.base.port.offset}" operation="+" operand2="${sy.core.port.increment}" datatype="int" />
-                                <math result="sy.core.debugger.port" operand1="${sy.core.base.debugger.port}" operation="+" operand2="${sy.core.port.increment}" datatype="int" />
-                                <echo message="sy.core.server.id=${sy.core.server.id} : sy.core.port.offset=${sy.core.port.offset} : sy.core.debugger.port = ${sy.core.debugger.port}" />
-                                <antcall target="cli.batch">
-                                    <param name="cli.source.dir" value="conf/fsw"/>
-                                    <param name="cli.to.filter.and.execute" value="sy-server-up.cli"/>
-                                    <param name="cli.fail.on.error" value="true"/>
-                                </antcall>
+                              <var name="sy.core.group" value="@{sy.core.group.temp}" />
+                              <antcall target="cli.batch">
+                                <param name="cli.source.dir" value="conf/fsw"/>
+                                <param name="cli.to.filter.and.execute" value="sy-server-group.cli"/>
+                                <param name="cli.fail.on.error" value="true"/>
+                              </antcall>
+
+                              <!-- switchyard server loop -->
+                              <for list="${sy.core.server.number.list}" param="serverNum">
+                                <sequential>
+                                    <var name="sy.core.server.id" value="${sy.core.group}-@{serverNum}" />
+                                    <math result="sy.core.port.increment" operand1="100" operation="*" operand2="@{serverNum}" datatype="int" />
+                                    <math result="sy.core.port.offset" operand1="${sy.core.port.offset}" operation="+" operand2="${sy.core.port.increment}" datatype="int" />
+                                    <math result="sy.core.debugger.port" operand1="${sy.core.base.debugger.port}" operation="+" operand2="${sy.core.port.increment}" datatype="int" />
+                                    <echo message="sy.core.server.id=${sy.core.server.id} : sy.core.port.offset=${sy.core.port.offset} : sy.core.debugger.port = ${sy.core.debugger.port}" />
+                                    <antcall target="cli.batch">
+                                        <param name="cli.source.dir" value="conf/fsw"/>
+                                        <param name="cli.to.filter.and.execute" value="sy-server-up.cli"/>
+                                        <param name="cli.fail.on.error" value="true"/>
+                                    </antcall>
+                                </sequential>
+                              </for>
+                              <antcall target="cli.batch">
+                                <param name="cli.source.dir" value="conf/fsw"/>
+                                <param name="cli.to.filter.and.execute" value="sy-server-group-up.cli"/>
+                                <param name="cli.fail.on.error" value="true"/>
+                              </antcall>
+                              <math result="sy.core.port.offset" operand1="${sy.core.port.offset}" operation="+" operand2="100" datatype="int" />
                             </sequential>
-                        </for>
+                          </for>
                     </sequential>
                 </for>
             </then>

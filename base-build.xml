@@ -179,10 +179,9 @@
     <!--
         purpose:  execute a single cli command on a running EAP 6 server
         pass following parameters to this target :
-            1)  cli.source.dir
-            2)  cli.to.filter.and.execute
-            3)  management.port (optional: default = 9999)
-            4)  cli.fail.on.error  (optional; default = true)
+            1)  cli.command
+            2)  management.port (optional: default = 9999)
+            3)  cli.fail.on.error  (optional; default = true)
     -->
     <target name="cli.command" depends="" >
         <fail unless="cli.command" message="cli.command:  need to pass 'cli.command' property" />
@@ -194,6 +193,7 @@
         <then><property name="cli.fail.on.error" value="true" /></then></if>
         <if><not><isset property="jbossCliXmx"/></not>
         <then><property name="jbossCliXmx" value="128m" /></then></if>
+        <echo message="cli.command = ${cli.command}" />
         <exec executable="${development.base}/bin/local.jboss.domain.sh" failonerror="${cli.fail.on.error}" >
             <arg value="executeCli"/>
             <arg value="-jbossHome=${jboss.home}"/>
