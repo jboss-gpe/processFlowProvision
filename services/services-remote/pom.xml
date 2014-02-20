@@ -148,6 +148,11 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
           <version>${version.uberfire}</version>
         </dependency>
         <dependency>
+          <groupId>org.uberfire</groupId>
+          <artifactId>uberfire-security-server</artifactId>
+          <version>${version.uberfire}</version>
+        </dependency>
+        <dependency>
           <groupId>org.kie</groupId>
           <artifactId>kie-ci</artifactId>
           <version>${version.drools}</version>
@@ -201,6 +206,77 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
        -->
       <id>modules</id>
       <dependencies>
+        <dependency>
+          <groupId>org.jboss.processFlow.services</groupId>
+          <artifactId>interfaces</artifactId>
+          <version>${version.project}</version>
+        </dependency>
+        <!-- jee -->
+        <dependency>
+          <groupId>org.jboss.spec.javax.servlet</groupId>
+          <artifactId>jboss-servlet-api_3.0_spec</artifactId>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.jboss.ejb3</groupId>
+          <artifactId>jboss-ejb3-ext-api</artifactId>
+          <version>2.0.0-redhat-2</version>
+        </dependency>
+        <dependency>
+          <groupId>org.jboss.spec.javax.ejb</groupId>
+          <artifactId>jboss-ejb-api_3.1_spec</artifactId>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>javax.enterprise</groupId>
+          <artifactId>cdi-api</artifactId>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.hibernate.javax.persistence</groupId>
+          <artifactId>hibernate-jpa-2.0-api</artifactId>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>javax.inject</groupId>
+          <artifactId>javax.inject</artifactId>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>javax.security.jacc</groupId>
+          <artifactId>javax.security.jacc-api</artifactId>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.jboss.resteasy</groupId>
+          <artifactId>resteasy-jaxrs</artifactId>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>commons-lang</groupId>
+          <artifactId>commons-lang</artifactId>
+          <scope>provided</scope>
+        </dependency>
+
+        <!-- droolsjbpm -->
+        <dependency>
+          <groupId>org.kie</groupId>
+          <artifactId>kie-api</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.kie</groupId>
+          <artifactId>kie-internal</artifactId>
+          <version>${version.drools}</version>
+        </dependency>
+        <dependency>
+          <groupId>org.jbpm</groupId>
+          <artifactId>jbpm-kie-services</artifactId>
+          <version>${version.drools}</version>
+        </dependency>
       </dependencies>
     </profile>
 

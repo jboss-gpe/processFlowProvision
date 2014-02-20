@@ -147,6 +147,7 @@ public class AdditionalRuntimeResources {
     @Path("/deploymentUnits")
     public Response refreshDeploymentUnits() {
         try {
+            logger.info("refreshDeploymentUnits() about to bounce deployment units ******");
             dBean.stop();
             dBean.start();
             return Response.ok().build();

@@ -7,8 +7,9 @@
     <alternatives>
         <!-- NOTE:  JAASUserGroupCallbackImpl will use the userId used in the transport (either EJB or REST) authorization
             if want more flexibility, then try one of the other UserGroupCallback implementations
-        -->
         <class>org.jbpm.services.task.identity.JAASUserGroupCallbackImpl</class>
+        -->
+        <class>org.jbpm.kie.services.cdi.producer.JAASUserGroupInfoProducer</class>
     </alternatives>
     <decorators>
         <!-- 
@@ -16,13 +17,18 @@
             this Decorator will invoke UserGroupCallback implementation to retrieve that List of groupIds.
          - This decorator is required when using the kie-services-remote REST API  because the API does not offer an option to include a list of groupIds
             as part of the request parameters
-        -->
         <class>org.jbpm.services.task.identity.UserGroupTaskQueryServiceDecorator</class>
+        -->
 
         <!-- UserGroupCallback on operations that change state of Human Task -->
-        <class>org.jbpm.services.task.identity.UserGroupTaskInstanceServiceDecorator</class>
-
+        <!--class>org.jbpm.services.task.identity.UserGroupTaskInstanceServiceDecorator</class>
         <class>org.jbpm.services.task.identity.UserGroupLifeCycleManagerDecorator</class>
-        <class>org.jbpm.services.task.subtask.SubTaskDecorator</class>
+        <class>org.jbpm.services.task.subtask.SubTaskDecorator</class -->
     </decorators>
+    <interceptors>
+        <class>org.uberfire.security.server.authz.cdi.RolesInterceptor</class>
+        <class>org.uberfire.security.server.authz.cdi.TraitInterceptor</class>
+    </interceptors>
+
+    
 </beans>

@@ -342,6 +342,8 @@
                                 <then><var name="hostIp" value="${os.hostname}" /></then>
                                 <else><var name="hostIp" value="${serverIpAddr}" /></else>
                               </if>
+
+                              <echo message="***  about to trigger registration of Deployment Units  ****" />
                               <exec executable="curl" failonerror="${cli.fail.on.error}" >
                                 <arg value="-u"/>
                                 <arg value="${bpm.core.remoting.user.name}:${bpm.core.remoting.password}"/>
@@ -468,11 +470,8 @@
     </target>
 
     <target name="pfp.clean" description="" >
-        <delete dir="${distro.clean}" />
-        <delete dir="services/auditLog/target" />
-        <delete dir="services/consoleIntegration/target" />
-        <delete dir="services/interfaces/target" />
-        <delete dir="services/services-remote/target" />
+        <delete dir="${temp.dir}" />
+        <iterate target="clean" />
     </target>
 
     <target name="mkPfpDirs">
@@ -482,27 +481,19 @@
     </target>
 
     <target name="pfp.compile" depends="mkPfpDirs" description="" >
-        <if><equals arg1="${bpms.deployment.type}" arg2="modules" />
-          <then>
-            <copy file="services/services-remote/conf/jboss-deployment-structure.xml.modules" tofile="services/services-remote/src/main/webapp/WEB-INF/jboss-deployment-structure.xml" overwrite="true" verbose="true" />
-          </then>
-        </if>
-        <exec executable="mvn" failonerror="true" dir="." >
-            <arg value="install" />
-            <arg value="-Dmaven.test.skip=true" />
-            <arg value="-P${bpms.deployment.type}" />
-            <arg value="-s" />
-            <arg value="${maven.path.to.settings.xml}" />
-        </exec>
-        <if><equals arg1="${bpms.deployment.type}" arg2="modules" />
-          <then>
-            <exec executable="git" failonerror="true" dir="." >
-                <arg value="checkout" />
-                <arg value="services/services-remote/src/main/webapp/WEB-INF/jboss-deployment-structure.xml" />
-            </exec>
-          </then>
-        </if>
+        <iterate target="all" />
     </target>
+
+    <macrodef name="iterate">
+        <attribute name="target"/>
+        <sequential>
+            <subant target="@{target}">
+                <fileset dir="services/interfaces" includes="build.xml"/>
+                <fileset dir="services/auditLog" includes="build.xml"/>
+                <fileset dir="services/services-remote" includes="build.xml"/>
+            </subant>
+        </sequential>
+    </macrodef>
 
     <target name="pfp.refresh.bpms" description="">
         <delete file="${install.home}/lib/${bpms.deployer.zip.name}" />
@@ -516,7 +507,7 @@
         <echo message="curl -v -u ${bpm.core.remoting.user.name}:${bpm.core.remoting.password} -X GET http://${os.hostname}:${bpm.core.http.port}/${org.jboss.processFlow.kie.services.web.context}/rest/history/sanityCheck" />
         <echo message="curl -v -u ${bpm.core.remoting.user.name}:${bpm.core.remoting.password} -X PUT http://${os.hostname}:${bpm.core.http.port}/${org.jboss.processFlow.kie.services.web.context}/rest/additional/runtime/all/deploymentUnits" />
         <echo message="curl -v -u ${bpm.core.remoting.user.name}:${bpm.core.remoting.password} -X GET http://${os.hostname}:${bpm.core.http.port}/${org.jboss.processFlow.kie.services.web.context}/rest/additional/runtime/org.acme.insurance:policyquote:1.0.0/processes" />
-        <echo message="curl -v -u ${bpm.core.remoting.user.name}:${bpm.core.remoting.password} -X POST http://${os.hostname}:${bpm.core.http.port}/${org.jboss.processFlow.kie.services.web.context}/rest/runtime/org.acme.insurance:policyquote:1.0.0/process/policyQuoteTask/start" />
+        <echo message="curl -v -u ${bpm.core.remoting.user.name}:${bpm.core.remoting.password} -X POST http://${os.hostname}:${bpm.core.http.port}/${org.jboss.processFlow.kie.services.web.context}/rest/runtime/org.acme.insurance:policyquote:1.0.0/process/policyquote.policyquoteprocess/start" />
         <echo message="curl -v -u ${bpm.core.remoting.user.name}:${bpm.core.remoting.password} -X POST http://${os.hostname}:${bpm.core.http.port}/${org.jboss.processFlow.kie.services.web.context}/rest/history/clear" />
     </target>
 

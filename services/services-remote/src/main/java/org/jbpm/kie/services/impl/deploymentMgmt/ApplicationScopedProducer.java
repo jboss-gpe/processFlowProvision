@@ -35,14 +35,16 @@ public class ApplicationScopedProducer {
     @PersistenceUnit(unitName="org.jbpm.persistence.jpa")
     EntityManagerFactory bamEMF;
     
-    @Inject
-    @Selectable  // specified in this runtime artifact's META-INF/beans.xml
-    private UserGroupCallback userGroupCallback;
-    
+    //@Inject
+    //@Selectable  // specified in this runtime artifact's META-INF/beans.xml
+    //private UserGroupCallback userGroupCallback;
+   
+    /* 
     @Produces
     public UserGroupCallback produceSelectedUserGroupCallback() {
         return userGroupCallback;
     }
+    */
     
     /* injects into:  
         1) 3) org.jbpm.shared.services.impl.JbpmServicesPersistenceManagerImpl

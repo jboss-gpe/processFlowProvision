@@ -227,9 +227,9 @@ INSTALL   :
     - sample insurancepolicy project
         - OOB process flow provision leverages a sample demo project called 'insurancepolicy' to demonstrate BPMS capabilities
         - clone and deploy the 'insurancepolicy' project:
-            1)   git clone https://github.com/jboss-sso/insurancepolicy.git
+            1)   git clone https://github.com/jboss-gpe/insurancepolicy.git
             2)   cd policyquote
-            3)   mvn clean install
+            3)   mvn clean install -DskipTests
 
     - deploy BPMS6/PFP "core" and "bpms-webs" artifacts to JBoss EAP
         (as jboss)

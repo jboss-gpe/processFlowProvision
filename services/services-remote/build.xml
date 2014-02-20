@@ -1,0 +1,20 @@
+<project name="services-remote" default="all" basedir=".">
+
+    <property environment="ENV"/>
+    <property file="../../build.properties" />
+    <import file="${development.base}/base-build.xml"/>
+
+    <target name="all" depends="clean" >
+        <property name="web.lib.dir" value="${build.dir}/webapp/WEB-INF/lib" />
+        <mkdir dir="${web.lib.dir}" />
+        <copy todir="${web.lib.dir}" file="${path.to.droolsjbpm}/droolsjbpm-integration/kie-remote/kie-services-remote/target/kie-services-remote-6.0.1.Final.jar" verbose="true" />
+        <copy todir="${web.lib.dir}" file="${path.to.droolsjbpm}/kie-wb-distributions/kie-eap-integration/kie-eap-integration-distributions/kie-eap-integration-bpms/target/eap-modules-distributions-6.0.1.Final-org.kie.kie-wb-webapp/WEB-INF/lib/uberfire-security-server-0.3.1.Final.jar" verbose="true" />
+        <antcall target="war" >
+            <param name="war.name" value="${ant.project.name}" />
+            <param name="project.path.property" value="${web.lib.dir}" />
+        </antcall>
+    </target>
+
+    <target name="clean"><delete dir="${build.dir}" /></target>
+
+</project>
