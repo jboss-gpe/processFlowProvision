@@ -386,13 +386,11 @@ executeCommandsAcrossAllAccounts() {
     do 
         echo -en "\n"
         echo -en "\n*********   id = $id    **************\n"
-        rhc create-app $id https://raw.github.com/jboss-gpe-ose/openshift-origin-cartridge-bpms-full/master/metadata/manifest.yml -g medium --no-git
-        sleep 2
+        rhc create-app $id https://raw.github.com/jboss-gpe-ose/openshift-origin-cartridge-bpms-full/master/metadata/manifest.yml -g medium --no-git --noprompt
         rhc cartridge add -a $id -c mysql-5.1
-        sleep 2
         rhc cartridge-stop bpms -a $id
         #rhc app delete -a $id --confirm
-        sleep 2
+        sleep 30
 
         ((t++))
     done
