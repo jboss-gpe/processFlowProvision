@@ -132,7 +132,7 @@
     <target name="download.and.unzip.bpms.deployer">
       <if><equals arg1="${org.jboss.processFlow.provision.bpmCore}" arg2="true" />
         <then>
-            <unzip src="${bpms.deployer.zip.path}" dest="${jboss.home}" />
+            <unzip src="${bpms.deployer.zip.path}" dest="${jboss.home}/.." />
         </then>
         <else>
             <echo message="download.and.unzip.bpms.deployer() .... skipping" />
@@ -443,8 +443,10 @@
                     <equals arg1="${refresh.master}" arg2="true" />
                     <then><antcall target="refresh.master" /></then>
                 </if>
-                <jar update="true" destfile="${biz.central.zipped}" basedir="services/consoleIntegration/target/" includes="WEB-INF/lib/consoleIntegration.jar" />
-                <jar update="true" destfile="${biz.central.zipped}" basedir="conf/bpmsWebs/bizcentral" includes="WEB-INF/classes/META-INF/services/javax.enterprise.inject.spi.Extension" />
+                <!--jar update="true" destfile="${biz.central.zipped}" basedir="services/consoleIntegration/target/" includes="WEB-INF/lib/consoleIntegration.jar" />
+                <jar update="true" destfile="${biz.central.zipped}" basedir="conf/bpmsWebs/bizcentral" includes="WEB-INF/classes/META-INF/services/javax.enterprise.inject.spi.Extension" /-->
+                <jar destfile="${biz.central.zipped}" basedir="${jboss.home}/standalone/deployments/business-central.war" />
+                <jar destfile="${dashbuilder.zipped}" basedir="${jboss.home}/standalone/deployments/dashbuilder.war" />
                 <antcall target="cli.batch">
                     <param name="cli.source.dir" value="conf/bpmsWebs"/>
                     <param name="cli.to.filter.and.execute" value="bpmsWebs-config-group.cli"/>
@@ -512,7 +514,7 @@
     </target>
 
     <target name="all" >
-        <antcall target="download.and.unzip.bpms.deployer" />
+        <!--antcall target="download.and.unzip.bpms.deployer" / -->
         <antcall target="refresh.master" />
         <antcall target="refresh.slave.hosts" />
         <antcall target="local.configure.core.services" />
