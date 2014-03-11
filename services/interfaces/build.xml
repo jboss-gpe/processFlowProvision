@@ -8,7 +8,7 @@
         <antcall target="jar" >
             <param name="jar.name" value="processFlow-${ant.project.name}" />
         </antcall>
-        <copy file="${build.dir}/processFlow-${ant.project.name}.jar" toDir="${pfp.module.path}/org/jboss/processFlow/main" />
+        <copy file="${build.dir}/processFlow-${ant.project.name}.jar" toDir="${project.module.path}/org/jboss/processFlow/main" />
     </target>
 
     <target name="clean"><delete dir="${build.dir}" /></target>

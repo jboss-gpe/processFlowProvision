@@ -189,31 +189,28 @@
         <echo message="deploying following db modules locally:  ${jdbc.module.name}" />
         <antcall target="filter">
             <param name="source.dir" value="conf/${jdbc.module.name}/modules"/>
-            <param name="dest.dir" value="${pfp.module.path}"/>
+            <param name="dest.dir" value="${project.module.path}"/>
         </antcall>
         <if><equals arg1="${jdbc.module.name}" arg2="postgresql" />
             <then>
-                <copy overwrite="true" verbose="true" file="${postgresql.jdbc.lib.path}" todir="${temp.pfp.modules.dir}/org/postgresql/jdbc/main" />
-                <copy overwrite="true" verbose="true" file="${postgresql.jdbc.lib.path}" todir="${pfp.module.path}/org/postgresql/jdbc/main" />
+                <copy overwrite="true" verbose="true" file="${postgresql.jdbc.lib.path}" todir="${temp.project.modules.dir}/org/postgresql/jdbc/main" />
+                <copy overwrite="true" verbose="true" file="${postgresql.jdbc.lib.path}" todir="${project.module.path}/org/postgresql/jdbc/main" />
             </then></if>
         <if><equals arg1="${jdbc.module.name}" arg2="mysql" />
             <then>
-                <copy overwrite="true" verbose="true" file="${mysql.jdbc.lib.path}" todir="${temp.pfp.modules.dir}/com/mysql/jdbc/main" />
-                <copy overwrite="true" verbose="true" file="${mysql.jdbc.lib.path}" todir="${pfp.module.path}/com/mysql/jdbc/main" />
+                <copy overwrite="true" verbose="true" file="${mysql.jdbc.lib.path}" todir="${temp.project.modules.dir}/com/mysql/jdbc/main" />
+                <copy overwrite="true" verbose="true" file="${mysql.jdbc.lib.path}" todir="${project.module.path}/com/mysql/jdbc/main" />
             </then></if>
         <if><equals arg1="${jdbc.module.name}" arg2="oracle" />
             <then>
-                <copy overwrite="true" verbose="true" file="${oracle.jdbc.lib.path}" todir="${temp.pfp.modules.dir}/com/oracle/jdbc/main" />
-                <copy overwrite="true" verbose="true" file="${oracle.jdbc.lib.path}" todir="${pfp.module.path}/com/oracle/jdbc/main" />
+                <copy overwrite="true" verbose="true" file="${oracle.jdbc.lib.path}" todir="${temp.project.modules.dir}/com/oracle/jdbc/main" />
+                <copy overwrite="true" verbose="true" file="${oracle.jdbc.lib.path}" todir="${project.module.path}/com/oracle/jdbc/main" />
             </then></if>
         <if><equals arg1="${jdbc.module.name}" arg2="h2" />
             <then><echo message="configure.jboss.modules() h2 driver already in eap6.*" /></then></if>
     </target> 
 
-    <target name="local.deploy.jboss.modules" >
-        <!-- https://community.jboss.org/wiki/LayeredDistributionsAndModulePathOrganization -->
-        <mkdir dir="${jboss.home}/modules/system/layers/${organization.name}" />
-
+    <target name="local.deploy.jboss.modules" depends="mkDirs" >
         <antcall target="configure.fsw.modules" />
         <antcall target="configure.bpms.modules" />
         <antcall target="filter">
@@ -223,7 +220,7 @@
         </antcall>
         <antcall target="filter">
             <param name="source.dir" value="conf/jboss/modules/pfp"/>
-            <param name="dest.dir" value="${jboss.home}/modules/system/layers/pfp"/>
+            <param name="dest.dir" value="${project.module.path}"/>
         </antcall>
     </target>
 
@@ -476,13 +473,14 @@
         <iterate target="clean" />
     </target>
 
-    <target name="mkPfpDirs">
+    <target name="mkDirs">
         <mkdir dir="${install.home}/lib" />
-        <mkdir dir="${pfp.module.path}" />
+        <mkdir dir="${project.module.path}" />
         <mkdir dir="${fsw.module.path}" />
+        <mkdir dir="${bpms.module.path}" />
     </target>
 
-    <target name="pfp.compile" depends="mkPfpDirs" description="" >
+    <target name="pfp.compile" depends="" description="" >
         <iterate target="all" />
     </target>
 

@@ -23,7 +23,7 @@
         <fileset dir="${jboss.home}/modules" >
             <include name="**/*.jar" />
         </fileset>
-        <fileset dir="${pfp.module.path}" >
+        <fileset dir="${project.module.path}" >
             <include name="**/*.jar" />
         </fileset>
         <pathelement location="${build.dir}" />
