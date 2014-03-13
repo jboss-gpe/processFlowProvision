@@ -288,6 +288,7 @@
             </sequential>
         </for>
     </target>
+
     <!--
       pass following parameters to this target :
         1) org.jboss.processFlow.provision.bpmCore

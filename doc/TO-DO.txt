@@ -1,6 +1,4 @@
-CHALLENGES
-    1) https://www.openshift.com/forums/openshift/automate-addition-of-database-in-cartridge
+. ha-backup profile
+** copy from master branch
 
-
-ADDITIONAL
-    1)  REST API:  history/clear ..... alternative would be to accept the DELETE http method on the /history resource
+. fswWebs 
