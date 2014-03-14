@@ -5,9 +5,16 @@
     <import file="${development.base}/base-build.xml"/>
 
     <target name="all" depends="clean" >
-        <antcall target="jar" >
-            <param name="jar.name" value="processFlow-${ant.project.name}" />
-        </antcall>
+        <if><equals arg1="${org.jboss.processFlow.provision.bpmCore}" arg2="true" />
+          <then>
+            <antcall target="jar" >
+                <param name="jar.name" value="processFlow-${ant.project.name}" />
+            </antcall>
+          </then>
+          <else>
+            <echo message="auditLog build .... skipping" />
+        </else>
+      </if>
     </target>
 
     <target name="clean"><delete dir="${build.dir}" /></target>

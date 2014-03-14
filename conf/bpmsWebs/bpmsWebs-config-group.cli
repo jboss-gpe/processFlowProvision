@@ -15,6 +15,8 @@ batch
 /server-group=${bpms.webs.group}/system-property=org.uberfire.nio.git.dir/:add(value="${org.uberfire.nio.git.dir}",boot-time=true)
 /server-group=${bpms.webs.group}/system-property=org.uberfire.metadata.index.dir/:add(value="${org.uberfire.metadata.index.dir}",boot-time=true)
 
+/server-group=${bpms.webs.group}/system-property=hibernate.dialect/:add(value=${hibernate.dialect},boot-time=true)
+
 /server-group=${bpms.webs.group}/system-property=org.jboss.processFlow.consoleIntegration.space.delimited.veto.classes/:add(value="${org.jboss.processFlow.consoleIntegration.space.delimited.veto.classes}",boot-time=true)
 
 /server-group=${bpms.webs.group}/system-property=org.kie.demo/:add(value="${org.kie.demo}",boot-time=true)
@@ -22,7 +24,13 @@ batch
 
 /server-group=${bpms.webs.group}/system-property=kie.exec.server.rest.base.url/:add(value="${kie.exec.server.rest.base.url}",boot-time=true)
 
-### non-XA datasource connection pools to jbpm bam database to support jbpm-dashboard
+### non-XA datasource connection pools to jbpm core database
+##  can get away with using a non-XA datasource for jbpm core database due to Last Resource Commit optimization of JBoss Transaction Manager
+/profile=full/subsystem=datasources/data-source=jbpm-core-cp:add(jndi-name=java:jboss/datasources/jbpm-core-cp,connection-url=${jbpm_connection_url},driver-class=${jbpm_driver_class},driver-name=${jdbc.module.name},user-name=${jbpm_db_user},password=${jbpm_db_password},pool-name=jbpm-core_ds_pool,max-pool-size=50,min-pool-size=5)
+/profile=full/subsystem=datasources/data-source=jbpm-core-cp/:write-attribute(name=new-connection-sql,value="${org.jboss.processFlow.connection.test}")
+/profile=full/subsystem=datasources/data-source=jbpm-core-cp:enable()
+
+### non-XA datasource connection pools to jbpm bam database to support dashbuilder
 ##  can get away with using a non-XA datasource for jbpm bam database due to Last Resource Commit optimization of JBoss Transaction Manager
 /profile=full/subsystem=datasources/data-source=jbpm-bam-cp:add(jndi-name=java:jboss/datasources/jbpm-bam-cp,connection-url=${bam_connection_url},driver-class=${bam_driver_class},driver-name=${jdbc.module.name},user-name=${bam_db_user},password=${bam_db_password},pool-name=jbpm-bam_ds_pool,max-pool-size=20,min-pool-size=1)
 /profile=full/subsystem=datasources/data-source=jbpm-bam-cp/:write-attribute(name=new-connection-sql,value="${org.jboss.processFlow.connection.test}")

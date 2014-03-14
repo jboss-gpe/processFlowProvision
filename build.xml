@@ -444,7 +444,9 @@
                 <!--jar update="true" destfile="${biz.central.zipped}" basedir="services/consoleIntegration/target/" includes="WEB-INF/lib/consoleIntegration.jar" />
                 <jar update="true" destfile="${biz.central.zipped}" basedir="conf/bpmsWebs/bizcentral" includes="WEB-INF/classes/META-INF/services/javax.enterprise.inject.spi.Extension" /-->
                 <jar destfile="${biz.central.zipped}" basedir="${jboss.home}/standalone/deployments/business-central.war" />
+                <jar update="true" destfile="${biz.central.zipped}" basedir="conf/bpmsWebs/bizcentral" includes="WEB-INF/classes/META-INF/persistence.xml" />
                 <jar destfile="${dashbuilder.zipped}" basedir="${jboss.home}/standalone/deployments/dashbuilder.war" />
+                <jar update="true" destfile="${dashbuilder.zipped}" basedir="conf/bpmsWebs/dashbuilder" includes="WEB-INF/jboss-web.xml" />
                 <antcall target="cli.batch">
                     <param name="cli.source.dir" value="conf/bpmsWebs"/>
                     <param name="cli.to.filter.and.execute" value="bpmsWebs-config-group.cli"/>
