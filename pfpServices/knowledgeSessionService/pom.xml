@@ -215,7 +215,7 @@
 										</replace>
 										<replace file="target/classes/META-INF/persistence.xml">
 											<replacetoken><![CDATA[<mapping-file>META-INF/ProcessInstanceInfo.hbm.xml</mapping-file>]]></replacetoken>
-											<replacevalue><![CDATA[<!-- <mapping-file>META-INF/ProcessInstanceInfo.hbm.xml</mapping-file> -->]]></replacevalue>
+											<replacevalue><![CDATA[<mapping-file>META-INF/ProcessInstanceInfoMapping-JPA2.xml</mapping-file>]]></replacevalue>
 										</replace>
 									</tasks>
 								</configuration>
