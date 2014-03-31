@@ -131,11 +131,14 @@
     <!-- https://github.com/jboss-sso/processFlowProvision/issues/3 -->
     <target name="download.and.unzip.bpms.deployer">
       <if><equals arg1="${org.jboss.processFlow.provision.bpmCore}" arg2="true" />
-        <then>
-            <unzip src="${bpms.deployer.zip.path}" dest="${jboss.home}/.." />
-        </then>
+        <then><unzip src="${bpms.deployer.zip.path}" dest="${jboss.home}/.." /></then>
         <else>
-            <echo message="download.and.unzip.bpms.deployer() .... skipping" />
+            <if><equals arg1="${org.jboss.processFlow.provision.bpmsWebs}" arg2="true" />
+                <then><unzip src="${bpms.deployer.zip.path}" dest="${jboss.home}/.." /></then>
+                <else>
+                    <echo message="download.and.unzip.bpms.deployer() .... skipping" />
+                </else>
+            </if>
         </else>
       </if>
     </target>
