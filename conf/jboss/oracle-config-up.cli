@@ -8,4 +8,6 @@ batch
 # "full-ha" profile is used by ha JVMs
 /profile=full-ha/subsystem=datasources/jdbc-driver=oracle/:add(driver-name=oracle,driver-module-name=com.oracle.jdbc,driver-xa-datasource-class-name=oracle.jdbc.xa.client.OracleXADataSource,jdbc-compliant=false)
 
+/profile=full/subsystem=datasources/jdbc-driver=oracle/:add(driver-name=oracle,driver-module-name=com.oracle.jdbc,driver-xa-datasource-class-name=oracle.jdbc.xa.client.OracleXADataSource,jdbc-compliant=false)
+
 run-batch
