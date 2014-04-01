@@ -204,8 +204,8 @@ INSTALL   :
                 - at the following property :                  host    all     all     <network address>/16  md5
                 - example is provided in :                     conf/postgresql/pg_hba.conf
             - as 'postgres' user, create users and passwords in postgresql RDBMS
-                psql -d jbpm -f /path/to/bpms6/source/jbpm/jbpm-installer/db/ddl-scripts/postgresql/postgresql-jbpm-schema.sql
-                psql -d jbpm -f /path/to/bpms6/source/jbpm/jbpm-installer/db/ddl-scripts/postgresql/quartz_tables_postgres.sql
+                psql -d jbpm -f -U jbpm -h $HOSTNAME /path/to/pfp/conf/postgresql/ddl-scripts/postgresql/postgresql-jbpm-schema.sql
+                psql -d jbpm -f -U jbpm -h $HOSTNAME /path/to/pfp/conf/postgresql/ddl-scripts/postgresql/quartz_tables_postgres.sql
 
             - bounce postgresql server process
                 - (as root) service postgresql restart
