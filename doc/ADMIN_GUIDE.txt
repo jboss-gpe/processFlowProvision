@@ -1,7 +1,6 @@
 processFlowProvision (aka:  PFP)
 
 JA Bride
-curl -b cookies -L -d "j_username=USER&j_password=PASSWORD" http://localhost:8080/business-central-server/j_security_check 
 
 
 ASSUMPTIONS
@@ -148,13 +147,6 @@ INSTALL   :
                                 
      - Apache Ant
         - this project requires Apache Ant v. 1.8.3 (or more recent) along with the ant-contrib library
-
-        - if Ant v. 1.8.3 is not already installed, download from the following : http://ant.apache.org/bindownload.cgi
-
-        - upon completion of download, unzip apache-ant-1.8.3-bin.zip  to the '$JBOSS_PROJECTS/' directory
-            (as jboss):
-                unzip $JBOSS_PROJECTS/downloads/apache-ant-1.8.3-bin.zip -d $JBOSS_PROJECTS/
-
         - ant-contrib is already included in $PFP_HOME/lib/ant .... so nothing more to do in that regard
 
 
@@ -230,6 +222,11 @@ INSTALL   :
             2)   cd policyquote
             3)   mvn clean install -DskipTests
 
+    - download of JBoss Supported Platforms
+        - from the Red Hat Customer Support Portal download the following and place in the $PFP_HOME/target/lib directory
+        1)  jboss-eap-6.1.1.zip
+        2)  jboss-bpms-6.0.1.GA-redhat-4-deployable-eap6.x.zip
+
     - deploy BPMS6/PFP "core" and "bpms-webs" artifacts to JBoss EAP
         (as jboss)
             cd $JBOSS_PROJECTS/processFlowProvision
@@ -292,52 +289,6 @@ POST INSTALL ADMINISTRATION
             http://<hostName>:8230/business-central-server/rs/server/resources/jbpm
 
                 
-    Eclipse Tooling                
-        - NOTES:  
-            - it's recommended that creation of process definitions be done via the guvnor web designer web app rather than via any of the eclipse plugins
-                provided by jbpm5
-            - if still interested in using a jbpm5 eclipse plugin, then this section applies ... otherwise skip
-            - Eclipse does not need to be co-located in the same virtual machine as the jbpm5 runtime 
-            - also, probably best to use a fresh install of eclipse-java-helios that does not have any other JBoss related components such as JBoss Tools
-
-        - BPMN2 Modeler Project
-            - http://eclipse.org/projects/project.php?id=soa.bpmn2-modeler
-            - CodeHoop was contracted by Red Hat to create an initial version of this editor
-            - We (Red Hat) then further extended this codebase and moved it to eclipse.org
-            - So the codebase referred to here:  https://github.com/imeikas/BPMN2-Editor-for-Eclipse/wiki ..... is an early version of this extended version
-            - So this extended version is the same editor as referred to here:
-                - http://kverlaen.blogspot.com/2011/02/new-bpmn-20-eclipse-editor.html
-   
-        - legacy Drools-Flow Eclipse plugin
-            - This legacy Drools-Flow eclipse plugin is a combination of two plugins, located at:
-                - http://anonsvn.jboss.org/repos/jbosstools/trunk/bpmn/plugins/org.jboss.tools.jbpm/
-                - https://github.com/droolsjbpm/droolsjbpm-tools/tree/master/drools-eclipse
-            - if interested in using the legacy Drools Flow plugin for eclipse (rather than the new BPMN2 editor from codehoop) , execute the following : 
-                - ensure that the 'eclipse.home' property is set correctly in $JBOSS_PROJECTS/processFlowProvision/build.properties
-                - (as jboss) cd $JBOSS_PROJECTS/processFlowProvision
-                - ant local.install.drools-eclipse.into.eclipse  (note:  this will install both jbpm5 and guvnor plugins into eclipse)
-
-        - Eclipse Guvnor Tools (EGT)
-            - the Eclipse Guvnor Tools can be used with either the BPMN2 Visual Editor or the legacy Drools-Flow Eclipse plugin
-            - user documentation on Eclipse Guvnor Tools can be found here :
-                - http://docs.jboss.org/drools/release/5.2.0.CR1/drools-guvnor-docs/html_single/index.html#d0e1173
-            - if installing the Eclipse Guvnor Tools, execute the following :
-                -  (as jboss) cd $JBOSS_PROJECTS/processFlowProvision
-                - ensure that the 'eclipse.home' property is set correctly in $JBOSS_PROJECTS/processFlowProvision/build.properties
-                - ant local.install.drools-eclipse.into.eclipse  (note:  this will install both jbpm5 and guvnor plugins into eclipse)
-                
-        - To install Drools-Flow and Guvnor plugins manually on a Windows Eclipse client
-            - Download the following to a temporary directory :
-                https://repository.jboss.org/nexus/content/repositories/snapshots/org/drools/org.drools.updatesite/5.4.0-SNAPSHOT/org.drools.updatesite-5.4.0-20111010.153938-36-assembly.zip
-            - Unzip the contents of the zip file into the temporary directory (which creates both a plugins and a features subdirectory in addition to a number of files in the root of the temp directory).
-            - Copy the contents of the 'plugins' and 'features' subdirectories to the equivalent subdirectories under the <eclipse home> directory.
-
-            - start eclipse ....should be able to navigate to the following :
-                Window -> Show View -> other -> Guvnor -> Guvnor Repositories
-
-
-
-
 modifications to runtime directory structure
   - $JBOSS_HOME/server/default-${organization.name}             
         - PFP enabled JBoss runtime

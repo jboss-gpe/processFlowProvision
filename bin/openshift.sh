@@ -233,93 +233,6 @@ setRSAkeyAndNamespaceOnAccounts() {
     done
 }
 
-# iterates through accounts in ${openshift.account.details.file.location}, creates an Ant property file and invokes the ant 'openshift.provision.pfp.core' target
-provisionAccountsWithPFP() {
-    checkLocalJDKVersion
-
-    cd $JBOSS_PROJECTS/processFlowProvision
-
-    if [ "x$osAccountDetailsFileLocation" = "x" ]; then
-        osAccountDetailsFileLocation=$HOME/redhat/openshift/openshift_account_details.xml
-    fi
-    if [ "x$bldwProvisionProjectLocation" = "x" ]; then
-        bldwProvisionProjectLocation=$JBOSS_PROJECTS/workshops/BusinessLogicDevelopmentWorkshop/BLDW-openshift-provision
-    fi
-    echo openshift.account.details.file.location = $osAccountDetailsFileLocation    :  bldwProvisionProjectLocation = $bldwProvisionProjectLocation
-    t=1
-
-    # prior to looping, delete target/pfp/services to trigger a rebuild of all of PFP
-    if [ "$skipFullBuild" = "true" ]; 
-        then
-            echo -en "\nwill not trigger a full rebuild of PFP\n\n";
-        else
-            rm -rf target/pfp/services;
-    fi
-
-    echo -en "\n\nprovisionAccountsWithPFP() BEGIN in 5 seconds\n\n"
-    sleep 5 
-    date1=$(date +"%s")
-    for i in `xmlstarlet sel -t -n -m '//openshiftAccounts/account' -v 'domainId' -n $osAccountDetailsFileLocation`; 
-    do 
-        # ensure that openshift.accounts.details.xml has appropriate information for this account
-        eval pfpcoreUserHash=\"`xmlstarlet sel -t -n -m '//openshiftAccounts/account['$t']' -v 'pfpcore/uuid' -n $osAccountDetailsFileLocation` \"
-        if [ "x$pfpcoreUserHash" = "x " ]; 
-            then
-                echo "pfpcore/uuid for account $i in $osAccountDetailsFileLocation is empty.  have you executed:  ant openshift.provision.empty.accounts  ?";
-                exit 1;
-            else
-                echo "openshift.pfpcore.user.hash for account $i in $osAccountDetailsFileLocation is:$pfpcoreUserHash:";
-        fi
-
-        #ssh directly to gear, retrieve internal_ip and use this value to replace inline openshift_account_details using
-        eval ssh_url=\"`xmlstarlet sel -t -n -m '//openshiftAccounts/account['$t']'/pfpcore -v 'git_url' -n $osAccountDetailsFileLocation` \"
-        ssh_url=${ssh_url:7}
-        totalLength=${#ssh_url}
-        urlLength=$(($totalLength-20))
-        ssh_url=${ssh_url:0:$urlLength}
-        eval internalIp=\"`ssh $ssh_url 'echo $OPENSHIFT_JBOSSEAP_IP'` \"
-        echo -en "\nssh_url = $ssh_url : internalIp = $internalIp\n"
-        xmlstarlet ed -L -u '//openshiftAccounts/account['$t']'/pfpcore/internal_ip -v $internalIp $osAccountDetailsFileLocation
-
-        # create openshiftAccount.properties file used by bldw provisioning
-        echo -n "" > target/openshiftAccount.properties
-        xmlstarlet sel -t -n -m '//openshiftAccounts/account['$t']' -n \
-        -o 'openshift.domain.name=' -v "domainId" -n \
-        -o 'openshift.pfpcore.user.hash=' -v "pfpcore/uuid" -n \
-        -o 'openshift.pfpcore.internal.ip=' -v "pfpcore/internal_ip" -n \
-        $osAccountDetailsFileLocation >> target/openshiftAccount.properties
-
-        
-        # will now set 'is.deployment.local' to false .... this property will only exist in an openshift deployment
-        echo -n "is.deployment.local=false" >> target/openshiftAccount.properties
-
-        echo -en "\n\nprovisionAccountsWithPFP() ***** now provisioning: $i with brms/pfp :  log can be found in /tmp/$i.log\n\n"; 
-        #if ant openshift.provision.pfp.core -Dbounce.servers=false > /tmp/$i.log 2>&1
-        #then
-        #    echo "just provisioned $i with brms/pfp"
-        #else
-        #    echo "ERROR :  please review /tmp/$i.log"
-        #    exit 1
-        #fi
-
-        #echo -en "\n\nprovisionAccountsWithPFP() ***** now provisioning: $i with bldw :  log can be found in /tmp/$i.bldw.log\n\n"; 
-        #cd $bldwProvisionProjectLocation
-        #if ant > /tmp/$i.bldw.log 2>&1
-        #then
-        #    echo "just provisioned $i with bldw"
-        #else
-        #    echo "ERROR :  please review /tmp/$i.bldw.log"
-        #    exit 1
-        #fi
-    	cd $JBOSS_PROJECTS/processFlowProvision
-        ((t++))
-    done
-
-    date2=$(date +"%s")
-    diff=$(($date2-$date1))
-    echo -en "\n\nprovisionAccountsWithPFP() DONE ... completed in:   $(($diff / 60)) minutes and $(($diff % 60)) seconds\n\n"
-}
-
 bounceMultipleAccounts() {
     if [ "x$osAccountDetailsFileLocation" = "x" ]; then
         osAccountDetailsFileLocation=$HOME/redhat/openshift/openshift_account_details.xml
@@ -395,6 +308,19 @@ executeCommandsAcrossAllAccounts() {
         ((t++))
     done
         echo -en "\n\n"
+}
+
+refreshBpmsArossAllAccounts() {
+    if [ "x$osAccountDetailsFileLocation" = "x" ]; then
+        osAccountDetailsFileLocation=$HOME/redhat/openshift/openshift_account_details.xml
+    fi
+    t=1
+    for id in `xmlstarlet sel -t -n -m '//openshiftApps/app[*]' -v 'id' -n $osAccountDetailsFileLocation`; 
+    do 
+        echo -en "\n"
+        echo -en "\n*********   id = $id    **************\n"
+        #  ssh <url> 'ctl_app start --cart mysql; bpms/bin/contol refreshBpms
+    done
 }
 
 
