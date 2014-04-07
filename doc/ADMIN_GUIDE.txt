@@ -89,13 +89,10 @@ INSTALL   :
                 - enable the RHN plugin in the following file :
                     /etc/yum/pluginconf.d/rhnplugin.conf
 
-
-
     - Java Development Kit
         - ensure that OpenJDK 1.7 is installed
            (as root) :     yum install java-1.7.0-openjdk
                            yum install java-1.7.0-openjdk-devel
-
 
     - 'jboss' operating system user
         - there are some processFlowProvision steps that require root privledges.
@@ -104,38 +101,17 @@ INSTALL   :
             (as root) : useradd -u 600 -g 100 -d /home/jboss -m -s /bin/bash jboss
             (as root) : passwd jboss
 
-
-    -  $JBOSS_PROJECTS directory
-        - make a 'jbossProjects' directory and have it owned by jboss:jboss
-            (as root) :     mkdir -p /opt/jbossProjects/jboss
-                            mkdir /opt/jbossProjects/downloads
-                            chown -R jboss:100 /opt/jbossProjects
-
     -  git and wget
         (as root)   :   yum install git wget
 
 
-    -  required PFP shell environment variables
-          JBOSS_HOME        :   location of JBoss EAP
-          JBOSS_PROJECTS    :   location of parent directory that PFP will reside
-      - these environment variables are set via the standard ~/.bashrc or in (.bash_profile)
-      - processFlowProvision maintains a template bashrc
-      - execute the following to copy the template bashrc to the 'jboss' users home directory :
-            (as jboss):     cd /opt/jbossProjects/processFlowProvision
-                            cp ~/.bashrc ~/.bashrc.bak
-                            cp conf/shell/bashrc ~/.bashrc
-                            cp conf/git/git_completion ~/.git_completion
-                            ( review the newly copied ~/.bashrc and modify where appropriate )
-                            source ~/.bashrc
-
-                                
-  -  firewall configuration
+    -  firewall configuration
         - external clients to PFP communicate with it via several ports
         - subequently, it important that firewalls be configured to allow traffic through those designated ports
         - PFP includes a sample modified iptables config file in:  $PFP_HOME/conf/iptables/iptables
         - this sample iptables includes modifications to allow for Tomcat, HornetQ, PostgreSQL and JNP traffic
                 (as root) :     cp /etc/sysconfig/iptables /etc/sysconfig/iptables.bak 
-                                cp /opt/jbossProjects/processFlowProvision/conf/iptables/iptables /etc/sysconfig
+                                cp /home/jboss/jbossProjects/processFlowProvision/conf/iptables/iptables /etc/sysconfig
                                 chkconfig -level 2345 iptables on
                                 service iptables restart
 
@@ -143,62 +119,34 @@ INSTALL   :
                 (as root) :     chkconfig -level 2345 iptables off
                                 service iptables stop
 
-
-                                
-     - Apache Ant
-        - this project requires Apache Ant v. 1.8.3 (or more recent) along with the ant-contrib library
-        - ant-contrib is already included in $PFP_HOME/lib/ant .... so nothing more to do in that regard
-
-
-        - network considerations for Apache Ant (optional if behind corporate firewall)
-            - the processFlowProvision build attempts to download via the internet several components to include guvnor, 'designer' and the bpm gwt console
-            - subsequently, Ant will need to be configured to route internet requests through a web proxy if build environment is behind a corporate firewall
-            - the 'ANT_OPTS' environment variable, such as the following, is used to configuring networking for Ant :
-                ANT_OPTS="-Dhttps.proxyHost=<my.proxy.host> -Dhttps.proxyPort=8080 -Dhttp.proxyHost=<my.proxy.host> -Dhttp.proxyPort=8080"
-
-
-
     -  postgresql RDBMS
-            - if using RHEL 5.5
-                (as root) :     yum install postgresql84\*
-                                yum install postgresql-jdbc
-            - if using Fedora 14/15/16 or RHEL 6
-                (as root) :     yum install postgresql
-                                yum install postgresql-server
-                                yum install postgresql-jdbc
+        (as root) :     yum install postgresql postgresql-server postgresql-jdbc
 
-            -  ensure that postgresql 'service' is on at runlevels 3,4 & 5 (RHEL 5.*, Fedora 14)
-                (as root) :     chkconfig -level 345 postgresql on
-            -  ensure that postgresql 'service' is automatically started at boot (Fedora 16)
+        -  ensure that postgresql 'service' is on at runlevels 3,4 & 5 (RHEL 6.*)
+                (as root) :     chkconfig --level 345 postgresql on
+        -  ensure that postgresql 'service' is automatically started at boot (RHEL 7, Fedora 16)
                 (as root) :     systemctl enable postgresql.service
 
-            -  change password of 'postgres' operating system user to 'postgres'
+        -  change password of 'postgres' operating system user to 'postgres'
                 (as root) :      passwd postgres
           
-            -  start the postgresql service (RHEL 5 / Fedora 14)
+        -  start the postgresql service (RHEL 6.*)
                 (as root) :     service postgresql initdb
                                 service postgresql start
 
-            -  start the postgresql service (RHEL 6 / Fedora 16)
+        -  start the postgresql service (RHEL 7 / Fedora 16)
                 (as postgres)   :   initdb -D /var/lib/pgsql/data
                 (as root)       :   systemctl start postgresql.service
 
-            -  switch user to 'postgres' and create necessary databases
-                su - postgres
-                createdb jbpm
-                createdb jbpm_bam
+        -  switch user to 'postgres' and configure postgresql server
+            - su - postgres
             - as 'postgres' user, modify socket that postgresql will listen on
                 - modify the following configuration file  :   /var/lib/pgsql/data/postgresql.conf 
                 - at the following property :                  listen_addresses = '*'
-                - example is provided in :                     conf/postgresql/postgresql.conf
             - as 'postgres' user, modify network permissions for remote connections to postgresql
                 - modify the following configuration file  :   /var/lib/pgsql/data/pg_hba.conf
                 - at the following property :                  host    all     all     <network address>/16  md5
                 - example is provided in :                     conf/postgresql/pg_hba.conf
-            - as 'postgres' user, create users and passwords in postgresql RDBMS
-                psql -d jbpm -f -U jbpm -h $HOSTNAME /path/to/pfp/conf/postgresql/ddl-scripts/postgresql/postgresql-jbpm-schema.sql
-                psql -d jbpm -f -U jbpm -h $HOSTNAME /path/to/pfp/conf/postgresql/ddl-scripts/postgresql/quartz_tables_postgres.sql
-
             - bounce postgresql server process
                 - (as root) service postgresql restart
 
@@ -209,18 +157,56 @@ INSTALL   :
                 - (as root)    service postgresql reload
 
 
+
+    -  jboss directories
+            (as jboss) :    mkdir -p $HOME/downloads
+                            mkdir -p $HOME/jbossProjects
+
+     - Apache Ant
+        - this project requires Apache Ant v. 1.8.3 (or more recent) along with the ant-contrib library
+        - ant-contrib is already included in $PFP_HOME/lib/ant .... so nothing more to do in that regard
+        - the version of ant in RHEL6 is older than 1.8.3.  
+        - as jboss user, download the latest release of apache-ant from: https://ant.apache.org/bindownload.cgi into $HOME/downloads
+        - unzip that latest version into $HOME
+
+
+        - network considerations for Apache Ant (optional if behind corporate firewall)
+            - the processFlowProvision build attempts to download via the internet several components to include guvnor, 'designer' and the bpm gwt console
+            - subsequently, Ant will need to be configured to route internet requests through a web proxy if build environment is behind a corporate firewall
+            - the 'ANT_OPTS' environment variable, such as the following, is used to configuring networking for Ant :
+                ANT_OPTS="-Dhttps.proxyHost=<my.proxy.host> -Dhttps.proxyPort=8080 -Dhttp.proxyHost=<my.proxy.host> -Dhttp.proxyPort=8080"
+
+    - clone this branch
+      (as jboss) git clone https://github.com/jboss-gpe/processFlowProvision.git -b bpms6_fsw $HOME/jbossProjects/processFlowProvision
+
+    -  required PFP shell environment variables
+          JBOSS_HOME        :   location of JBoss EAP
+          JBOSS_PROJECTS    :   location of parent directory that PFP will reside
+      - these environment variables are set via the standard ~/.bashrc or in (.bash_profile)
+      - processFlowProvision maintains a template bashrc
+      - execute the following to copy the template bashrc to the 'jboss' users home directory :
+            (as jboss):     cd /home/jboss/jbossProjects/processFlowProvision
+                            cp ~/.bashrc ~/.bashrc.bak
+                            cp conf/shell/bashrc ~/.bashrc
+                            cp conf/git/git_completion ~/.git_completion
+                            ( review the newly copied ~/.bashrc and modify where appropriate )
+                            source ~/.bashrc
+
     - messaging
         - hornetq 2.3.5 is provided out-of-the-box with jboss-eap-6.1.1    ..... which is sufficient
         - multi-cast cluster routing 
             - route HornetQ broadcast traffic to a specific network interface card (if Hornetq is bound to a NIC that is not the default for the OS)
             - (as root) : route add -net 231.0.0.0 netmask 255.0.0.0 eth0
 
-    - sample insurancepolicy project
-        - OOB process flow provision leverages a sample demo project called 'insurancepolicy' to demonstrate BPMS capabilities
-        - clone and deploy the 'insurancepolicy' project:
-            1)   git clone https://github.com/jboss-gpe/insurancepolicy.git
-            2)   cd policyquote
-            3)   mvn clean install -DskipTests
+
+    - jbpm tables in postgresql
+        - as 'postgres' user, create users and passwords in postgresql RDBMS
+            psql -d jbpm -f -U jbpm -h $HOSTNAME /home/jboss/processFlowProvision/conf/postgresql/ddl-scripts/postgresql/processFlowProvision.sql
+
+        - as 'postgres' user, create jbpm tables in postgresql RDBMS and have all database artifacts owned by 'jbpm' user
+            psql -d jbpm -f -U jbpm -h $HOSTNAME /home/jboss/processFlowProvision/conf/postgresql/ddl-scripts/postgresql/postgresql-jbpm-schema.sql
+            psql -d jbpm -f -U jbpm -h $HOSTNAME /home/jboss/processFlowProvision/conf/postgresql/ddl-scripts/postgresql/quartz_tables_postgres.sql
+
 
     - download of JBoss Supported Platforms
         - from the Red Hat Customer Support Portal download the following and place in the $PFP_HOME/target/lib directory

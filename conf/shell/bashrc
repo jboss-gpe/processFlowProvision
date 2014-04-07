@@ -6,9 +6,9 @@ if [ -f /etc/bashrc ]; then
 fi
 
 JAVA_HOME=/usr/lib/jvm/java-1.7.0
-JBOSS_PROJECTS=/opt/jbossProjects
+JBOSS_PROJECTS=$HOME/jbossProjects
 PFP_HOME=$JBOSS_PROJECTS/processFlowProvision
-ANT_HOME=$JBOSS_PROJECTS/apache-ant-1.8.4
+ANT_HOME=$$HOME/apache-ant-1.9.3
 JBOSS_HOME=$JBOSS_PROJECTS/jboss/jboss-eap-6.1
 
 PATH=$PATH:/sbin
