@@ -67,6 +67,12 @@
 		</dependency>
 	</dependencies>
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
 		<plugins>
 			<!-- Built the libs JAR and Service JAR from the same project.
 				Ideally this should be split in 2 Maven projects, but this is
@@ -83,7 +89,8 @@
 						<configuration>
 							<classifier>libs</classifier>
 							<excludes>
-								<exclude>**/*BAMService*.class,META-INF/*</exclude>
+								<exclude>**/*BAMService*.class</exclude>
+								<exclude>META-INF/*</exclude>
 							</excludes>
 						</configuration>
 					</execution>
@@ -96,7 +103,8 @@
 						<configuration>
 							<classifier>Service</classifier>
 							<includes>
-								<include>**/*BAMService*.class,META-INF/*</include>
+								<include>**/*BAMService*.class</include>
+								<include>META-INF/*</include>
 							</includes>
 						</configuration>
 					</execution>
