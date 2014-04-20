@@ -308,13 +308,15 @@
             <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
                 <arg value="--connect"/>
                 <arg value="--controller=${os.hostname}:${management.port}"/>
-                <arg value="/server-group=${sy.core.group}/:stop-servers"/>
+                <!-- CHANGE ME:  loop -->
+                <arg value="/server-group=sy.core.group/:stop-servers"/>
             </exec>
         </then></if>
         <exec executable="${jboss.home}/bin/jboss-cli.sh" failonerror="${cli.fail.on.error}">
             <arg value="--connect"/>
             <arg value="--controller=${os.hostname}:${management.port}"/>
-            <arg value="/server-group=${sy.core.group}/:start-servers"/>
+            <!-- CHANGE ME:  loop -->
+            <arg value="/server-group=sy.core.group/:start-servers"/>
         </exec>
     </target>
 

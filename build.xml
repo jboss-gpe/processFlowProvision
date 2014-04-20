@@ -448,6 +448,7 @@
                 <jar update="true" destfile="${biz.central.zipped}" basedir="conf/bpmsWebs/bizcentral" includes="WEB-INF/classes/META-INF/services/javax.enterprise.inject.spi.Extension" /-->
                 <jar destfile="${biz.central.zipped}" basedir="${jboss.home}/standalone/deployments/business-central.war" />
                 <jar update="true" destfile="${biz.central.zipped}" basedir="conf/bpmsWebs/bizcentral" includes="WEB-INF/classes/META-INF/persistence.xml" />
+                <jar update="true" destfile="${biz.central.zipped}" basedir="conf/bpmsWebs/bizcentral" includes="WEB-INF/jboss-deployment-structure.xml" />
                 <jar destfile="${dashbuilder.zipped}" basedir="${jboss.home}/standalone/deployments/dashbuilder.war" />
                 <jar update="true" destfile="${dashbuilder.zipped}" basedir="conf/bpmsWebs/dashbuilder" includes="WEB-INF/jboss-web.xml" />
                 <antcall target="cli.batch">
