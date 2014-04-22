@@ -48,9 +48,7 @@
             (
             description.language = :language
             or t.descriptions.size = 0
-            ) and
-
-            t.taskData.expirationTime is null
+            ) 
         </query>
         <!-- hint name="org.hibernate.timeout" value="200"/ -->
     </named-query>
@@ -99,9 +97,7 @@
             (
             description.language = :language
             or t.descriptions.size = 0
-            ) and
-
-            t.taskData.expirationTime is null
+            ) 
         </query>
         <!-- hint name="org.hibernate.timeout" value="200"/ -->
     </named-query>
@@ -152,9 +148,7 @@
             or t.descriptions.size = 0
             ) and
 
-            t.taskData.status in ('Created', 'Ready', 'Reserved', 'InProgress', 'Suspended') and
-
-            t.taskData.expirationTime is null
+            t.taskData.status in ('Created', 'Ready', 'Reserved', 'InProgress', 'Suspended') 
         </query>
         <!-- hint name="org.hibernate.timeout" value="200"/ -->
     </named-query>
@@ -205,9 +199,7 @@
             or t.descriptions.size = 0
             ) and
 
-            t.taskData.status in (:status) and
-
-            t.taskData.expirationTime is null
+            t.taskData.status in (:status) 
         </query>
         <!-- hint name="org.hibernate.timeout" value="200"/ -->
     </named-query>
@@ -258,9 +250,7 @@
             or t.descriptions.size = 0
             ) and
 
-            t.taskData.status in ('Created', 'Ready', 'Reserved', 'InProgress', 'Suspended') and
-
-            t.taskData.expirationTime is null
+            t.taskData.status in ('Created', 'Ready', 'Reserved', 'InProgress', 'Suspended') 
         </query>
         <!-- hint name="org.hibernate.timeout" value="200"/ -->
     </named-query>
@@ -311,9 +301,7 @@
             or t.descriptions.size = 0
             ) and
 
-            t.taskData.status in (:status) and
-
-            t.taskData.expirationTime is null
+            t.taskData.status in (:status) 
         </query>
         <!-- hint name="org.hibernate.timeout" value="200"/ -->
     </named-query>
@@ -364,9 +352,7 @@
             or t.descriptions.size = 0
             ) and
 
-            t.taskData.status in ('Created', 'Ready', 'Reserved', 'InProgress', 'Suspended') and
-
-            t.taskData.expirationTime is null
+            t.taskData.status in ('Created', 'Ready', 'Reserved', 'InProgress', 'Suspended') 
         </query>
         <!-- hint name="org.hibernate.timeout" value="200"/ -->
     </named-query>
@@ -418,9 +404,7 @@
             or t.descriptions.size = 0
             ) and
 
-            t.taskData.status in ('Created', 'Ready', 'Reserved', 'InProgress', 'Suspended') and
-
-            t.taskData.expirationTime is null
+            t.taskData.status in ('Created', 'Ready', 'Reserved', 'InProgress', 'Suspended')
         </query>
         <!-- hint name="org.hibernate.timeout" value="200"/ -->
     </named-query>
@@ -470,9 +454,7 @@
             or t.descriptions.size = 0
             ) and
 
-            t.taskData.status in ('Created', 'Ready', 'Reserved', 'InProgress', 'Suspended') and
-
-            t.taskData.expirationTime is null
+            t.taskData.status in ('Created', 'Ready', 'Reserved', 'InProgress', 'Suspended') 
         </query>
         <!-- hint name="org.hibernate.timeout" value="200"/ -->
     </named-query>
@@ -523,9 +505,7 @@
             (
             description.language = :language
             or t.descriptions.size = 0
-            ) and
-
-            t.taskData.expirationTime is null
+            ) 
         </query>
         <!-- hint name="org.hibernate.timeout" value="200"/ -->
     </named-query>
@@ -574,9 +554,7 @@
             (
             description.language = :language
             or t.descriptions.size = 0
-            ) and
-
-            t.taskData.expirationTime is null
+            ) 
         </query>
         <!-- hint name="org.hibernate.timeout" value="200"/ -->
     </named-query>
@@ -625,9 +603,7 @@
             (
             description.language = :language
             or t.descriptions.size = 0
-            ) and
-
-            t.taskData.expirationTime is null
+            ) 
         </query>
         <!-- hint name="org.hibernate.timeout" value="200"/ -->
     </named-query>
@@ -674,9 +650,7 @@
             (
             description.language = :language
             or t.descriptions.size = 0
-            ) and
-
-            t.taskData.expirationTime is null
+            ) 
         </query>
         <!-- hint name="org.hibernate.timeout" value="200"/ -->
     </named-query>
@@ -724,9 +698,7 @@
             (
             description.language = :language
             or t.descriptions.size = 0
-            ) and
-
-            t.taskData.expirationTime is null
+            ) 
         </query>
         <!-- hint name="org.hibernate.timeout" value="200"/ -->
     </named-query>
@@ -774,9 +746,7 @@
             or t.descriptions.size = 0
             ) and
 
-            t.taskData.status in (:status) and
-
-            t.taskData.expirationTime is null
+            t.taskData.status in (:status) 
         </query>
         <!-- hint name="org.hibernate.timeout" value="200"/ -->
     </named-query>
@@ -825,9 +795,7 @@
             or t.descriptions.size = 0
             ) and
 
-            t.taskData.status in (:status) and
-
-            t.taskData.expirationTime is null
+            t.taskData.status in (:status) 
         </query>
         <!-- hint name="org.hibernate.timeout" value="200"/ -->
     </named-query>
@@ -874,9 +842,7 @@
             (
             description.language = :language
             or t.descriptions.size = 0
-            ) and
-
-            t.taskData.expirationTime is null
+            ) 
 
             and
 
@@ -927,9 +893,7 @@
             (
             description.language = :language
             or t.descriptions.size = 0
-            ) and
-
-            t.taskData.expirationTime is null
+            ) 
         </query>
         <!-- hint name="org.hibernate.timeout" value="200"/ -->
     </named-query>

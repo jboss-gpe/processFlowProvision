@@ -26,6 +26,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,9 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.drools.runtime.process.WorkItem;
 import org.drools.runtime.process.WorkItemManager;
+import org.jboss.processFlow.tasks.ITaskService;
+import org.jboss.processFlow.util.DateTimeUtils;
+import org.jboss.processFlow.workItem.WorkItemHandlerLifecycle;
 import org.jbpm.process.workitem.wsht.HumanTaskHandlerHelper;
 import org.jbpm.task.AccessType;
 import org.jbpm.task.Group;
@@ -45,8 +49,6 @@ import org.jbpm.task.Task;
 import org.jbpm.task.TaskData;
 import org.jbpm.task.User;
 import org.jbpm.task.service.ContentData;
-import org.jboss.processFlow.tasks.ITaskService;
-import org.jboss.processFlow.workItem.WorkItemHandlerLifecycle;
 
 /*
  * 15 Sept 2011
@@ -146,7 +148,22 @@ public class PFPAddHumanTaskHandler extends BasePFPTaskHandler implements WorkIt
             taskData.setCreatedBy(adminUser);
             taskData.setActualOwner(adminUser);
         }
-
+        
+        //ddoyle: Backported support for DueDate from jBPM6.
+        String dueDateString = (String) workItem.getParameter("DueDate");
+        Date date = null;
+        if(dueDateString != null && !dueDateString.isEmpty()){
+            if(DateTimeUtils.isPeriod(dueDateString)){
+                Long longDateValue = DateTimeUtils.parseDateAsDuration(dueDateString.substring(1));
+                date = new Date(System.currentTimeMillis() + longDateValue);
+            }else{
+                date = new Date(DateTimeUtils.parseDateTime(dueDateString));
+            }
+        }
+        if(date != null){
+            taskData.setExpirationTime(date);
+        }
+        
         // JAB:  throw RuntimeException if createdBy has not been set
         if(taskData.getCreatedBy() == null)
             throw new RuntimeException("executeWorkItem() neither actorId nor groupId has been set for task = "+taskName);
