@@ -308,18 +308,19 @@ public class BaseKnowledgeSessionBean {
         return env;
     }
     
-    protected void checkKAgentAndBaseHealth() {
+    protected synchronized void checkKAgentAndBaseHealth() {
         long kAgentRefreshLapsedTime = System.currentTimeMillis() - lastKAgentRefresh;
         long kAgentRefreshMillis = 1000*60*kAgentRefreshHours;
         if(kbase == null || (kAgentMonitor && (kAgentRefreshLapsedTime > kAgentRefreshMillis))){
             log.info("checkKAgentAndBaseHealth() will now refresh kbase and kagent.  lapsed time "+kAgentRefreshLapsedTime+" is greater than "+kAgentRefreshMillis);
-            kbase = null;
+            //ddoyle: Setting the kbase to null seems to cause issues in
+            //kbase = null;
             createKnowledgeBaseViaKnowledgeAgentOrBuilder();
         }
     }
     
-    public void createKnowledgeBaseViaKnowledgeAgentOrBuilder() {
-        try {
+    public synchronized void createKnowledgeBaseViaKnowledgeAgentOrBuilder() {
+    	try {
             this.createKnowledgeBaseViaKnowledgeAgent();
         }catch(ConnectException x){
             log.warn("createKnowledgeBaseViaKnowledgeAgentOrBuilder() can not create a kbase via a kagent due to a connection problem with guvnor ... will now create kbase via knowledgeBuilder");
@@ -327,7 +328,7 @@ public class BaseKnowledgeSessionBean {
         }
     }
 
-    public void createOrRebuildKnowledgeBaseViaKnowledgeAgentOrBuilder() {
+    public synchronized void createOrRebuildKnowledgeBaseViaKnowledgeAgentOrBuilder() {
         try {
             this.createKnowledgeBaseViaKnowledgeAgent(true);
         }catch(ConnectException x){
@@ -336,10 +337,10 @@ public class BaseKnowledgeSessionBean {
         }
     }
     
-    public void rebuildKnowledgeBaseViaKnowledgeAgent() throws ConnectException{
+    public synchronized void rebuildKnowledgeBaseViaKnowledgeAgent() throws ConnectException{
         this.createKnowledgeBaseViaKnowledgeAgent(true);
     }
-    protected void createKnowledgeBaseViaKnowledgeAgent() throws ConnectException{
+    protected synchronized void createKnowledgeBaseViaKnowledgeAgent() throws ConnectException{
         this.createKnowledgeBaseViaKnowledgeAgent(false);
     }
 
@@ -347,7 +348,7 @@ public class BaseKnowledgeSessionBean {
     // needs to be invoked AFTER guvnor is available (obviously)
     // setting 'force' parameter to true re-creates an existing kbase
     protected synchronized void createKnowledgeBaseViaKnowledgeAgent(boolean forceRefresh) throws ConnectException{
-        log.info("createOrRebuildKnowledgeBaseViaKnowledgeAgent() forceRefresh = "+forceRefresh);
+        log.info("createKnowledgeBaseViaKnowledgeAgent() forceRefresh = "+forceRefresh);
         if(kbase != null && !forceRefresh)
             return;
         
@@ -433,7 +434,7 @@ public class BaseKnowledgeSessionBean {
      * knowledgeBase can subsequently be populated via one of the addProcessToKnowledgeBase(....) functions
      * in all cases, the knowledgeBase created by this function will NOT be registered with a knowledgeAgent that receives updates from guvnor
      */
-    public void rebuildKnowledgeBaseViaKnowledgeBuilder() {
+    public synchronized void rebuildKnowledgeBaseViaKnowledgeBuilder() {
         guvnorProps = new Properties();
         try {
             KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
