@@ -5,6 +5,7 @@ import java.util.Iterator;
 import org.jbpm.task.Task;
 import org.jbpm.task.event.TaskEventListener;
 import org.jbpm.task.event.TaskEventSupport;
+import org.jbpm.task.event.TaskFailedEvent;
 import org.jbpm.task.service.ContentData;
 
 /**
@@ -82,5 +83,22 @@ public class PfpTaskEventSupport extends TaskEventSupport {
             }
             while (iter.hasNext());
         }
+    }
+    
+    public void fireTaskExited(final long taskId, final String userId) {
+    	
+    	final Iterator<TaskEventListener> iter = getEventListenersIterator();
+
+        if (iter.hasNext()) {
+            final TaskExitedEvent event = new TaskExitedEvent(taskId, userId);
+
+            do {
+            	TaskEventListener listener = iter.next();
+            	if (listener instanceof PfpTaskEventListener) {
+            		((PfpTaskEventListener) listener).taskExited(event);
+            	}
+            } while (iter.hasNext());
+        }
+    	
     }
 }

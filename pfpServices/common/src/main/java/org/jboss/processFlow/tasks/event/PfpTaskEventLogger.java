@@ -58,4 +58,9 @@ public class PfpTaskEventLogger implements PfpTaskEventListener {
         logger.info("task {} started by {}", event.getTaskId(), event.getUserId());
     }
 
+	@Override
+	public void taskExited(TaskExitedEvent event) {
+		logger.info("task {} exited by {}", event.getTaskId(), event.getUserId());
+	}
+
 }

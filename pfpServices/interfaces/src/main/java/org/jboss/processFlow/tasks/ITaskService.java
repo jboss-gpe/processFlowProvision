@@ -157,6 +157,16 @@ public interface ITaskService {
      */
     public void failTask(Long taskId, Map<String, Object> outboundTaskVars, String userId, String faultName);
 
+    /**
+     * exitTask
+     * places task in a status of "Exited" and continues process instance execution
+     * as per WS-HT specification, section 4.7 ,  task status must either be "Created, Ready, Reserved or InProgress" for this operation to be valid
+     * @param taskId
+     * @param userId
+     */
+    public void exitTask(Long taskId, String userId);
+    
+    
     public TaskSummary getTask(Long taskId);
 
     /**
