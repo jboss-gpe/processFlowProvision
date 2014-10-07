@@ -496,9 +496,9 @@
 			<id>BRMS</id>
 			<properties>
 				<version.org.drools:knowledge-api>5.3.1.BRMS-P02</version.org.drools:knowledge-api>
-		 		<version.org.drools:drools-core>5.3.1.BRMS-P03</version.org.drools:drools-core>
-		 		<version.org.drools:drools-compiler>5.3.1.BRMS-P03</version.org.drools:drools-compiler>
-		 		<version.org.drools:drools-persistence-jpa>5.3.1.BRMS-P02</version.org.drools:drools-persistence-jpa>
+		 		<version.org.drools:drools-core>5.3.1.BRMS-P05</version.org.drools:drools-core>
+		 		<version.org.drools:drools-compiler>5.3.1.BRMS-P05</version.org.drools:drools-compiler>
+		 		<version.org.drools:drools-persistence-jpa>5.3.1.BRMS-P05</version.org.drools:drools-persistence-jpa>
 			</properties>	
 		</profile>
 	</profiles>
