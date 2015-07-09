@@ -33,8 +33,6 @@ public interface IBAMService {
     public static final String LOCAL_BAM_QUEUE = "java:/queue/processFlow.asyncWorkingMemoryLogger";
     public static final String BAM_QUEUE = "processFlow.asyncWorkingMemoryLogger";
 
-    public void flushBam() throws Exception;
-
     public ProcessInstanceLog       getProcessInstanceLog(Long processInstanceId);
     public List<ProcessInstanceLog> getProcessInstanceLogsByProcessId(String processId);
     public List<ProcessInstanceLog> getActiveProcessInstanceLogsByProcessId(String processId);
