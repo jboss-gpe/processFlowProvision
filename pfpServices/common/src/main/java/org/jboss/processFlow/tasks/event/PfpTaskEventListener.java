@@ -47,4 +47,12 @@ public interface PfpTaskEventListener extends TaskEventListener {
      * @param event
      */
     void taskDelegated(TaskDelegatedEvent event);
+    
+    
+    /**
+     * Event triggered when the task is exited.
+     * 
+     * @param event	
+     */
+    void taskExited(TaskExitedEvent event);
 }

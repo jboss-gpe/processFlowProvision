@@ -69,7 +69,6 @@ import org.jbpm.task.service.PermissionDeniedException;
 import org.jbpm.task.service.TaskException;
 import org.jbpm.task.service.TaskService;
 import org.jbpm.task.service.TaskServiceSession;
-
 import org.jboss.processFlow.knowledgeService.IBaseKnowledgeSession;
 import org.jboss.processFlow.PFPBaseService;
 import org.jboss.processFlow.tasks.event.PfpTaskEventSupport;
@@ -372,6 +371,37 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
             throw new RuntimeException(x);
         }
     }
+    
+    /**
+     * NOTE:  allows for a null userId ... in which case this implementation will use the actual owner of the task to execute the fail task operation
+     */
+    @Override
+	public void exitTask(Long taskId, String userId) {
+		TaskServiceSession taskSession = null;
+		try {
+			taskSession = jtaTaskService.createSession();
+			Task taskObj = taskSession.getTask(taskId);
+			int sessionId = taskObj.getTaskData().getProcessSessionId();
+			long pInstanceId = taskObj.getTaskData().getProcessInstanceId();
+			
+			Status taskStatus = taskObj.getTaskData().getStatus();
+			if (taskStatus != Status.Created || taskStatus != Status.Ready || taskStatus != Status.Reserved || taskStatus != Status.InProgress) {
+				throw new PermissionDeniedException("exitTask() will not attempt operation due to incorrect existing status of: " + taskStatus);
+			}
+			if (userId == null) {
+				userId = taskObj.getTaskData().getActualOwner().getId();
+			}
+			taskSession.taskOperation(Operation.Exit, taskId, userId, null, null, null);
+			eventSupport.fireTaskExited(taskId, userId);
+			
+			StringBuilder sBuilder = new StringBuilder("exitTask()");
+			this.dumpTaskDetails(taskObj, sBuilder);
+			
+			kSessionProxy.completeWorkItem(taskObj.getTaskData().getWorkItemId(), null, pInstanceId, sessionId);		
+		} catch(PermissionDeniedException x) {
+			throw new RuntimeException(x);
+		}
+	}
     
     public void nominateTask(final long taskId, String userId, final List<OrganizationalEntity> potentialOwners){
         throw new RuntimeException("nominateTask()  PLEASE IMPLEMENT ME");
@@ -980,5 +1010,6 @@ public class HumanTaskService extends PFPBaseService implements ITaskService {
     public void setEnableIntelligentMapping(boolean enableIntelligentMapping) {
         this.enableIntelligentMapping = enableIntelligentMapping;
     }
+	
  
 }

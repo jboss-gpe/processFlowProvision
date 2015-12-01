@@ -5,4 +5,4 @@ knowledgeSessionService/src/main/resources/META-INF/drools.session.conf
 .project
 .classpath
 .settings/
-
+.DS_Store
