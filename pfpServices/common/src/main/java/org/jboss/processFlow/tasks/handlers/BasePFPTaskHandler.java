@@ -15,8 +15,9 @@ public class BasePFPTaskHandler {
     protected static boolean enableLog = false;
     protected static ITaskService taskProxy = null;
     protected static IKnowledgeSession kSessionProxy = null;
-
+    
     protected int ksessionId;
+    protected StatefulKnowledgeSession ksession;
 
     public BasePFPTaskHandler() {
         if(taskProxy == null){
@@ -48,6 +49,7 @@ public class BasePFPTaskHandler {
     }
 
     public void init(StatefulKnowledgeSession sessionObj) {
+    	ksession = sessionObj;
         ksessionId = sessionObj.getId();
     }
     

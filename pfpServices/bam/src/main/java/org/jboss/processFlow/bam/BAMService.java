@@ -58,6 +58,7 @@ import org.drools.runtime.Environment;
 import org.drools.impl.EnvironmentFactory;
 import org.drools.runtime.EnvironmentName;
 
+//TODO: Remove the import and thus the dependency on the 'common' project.
 import org.jboss.processFlow.util.MessagingUtil;
 
 /**

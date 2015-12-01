@@ -23,14 +23,9 @@
 	<properties>
 		<!-- Hibernate settings. -->
 		<!-- We expect these settings to be set on the deployment platform (e.g. JBoss EAP) instead of during the build. -->
-		<!-- 
-		<hibernate.dialect>org.hibernate.dialect.PostgreSQLDialect</hibernate.dialect>
-		<hibernate.hbm2ddl.auto>create</hibernate.hbm2ddl.auto>
-		<hibernate.show.sql>false</hibernate.show.sql>
-		<hibernate.jdbc.batch_size>1</hibernate.jdbc.batch_size>
-		<hibernate.cache.use_second_level_cache>false</hibernate.cache.use_second_level_cache>
-		 -->
-		
+		<!-- <hibernate.dialect>org.hibernate.dialect.PostgreSQLDialect</hibernate.dialect> <hibernate.hbm2ddl.auto>create</hibernate.hbm2ddl.auto> 
+			<hibernate.show.sql>false</hibernate.show.sql> <hibernate.jdbc.batch_size>1</hibernate.jdbc.batch_size> <hibernate.cache.use_second_level_cache>false</hibernate.cache.use_second_level_cache> -->
+
 		<!-- KSession Management Strategy implementation. -->
 		<org.jboss.processFlow.ksession.mgmt.strategy.impl.class>org.jboss.processFlow.knowledgeService.SessionPerPInstanceBean</org.jboss.processFlow.ksession.mgmt.strategy.impl.class>
 		<!-- <org.jboss.processFlow.ksession.mgmt.strategy.impl.class>org.jboss.processFlow.knowledgeService.SingleSessionBean</org.jboss.processFlow.ksession.mgmt.strategy.impl.class> -->
@@ -40,6 +35,7 @@
 		<org.jboss.processFlow.remoting.ha.group.ejb.receiver></org.jboss.processFlow.remoting.ha.group.ejb.receiver>
 		<!-- jBPM UserGroupCallback -->
 		<jbpm.usergroup.callback>org.jboss.processFlow.tasks.PFPUserGroupCallback</jbpm.usergroup.callback>
+
 		<!-- Specify some dependency versions here, because we override some of these versions in our BRMS profile.
 			The reason for this is that, due to some changes in Drools between community version 5.3.1 and the BRMS version 5.3.1.BRMS-P03,
 			we need to compile PFP against the same library version as the library version we're using at runtime.
@@ -51,8 +47,19 @@
 		 <version.org.drools:drools-compiler>5.3.2.Final</version.org.drools:drools-compiler>
 		 <version.org.drools:drools-persistence-jpa>5.3.2.Final</version.org.drools:drools-persistence-jpa>
 		 <version.org.springframework>3.2.9.RELEASE</version.org.springframework>
+
+		<version.org.jbpm:jbpm-bam>5.2.5.Final</version.org.jbpm:jbpm-bam>
+		<version.org.jbpm:jbpm-human-task>5.2.5.Final</version.org.jbpm:jbpm-human-task>
+		<version.org.jbpm:jbpm-gwt-graph>5.2.5.Final</version.org.jbpm:jbpm-gwt-graph>
+		<version.org.jbpm:jbpm-persistence-jpa>5.2.5.Final</version.org.jbpm:jbpm-persistence-jpa>
+		<version.org.jbpm:jbpm-workitems>5.2.5.Final</version.org.jbpm:jbpm-workitems>
+		<version.org.jbpm:jbpm-flow>5.2.5.Final</version.org.jbpm:jbpm-flow>
+		<version.org.jbpm:jbpm-flow-builder>5.2.5.Final</version.org.jbpm:jbpm-flow-builder>
+		<version.org.jbpm:jbpm-gwt-shared>5.2.5.Final</version.org.jbpm:jbpm-gwt-shared>
+		<version.org.jbpm:jbpm-gwt-form>5.2.5.Final</version.org.jbpm:jbpm-gwt-form>
+		<version.org.jbpm:jbpm-bpmn2>5.2.5.Final</version.org.jbpm:jbpm-bpmn2>
 	</properties>
-	
+
 	<dependencyManagement>
 		<!-- Project Dependencies. -->
 		<dependencies>
@@ -78,318 +85,253 @@
 			<!-- Specification Dependencies. -->
 			<dependency>
 				<groupId>javax.enterprise</groupId>
- 	  			<artifactId>cdi-api</artifactId>
- 	  			<!-- 
-   				<version>1.0-SP4-redhat-1</version>
-   				 -->
-   				 <version>1.0-SP4</version>
-   				<scope>provided</scope>
-   			</dependency>
+				<artifactId>cdi-api</artifactId>
+				<!-- <version>1.0-SP4-redhat-1</version> -->
+				<version>1.0-SP4</version>
+				<scope>provided</scope>
+			</dependency>
 			<dependency>
 				<groupId>org.jboss.spec.javax.transaction</groupId>
 				<artifactId>jboss-transaction-api_1.1_spec</artifactId>
-				<!-- 
-				<version>1.0.1.Final-redhat-2</version>
-				 -->
+				<!-- <version>1.0.1.Final-redhat-2</version> -->
 				<version>1.0.1.Final</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.hibernate.javax.persistence.</groupId>
 				<artifactId>hibernate-jpa-2.0-api</artifactId>
-				<!-- 
-				<version>1.0.1.Final-redhat-1</version>
-				 -->
-				 <version>1.0.1.Final</version>
+				<!-- <version>1.0.1.Final-redhat-1</version> -->
+				<version>1.0.1.Final</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.jboss.spec.javax.ejb</groupId>
 				<artifactId>jboss-ejb-api_3.1_spec</artifactId>
-				<!--
-				<version>1.0.2.Final-redhat-1</version>
-				 -->
+				<!-- <version>1.0.2.Final-redhat-1</version> -->
 				<version>1.0.2.Final</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.jboss.spec.javax.jms</groupId>
-  				<artifactId>jboss-jms-api_1.1_spec</artifactId>
-  				<!-- 
-  				<version>1.0.1.Final-redhat-1</version>
-  				 -->
-  				<version>1.0.1.Final</version>
-  				<scope>provided</scope>
-  			</dependency>
-  			<dependency>
-  				<groupId>org.jboss.spec.javax.ws.rs</groupId>
-  				<artifactId>jboss-jaxrs-api_1.1_spec</artifactId>
-  				<!-- 
-  				<version>1.0.1.Final-redhat-2</version>
-  				 -->
-  				<version>1.0.1.Final</version>
-  				<scope>provided</scope>
-  			</dependency>
-  			<dependency>
-  				<groupId>org.jboss.spec.javax.security.jacc</groupId>
-  				<artifactId>jboss-jacc-api_1.4_spec</artifactId>
-  				<!-- 
-  				<version>1.0.2.Final-redhat-2</version>
-  				 -->
-  				 <version>1.0.2.Final</version>
-  				<scope>provided</scope>
-  			</dependency>
-			<!-- JBoss Dependencies. -->
-			<dependency>
-				<groupId>org.jboss.marshalling</groupId>
-    				<artifactId>jboss-marshalling</artifactId>
-    				<!-- 
-    				<version>1.3.14.GA-redhat-1</version>
-    			 	-->
-    				<version>1.3.14.GA</version>
-    				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.jboss.logging</groupId>
-    				<artifactId>jboss-logging</artifactId>
-    				<!-- 
-    				<version>3.1.2.GA-redhat-1</version>
-    			 	-->
-    				<version>3.1.2.GA</version>
-    				<scope>provided</scope>
-    			</dependency>
-    			<dependency>
-       				<groupId>org.jboss.as</groupId>
-       				<artifactId>jboss-as-server</artifactId>
-       				<!-- 
-       				<version>7.1.3.Final-redhat-4</version>
-       			 	-->
-       				<version>7.1.3.Final</version>
-       				<scope>provided</scope>
-       			</dependency>
-    			<dependency>
-    				<groupId>org.jboss.as</groupId>
-    				<artifactId>jboss-as-clustering-singleton</artifactId>
-    				<!-- 
-    				<version>7.1.3.Final-redhat-4</version>
-    				 -->
-    				<version>7.1.3.Final</version>
-    				<scope>provided</scope>
-    			</dependency>
-			<dependency>
-				<groupId>org.jboss.sasl</groupId>
-				<artifactId>jboss-sasl</artifactId>
-				<!-- 
-				<version>1.0.1.Final-redhat-1</version>
-				 -->
+				<artifactId>jboss-jms-api_1.1_spec</artifactId>
+				<!-- <version>1.0.1.Final-redhat-1</version> -->
 				<version>1.0.1.Final</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-  				<groupId>org.jboss.bpm</groupId>
-  				<artifactId>gwt-console-rpc</artifactId>
-  				<version>2.3.8.Final</version>
-  				<scope>provided</scope>
+				<groupId>org.jboss.spec.javax.ws.rs</groupId>
+				<artifactId>jboss-jaxrs-api_1.1_spec</artifactId>
+				<!-- <version>1.0.1.Final-redhat-2</version> -->
+				<version>1.0.1.Final</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.spec.javax.security.jacc</groupId>
+				<artifactId>jboss-jacc-api_1.4_spec</artifactId>
+				<!-- <version>1.0.2.Final-redhat-2</version> -->
+				<version>1.0.2.Final</version>
+				<scope>provided</scope>
+			</dependency>
+			<!-- JBoss Dependencies. -->
+			<dependency>
+				<groupId>org.jboss.marshalling</groupId>
+				<artifactId>jboss-marshalling</artifactId>
+				<!-- <version>1.3.14.GA-redhat-1</version> -->
+				<version>1.3.14.GA</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.logging</groupId>
+				<artifactId>jboss-logging</artifactId>
+				<!-- <version>3.1.2.GA-redhat-1</version> -->
+				<version>3.1.2.GA</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.as</groupId>
+				<artifactId>jboss-as-server</artifactId>
+				<!-- <version>7.1.3.Final-redhat-4</version> -->
+				<version>7.1.3.Final</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.as</groupId>
+				<artifactId>jboss-as-clustering-singleton</artifactId>
+				<!-- <version>7.1.3.Final-redhat-4</version> -->
+				<version>7.1.3.Final</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.sasl</groupId>
+				<artifactId>jboss-sasl</artifactId>
+				<!-- <version>1.0.1.Final-redhat-1</version> -->
+				<version>1.0.1.Final</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.jboss.bpm</groupId>
-  				<artifactId>gwt-console-server-integration</artifactId>
+				<artifactId>gwt-console-rpc</artifactId>
 				<version>2.3.8.Final</version>
 				<scope>provided</scope>
 			</dependency>
-			
+			<dependency>
+				<groupId>org.jboss.bpm</groupId>
+				<artifactId>gwt-console-server-integration</artifactId>
+				<version>2.3.8.Final</version>
+				<scope>provided</scope>
+			</dependency>
+
 			<!-- Drools Dependencies. -->
 			<dependency>
 				<groupId>org.drools</groupId>
 				<artifactId>knowledge-api</artifactId>
-				<!-- 
-				<version>5.3.1.BRMS-P02</version>
-				 -->
-				 <version>${version.org.drools:knowledge-api}</version>
+				<!-- <version>5.3.1.BRMS-P02</version> -->
+				<version>${version.org.drools:knowledge-api}</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.drools</groupId>
 				<artifactId>drools-core</artifactId>
-				<!-- 
-				<version>5.3.1.BRMS-P03</version>
-				 -->
-				 <version>${version.org.drools:drools-core}</version>
+				<!-- <version>5.3.1.BRMS-P03</version> -->
+				<version>${version.org.drools:drools-core}</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.drools</groupId>
-  				<artifactId>drools-compiler</artifactId>
-				<!--
-  				<version>5.3.1.BRMS-P03</version>
-				-->
+				<artifactId>drools-compiler</artifactId>
+				<!-- <version>5.3.1.BRMS-P03</version> -->
 				<version>${version.org.drools:drools-compiler}</version>
-  				<scope>provided</scope>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.drools</groupId>
 				<artifactId>drools-persistence-jpa</artifactId>
-				<!-- 
-				<version>5.3.1.BRMS-P02</version>
-				-->
+				<!-- <version>5.3.1.BRMS-P02</version> -->
 				<version>${version.org.drools:drools-persistence-jpa}</version>
 				<scope>provided</scope>
 			</dependency>
-			
+
 			<!-- jBPM Dependencies. -->
 			<dependency>
 				<groupId>org.jbpm</groupId>
 				<artifactId>jbpm-bam</artifactId>
-				<!--
-				<version>5.3.1.BRMS-P02</version>
-				-->
-				<version>5.2.5.Final</version>
+				<!-- <version>5.3.1.BRMS-P02</version> -->
+				<version>${version.org.jbpm:jbpm-bam}</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.jbpm</groupId>
 				<artifactId>jbpm-human-task</artifactId>
-				<!--
-				<version>5.3.1.BRMS-P03</version>
-				-->
-				<version>5.2.5.Final</version>
+				<!-- <version>5.3.1.BRMS-P03</version> -->
+				<version>${version.org.jbpm:jbpm-human-task}</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.jbpm</groupId>
 				<artifactId>jbpm-gwt-graph</artifactId>
-				<!--
-				<version>5.3.1.BRMS-P02</version>
-				-->
-				<version>5.2.5.Final</version>
+				<!-- <version>5.3.1.BRMS-P02</version> -->
+				<version>${version.org.jbpm:jbpm-gwt-graph}</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.jbpm</groupId>
 				<artifactId>jbpm-persistence-jpa</artifactId>
-				<!--
-				<version>5.3.1.BRMS-P02</version>
-				-->
-				<version>5.2.5.Final</version>
+				<!-- <version>5.3.1.BRMS-P02</version> -->
+				<version>${version.org.jbpm:jbpm-persistence-jpa}</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.jbpm</groupId>
 				<artifactId>jbpm-workitems</artifactId>
-				<!--
-				<version>5.3.1.BRMS-P02</version>
-				-->
-				<version>5.2.5.Final</version>
+				<!-- <version>5.3.1.BRMS-P02</version> -->
+				<version>${version.org.jbpm:jbpm-workitems}</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.jbpm</groupId>
 				<artifactId>jbpm-flow</artifactId>
-				<!--
-				<version>5.3.1.BRMS-P02</version>
-				-->
-				<version>5.2.5.Final</version>
+				<!-- <version>5.3.1.BRMS-P02</version> -->
+				<version>${version.org.jbpm:jbpm-flow}</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.jbpm</groupId>
 				<artifactId>jbpm-flow-builder</artifactId>
-				<!--
-				<version>5.3.1.BRMS-P02</version>
-				-->
-				<version>5.2.5.Final</version>
+				<!-- <version>5.3.1.BRMS-P02</version> -->
+				<version>${version.org.jbpm:jbpm-flow-builder}</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.jbpm</groupId>
 				<artifactId>jbpm-gwt-shared</artifactId>
-				<!--
-				<version>5.3.1.BRMS-P02</version>
-				-->
-				<version>5.2.5.Final</version>
+				<!-- <version>5.3.1.BRMS-P02</version> -->
+				<version>${version.org.jbpm:jbpm-gwt-shared}</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.jbpm</groupId>
 				<artifactId>jbpm-gwt-form</artifactId>
-				<!--
-				<version>5.3.1.BRMS-P02</version>
-				-->
-				<version>5.2.5.Final</version>
+				<!-- <version>5.3.1.BRMS-P02</version> -->
+				<version>${version.org.jbpm:jbpm-gwt-form}</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.jbpm</groupId>
 				<artifactId>jbpm-bpmn2</artifactId>
-				<!--
-				<version>5.3.1.BRMS-P02</version>
-				-->
-				<version>5.2.5.Final</version>
+				<!-- <version>5.3.1.BRMS-P02</version> -->
+				<version>${version.org.jbpm:jbpm-bpmn2}</version>
 				<scope>provided</scope>
 			</dependency>
+			
 			<!-- Library Dependencies. -->
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-core</artifactId>
-				<!--
-				<version>4.1.3.Final-redhat-1</version>
-				-->
+				<!-- <version>4.1.3.Final-redhat-1</version> -->
 				<version>4.1.3.Final</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-  				<groupId>org.hornetq</groupId>
-  				<artifactId>hornetq-core-client</artifactId>
-				<!--
-  				<version>2.2.16.Final-redhat-1</version>
-				-->
+				<groupId>org.hornetq</groupId>
+				<artifactId>hornetq-core-client</artifactId>
+				<!-- <version>2.2.16.Final-redhat-1</version> -->
 				<version>2.2.16.Final</version>
-  				<scope>provided</scope>
-  			</dependency>
-  			<dependency>
-  				<groupId>org.hornetq</groupId>
-  				<artifactId>hornetq-jms-client</artifactId>
-				<!--
-  				<version>2.2.16.Final-redhat-1</version>
-				-->
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.hornetq</groupId>
+				<artifactId>hornetq-jms-client</artifactId>
+				<!-- <version>2.2.16.Final-redhat-1</version> -->
 				<version>2.2.16.Final</version>
-  				<scope>provided</scope>
-  			</dependency>
-  			<dependency>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
 				<groupId>commons-lang</groupId>
-  				<artifactId>commons-lang</artifactId>
-				<!--
-  				<version>2.6-redhat-1</version>
-				-->
+				<artifactId>commons-lang</artifactId>
+				<!-- <version>2.6-redhat-1</version> -->
 				<version>2.6</version>
-  				<scope>provided</scope>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>commons-pool</groupId>
 				<artifactId>commons-pool</artifactId>
-				<!--
-				<version>1.5.6-redhat-1</version>
-				-->
+				<!-- <version>1.5.6-redhat-1</version> -->
 				<version>1.5.6</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>commons-io</groupId>
-  				<artifactId>commons-io</artifactId>
-				<!--
-  				<version>2.1-redhat-1</version>
-				-->
+				<artifactId>commons-io</artifactId>
+				<!-- <version>2.1-redhat-1</version> -->
 				<version>2.1</version>
-  				<scope>provided</scope>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>commons-collections</groupId>
-  				<artifactId>commons-collections</artifactId>
-				<!--
-  				<version>3.2.1-redhat-2</version>
-				-->
+				<artifactId>commons-collections</artifactId>
+				<!-- <version>3.2.1-redhat-2</version> -->
 				<version>3.2.1</version>
-  				<scope>provided</scope>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.mvel</groupId>
@@ -398,10 +340,10 @@
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-  				<groupId>org.codehaus.jackson</groupId>
-  				<artifactId>jackson-mapper-asl</artifactId>
-  				<version>1.9.13</version>
-  				<scope>provided</scope>
+				<groupId>org.codehaus.jackson</groupId>
+				<artifactId>jackson-mapper-asl</artifactId>
+				<version>1.9.13</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.quartz-scheduler</groupId>
@@ -427,7 +369,7 @@
 				<version>1.7.5</version>
 				<scope>compile</scope>
 			</dependency>
-			<!-- Test Dependencies.-->
+			<!-- Test Dependencies. -->
 			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
@@ -491,6 +433,7 @@
   			</dependency>
   			
   		</dependencies>
+
 	</dependencyManagement>
 
 	<build>
@@ -522,12 +465,23 @@
 			<id>BRMS</id>
 			<properties>
 				<version.org.drools:knowledge-api>5.3.1.BRMS-P02</version.org.drools:knowledge-api>
-		 		<version.org.drools:drools-core>5.3.1.BRMS-P05</version.org.drools:drools-core>
-		 		<version.org.drools:drools-compiler>5.3.1.BRMS-P05</version.org.drools:drools-compiler>
-		 		<version.org.drools:drools-persistence-jpa>5.3.1.BRMS-P05</version.org.drools:drools-persistence-jpa>
-			</properties>	
+				<version.org.drools:drools-core>5.3.1.BRMS-P05</version.org.drools:drools-core>
+				<version.org.drools:drools-compiler>5.3.1.BRMS-P05</version.org.drools:drools-compiler>
+				<version.org.drools:drools-persistence-jpa>5.3.1.BRMS-P05</version.org.drools:drools-persistence-jpa>
+
+				<version.org.jbpm:jbpm-bam>5.3.1.BRMS-P02</version.org.jbpm:jbpm-bam>
+				<version.org.jbpm:jbpm-human-task>5.3.1.BRMS-P05</version.org.jbpm:jbpm-human-task>
+				<version.org.jbpm:jbpm-gwt-graph>5.3.1.BRMS-P02</version.org.jbpm:jbpm-gwt-graph>
+				<version.org.jbpm:jbpm-persistence-jpa>5.3.1.BRMS-P02</version.org.jbpm:jbpm-persistence-jpa>
+				<version.org.jbpm:jbpm-workitems>5.3.1.BRMS-P02</version.org.jbpm:jbpm-workitems>
+				<version.org.jbpm:jbpm-flow>5.3.1.BRMS-P05</version.org.jbpm:jbpm-flow>
+				<version.org.jbpm:jbpm-flow-builder>5.3.1.BRMS-P04</version.org.jbpm:jbpm-flow-builder>
+				<version.org.jbpm:jbpm-gwt-shared>5.3.1.BRMS-P02</version.org.jbpm:jbpm-gwt-shared>
+				<version.org.jbpm:jbpm-gwt-form>5.3.1.BRMS-P04</version.org.jbpm:jbpm-gwt-form>
+				<version.org.jbpm:jbpm-bpmn2>5.3.1.BRMS-P05</version.org.jbpm:jbpm-bpmn2>
+			</properties>
 		</profile>
 	</profiles>
-	
-	
+
+
 </project>

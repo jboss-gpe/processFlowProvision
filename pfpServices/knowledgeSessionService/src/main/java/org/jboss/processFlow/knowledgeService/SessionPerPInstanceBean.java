@@ -260,8 +260,8 @@ public class SessionPerPInstanceBean extends BaseKnowledgeSessionBean implements
                 }
                 // Reset globals in the knowledge runtime.
                 MapGlobalResolver globals = (MapGlobalResolver) ksession.getGlobals();
-                Entry<Object, Object>[] entries = globals.getGlobals();
-                for (Entry<Object, Object> nextEntry : entries) {
+                Entry<String, Object>[] entries = globals.getGlobals();
+                for (Entry<String, Object> nextEntry : entries) {
                     nextEntry.setValue(null);
                 }
                 

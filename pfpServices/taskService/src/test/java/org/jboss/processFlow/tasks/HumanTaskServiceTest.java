@@ -1,18 +1,16 @@
 package org.jboss.processFlow.tasks;
 
-import org.jbpm.task.Task;
-import org.jbpm.task.service.ContentData;
+import javax.inject.Inject;
 
-import static org.junit.Assert.assertEquals;
-import javax.ejb.EJB;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.jbpm.task.Task;
+import org.jbpm.task.service.ContentData;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import javax.inject.Inject;
 
 @RunWith(Arquillian.class)
 public class HumanTaskServiceTest {
@@ -23,7 +21,7 @@ public class HumanTaskServiceTest {
             .addClass(org.apache.log4j.Logger.class)
             .addClass(org.jboss.processFlow.tasks.HumanTaskService.class)
             .addClass(org.jboss.processFlow.PFPBaseService.class)
-            .addClass(org.jboss.processFlow.knowledgeService.IBaseKnowledgeSessionService.class)
+            .addClass(org.jboss.processFlow.knowledgeService.IBaseKnowledgeSession.class)
             .addClass(org.jboss.processFlow.knowledgeService.MockKnowledgeSessionService.class)
             //.addPackages(true, "antlr")
             //.addAsResource("META-INF/ejb-jar.xml", "META-INF/ejb-jar.xml")
